@@ -7,9 +7,11 @@ use App\Models\School;
 use App\Models\SchoolClass;
 use App\Models\SchoolGroup;
 use App\Http\Requests\SchoolGroupRequest;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class SchoolGroupController extends Controller
 {
@@ -62,7 +64,9 @@ class SchoolGroupController extends Controller
                     ->exists();
 
                 if (!$classExists) {
-                    throw new \Exception('Invalid class selection.');
+                    throw ValidationException::withMessages([
+                        'class_id' => ['Please select a valid class.'],
+                    ]);
                 }
 
                 return SchoolGroup::create([
@@ -73,6 +77,19 @@ class SchoolGroupController extends Controller
             });
 
             return response()->json(['message' => 'Group created successfully', 'data' => $group]);
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return response()->json([
+                    'message' => 'The group already exists.',
+                    'errors' => [
+                        'group_name' => ['This group already exists for the selected class.'],
+                    ],
+                ], 422);
+            }
+
+            return response()->json(['message' => 'Failed to create group.', 'error' => $e->getMessage()], 500);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to create group.', 'error' => $e->getMessage()], 500);
         }
@@ -101,7 +118,9 @@ class SchoolGroupController extends Controller
                     ->exists();
 
                 if (!$classExists) {
-                    throw new \Exception('Invalid class selection.');
+                    throw ValidationException::withMessages([
+                        'class_id' => ['Please select a valid class.'],
+                    ]);
                 }
 
                 $group->update([
@@ -111,6 +130,19 @@ class SchoolGroupController extends Controller
             });
 
             return response()->json(['message' => 'Group updated successfully']);
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return response()->json([
+                    'message' => 'The group already exists.',
+                    'errors' => [
+                        'group_name' => ['This group already exists for the selected class.'],
+                    ],
+                ], 422);
+            }
+
+            return response()->json(['message' => 'Failed to update group.', 'error' => $e->getMessage()], 500);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to update group.', 'error' => $e->getMessage()], 500);
         }

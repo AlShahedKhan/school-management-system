@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\School;
 use App\Models\SchoolSection;
 use App\Http\Requests\SchoolSectionRequest;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -80,6 +81,17 @@ class SchoolSectionController extends Controller
             });
 
             return response()->json(['message' => 'Section created successfully', 'data' => $section]);
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return response()->json([
+                    'message' => 'The section already exists.',
+                    'errors' => [
+                        'section_name' => ['This section already exists for the selected class and group.'],
+                    ],
+                ], 422);
+            }
+
+            return response()->json(['message' => 'Failed to create section.', 'error' => $e->getMessage()], 500);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to create section.', 'error' => $e->getMessage()], 500);
         }
@@ -108,6 +120,17 @@ class SchoolSectionController extends Controller
             });
 
             return response()->json(['message' => 'Section updated successfully']);
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return response()->json([
+                    'message' => 'The section already exists.',
+                    'errors' => [
+                        'section_name' => ['This section already exists for the selected class and group.'],
+                    ],
+                ], 422);
+            }
+
+            return response()->json(['message' => 'Failed to update section.', 'error' => $e->getMessage()], 500);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to update section.', 'error' => $e->getMessage()], 500);
         }

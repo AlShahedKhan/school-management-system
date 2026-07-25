@@ -9,6 +9,7 @@ use App\Models\SchoolExamName;
 use App\Models\School;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -61,10 +62,10 @@ class SchoolExamNameController extends Controller
 
     public function store(SchoolExamNameRequest $request)
     {
-        try {
-            $data = $request->validated();
-            $data['school_id'] = $this->getSchoolId();
+        $data = $request->validated();
+        $data['school_id'] = $this->getSchoolId();
 
+        try {
             $exam = DB::transaction(function () use ($data) {
                 return SchoolExamName::create($data);
             });
@@ -74,8 +75,19 @@ class SchoolExamNameController extends Controller
                 'message' => 'Exam name created successfully',
                 'data'    => $exam->load(['schoolClass', 'schoolGroup', 'schoolSection', 'schoolSession'])
             ], 201);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to create exam name.', 'error' => $e->getMessage()], 500);
+        } catch (QueryException $exception) {
+            if ((string) $exception->getCode() !== '23000') {
+                throw $exception;
+            }
+
+            report($exception);
+
+            return response()->json([
+                'message' => 'The exam could not be saved with the selected academic information.',
+                'errors' => [
+                    'exam_name' => ['An exam with this name already exists for the selected class, group, section, and session.'],
+                ],
+            ], 422);
         }
     }
 
@@ -88,12 +100,13 @@ class SchoolExamNameController extends Controller
 
     public function update(SchoolExamNameRequest $request, $id)
     {
-        try {
-            $schoolId = $this->getSchoolId();
+        $data = $request->validated();
+        $schoolId = $this->getSchoolId();
 
-            $exam = DB::transaction(function () use ($schoolId, $id, $request) {
+        try {
+            $exam = DB::transaction(function () use ($schoolId, $id, $data) {
                 $record = SchoolExamName::where('school_id', $schoolId)->findOrFail($id);
-                $record->update($request->validated());
+                $record->update($data);
                 return $record;
             });
 
@@ -102,8 +115,19 @@ class SchoolExamNameController extends Controller
                 'message' => 'Exam name updated successfully',
                 'data'    => $exam->fresh()->load(['schoolClass', 'schoolGroup', 'schoolSection', 'schoolSession'])
             ]);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to update exam name.', 'error' => $e->getMessage()], 500);
+        } catch (QueryException $exception) {
+            if ((string) $exception->getCode() !== '23000') {
+                throw $exception;
+            }
+
+            report($exception);
+
+            return response()->json([
+                'message' => 'The exam could not be updated with the selected academic information.',
+                'errors' => [
+                    'exam_name' => ['An exam with this name already exists for the selected class, group, section, and session.'],
+                ],
+            ], 422);
         }
     }
 

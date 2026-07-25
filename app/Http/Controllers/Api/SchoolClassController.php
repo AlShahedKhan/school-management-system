@@ -7,6 +7,7 @@ use App\Models\School;
 use App\Models\SchoolClass;
 use App\Http\Requests\SchoolClassRequest;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
 class SchoolClassController extends Controller
@@ -53,6 +54,17 @@ class SchoolClassController extends Controller
             });
 
             return response()->json(['message' => 'Record created successfully', 'data' => $record]);
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return response()->json([
+                    'message' => 'The class name is already in use.',
+                    'errors' => [
+                        'class_name' => ['A class with this name already exists.'],
+                    ],
+                ], 422);
+            }
+
+            return response()->json(['message' => 'Failed to create class.', 'error' => $e->getMessage()], 500);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to create class.', 'error' => $e->getMessage()], 500);
         }
@@ -75,6 +87,17 @@ class SchoolClassController extends Controller
             });
 
             return response()->json(['message' => 'Record updated successfully']);
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return response()->json([
+                    'message' => 'The class name is already in use.',
+                    'errors' => [
+                        'class_name' => ['A class with this name already exists.'],
+                    ],
+                ], 422);
+            }
+
+            return response()->json(['message' => 'Failed to update class.', 'error' => $e->getMessage()], 500);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to update class.', 'error' => $e->getMessage()], 500);
         }
