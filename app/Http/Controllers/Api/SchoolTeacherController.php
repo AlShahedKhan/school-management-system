@@ -142,6 +142,23 @@ class SchoolTeacherController extends Controller
                     'notes' => 'Teacher account registered in school portal.'
                 ]);
 
+                // Create TeacherAcademicRecord
+                $activeSession = \App\Models\SchoolSession::where('school_id', $school->id)
+                    ->where('is_active', true)
+                    ->first() ?? \App\Models\SchoolSession::where('school_id', $school->id)->latest()->first();
+
+                if ($activeSession) {
+                    \App\Models\TeacherAcademicRecord::firstOrCreate([
+                        'school_id' => $school->id,
+                        'teacher_id' => $teacher->id,
+                        'session_year' => $activeSession->session_year,
+                    ], [
+                        'session_id' => $activeSession->id,
+                        'designation' => $teacher->designation,
+                        'status' => 'Active',
+                    ]);
+                }
+
                 return [
                     'mobile' => $request->mobile,
                     'school_name' => $school->school_name,
