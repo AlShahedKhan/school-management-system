@@ -1,0 +1,1 @@
+<x-error-card code="422" title="Unprocessable Entity" message="The server understands the request but cannot process it due to semantic errors." icon="mdi mdi-clipboard-alert-outline" color="yellow" />

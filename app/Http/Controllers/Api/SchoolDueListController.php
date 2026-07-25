@@ -1,0 +1,225 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\School;
+use App\Models\SchoolPayment;
+use App\Models\SchoolStudentFee;
+use App\Services\FeeStatusSyncService;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class SchoolDueListController extends Controller
+{
+    public function index(Request $request)
+    {
+        $school = School::where('user_id', Auth::id())->first();
+        $schoolId = $school ? $school->id : Auth::user()->school_id;
+
+        if (!$schoolId) {
+            return response()->json(['data' => [], 'message' => 'Unauthorized'], 403);
+        }
+
+        app(FeeStatusSyncService::class)->syncPending($schoolId);
+
+        $search = $request->query('search');
+        $all = $request->query('all');
+        $today = Carbon::today();
+
+        $query = SchoolStudentFee::with([
+            'student.schoolClass',
+            'student.schoolGroup',
+            'student.schoolSection',
+            'student.schoolSession'
+        ])
+            ->where('school_id', $schoolId)
+            // Modified on 2026-07-09: Exclude Inactive students from dues list
+            ->whereHas('student', function ($sub) {
+                $sub->where('status', '!=', 'Inactive');
+            })
+            ->where('pay_date', '<', $today)
+            ->whereNotIn('status', ['paid', 'advance', 'advance_partial']);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('student', function ($sub) use ($search) {
+                    $sub->where('student_name', 'like', "%{$search}%")
+                        ->orWhere('student_id_number', 'like', "%{$search}%");
+                })->orWhere('fee_type_name', 'like', "%{$search}%");
+            });
+        }
+
+        $query->orderBy('pay_date', 'desc');
+
+        if ($all) {
+            $fees = $query->get();
+            $result = $this->transformFees($fees, $today);
+            return response()->json($result);
+        }
+
+        $paginated = $query->paginate(10);
+        $paginated->getCollection()->transform(function ($fee) use ($today) {
+            return $this->mapFeeRecord($fee, $today);
+        });
+
+        // Filter out fully paid
+        $paginated->setCollection(
+            $paginated->getCollection()->filter(fn($f) => $f->remaining_due > 0)->values()
+        );
+
+        return response()->json($paginated);
+    }
+
+    private function transformFees($fees, Carbon $today)
+    {
+        return $fees->map(function ($fee) use ($today) {
+            return $this->mapFeeRecord($fee, $today);
+        })->filter(fn($f) => $f->remaining_due > 0)->values();
+    }
+
+    private function mapFeeRecord($fee, Carbon $today)
+    {
+        $paid = (float) SchoolPayment::where('school_student_fee_id', $fee->id)
+            ->sum('type_amount');
+        $amount = (float) $fee->amount;
+        $remainingDue = max($amount - $paid, 0);
+
+        $payDate = $fee->pay_date ? Carbon::parse($fee->pay_date) : null;
+        $isPastMonth = $payDate && $payDate->copy()->startOfMonth()->lt($today->copy()->startOfMonth());
+        $isSameMonthDatePassed = $payDate && !$isPastMonth && $payDate->lt($today);
+
+        $overduePenalty = $isPastMonth ? $remainingDue : 0;
+        $hasAlert = $overduePenalty > 0;
+
+        $displayStatus = match (true) {
+            $remainingDue <= 0                               => 'paid',
+            $isPastMonth && $paid > 0                        => 'over_due_partial',
+            $isPastMonth                                     => 'over_due',
+            $isSameMonthDatePassed && $paid > 0              => 'due_partial',
+            $isSameMonthDatePassed                           => 'due',
+            $paid > 0                                        => 'partial_paid',
+            default                                          => 'pending',
+        };
+
+        $record = (object) [
+            'payment_id'          => $fee->id,
+            'status'              => $displayStatus,
+            'display_pay_date'    => $payDate ? $payDate->format('d/m/Y') : 'N/A',
+            'display_last_pay_date' => $payDate ? $payDate->format('d/m/Y') : 'N/A',
+            'pay_method'          => '—',
+            'total_payable'       => $amount,
+            'total_amount'        => $paid,
+            'total_due'           => $isPastMonth ? 0 : $remainingDue,
+            'overdue_penalty'     => $overduePenalty,
+            'has_alert_penalty'   => $hasAlert,
+            'final_payable_total' => $remainingDue,
+            'remaining_due'       => $remainingDue,
+            'fees_type'           => $fee->fee_type_name,
+            'fee_name'            => $fee->fee_name,
+            'pay_date'            => $fee->pay_date,
+            'student_id_number'   => $fee->student->student_id_number ?? '---',
+            'student_name'        => $fee->student->student_name ?? 'Unknown',
+            'class'               => $fee->student->schoolClass->class_name ?? 'N/A',
+            'group'               => $fee->student->schoolGroup->group_name ?? 'N/A',
+            'section'             => $fee->student->schoolSection->section_name ?? 'N/A',
+            'session'             => $fee->student->schoolSession->session_year ?? 'N/A',
+        ];
+
+        return $record;
+    }
+
+    public function pay(Request $request)
+    {
+        $school = School::where('user_id', Auth::id())->first();
+        $schoolId = $school ? $school->id : Auth::user()->school_id;
+
+        $validated = $request->validate([
+            'school_student_fee_id' => 'required|exists:school_student_fees,id',
+            'type_amount'          => 'required|numeric|min:0.01',
+            'pay_method'           => 'required|string',
+            'pay_date'             => 'required|date',
+        ]);
+
+        $fee = SchoolStudentFee::where('id', $validated['school_student_fee_id'])
+            ->where('school_id', $schoolId)
+            ->firstOrFail();
+
+        $forMonth = $fee->pay_date ? Carbon::parse($fee->pay_date)->format('Y-m') : now()->format('Y-m');
+
+        $alreadyPaid = (float) SchoolPayment::where('school_student_fee_id', $fee->id)
+            ->sum('type_amount');
+
+        $remainingAfter = max($fee->amount - ($alreadyPaid + $validated['type_amount']), 0);
+
+        SchoolPayment::create([
+            'school_id'             => $schoolId,
+            'school_student_fee_id' => $fee->id,
+            'admission_student_id'  => $fee->student_id,
+            'fees_type'             => $fee->fee_type_name,
+            'fee_name'              => $fee->fee_name,
+            'total_payable'         => $fee->amount,
+            'payable_due'           => $remainingAfter,
+            'status'                => 'paid',
+            'total_amount'          => $validated['type_amount'],
+            'total_due'             => $remainingAfter,
+            'pay_type'              => 'Payable',
+            'type_amount'           => $validated['type_amount'],
+            'pay_date'              => $validated['pay_date'],
+            'for_month'             => $forMonth,
+            'pay_method'            => $validated['pay_method'],
+        ]);
+
+        app(FeeStatusSyncService::class)->syncSingle($fee);
+
+        return response()->json([
+            'message' => 'Payment successful',
+            'status'  => $fee->fresh()->status,
+        ]);
+    }
+
+    public function updatePayment(Request $request, $id)
+    {
+        $school = School::where('user_id', Auth::id())->first();
+        $schoolId = $school ? $school->id : Auth::user()->school_id;
+
+        $payment = SchoolPayment::where('id', $id)
+            ->where('school_id', $schoolId)
+            ->first();
+
+        if (!$payment) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+
+        $paying = (float)$request->paying_amount;
+        $totalOutstanding = (float)$payment->total_due;
+
+        $newDue = max(0, $totalOutstanding - $paying);
+        $newPaidTotal = (float)$payment->total_amount + $paying;
+
+        if ($newDue <= 0) {
+            $status = 'paid';
+        } elseif ($newPaidTotal > 0 && $newDue > 0) {
+            $status = 'partial';
+        } else {
+            $status = 'unpaid';
+        }
+
+        $payment->update([
+            'total_amount' => $newPaidTotal,
+            'total_due' => $newDue,
+            'payable_due' => $newDue,
+            'status' => $status,
+            'pay_method' => $request->pay_method,
+            'pay_date' => $request->pay_date ?? now()->format('Y-m-d')
+        ]);
+
+        return response()->json(['message' => 'Payment Updated Successfully']);
+    }
+
+    public function destroy($id)
+    {
+        return response()->json(['message' => 'Not available in the current version'], 400);
+    }
+}

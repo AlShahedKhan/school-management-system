@@ -1,0 +1,4 @@
+
+#teacherTableBody .teacher-row:hover > .teacher-cell {
+    background-color: #fed7aa !important;
+}
