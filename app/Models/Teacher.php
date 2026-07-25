@@ -22,6 +22,9 @@ class Teacher extends Model
         'password',
         'dob',
         'photo',
+        'salary_amount',
+        'salary_start_date',
+        'pay_date',
         'status', // Added on 2026-07-11
     ];
 

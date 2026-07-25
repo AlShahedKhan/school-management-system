@@ -10,6 +10,28 @@
         return value.replace(/[^0-9]/g, '');
     }
 
+    function setDropdownValue(id, value, placeholder = 'Select...') {
+        const input = document.getElementById(id);
+        const label = document.querySelector(`#${id}Button [data-dropdown-select-label]`);
+        const menu = document.getElementById(`${id}Menu`);
+        if (input) input.value = value || '';
+
+        let selectedText = placeholder;
+        if (menu) {
+            menu.querySelectorAll('[data-dropdown-select-option]').forEach(opt => {
+                const isSelected = (opt.dataset.value || '') === String(value || '');
+                opt.classList.toggle('bg-slate-100', isSelected);
+                opt.classList.toggle('text-slate-900', isSelected);
+                opt.classList.toggle('text-slate-800', !isSelected);
+                opt.setAttribute('aria-selected', String(isSelected));
+                if (isSelected) {
+                    selectedText = opt.textContent.trim();
+                }
+            });
+        }
+        if (label) label.textContent = selectedText;
+    }
+
     function setTeacherMobileError(show, message = 'Must provide numbers only.') {
         if (!teacherMobileError || !teacherMobileInput) return;
         teacherMobileError.textContent = message;
@@ -17,20 +39,6 @@
         teacherMobileInput.classList.toggle('border-red-500', show);
         teacherMobileInput.classList.toggle('focus:border-red-500', show);
         teacherMobileInput.setCustomValidity(show ? message : '');
-    }
-
-    function formatDate(dateStr) {
-        if (!dateStr) return '';
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) return dateStr;
-        const monthNames = [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
-        ];
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = monthNames[date.getMonth()];
-        const year = String(date.getFullYear()).slice(-2);
-        return `${day}-${month}-${year}`;
     }
 
     if (photoInput) {
@@ -66,6 +74,7 @@
     document.getElementById('openTeacherModal')?.addEventListener('click', () => {
         document.getElementById('teacherForm').reset();
         document.getElementById('teacher_id').value = '';
+        setDropdownValue('teacherPayDate', '', 'Select Pay Date...');
         if (imagePreview) imagePreview.innerHTML = `<i class="mdi mdi-camera text-gray-300"></i>`;
         setTeacherMobileError(false);
         teacherModal.classList.remove('hidden');
@@ -73,10 +82,6 @@
 
     document.getElementById('closeTeacherModal')?.addEventListener('click', () => {
         teacherModal.classList.add('hidden');
-        if (window.lastActiveModalId) {
-            document.getElementById(window.lastActiveModalId)?.classList.remove('hidden');
-            window.lastActiveModalId = null;
-        }
     });
 
     const getTeacherSearchValue = () => {
@@ -95,32 +100,11 @@
         return desktopSearch?.value || mobileSearch?.value || '';
     };
 
-    const reloadTeacherPage = (page = 1) => {
-        const url = new URL('{{ route('school.teacher-registration') }}', window.location.origin);
-        const search = getTeacherSearchValue().trim();
-        const teacherId = document.getElementById('teacherFilter')?.value?.trim() || '';
-
-        if (search) {
-            url.searchParams.set('search', search);
-        }
-
-        if (teacherId) {
-            url.searchParams.set('teacher_id', teacherId);
-        }
-
-        if (page > 1) {
-            url.searchParams.set('page', page);
-        }
-
-        window.location.href = url.toString();
-    };
-
     const fetchTeachers = (page = 1) => {
         currentPage = page;
         const tbody = document.getElementById('teacherTableBody');
 
         if (!tbody) {
-            reloadTeacherPage(page);
             return;
         }
 
@@ -152,6 +136,10 @@
                         ? `<span class="px-2 py-0.5 text-[10px] font-semibold bg-red-100 text-red-700 rounded-full">Hold</span>`
                         : `<span class="px-2 py-0.5 text-[10px] font-semibold bg-green-100 text-green-700 rounded-full">Active</span>`;
 
+                    let startDate = t.salary_start_date || '-';
+                    if (startDate.includes('T')) startDate = startDate.split('T')[0];
+                    const salaryFormatted = parseFloat(t.salary_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
                     tbody.innerHTML += `
                    <tr class="hover:bg-gray-50">
                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
@@ -160,8 +148,9 @@
                        <td class="h-8 border border-gray-300 px-3 font-mono">${t.id_number || 'PENDING'}</td>
                        <td class="h-8 border border-gray-300 px-3">${t.designation || 'N/A'}</td>
                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><a href="tel:${t.mobile}" class="inline-block text-blue-500">${t.mobile}</a></td>
-                       <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><a href="mailto:${t.email}" class="inline-block text-blue-500">${t.email}</a></td>
-                       <td class="h-8 border border-gray-300 px-3 font-mono text-center">00000000</td>
+                       <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-right font-medium">৳${salaryFormatted}</td>
+                       <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${startDate}</td>
+                       <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${t.pay_date || '-'}</td>
                        <td class="h-8 border border-gray-300 px-3 text-center">${statusHtml}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center min-w-[110px]">
                             <div class="flex h-6 w-full items-center justify-center space-x-1">
@@ -226,7 +215,7 @@
             })
             .then((res) => {
                 Toastify({
-                    text: "Teacher Saved Successfully!",
+                    text: tid ? "Teacher Updated Successfully!" : "Teacher Registered Successfully!",
                     gravity: "top",
                     position: "right",
                     style: {
@@ -252,10 +241,18 @@
         axios.get('{{ url('/api/teachers') }}/' + id).then(res => {
             const t = res.data;
             document.getElementById('teacher_id').value = t.id;
-            document.querySelector('#teacherForm input[name="name"]').value = t.name;
+            document.querySelector('#teacherForm input[name="name"]').value = t.name || '';
             document.querySelector('#teacherForm input[name="designation"]').value = t.designation || '';
-            document.querySelector('#teacherForm input[name="mobile"]').value = t.mobile;
-            document.querySelector('#teacherForm input[name="email"]').value = t.email;
+            document.querySelector('#teacherForm input[name="mobile"]').value = t.mobile || '';
+            document.querySelector('#teacherForm input[name="email"]').value = t.email || '';
+            document.querySelector('#teacherForm input[name="salary_amount"]').value = t.salary_amount || '';
+            
+            let startDate = t.salary_start_date || '';
+            if (startDate.includes('T')) startDate = startDate.split('T')[0];
+            document.querySelector('#teacherForm input[name="salary_start_date"]').value = startDate;
+
+            setDropdownValue('teacherPayDate', t.pay_date || '', 'Select Pay Date...');
+
             const photoUrl = t.photo ? `/storage/${t.photo}` :
                 'https://ui-avatars.com/api/?background=random&name=' + t.name;
             if (imagePreview) imagePreview.innerHTML = `<img src="${photoUrl}" />`;
