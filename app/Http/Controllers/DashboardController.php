@@ -680,7 +680,7 @@ class DashboardController extends Controller
             ->values()
             ->all();
 
-        return view('school.teacher-registration', compact('teachers', 'teacherFilterOptions'));
+        return view('school.teacher.index', compact('teachers', 'teacherFilterOptions'));
     }
 
     public function SchoolclassPermission()
@@ -696,7 +696,7 @@ class DashboardController extends Controller
 
     public function studentLists()
     {
-        return view('school.student-lists');
+        return view('school.student.index');
     }
 
     // Modified on 2026-07-07: Added studentPromote and studentPromoteHistory methods
