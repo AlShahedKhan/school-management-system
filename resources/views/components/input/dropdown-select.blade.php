@@ -152,8 +152,20 @@
                         const targetModal = document.getElementById(target);
                         const currentModal = root.closest('[role="dialog"]');
 
+                        if (targetModal && currentModal) {
+                            targetModal.dataset.returnModalId = currentModal.id;
+                        }
+
                         currentModal?.classList.add('hidden');
                         targetModal?.classList.remove('hidden');
+
+                        document.dispatchEvent(new CustomEvent('school:dropdown-add-modal-opened', {
+                            detail: {
+                                targetModalId: target,
+                                returnModalId: currentModal?.id || null,
+                                sourceDropdownId: input.id,
+                            },
+                        }));
                     });
 
                     menu.querySelectorAll('[data-dropdown-select-option]').forEach((option) => {

@@ -21,7 +21,7 @@
         id="filterModal"
         form-id="examFilterForm"
         title="Exam Filter"
-        close-button-id="resetFilter"
+        close-button-id="closeExamFilterModal"
         action="#"
         method="GET"
         :enctype="null"
@@ -110,6 +110,21 @@
         let currentFilterSection = '';
         let currentFilterSession = '';
 
+        function getExamSearchTerm() {
+            const desktopSearch = document.getElementById('examSearch')?.value || '';
+            const mobileSearch = document.getElementById('examSearchMobile')?.value || '';
+
+            return desktopSearch || mobileSearch;
+        }
+
+        function clearExamSearchInputs() {
+            const desktopSearch = document.getElementById('examSearch');
+            const mobileSearch = document.getElementById('examSearchMobile');
+
+            if (desktopSearch) desktopSearch.value = '';
+            if (mobileSearch) mobileSearch.value = '';
+        }
+
         function populateDropdown(menuId, data, valueField, labelField) {
             const menu = document.querySelector(`#${menuId}`);
             if (!menu) return;
@@ -170,6 +185,8 @@
                 populateDropdown('examSectionFilterMenu', [], 'id', 'section_name');
                 setDropdownValue('examSessionFilter', '', 'Select Session');
                 populateDropdown('examSessionFilterMenu', [], 'id', 'session_year');
+
+                loadExamFilterSectionByGroup(classId, '');
             }).catch(() => {});
         }
 
@@ -210,11 +227,9 @@
             const sectionInput = document.querySelector('#examSectionFilter');
             const sessionInput = document.querySelector('#examSessionFilter');
 
-            const search = document.getElementById('examSearch')?.value || '';
-
             const params = {
                 page,
-                search,
+                search: getExamSearchTerm(),
                 class_id: classInput ? classInput.value : '',
                 group_id: groupInput ? groupInput.value : '',
                 section_id: sectionInput ? sectionInput.value : '',
@@ -342,6 +357,7 @@
             loadFilterOptions();
 
             document.getElementById('examSearch')?.addEventListener('input', () => fetchExams(1));
+            document.getElementById('examSearchMobile')?.addEventListener('input', () => fetchExams(1));
 
             document.getElementById('exportPdf')?.addEventListener('click', () => exportData('pdf'));
             document.getElementById('exportExcel')?.addEventListener('click', () => exportData('excel'));
@@ -412,13 +428,13 @@
         });
 
         document.getElementById('btnRestoreDesktop')?.addEventListener('click', () => {
-            document.getElementById('examSearch').value = '';
+            clearExamSearchInputs();
             currentPage = 1;
             fetchExams(1);
         });
 
         document.getElementById('btnRestoreMobile')?.addEventListener('click', () => {
-            document.getElementById('examSearchMobile').value = '';
+            clearExamSearchInputs();
             currentPage = 1;
             fetchExams(1);
         });

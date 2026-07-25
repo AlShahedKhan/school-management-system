@@ -24,6 +24,8 @@
             populateDropdown('examFormSectionMenu', [], 'id', 'section_name');
             setDropdownValue('examFormSession', '', 'Select Session');
             populateDropdown('examFormSessionMenu', [], 'id', 'session_year');
+
+            loadExamFormSectionByGroup(classId, '');
         }).catch(() => {});
     }
 
@@ -55,6 +57,107 @@
         const closeBtn = document.getElementById('closeExamModal');
         if (closeBtn) closeBtn.addEventListener('click', closeExamModal);
 
+        document.addEventListener('click', function (event) {
+            const sessionAddButton = event.target.closest('[data-dropdown-add-target="sessionModal"]');
+
+            if (sessionAddButton) {
+                const sourceDropdown = sessionAddButton.closest('[data-dropdown-select]')
+                    ?.querySelector('[data-dropdown-select-input]');
+
+                if (sourceDropdown && ['examFormSession', 'examSessionFilter'].includes(sourceDropdown.id)) {
+                    const parentMap = {
+                        examFormSession: ['examFormClass', 'examFormGroup', 'examFormSection'],
+                        examSessionFilter: ['examClassFilter', 'examGroupFilter', 'examSectionFilter'],
+                    };
+                    const [classInputId, groupInputId, sectionInputId] = parentMap[sourceDropdown.id];
+                    const classId = document.getElementById(classInputId)?.value || '';
+                    const groupId = document.getElementById(groupInputId)?.value || '';
+                    const sectionId = document.getElementById(sectionInputId)?.value || '';
+
+                    if (!classId || !groupId || !sectionId) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        event.stopImmediatePropagation();
+
+                        Toastify({
+                            text: 'Please select class, group and section first.',
+                            gravity: 'top',
+                            position: 'right',
+                            style: { background: '#f59e0b' },
+                        }).showToast();
+
+                        return;
+                    }
+                }
+            }
+
+            const groupAddButton = event.target.closest('[data-dropdown-add-target="groupModal"]');
+
+            if (groupAddButton) {
+                const sourceDropdown = groupAddButton.closest('[data-dropdown-select]')
+                    ?.querySelector('[data-dropdown-select-input]');
+
+                if (sourceDropdown && ['examFormGroup', 'examGroupFilter'].includes(sourceDropdown.id)) {
+                    const parentMap = {
+                        examFormGroup: 'examFormClass',
+                        examGroupFilter: 'examClassFilter',
+                    };
+                    const classId = document.getElementById(parentMap[sourceDropdown.id])?.value || '';
+
+                    if (!classId) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        event.stopImmediatePropagation();
+
+                        Toastify({
+                            text: 'Please select class first.',
+                            gravity: 'top',
+                            position: 'right',
+                            style: { background: '#f59e0b' },
+                        }).showToast();
+
+                        return;
+                    }
+                }
+            }
+
+            const sectionAddButton = event.target.closest('[data-dropdown-add-target="sectionModal"]');
+
+            if (!sectionAddButton) {
+                return;
+            }
+
+            const sourceDropdown = sectionAddButton.closest('[data-dropdown-select]')
+                ?.querySelector('[data-dropdown-select-input]');
+
+            if (!sourceDropdown || !['examFormSection', 'examSectionFilter'].includes(sourceDropdown.id)) {
+                return;
+            }
+
+            const parentMap = {
+                examFormSection: ['examFormClass', 'examFormGroup'],
+                examSectionFilter: ['examClassFilter', 'examGroupFilter'],
+            };
+            const [classInputId, groupInputId] = parentMap[sourceDropdown.id];
+            const classId = document.getElementById(classInputId)?.value || '';
+            const groupId = document.getElementById(groupInputId)?.value || '';
+
+            if (classId && groupId) {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            Toastify({
+                text: 'Please select class and group first.',
+                gravity: 'top',
+                position: 'right',
+                style: { background: '#f59e0b' },
+            }).showToast();
+        }, true);
+
         document.getElementById('examFormClass')?.addEventListener('change', function () {
             loadExamFormGroupByClass(this.value);
         });
@@ -71,6 +174,194 @@
             const groupInput = document.getElementById('examFormGroup');
             const groupId = groupInput ? groupInput.value : '';
             loadExamFormSessionBySection(classId, groupId, this.value);
+        });
+
+        document.addEventListener('school:class-saved', async function (event) {
+            const { classItem, returnModalId, isNew } = event.detail || {};
+
+            if (returnModalId !== 'examModal' || !isNew || !classItem?.id) {
+                return;
+            }
+
+            event.preventDefault();
+
+            try {
+                const response = await axios.get('/api/get-school-classes');
+                populateDropdown('examFormClassMenu', response.data.data || [], 'id', 'class_name');
+                setDropdownValue('examFormClass', classItem.id, classItem.class_name);
+                loadExamFormGroupByClass(classItem.id);
+            } finally {
+                document.getElementById('examModal')?.classList.remove('hidden');
+            }
+        });
+
+        document.addEventListener('school:group-saved', async function (event) {
+            const { groupItem, returnModalId, isNew } = event.detail || {};
+
+            if (returnModalId !== 'examModal' || !isNew || !groupItem?.id || !groupItem?.class_id) {
+                return;
+            }
+
+            event.preventDefault();
+
+            try {
+                const classResponse = await axios.get('/api/get-school-classes');
+                const classes = classResponse.data.data || [];
+                populateDropdown('examFormClassMenu', classes, 'id', 'class_name');
+
+                const selectedClass = classes.find(item => String(item.id) === String(groupItem.class_id));
+                if (selectedClass) {
+                    setDropdownValue('examFormClass', selectedClass.id, selectedClass.class_name);
+                }
+
+                const groupResponse = await axios.get('/api/get-school-groups', {
+                    params: { class_id: groupItem.class_id },
+                });
+                const groups = groupResponse.data.data || [];
+                populateDropdown('examFormGroupMenu', groups, 'id', 'group_name');
+
+                const selectedGroup = groups.find(item => String(item.id) === String(groupItem.id));
+                if (selectedGroup) {
+                    setDropdownValue('examFormGroup', selectedGroup.id, selectedGroup.group_name);
+                }
+
+                setDropdownValue('examFormSection', '', 'Select Section');
+                populateDropdown('examFormSectionMenu', [], 'id', 'section_name');
+                setDropdownValue('examFormSession', '', 'Select Session');
+                populateDropdown('examFormSessionMenu', [], 'id', 'session_year');
+                loadExamFormSectionByGroup(groupItem.class_id, groupItem.id);
+            } finally {
+                document.getElementById('examModal')?.classList.remove('hidden');
+            }
+        });
+
+        document.addEventListener('school:section-saved', async function (event) {
+            const { sectionItem, returnModalId, isNew } = event.detail || {};
+
+            if (
+                returnModalId !== 'examModal'
+                || !isNew
+                || !sectionItem?.id
+                || !sectionItem?.class_id
+                || !sectionItem?.group_id
+            ) {
+                return;
+            }
+
+            event.preventDefault();
+
+            try {
+                const classResponse = await axios.get('/api/get-school-classes');
+                const classes = classResponse.data.data || [];
+                populateDropdown('examFormClassMenu', classes, 'id', 'class_name');
+
+                const selectedClass = classes.find(item => String(item.id) === String(sectionItem.class_id));
+                if (selectedClass) {
+                    setDropdownValue('examFormClass', selectedClass.id, selectedClass.class_name);
+                }
+
+                const groupResponse = await axios.get('/api/get-school-groups', {
+                    params: { class_id: sectionItem.class_id },
+                });
+                const groups = groupResponse.data.data || [];
+                populateDropdown('examFormGroupMenu', groups, 'id', 'group_name');
+
+                const selectedGroup = groups.find(item => String(item.id) === String(sectionItem.group_id));
+                if (selectedGroup) {
+                    setDropdownValue('examFormGroup', selectedGroup.id, selectedGroup.group_name);
+                }
+
+                const sectionResponse = await axios.get('/api/get-school-sections', {
+                    params: {
+                        class_id: sectionItem.class_id,
+                        group_id: sectionItem.group_id,
+                    },
+                });
+                const sections = sectionResponse.data.data || [];
+                populateDropdown('examFormSectionMenu', sections, 'id', 'section_name');
+
+                const selectedSection = sections.find(item => String(item.id) === String(sectionItem.id));
+                if (selectedSection) {
+                    setDropdownValue('examFormSection', selectedSection.id, selectedSection.section_name);
+                }
+
+                setDropdownValue('examFormSession', '', 'Select Session');
+                populateDropdown('examFormSessionMenu', [], 'id', 'session_year');
+                loadExamFormSessionBySection(sectionItem.class_id, sectionItem.group_id, sectionItem.id);
+            } finally {
+                document.getElementById('examModal')?.classList.remove('hidden');
+            }
+        });
+
+        document.addEventListener('school:session-saved', async function (event) {
+            const { sessionItem, returnModalId, isNew } = event.detail || {};
+
+            if (
+                returnModalId !== 'examModal'
+                || !isNew
+                || !sessionItem?.id
+                || !sessionItem?.class_id
+                || !sessionItem?.group_id
+                || !sessionItem?.section_id
+            ) {
+                return;
+            }
+
+            event.preventDefault();
+
+            try {
+                const classResponse = await axios.get('/api/get-school-classes');
+                const classes = classResponse.data.data || [];
+                populateDropdown('examFormClassMenu', classes, 'id', 'class_name');
+
+                const selectedClass = classes.find(item => String(item.id) === String(sessionItem.class_id));
+                if (selectedClass) {
+                    setDropdownValue('examFormClass', selectedClass.id, selectedClass.class_name);
+                }
+
+                const groupResponse = await axios.get('/api/get-school-groups', {
+                    params: { class_id: sessionItem.class_id },
+                });
+                const groups = groupResponse.data.data || [];
+                populateDropdown('examFormGroupMenu', groups, 'id', 'group_name');
+
+                const selectedGroup = groups.find(item => String(item.id) === String(sessionItem.group_id));
+                if (selectedGroup) {
+                    setDropdownValue('examFormGroup', selectedGroup.id, selectedGroup.group_name);
+                }
+
+                const sectionResponse = await axios.get('/api/get-school-sections', {
+                    params: {
+                        class_id: sessionItem.class_id,
+                        group_id: sessionItem.group_id,
+                    },
+                });
+                const sections = sectionResponse.data.data || [];
+                populateDropdown('examFormSectionMenu', sections, 'id', 'section_name');
+
+                const selectedSection = sections.find(item => String(item.id) === String(sessionItem.section_id));
+                if (selectedSection) {
+                    setDropdownValue('examFormSection', selectedSection.id, selectedSection.section_name);
+                }
+
+                const sessionResponse = await axios.get('/api/get-school-sessions', {
+                    params: {
+                        class_id: sessionItem.class_id,
+                        group_id: sessionItem.group_id,
+                        section_id: sessionItem.section_id,
+                    },
+                });
+                const sessions = (sessionResponse.data.data || [])
+                    .map(item => ({ id: item.id, session_year: item.session_year }));
+                populateDropdown('examFormSessionMenu', sessions, 'id', 'session_year');
+
+                const selectedSession = sessions.find(item => String(item.id) === String(sessionItem.id));
+                if (selectedSession) {
+                    setDropdownValue('examFormSession', selectedSession.id, selectedSession.session_year);
+                }
+            } finally {
+                document.getElementById('examModal')?.classList.remove('hidden');
+            }
         });
     });
 
@@ -156,24 +447,27 @@
                 const groups = groupRes.data.data || [];
                 populateDropdown('examFormGroupMenu', groups, 'id', 'group_name');
                 const matchedGroup = groups.find(g => String(g.id) === String(item.group_id));
+                const groupId = matchedGroup ? matchedGroup.id : '';
+                const groupQuery = groupId ? '&group_id=' + groupId : '';
+
                 if (matchedGroup) {
                     setDropdownValue('examFormGroup', matchedGroup.id, matchedGroup.group_name);
+                }
 
-                    const sectionRes = await axios.get('/api/get-school-sections?class_id=' + matchedClass.id + '&group_id=' + matchedGroup.id);
-                    const sections = sectionRes.data.data || [];
-                    populateDropdown('examFormSectionMenu', sections, 'id', 'section_name');
-                    const matchedSection = sections.find(s => String(s.id) === String(item.section_id));
-                    if (matchedSection) {
-                        setDropdownValue('examFormSection', matchedSection.id, matchedSection.section_name);
+                const sectionRes = await axios.get('/api/get-school-sections?class_id=' + matchedClass.id + groupQuery);
+                const sections = sectionRes.data.data || [];
+                populateDropdown('examFormSectionMenu', sections, 'id', 'section_name');
+                const matchedSection = sections.find(s => String(s.id) === String(item.section_id));
+                if (matchedSection) {
+                    setDropdownValue('examFormSection', matchedSection.id, matchedSection.section_name);
 
-                        const sessionRes = await axios.get('/api/get-school-sessions?class_id=' + matchedClass.id + '&section_id=' + matchedSection.id);
-                        const sessions = sessionRes.data.data || [];
-                        const sessionItems = sessions.map(s => ({ id: s.id, session_year: s.session_year }));
-                        populateDropdown('examFormSessionMenu', sessionItems, 'id', 'session_year');
-                        const matchedSession = sessions.find(s => String(s.id) === String(item.session_id));
-                        if (matchedSession) {
-                            setDropdownValue('examFormSession', matchedSession.id, matchedSession.session_year);
-                        }
+                    const sessionRes = await axios.get('/api/get-school-sessions?class_id=' + matchedClass.id + groupQuery + '&section_id=' + matchedSection.id);
+                    const sessions = sessionRes.data.data || [];
+                    const sessionItems = sessions.map(s => ({ id: s.id, session_year: s.session_year }));
+                    populateDropdown('examFormSessionMenu', sessionItems, 'id', 'session_year');
+                    const matchedSession = sessions.find(s => String(s.id) === String(item.session_id));
+                    if (matchedSession) {
+                        setDropdownValue('examFormSession', matchedSession.id, matchedSession.session_year);
                     }
                 }
             }

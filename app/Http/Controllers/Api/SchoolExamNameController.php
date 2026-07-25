@@ -16,9 +16,15 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class SchoolExamNameController extends Controller
 {
-    private function getSchoolId()
+    private function getSchoolId(): int
     {
-        return School::where('user_id', Auth::id())->first()->id;
+        $schoolId = School::where('user_id', Auth::id())->value('id');
+
+        if (! $schoolId) {
+            abort(403, 'School profile not found.');
+        }
+
+        return (int) $schoolId;
     }
 
     public function index(Request $request)
