@@ -140,7 +140,7 @@ class DashboardController extends Controller
         $admissionsCount = $applyDashboardFilter(AdmissionStudent::where('school_id', $schoolId)
             ->whereIn('status', ['Active', 'approved', 'Inactive'])
         )->count();
-        $employeesCount = $applyDashboardFilter(SchoolEmployee::where('school_id', $school->id))->count();
+        $employeesCount = $applyDashboardFilter(Employee::where('school_id', $school->id))->count();
         $promotionsCount = $applyDashboardFilter(StudentPromotion::where('school_id', $school->id))->count();
         $totalTuitionFees = $applyDashboardFilter(SchoolStudentFee::where('school_id', $school->id)
             ->where('fee_type_name', 'Tuition'))->sum('payable_amount');

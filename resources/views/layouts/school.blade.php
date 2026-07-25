@@ -15,11 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
-    @vite([
-        'resources/css/app.css', 
-        'resources/js/app.js', 
-        'resources/css/pages/expense.css'
-        ])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/pages/expense.css'])
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
 
@@ -40,7 +36,7 @@
         }
 
         @media (min-width: 768px) {
-            #editProfileModal[data-mode="principal"] > div {
+            #editProfileModal[data-mode="principal"]>div {
                 max-height: min(520px, calc(100dvh - 2.5rem)) !important;
             }
         }
@@ -1869,8 +1865,8 @@
 </head>
 
 @php
-$school = \App\Models\School::where('user_id', auth()->id())->first();
-$schoolLogo = asset('images/astha-academy-logo.png');
+    $school = \App\Models\School::where('user_id', auth()->id())->first();
+    $schoolLogo = asset('images/astha-academy-logo.png');
 @endphp
 
 <body>
@@ -1956,7 +1952,8 @@ $schoolLogo = asset('images/astha-academy-logo.png');
                         <i class="hgi hgi-stroke hgi-rounded hgi-arrow-right-01 text-xs"></i>
                     </div>
                     <div class="sidebar-group-content">
-                        <a href="{{ route('school.student-admission') }}" data-title="Student Admission" data-link class="sidebar-subitem">
+                        <a href="{{ route('school.student-admission') }}" data-title="Student Admission" data-link
+                            class="sidebar-subitem">
                             <i class="hgi hgi-stroke hgi-rounded hgi-user-group"></i>
                             Admission
                         </a>
@@ -2043,7 +2040,8 @@ $schoolLogo = asset('images/astha-academy-logo.png');
 
                     <div class="sidebar-group-content">
 
-                        <a href="{{ route('school.classes') }}" data-title="Class" data-link class="sidebar-subitem">
+                        <a href="{{ route('school.classes') }}" data-title="Class" data-link
+                            class="sidebar-subitem">
                             <i class="hgi hgi-stroke hgi-rounded hgi-layers-01"></i>
                             Class
                         </a>
@@ -2053,18 +2051,21 @@ $schoolLogo = asset('images/astha-academy-logo.png');
                             Group
                         </a>
 
-                        <a href="{{ route('school.sections') }}" data-title="Section" data-link class="sidebar-subitem">
+                        <a href="{{ route('school.sections') }}" data-title="Section" data-link
+                            class="sidebar-subitem">
                             <i class="hgi hgi-stroke hgi-rounded hgi-grid-table"></i>
 
                             Section
                         </a>
 
-                        <a href="{{ route('school.sessions') }}" data-title="Session" data-link class="sidebar-subitem">
+                        <a href="{{ route('school.sessions') }}" data-title="Session" data-link
+                            class="sidebar-subitem">
                             <i class="hgi hgi-stroke hgi-rounded hgi-calendar-03"></i>
                             Session
                         </a>
 
-                        <a href="{{ route('school.subjects') }}" data-title="Subject" data-link class="sidebar-subitem">
+                        <a href="{{ route('school.subjects') }}" data-title="Subject" data-link
+                            class="sidebar-subitem">
                             <i class="hgi hgi-stroke hgi-rounded hgi-book-02"></i>
                             Subject
                         </a>
@@ -2155,18 +2156,21 @@ $schoolLogo = asset('images/astha-academy-logo.png');
                             Result Find
                         </a>
 
-                        <a href="{{ route('school.merit-list') }}" data-title="Merit List" data-link class="sidebar-subitem">
+                        <a href="{{ route('school.merit-list') }}" data-title="Merit List" data-link
+                            class="sidebar-subitem">
                             <i class="hgi hgi-stroke hgi-rounded hgi-ranking"></i>
                             Merit List
                         </a>
 
-                        <a href="{{ route('school.fail-list') }}" data-title="Fail List" data-link class="sidebar-subitem">
+                        <a href="{{ route('school.fail-list') }}" data-title="Fail List" data-link
+                            class="sidebar-subitem">
                             <i class="hgi hgi-stroke hgi-rounded hgi-cancel-circle"></i>
                             Fail List
                         </a>
 
                         <!-- Certificate -->
-                        <a href="{{ route('school.certificate') }}" data-title="Certificate" data-link class="sidebar-subitem">
+                        <a href="{{ route('school.certificate') }}" data-title="Certificate" data-link
+                            class="sidebar-subitem">
                             <i class="hgi hgi-stroke hgi-rounded hgi-certificate-01"></i>
                             Certificate
                         </a>
@@ -2208,7 +2212,8 @@ $schoolLogo = asset('images/astha-academy-logo.png');
                             Discount
                         </a>
 
-                        <a href="{{ route('school.payment') }}" data-title="Payment" data-link class="sidebar-subitem">
+                        <a href="{{ route('school.payment') }}" data-title="Payment" data-link
+                            class="sidebar-subitem">
                             <i class="hgi hgi-stroke hgi-rounded hgi-credit-card"></i>
                             Fee Collection
                         </a>
@@ -2230,11 +2235,13 @@ $schoolLogo = asset('images/astha-academy-logo.png');
                         <i class="hgi hgi-stroke hgi-rounded hgi-arrow-right-01 text-xs"></i>
                     </div>
                     <div class="sidebar-group-content">
-                        <a href="{{ route('school.donate') }}" data-title="Donate" data-link class="sidebar-subitem">
+                        <a href="{{ route('school.donate') }}" data-title="Donate" data-link
+                            class="sidebar-subitem">
                             <i class="hgi hgi-stroke hgi-rounded hgi-charity"></i>
                             Donate
                         </a>
-                        <a href="{{ route('school.collection') }}" data-title="Collection" data-link class="sidebar-subitem">
+                        <a href="{{ route('school.collection') }}" data-title="Collection" data-link
+                            class="sidebar-subitem">
                             <i class="hgi hgi-stroke hgi-rounded hgi-wallet-02"></i>
                             Collection
                         </a>
@@ -2288,33 +2295,38 @@ $schoolLogo = asset('images/astha-academy-logo.png');
     </div>
     </div> --}}
 
-    <div class="sidebar-group">
-        <div class="sidebar-group-toggle">
-            <span>
-                <i class="hgi hgi-stroke hgi-rounded hgi-user-multiple-02"></i>
-                HRM Management
-            </span>
-            <i class="hgi hgi-stroke hgi-rounded hgi-arrow-right-01 text-xs"></i>
-        </div>
+                <div class="sidebar-group">
+                    <div class="sidebar-group-toggle">
+                        <span>
+                            <i class="hgi hgi-stroke hgi-rounded hgi-user-multiple-02"></i>
+                            HRM Management
+                        </span>
+                        <i class="hgi hgi-stroke hgi-rounded hgi-arrow-right-01 text-xs"></i>
+                    </div>
 
-        <div class="sidebar-group-content">
-            <a href="{{ route('school.employee') }}" data-title="Employee" data-link
-                class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-briefcase-01"></i>
-                Employee
-            </a>
+                    <div class="sidebar-group-content">
+                        <a href="{{ route('school.employee') }}" data-title="Employee" data-link
+                            class="sidebar-subitem">
+                            <i class="hgi hgi-stroke hgi-rounded hgi-briefcase-01"></i>
+                            Employee
+                        </a>
 
-            <a href="{{ route('school.payroll') }}" data-title="Payroll" data-link
-                class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-dollar-circle"></i>
-                Payroll
-            </a>
-        </div>
-    </div>
+                        <a href="{{ route('school.payroll') }}" data-title="Payroll" data-link
+                            class="sidebar-subitem">
+                            <i class="hgi hgi-stroke hgi-rounded hgi-dollar-circle"></i>
+                            Payroll
+                        </a>
+
+                        <a href="#" data-title="expense" data-link class="sidebar-subitem">
+                            <i class="hgi hgi-stroke hgi-rounded hgi-dollar-circle"></i>
+                            Expense
+                        </a>
+                    </div>
+                </div>
 
 
-    <!-- ================= Question Bank ================= -->
-    <!-- <div class="sidebar-group">
+                <!-- ================= Question Bank ================= -->
+                <!-- <div class="sidebar-group">
                     <div class="sidebar-group-toggle">
                         <span>
                             <i class="hgi hgi-stroke hgi-rounded hgi-book-02"></i>
@@ -2339,40 +2351,40 @@ $schoolLogo = asset('images/astha-academy-logo.png');
                 </div> -->
 
 
-    <!-- ================= Notification Management ================= -->
+                <!-- ================= Notification Management ================= -->
 
-    <div class="sidebar-group">
-        <div class="sidebar-group-toggle">
-            <span>
-                <i class="hgi hgi-stroke hgi-rounded hgi-notification-03 w-4"></i>
-                Notification
-            </span>
-            <i class="hgi hgi-stroke hgi-rounded hgi-arrow-right-01 text-xs"></i>
-        </div>
+                <div class="sidebar-group">
+                    <div class="sidebar-group-toggle">
+                        <span>
+                            <i class="hgi hgi-stroke hgi-rounded hgi-notification-03 w-4"></i>
+                            Notification
+                        </span>
+                        <i class="hgi hgi-stroke hgi-rounded hgi-arrow-right-01 text-xs"></i>
+                    </div>
 
-        <div class="sidebar-group-content">
+                    <div class="sidebar-group-content">
 
-            <a href="{{ route('school.create-holiday') }}" data-title="Holiday" data-link
-                class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-calendar-remove-01"></i>
-                Holiday
-            </a>
+                        <a href="{{ route('school.create-holiday') }}" data-title="Holiday" data-link
+                            class="sidebar-subitem">
+                            <i class="hgi hgi-stroke hgi-rounded hgi-calendar-remove-01"></i>
+                            Holiday
+                        </a>
 
-            <a href="{{ route('school.announcement') }}" data-title="Notice" data-link
-                class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-megaphone-02"></i>
-                Notice
-            </a>
+                        <a href="{{ route('school.announcement') }}" data-title="Notice" data-link
+                            class="sidebar-subitem">
+                            <i class="hgi hgi-stroke hgi-rounded hgi-megaphone-02"></i>
+                            Notice
+                        </a>
 
-            <a href="#" data-title="Leave List" data-link class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-leaf-01"></i>
-                Leave List
-            </a>
+                        <a href="#" data-title="Leave List" data-link class="sidebar-subitem">
+                            <i class="hgi hgi-stroke hgi-rounded hgi-leaf-01"></i>
+                            Leave List
+                        </a>
 
-        </div>
-    </div>
+                    </div>
+                </div>
 
-    {{-- <div class="sidebar-group">
+                {{-- <div class="sidebar-group">
         <div class="sidebar-group-toggle">
             <span>
                 <i class="hgi hgi-stroke hgi-rounded hgi-home-10"></i>
@@ -2400,7 +2412,7 @@ $schoolLogo = asset('images/astha-academy-logo.png');
         </div>
     </div> --}}
 
-    {{-- <div class="sidebar-group">
+                {{-- <div class="sidebar-group">
         <div class="sidebar-group-toggle">
             <span>
                 <i class="hgi hgi-stroke hgi-rounded hgi-global"></i>
@@ -2417,450 +2429,408 @@ $schoolLogo = asset('images/astha-academy-logo.png');
         </div>
     </div> --}}
 
-    <div class="sidebar-group">
-        <div class="sidebar-group-toggle">
-            <span>
-                <i class="hgi hgi-stroke hgi-rounded hgi-identity-card"></i>
-                Id Card Print
-            </span>
-            <i class="hgi hgi-stroke hgi-rounded hgi-arrow-right-01 text-xs"></i>
-        </div>
+                <div class="sidebar-group">
+                    <div class="sidebar-group-toggle">
+                        <span>
+                            <i class="hgi hgi-stroke hgi-rounded hgi-identity-card"></i>
+                            Id Card Print
+                        </span>
+                        <i class="hgi hgi-stroke hgi-rounded hgi-arrow-right-01 text-xs"></i>
+                    </div>
 
-        <div class="sidebar-group-content">
-            <a href="{{ route('school.id-card-orders') }}" data-title="Order" data-link class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-shopping-bag-03"></i>
-                Order
-            </a>
+                    <div class="sidebar-group-content">
+                        <a href="{{ route('school.id-card-orders') }}" data-title="Order" data-link
+                            class="sidebar-subitem">
+                            <i class="hgi hgi-stroke hgi-rounded hgi-shopping-bag-03"></i>
+                            Order
+                        </a>
 
-            <a href="{{ route('school.id-card-status') }}" data-title="Status" data-link class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-task-done-01"></i>
-                Status
-            </a>
-        </div>
-    </div>
+                        <a href="{{ route('school.id-card-status') }}" data-title="Status" data-link
+                            class="sidebar-subitem">
+                            <i class="hgi hgi-stroke hgi-rounded hgi-task-done-01"></i>
+                            Status
+                        </a>
+                    </div>
+                </div>
 
-    <div class="sidebar-group">
-        <div class="sidebar-group-toggle">
-            <span>
-                <i class="hgi hgi-stroke hgi-rounded hgi-grid-view"></i>
-                Design Temple
-            </span>
-            <i class="hgi hgi-stroke hgi-rounded hgi-arrow-right-01 text-xs"></i>
-        </div>
+                <div class="sidebar-group">
+                    <div class="sidebar-group-toggle">
+                        <span>
+                            <i class="hgi hgi-stroke hgi-rounded hgi-grid-view"></i>
+                            Design Temple
+                        </span>
+                        <i class="hgi hgi-stroke hgi-rounded hgi-arrow-right-01 text-xs"></i>
+                    </div>
 
-        <div class="sidebar-group-content">
-            <a href="{{ route('school.design-id-card') }}" data-title="Id Card" data-link class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-identity-card"></i>
-                Id Card
-            </a>
+                    <div class="sidebar-group-content">
+                        <a href="{{ route('school.design-id-card') }}" data-title="Id Card" data-link
+                            class="sidebar-subitem">
+                            <i class="hgi hgi-stroke hgi-rounded hgi-identity-card"></i>
+                            Id Card
+                        </a>
 
-            <a href="{{ route('school.design-sms') }}" data-title="SMS" data-link
-                class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-message-01"></i>
-                SMS
-            </a>
-        </div>
-    </div>
+                        <a href="{{ route('school.design-sms') }}" data-title="SMS" data-link
+                            class="sidebar-subitem">
+                            <i class="hgi hgi-stroke hgi-rounded hgi-message-01"></i>
+                            SMS
+                        </a>
+                    </div>
+                </div>
 
-    <div class="sidebar-group">
-        <div class="sidebar-group-toggle">
-            <span>
-                <i class="hgi hgi-stroke hgi-rounded hgi-artificial-intelligence-04"></i>
-                Ai Call System
-            </span>
-            <i class="hgi hgi-stroke hgi-rounded hgi-arrow-right-01 text-xs"></i>
-        </div>
+                <div class="sidebar-group">
+                    <div class="sidebar-group-toggle">
+                        <span>
+                            <i class="hgi hgi-stroke hgi-rounded hgi-artificial-intelligence-04"></i>
+                            Ai Call System
+                        </span>
+                        <i class="hgi hgi-stroke hgi-rounded hgi-arrow-right-01 text-xs"></i>
+                    </div>
 
-        <div class="sidebar-group-content">
-            <a href="{{ route('school.ai-call-registration') }}" data-title="Registration" data-link class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-user-add-01"></i>
-                Registration
-            </a>
+                    <div class="sidebar-group-content">
+                        <a href="{{ route('school.ai-call-registration') }}" data-title="Registration" data-link
+                            class="sidebar-subitem">
+                            <i class="hgi hgi-stroke hgi-rounded hgi-user-add-01"></i>
+                            Registration
+                        </a>
 
-            <a href="{{ route('school.ai-call-topup') }}" data-title="TopUp" data-link class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-arrow-up-01"></i>
-                TopUp
-            </a>
+                        <a href="{{ route('school.ai-call-topup') }}" data-title="TopUp" data-link
+                            class="sidebar-subitem">
+                            <i class="hgi hgi-stroke hgi-rounded hgi-arrow-up-01"></i>
+                            TopUp
+                        </a>
 
-            <a href="{{ route('school.ai-call-history') }}" data-title="History" data-link class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-time-03"></i>
-                History
-            </a>
-        </div>
-    </div>
+                        <a href="{{ route('school.ai-call-history') }}" data-title="History" data-link
+                            class="sidebar-subitem">
+                            <i class="hgi hgi-stroke hgi-rounded hgi-time-03"></i>
+                            History
+                        </a>
+                    </div>
+                </div>
 
 
 
-    <div class="subscription-box mt-4 p-3 mb-2"
-        style="border-radius: 0; border: 1px solid #e5e7eb; background: #fff;">
-        <div class="plan-info">
-            <p class="nav-header">
-                Subscription</p>
+                <div class="subscription-box mt-4 p-3 mb-2"
+                    style="border-radius: 0; border: 1px solid #e5e7eb; background: #fff;">
+                    <div class="plan-info">
+                        <p class="nav-header">
+                            Subscription</p>
 
-            <p id="sidePlanName" class="text-sm font-bold text-slate-800 mb-1">School Pro</p>
+                        <p id="sidePlanName" class="text-sm font-bold text-slate-800 mb-1">School Pro</p>
 
-            <p id="sideExpiryDate" class="text-[10px] text-slate-500 mb-3">Expires: 30 Apr, 2027</p>
+                        <p id="sideExpiryDate" class="text-[10px] text-slate-500 mb-3">Expires: 30 Apr, 2027</p>
 
-            <div class="w-full bg-gray-200 h-1.5 mb-4" style="border-radius: 0; overflow: hidden;">
-                <div id="sideProgressBar" class="bg-blue-600 h-full"
-                    style="width: 72%; border-radius: 0; transition: width 1s ease-in-out;"></div>
-            </div>
+                        <div class="w-full bg-gray-200 h-1.5 mb-4" style="border-radius: 0; overflow: hidden;">
+                            <div id="sideProgressBar" class="bg-blue-600 h-full"
+                                style="width: 72%; border-radius: 0; transition: width 1s ease-in-out;"></div>
+                        </div>
 
-            <a href="{{ route('school.current-plan') }}" class="upgrade-btn"
-                style="border-radius: 0; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; background: #1e40af; color: white; padding: 10px; text-decoration: none;">
-                <i class="fas fa-link text-[9px]" aria-hidden="true"></i>
-                <span class="menu-text">Upgrade Plan</span>
-            </a>
-        </div>
-    </div>
+                        <a href="{{ route('school.current-plan') }}" class="upgrade-btn"
+                            style="border-radius: 0; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; background: #1e40af; color: white; padding: 10px; text-decoration: none;">
+                            <i class="fas fa-link text-[9px]" aria-hidden="true"></i>
+                            <span class="menu-text">Upgrade Plan</span>
+                        </a>
+                    </div>
+                </div>
 
-    </nav>
+            </nav>
 
-    {{-- <div class="p-4 logout-wrapper">
+            {{-- <div class="p-4 logout-wrapper">
                 <button id="logoutBtn"
                     class="w-full flex items-center justify-center gap-2 p-2 border border-red-500 text-red-500 text-sm font-semibold">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div> --}}
 
-    </aside>
+        </aside>
 
-    <div id="sidebarBackdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+        <div id="sidebarBackdrop" class="sidebar-backdrop" aria-hidden="true"></div>
 
-    <div class="flex-1 flex flex-col">
+        <div class="flex-1 flex flex-col">
 
-        <header class="topbar">
+            <header class="topbar">
 
-            <div class="flex items-center gap-3">
-                <button id="hamburger" class="text-blue-600 text-xl" aria-label="Toggle sidebar"
-                    aria-controls="sidebar" aria-expanded="false">
-                    <i id="hamburgerIcon" class="fas fa-bars"></i>
-                </button>
-            </div>
-
-            <div class="flex flex-row-reverse items-center gap-2 relative z-50 topbar-actions">
-
-                {{-- Profile Toggle --}}
-                <div class="relative">
-                    <button id="profileBtn"
-                        class="topbar-action topbar-action-profile flex items-center justify-center"
-                        title="{{ auth()->user()->school_name }}">
-                        <i class="fas fa-user" aria-hidden="true"></i>
+                <div class="flex items-center gap-3">
+                    <button id="hamburger" class="text-blue-600 text-xl" aria-label="Toggle sidebar"
+                        aria-controls="sidebar" aria-expanded="false">
+                        <i id="hamburgerIcon" class="fas fa-bars"></i>
                     </button>
-
-                    <div id="profileMenu"
-                        class="hidden absolute right-0 top-full z-50 overflow-hidden mt-3 bg-gray-50"
-                        style="border-radius: 0;">
-                        <a href="#"
-                            class="profile-dropdown-link profile-menu-item"
-                            data-tab="profile">
-                            <i class="far fa-user" aria-hidden="true"></i>
-                            <span>Profile</span>
-                        </a>
-                        <a href="#"
-                            class="profile-dropdown-link profile-menu-item"
-                            data-tab="principle">
-                            <i class="fas fa-graduation-cap" aria-hidden="true"></i>
-                            <span>Principal</span>
-                        </a>
-                        <a href="#" id="logoutBtnDropdown"
-                            class="profile-dropdown-link profile-dropdown-logout">
-                            <i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i>
-                            <span>Logout</span>
-                        </a>
-                    </div>
                 </div>
 
-                {{-- Language Toggle --}}
-                <div class="relative">
-                    <button type="button" id="topbarLanguageBtn"
-                        class="topbar-action topbar-action-language flex items-center justify-center"
-                        title="Language" aria-label="Language" aria-expanded="false"
-                        aria-controls="schoolLanguageMenu">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
-                            aria-hidden="true">
-                            <circle cx="12" cy="12" r="9" />
-                            <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" />
-                        </svg>
-                    </button>
+                <div class="flex flex-row-reverse items-center gap-2 relative z-50 topbar-actions">
 
-                    <div id="schoolLanguageMenu" class="school-language-menu hidden mt-3" role="menu">
-                        <button type="button" class="school-language-option is-active" data-language-option="en"
-                            role="menuitem">
-                            <span class="school-language-dot" aria-hidden="true"></span>
-                            <span class="school-language-option-label">English</span>
+                    {{-- Profile Toggle --}}
+                    <div class="relative">
+                        <button id="profileBtn"
+                            class="topbar-action topbar-action-profile flex items-center justify-center"
+                            title="{{ auth()->user()->school_name }}">
+                            <i class="fas fa-user" aria-hidden="true"></i>
                         </button>
 
-                        <button type="button" class="school-language-option" data-language-option="bn"
-                            role="menuitem">
-                            <span class="school-language-dot" aria-hidden="true"></span>
-                            <span class="school-language-option-label">বাংলা</span>
-                        </button>
+                        <div id="profileMenu"
+                            class="hidden absolute right-0 top-full z-50 overflow-hidden mt-3 bg-gray-50"
+                            style="border-radius: 0;">
+                            <a href="#" class="profile-dropdown-link profile-menu-item" data-tab="profile">
+                                <i class="far fa-user" aria-hidden="true"></i>
+                                <span>Profile</span>
+                            </a>
+                            <a href="#" class="profile-dropdown-link profile-menu-item" data-tab="principle">
+                                <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                                <span>Principal</span>
+                            </a>
+                            <a href="#" id="logoutBtnDropdown"
+                                class="profile-dropdown-link profile-dropdown-logout">
+                                <i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
                     </div>
-                </div>
 
-                {{-- Notification Toggle --}}
-                <div class="relative">
-                    <button id="topbarNotificationBtn"
-                        class="topbar-action topbar-action-notification relative flex items-center justify-center"
-                        title="Notifications">
-                        <i class="fas fa-bell"></i>
-                    </button>
+                    {{-- Language Toggle --}}
+                    <div class="relative">
+                        <button type="button" id="topbarLanguageBtn"
+                            class="topbar-action topbar-action-language flex items-center justify-center"
+                            title="Language" aria-label="Language" aria-expanded="false"
+                            aria-controls="schoolLanguageMenu">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
+                                aria-hidden="true">
+                                <circle cx="12" cy="12" r="9" />
+                                <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" />
+                            </svg>
+                        </button>
 
-                    {{-- Notification Box Container --}}
-                    <div id="notificationBox"
-                        class="school-notification-menu mt-3 hidden">
+                        <div id="schoolLanguageMenu" class="school-language-menu hidden mt-3" role="menu">
+                            <button type="button" class="school-language-option is-active" data-language-option="en"
+                                role="menuitem">
+                                <span class="school-language-dot" aria-hidden="true"></span>
+                                <span class="school-language-option-label">English</span>
+                            </button>
 
-                        {{-- Main Box --}}
-                        <div class="school-notification-panel">
+                            <button type="button" class="school-language-option" data-language-option="bn"
+                                role="menuitem">
+                                <span class="school-language-dot" aria-hidden="true"></span>
+                                <span class="school-language-option-label">বাংলা</span>
+                            </button>
+                        </div>
+                    </div>
 
-                            <div class="school-notification-header">
-                                Notifications
-                            </div>
+                    {{-- Notification Toggle --}}
+                    <div class="relative">
+                        <button id="topbarNotificationBtn"
+                            class="topbar-action topbar-action-notification relative flex items-center justify-center"
+                            title="Notifications">
+                            <i class="fas fa-bell"></i>
+                        </button>
 
-                            <div class="school-notification-tabs" role="tablist" aria-label="Notification filters">
-                                <button type="button" class="school-notification-tab is-active" data-notification-tab="all">
-                                    All <span>0</span>
-                                </button>
-                                <button type="button" class="school-notification-tab" data-notification-tab="unread">
-                                    Unread <span>0</span>
-                                </button>
-                                <button type="button" class="school-notification-tab" data-notification-tab="read">
-                                    Read <span>0</span>
-                                </button>
-                            </div>
+                        {{-- Notification Box Container --}}
+                        <div id="notificationBox" class="school-notification-menu mt-3 hidden">
 
-                            <div class="school-notification-list custom-scrollbar">
-                                <div class="school-notification-empty" data-notification-empty>
-                                    <i class="far fa-bell" aria-hidden="true"></i>
-                                    <span>No notifications available</span>
+                            {{-- Main Box --}}
+                            <div class="school-notification-panel">
+
+                                <div class="school-notification-header">
+                                    Notifications
+                                </div>
+
+                                <div class="school-notification-tabs" role="tablist"
+                                    aria-label="Notification filters">
+                                    <button type="button" class="school-notification-tab is-active"
+                                        data-notification-tab="all">
+                                        All <span>0</span>
+                                    </button>
+                                    <button type="button" class="school-notification-tab"
+                                        data-notification-tab="unread">
+                                        Unread <span>0</span>
+                                    </button>
+                                    <button type="button" class="school-notification-tab"
+                                        data-notification-tab="read">
+                                        Read <span>0</span>
+                                    </button>
+                                </div>
+
+                                <div class="school-notification-list custom-scrollbar">
+                                    <div class="school-notification-empty" data-notification-empty>
+                                        <i class="far fa-bell" aria-hidden="true"></i>
+                                        <span>No notifications available</span>
+                                    </div>
+                                </div>
+
+                                <div class="school-notification-footer">
+                                    <button type="button" data-mark-all-read>Mark all as read</button>
+                                    <a href="#">View all notifications</a>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            <div class="school-notification-footer">
-                                <button type="button" data-mark-all-read>Mark all as read</button>
-                                <a href="#">View all notifications</a>
+                    {{-- Support Toggle --}}
+                    <div class="relative">
+                        <button type="button" id="topbarSupportBtn"
+                            class="topbar-action topbar-action-support flex items-center justify-center"
+                            title="Support" aria-label="Support" aria-expanded="false" aria-controls="supportMenu">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
+                                aria-hidden="true">
+                                <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
+                                <path d="M18 19c0 1.1-.9 2-2 2h-3" />
+                                <path
+                                    d="M4 14a2 2 0 0 1 2-2h1v6H6a2 2 0 0 1-2-2v-2ZM20 14a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2v-2Z" />
+                            </svg>
+                        </button>
+
+                        <div id="supportMenu" class="school-support-menu hidden mt-2" role="dialog"
+                            aria-modal="false" aria-labelledby="supportMenuTitle">
+                            <div id="supportMenuContent" class="school-support-card" tabindex="-1">
+                                <div class="school-support-heading">
+                                    <h2 id="supportMenuTitle" class="school-support-title">Support</h2>
+                                    <p class="school-support-text">Contact Astha Academics directly</p>
+                                </div>
+
+                                <div class="school-support-list">
+                                    <a href="tel:01337225555" class="school-support-item">
+                                        <span class="school-support-icon" aria-hidden="true">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                                stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .95.68l1.5 4.5a1 1 0 0 1-.5 1.21l-2.27 1.14a11.04 11.04 0 0 0 5.5 5.5l1.14-2.27a1 1 0 0 1 1.21-.5l4.5 1.5A1 1 0 0 1 21 15.72V19a2 2 0 0 1-2 2h-1C9.72 21 3 14.28 3 6V5Z" />
+                                            </svg>
+                                        </span>
+                                        <span>Mobile: 01337225555</span>
+                                    </a>
+
+                                    <a href="https://wa.me/8801337225555" target="_blank" rel="noopener noreferrer"
+                                        class="school-support-item">
+                                        <span class="school-support-icon" aria-hidden="true">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                                stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M7.5 19.5 4 20l.5-3.5A8 8 0 1 1 7.5 19.5Z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M8.5 9.5c.3 2.7 2.3 4.7 5 5l1.1-1.1a.7.7 0 0 1 .7-.17l2 .67M9.2 7.2l-.6 1.4a.7.7 0 0 0 .08.7l.7.9" />
+                                            </svg>
+                                        </span>
+                                        <span>WhatsApp: 01337225555</span>
+                                    </a>
+
+                                    <a href="mailto:support@asthaacademics.com" class="school-support-item">
+                                        <span class="school-support-icon" aria-hidden="true">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                                stroke-width="2">
+                                                <rect width="18" height="14" x="3" y="5" rx="2" />
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="m3 7 9 6 9-6" />
+                                            </svg>
+                                        </span>
+                                        <span>support@asthaacademics.com</span>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {{-- Support Toggle --}}
-                <div class="relative">
-                    <button type="button" id="topbarSupportBtn"
-                        class="topbar-action topbar-action-support flex items-center justify-center"
-                        title="Support" aria-label="Support" aria-expanded="false"
-                        aria-controls="supportMenu">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
-                            aria-hidden="true">
-                            <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
-                            <path d="M18 19c0 1.1-.9 2-2 2h-3" />
-                            <path d="M4 14a2 2 0 0 1 2-2h1v6H6a2 2 0 0 1-2-2v-2ZM20 14a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2v-2Z" />
+                    {{-- Dark Mode Toggle --}}
+                    <button type="button" id="topbarThemeBtn"
+                        class="topbar-action topbar-action-theme flex items-center justify-center" title="Dark mode"
+                        aria-label="Toggle dark mode" aria-pressed="false">
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
                         </svg>
                     </button>
 
-                    <div id="supportMenu" class="school-support-menu hidden mt-2" role="dialog"
-                        aria-modal="false" aria-labelledby="supportMenuTitle">
-                        <div id="supportMenuContent" class="school-support-card" tabindex="-1">
-                            <div class="school-support-heading">
-                                <h2 id="supportMenuTitle" class="school-support-title">Support</h2>
-                                <p class="school-support-text">Contact Astha Academics directly</p>
-                            </div>
-
-                            <div class="school-support-list">
-                                <a href="tel:01337225555" class="school-support-item">
-                                    <span class="school-support-icon" aria-hidden="true">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .95.68l1.5 4.5a1 1 0 0 1-.5 1.21l-2.27 1.14a11.04 11.04 0 0 0 5.5 5.5l1.14-2.27a1 1 0 0 1 1.21-.5l4.5 1.5A1 1 0 0 1 21 15.72V19a2 2 0 0 1-2 2h-1C9.72 21 3 14.28 3 6V5Z" />
-                                        </svg>
-                                    </span>
-                                    <span>Mobile: 01337225555</span>
-                                </a>
-
-                                <a href="https://wa.me/8801337225555" target="_blank" rel="noopener noreferrer" class="school-support-item">
-                                    <span class="school-support-icon" aria-hidden="true">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 19.5 4 20l.5-3.5A8 8 0 1 1 7.5 19.5Z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 9.5c.3 2.7 2.3 4.7 5 5l1.1-1.1a.7.7 0 0 1 .7-.17l2 .67M9.2 7.2l-.6 1.4a.7.7 0 0 0 .08.7l.7.9" />
-                                        </svg>
-                                    </span>
-                                    <span>WhatsApp: 01337225555</span>
-                                </a>
-
-                                <a href="mailto:support@asthaacademics.com" class="school-support-item">
-                                    <span class="school-support-icon" aria-hidden="true">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                            <rect width="18" height="14" x="3" y="5" rx="2" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="m3 7 9 6 9-6" />
-                                        </svg>
-                                    </span>
-                                    <span>support@asthaacademics.com</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                {{-- Dark Mode Toggle --}}
-                <button type="button" id="topbarThemeBtn"
-                    class="topbar-action topbar-action-theme flex items-center justify-center"
-                    title="Dark mode" aria-label="Toggle dark mode" aria-pressed="false">
-                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
-                    </svg>
-                </button>
+            </header>
 
-            </div>
+            <main class="main-scroll" id="mainContent">
+                @yield('content')
+            </main>
 
-        </header>
-
-        <main class="main-scroll" id="mainContent">
-            @yield('content')
-        </main>
-
-    </div>
+        </div>
     </div>
 
 
-    <x-modal.form
-        id="editProfileModal"
-        form-id="profileUpdateForm"
-        title="Profile"
-        close-button-id="closeProfileModal"
-        submit-label="Save">
+    <x-modal.form id="editProfileModal" form-id="profileUpdateForm" title="Profile"
+        close-button-id="closeProfileModal" submit-label="Save">
         <div class="profile-modal-field relative pt-1">
-            <x-input.photo
-                id="profileLogo"
-                name="logo"
-                preview-id="profileLogoPreview" />
+            <x-input.photo id="profileLogo" name="logo" preview-id="profileLogoPreview" />
             <x-input.floating-label for="profileLogo" :floating="false">
                 Institution logo
             </x-input.floating-label>
         </div>
 
         <div class="profile-modal-field relative">
-            <x-input.control
-                id="profileInstituteName"
-                name="school_name"
-                class="peer placeholder:text-transparent"
-                placeholder=" "
-                :value="$school?->school_name ?? auth()->user()->school_name"
-                required />
+            <x-input.control id="profileInstituteName" name="school_name" class="peer placeholder:text-transparent"
+                placeholder=" " :value="$school?->school_name ?? auth()->user()->school_name" required />
             <x-input.floating-label for="profileInstituteName">
                 Institute name
             </x-input.floating-label>
         </div>
 
         <div class="profile-modal-field relative">
-            <x-input.control
-                id="profileVillage"
-                name="village"
-                class="peer placeholder:text-transparent"
-                placeholder=" "
-                :value="$school?->village" />
+            <x-input.control id="profileVillage" name="village" class="peer placeholder:text-transparent"
+                placeholder=" " :value="$school?->village" />
             <x-input.floating-label for="profileVillage">
                 Village/Area
             </x-input.floating-label>
         </div>
 
         <div class="profile-modal-field relative">
-            <x-input.control
-                id="profileMobile"
-                name="mobile"
-                class="peer placeholder:text-transparent"
-                placeholder=" "
-                :value="$school?->mobile ?? auth()->user()->mobile"
-                required />
+            <x-input.control id="profileMobile" name="mobile" class="peer placeholder:text-transparent"
+                placeholder=" " :value="$school?->mobile ?? auth()->user()->mobile" required />
             <x-input.floating-label for="profileMobile">
                 Mobile number
             </x-input.floating-label>
         </div>
 
         <div class="profile-modal-field relative">
-            <x-input.control
-                id="profileEmail"
-                type="email"
-                name="email"
-                class="peer placeholder:text-transparent"
-                placeholder=" "
-                :value="$school?->email ?? auth()->user()->email"
-                required />
+            <x-input.control id="profileEmail" type="email" name="email"
+                class="peer placeholder:text-transparent" placeholder=" " :value="$school?->email ?? auth()->user()->email" required />
             <x-input.floating-label for="profileEmail">
                 Email address
             </x-input.floating-label>
         </div>
 
         <div class="principal-modal-field relative hidden">
-            <x-input.control
-                id="principalName"
-                name="name"
-                data-principal-field
-                class="peer placeholder:text-transparent"
-                placeholder=" " />
+            <x-input.control id="principalName" name="name" data-principal-field
+                class="peer placeholder:text-transparent" placeholder=" " />
             <x-input.floating-label for="principalName">
                 Principal name
             </x-input.floating-label>
         </div>
 
         <div class="principal-modal-field relative hidden">
-            <x-input.control
-                id="principalDesignation"
-                name="designation"
-                data-principal-field
-                class="peer placeholder:text-transparent"
-                placeholder=" " />
+            <x-input.control id="principalDesignation" name="designation" data-principal-field
+                class="peer placeholder:text-transparent" placeholder=" " />
             <x-input.floating-label for="principalDesignation">
                 Designation
             </x-input.floating-label>
         </div>
 
         <div class="principal-modal-field relative hidden">
-            <x-input.control
-                id="principalPhone"
-                name="phone"
-                data-principal-field
-                class="peer placeholder:text-transparent"
-                placeholder=" " />
+            <x-input.control id="principalPhone" name="phone" data-principal-field
+                class="peer placeholder:text-transparent" placeholder=" " />
             <x-input.floating-label for="principalPhone">
                 Mobile number
             </x-input.floating-label>
         </div>
 
         <div class="principal-modal-field relative hidden">
-            <x-input.control
-                id="principalEmail"
-                type="email"
-                name="email"
-                data-principal-field
-                class="peer placeholder:text-transparent"
-                placeholder=" " />
+            <x-input.control id="principalEmail" type="email" name="email" data-principal-field
+                class="peer placeholder:text-transparent" placeholder=" " />
             <x-input.floating-label for="principalEmail">
                 Email address
             </x-input.floating-label>
         </div>
 
         <div class="principal-modal-field relative hidden">
-            <x-input.control
-                id="principalIdNumber"
-                name="id_number"
-                data-principal-field
-                class="peer placeholder:text-transparent bg-slate-50"
-                placeholder=" "
-                readonly />
+            <x-input.control id="principalIdNumber" name="id_number" data-principal-field
+                class="peer placeholder:text-transparent bg-slate-50" placeholder=" " readonly />
             <x-input.floating-label for="principalIdNumber">
                 ID number
             </x-input.floating-label>
         </div>
 
         <div class="principal-modal-field relative hidden">
-            <x-input.password
-                id="principalPin"
-                name="pin"
-                data-principal-field
-                class="peer placeholder:text-transparent"
-                placeholder=" "
-                inputmode="numeric"
-                maxlength="8"
+            <x-input.password id="principalPin" name="pin" data-principal-field
+                class="peer placeholder:text-transparent" placeholder=" " inputmode="numeric" maxlength="8"
                 autocomplete="new-password" />
             <x-input.floating-label for="principalPin">
                 PIN code
@@ -2868,11 +2838,7 @@ $schoolLogo = asset('images/astha-academy-logo.png');
         </div>
 
         <div class="principal-modal-field relative hidden">
-            <x-input.control
-                id="principalJoiningDate"
-                type="date"
-                name="joining_date"
-                data-principal-field
+            <x-input.control id="principalJoiningDate" type="date" name="joining_date" data-principal-field
                 class="peer" />
             <x-input.floating-label for="principalJoiningDate" :floating="false">
                 Joining date
@@ -2880,10 +2846,7 @@ $schoolLogo = asset('images/astha-academy-logo.png');
         </div>
 
         <div class="principal-modal-field relative hidden">
-            <select
-                id="principalStatus"
-                name="is_active"
-                data-principal-field
+            <select id="principalStatus" name="is_active" data-principal-field
                 class="h-9 w-full border border-slate-300 bg-white px-3 text-xs text-slate-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 style="border-radius: 0;">
                 <option value="1">Active</option>
@@ -2895,10 +2858,7 @@ $schoolLogo = asset('images/astha-academy-logo.png');
         </div>
 
         <div class="principal-modal-field relative pt-1 hidden">
-            <x-input.photo
-                id="principalPhoto"
-                name="photo"
-                preview-id="principalPhotoPreview"
+            <x-input.photo id="principalPhoto" name="photo" preview-id="principalPhotoPreview"
                 data-principal-field />
             <x-input.floating-label for="principalPhoto" :floating="false">
                 Image
@@ -2906,10 +2866,7 @@ $schoolLogo = asset('images/astha-academy-logo.png');
         </div>
 
         <div class="principal-modal-field relative pt-1 hidden">
-            <x-input.photo
-                id="principalSignature"
-                name="signature"
-                preview-id="principalSignaturePreview"
+            <x-input.photo id="principalSignature" name="signature" preview-id="principalSignaturePreview"
                 data-principal-field />
             <x-input.floating-label for="principalSignature" :floating="false">
                 Signature
@@ -2917,36 +2874,24 @@ $schoolLogo = asset('images/astha-academy-logo.png');
         </div>
 
         <div class="profile-pin-field relative hidden">
-            <x-input.password
-                id="profileCurrentPin"
-                name="current_password"
-                class="peer placeholder:text-transparent"
-                placeholder=" "
-                autocomplete="current-password" />
+            <x-input.password id="profileCurrentPin" name="current_password"
+                class="peer placeholder:text-transparent" placeholder=" " autocomplete="current-password" />
             <x-input.floating-label for="profileCurrentPin">
                 Old PIN
             </x-input.floating-label>
         </div>
 
         <div class="profile-pin-field relative hidden">
-            <x-input.password
-                id="profileNewPin"
-                name="new_password"
-                class="peer placeholder:text-transparent"
-                placeholder=" "
-                autocomplete="new-password" />
+            <x-input.password id="profileNewPin" name="new_password" class="peer placeholder:text-transparent"
+                placeholder=" " autocomplete="new-password" />
             <x-input.floating-label for="profileNewPin">
                 New PIN
             </x-input.floating-label>
         </div>
 
         <div class="profile-pin-field relative hidden">
-            <x-input.password
-                id="profileConfirmPin"
-                name="new_password_confirmation"
-                class="peer placeholder:text-transparent"
-                placeholder=" "
-                autocomplete="new-password" />
+            <x-input.password id="profileConfirmPin" name="new_password_confirmation"
+                class="peer placeholder:text-transparent" placeholder=" " autocomplete="new-password" />
             <x-input.floating-label for="profileConfirmPin">
                 Confirm PIN
             </x-input.floating-label>
@@ -3243,7 +3188,8 @@ $schoolLogo = asset('images/astha-academy-logo.png');
                         }
 
                         // Set h2 as sidebar group title
-                        if (pageHeader && !pageHeader.hasAttribute('data-keep-header')) pageHeader.innerText = groupTitle;
+                        if (pageHeader && !pageHeader.hasAttribute('data-keep-header')) pageHeader.innerText =
+                            groupTitle;
 
                         // Set breadcrumb as active submenu text
                         if (pageTitle) pageTitle.innerText = link.innerText.trim();
@@ -3369,7 +3315,8 @@ $schoolLogo = asset('images/astha-academy-logo.png');
                         const s = res.data.subscription;
                         if (s) {
                             const planNames = document.querySelectorAll('#sidePlanName, #modalPlanName');
-                            const expiryDates = document.querySelectorAll('#sideExpiryDate, #modalExpiryDate');
+                            const expiryDates = document.querySelectorAll(
+                                '#sideExpiryDate, #modalExpiryDate');
 
                             planNames.forEach(el => el.innerText = s.package_name);
                             expiryDates.forEach(el => el.innerText = "Expires: " + s.expires_at);
@@ -3450,7 +3397,8 @@ $schoolLogo = asset('images/astha-academy-logo.png');
                 if (!meta) return;
 
                 meta.className = 'school-notification-meta';
-                meta.textContent = `${timeLabels[index] || 'Recently'} | ${item.dataset.status === 'unread' ? 'Unread' : 'Read'}`;
+                meta.textContent =
+                    `${timeLabels[index] || 'Recently'} | ${item.dataset.status === 'unread' ? 'Unread' : 'Read'}`;
             };
 
             const refreshCounts = () => {
@@ -3798,4 +3746,3 @@ $schoolLogo = asset('images/astha-academy-logo.png');
 </body>
 
 </html>
-

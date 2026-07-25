@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\PrincipalController;
 use App\Http\Controllers\Api\SchoolController;
 use App\Http\Controllers\Api\SchoolDueListController;
 use App\Http\Controllers\Api\SchoolEmployeeController;
+use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\SchoolExamAdmitCardController;
 use App\Http\Controllers\Api\SchoolExamGradeController;
 use App\Http\Controllers\Api\SchoolExamMarkSubmitController;
@@ -298,7 +299,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Employees
-    Route::apiResource('school-employees', SchoolEmployeeController::class);
+    Route::apiResource('employees', EmployeeController::class);
 
     // Payrolls
     Route::apiResource('school-payrolls', SchoolPayrollController::class);
