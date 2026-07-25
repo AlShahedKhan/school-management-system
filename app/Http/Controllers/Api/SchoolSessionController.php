@@ -66,7 +66,7 @@ class SchoolSessionController extends Controller
             $school = $this->getSchool($request->user());
             if (!$school) return response()->json(['message' => 'School profile not found.'], 404);
 
-            $session = DB::transaction(function () use ($school, $request, $remainingDays) {
+            $session = DB::transaction(function () use ($school, $request) {
                 return SchoolSession::create([
                     'school_id'      => $school->id,
                     'class_id'       => $request->validated()['class_id'],

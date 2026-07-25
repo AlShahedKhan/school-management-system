@@ -53,6 +53,8 @@
         const sourceClassMap = {
             examFormGroup: 'examFormClass',
             examGroupFilter: 'examClassFilter',
+            sectionGroupSelect: 'sectionClassSelect',
+            sessionFormGroup: 'sessionFormClass',
         };
         const selectedClassId = document.getElementById(sourceClassMap[sourceDropdownId] || '')?.value || null;
 
