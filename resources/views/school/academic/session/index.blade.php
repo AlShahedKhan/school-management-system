@@ -154,24 +154,6 @@
             return `${parts[2]}/${parts[1]}/${parts[0]}`;
         }
 
-        function calculateSession() {
-            const startVal = document.getElementById('start_date').value;
-            const endVal = document.getElementById('end_date').value;
-            if (startVal && endVal) {
-                const start = new Date(startVal);
-                const end = new Date(endVal);
-                const sYear = start.getFullYear();
-                const eYearShort = String(end.getFullYear()).slice(-2);
-                document.getElementById('session_year').value = `${sYear}-${eYearShort}`;
-                const total = Math.ceil(Math.abs(end - start) / (1000 * 60 * 60 * 24)) + 1;
-                document.getElementById('total_days').value = total > 0 ? total : 0;
-                const today = new Date();
-                today.setHours(0,0,0,0);
-                const remaining = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
-                document.getElementById('remaining_days').value = remaining > 0 ? remaining : 0;
-            }
-        }
-
         async function loadSessionGroupFilterByClass(classId) {
             try {
                 const params = classId ? { class_id: classId } : {};

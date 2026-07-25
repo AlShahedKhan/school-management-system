@@ -13,6 +13,13 @@ class SchoolExamName extends Model
         'section_id',
         'session_id',
         'exam_name',
+        'exam_start_date',
+        'exam_end_date',
+    ];
+
+    protected $casts = [
+        'exam_start_date' => 'date:Y-m-d',
+        'exam_end_date' => 'date:Y-m-d',
     ];
 
     protected $appends = ['class_name', 'group_name', 'section_name', 'session_name'];

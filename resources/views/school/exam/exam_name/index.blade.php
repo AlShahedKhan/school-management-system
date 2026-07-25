@@ -243,7 +243,7 @@
 
                 if (!meta.data || meta.data.length === 0) {
                     tbody.innerHTML =
-                        `<tr><td colspan="7" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No exam names found.</td></tr>`;
+                        `<tr><td colspan="9" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No exam names found.</td></tr>`;
                     document.getElementById('paginationInfo').innerText = '0 of 0';
                     document.getElementById('paginationControls').innerHTML = '';
                     return;
@@ -268,6 +268,12 @@
                             </td>
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
                                 <div class="donate-cell-scroll" title="${item.exam_name || '-'}">${item.exam_name || '-'}</div>
+                            </td>
+                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                                <div class="donate-cell-scroll" title="${formatDate(item.exam_start_date)}">${formatDate(item.exam_start_date)}</div>
+                            </td>
+                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                                <div class="donate-cell-scroll" title="${formatDate(item.exam_end_date)}">${formatDate(item.exam_end_date)}</div>
                             </td>
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
                                 <div class="flex h-6 w-full items-center justify-center -space-x-[3px]">
