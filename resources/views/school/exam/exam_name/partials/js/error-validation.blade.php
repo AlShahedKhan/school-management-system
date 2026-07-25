@@ -7,10 +7,14 @@
     }
 
     function showExamErrors(errors) {
+        if (!errors || typeof errors !== 'object') {
+            return;
+        }
+
         Object.keys(errors).forEach(function(field) {
             const element = document.getElementById(field + '_error');
             if (element) {
-                element.textContent = errors[field][0];
+                element.textContent = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
                 element.classList.remove('hidden');
             }
         });

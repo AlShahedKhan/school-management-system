@@ -23,24 +23,32 @@
         const urlPath = editId ? `/api/school-exam-names/${editId}` : '/api/school-exam-names';
 
         try {
+            const requestConfig = {
+                headers: {
+                    Accept: 'application/json',
+                },
+            };
+
             if (editId) {
-                await axios.post(urlPath, { ...payload, _method: 'PUT' });
+                await axios.post(urlPath, { ...payload, _method: 'PUT' }, requestConfig);
             } else {
-                await axios.post(urlPath, payload);
+                await axios.post(urlPath, payload, requestConfig);
             }
 
             closeExamModal();
             Toastify({ text: 'Exam name saved successfully!', style: { background: '#10b981' }, duration: 3000 }).showToast();
             await loadExams();
         } catch (err) {
-            if (err.response?.status === 422) {
-                showExamErrors(err.response.data.errors);
+            const errors = err.response?.data?.errors;
+
+            if (err.response?.status === 422 || errors) {
+                showExamErrors(errors ?? {});
                 return;
             }
             Swal.fire({
                 icon: 'error',
                 title: 'Submission Failed',
-                text: err.response?.data?.message || 'Something went wrong.'
+                text: err.response?.data?.message || err.response?.data?.error || 'Something went wrong.'
             });
         } finally {
             submitBtn.disabled = false;

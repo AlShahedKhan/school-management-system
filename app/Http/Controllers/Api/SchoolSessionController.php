@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\School;
 use App\Models\SchoolSession;
 use App\Http\Requests\SchoolSessionRequest;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -81,6 +82,17 @@ class SchoolSessionController extends Controller
             });
 
             return response()->json(['message' => 'Session created successfully', 'data' => $session]);
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return response()->json([
+                    'message' => 'The session already exists.',
+                    'errors' => [
+                        'session_year' => ['A session for this Class / Group / Section with the same year already exists.'],
+                    ],
+                ], 422);
+            }
+
+            return response()->json(['message' => 'Failed to create session.', 'error' => $e->getMessage()], 500);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to create session.', 'error' => $e->getMessage()], 500);
         }
@@ -114,6 +126,17 @@ class SchoolSessionController extends Controller
             });
 
             return response()->json(['message' => 'Session updated successfully']);
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return response()->json([
+                    'message' => 'The session already exists.',
+                    'errors' => [
+                        'session_year' => ['A session for this Class / Group / Section with the same year already exists.'],
+                    ],
+                ], 422);
+            }
+
+            return response()->json(['message' => 'Failed to update session.', 'error' => $e->getMessage()], 500);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to update session.', 'error' => $e->getMessage()], 500);
         }

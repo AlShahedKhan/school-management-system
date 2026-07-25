@@ -14,6 +14,7 @@
         axios.post(apiUrl, formData, {
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
                 'Content-Type': 'multipart/form-data'
             }
         })
@@ -46,7 +47,7 @@
             }
         })
         .catch(error => {
-            if (error.response?.status === 422) {
+            if (error.response?.status === 422 || error.response?.data?.errors) {
                 showClassErrors(error.response.data.errors);
                 return;
             }

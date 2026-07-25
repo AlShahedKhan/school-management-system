@@ -39,6 +39,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (Throwable $e, $request) {
+            // Let Laravel return its standard JSON validation payload to API clients.
+            if ($request->expectsJson() || $e instanceof \Illuminate\Validation\ValidationException) {
+                return null;
+            }
+
             $status = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
             if (view()->exists("errors.{$status}")) {
                 return response()->view("errors.{$status}", ['exception' => $e], $status);
