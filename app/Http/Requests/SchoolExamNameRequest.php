@@ -25,7 +25,7 @@ class SchoolExamNameRequest extends FormRequest
         return [
             'class_id'   => 'required|integer|exists:school_classes,id',
             'section_id' => 'required|integer|exists:school_sections,id',
-            'group_id'   => 'required|integer|exists:school_groups,id',
+            'group_id'   => 'nullable|integer|exists:school_groups,id',
             'session_id' => 'required|integer|exists:school_sessions,id',
             'exam_name'  => [
                 'required',
@@ -42,9 +42,15 @@ class SchoolExamNameRequest extends FormRequest
         ];
     }
 
-    protected function getSchoolId()
+    protected function getSchoolId(): int
     {
-        return School::where('user_id', Auth::id())->first()->id;
+        $schoolId = School::where('user_id', Auth::id())->value('id');
+
+        if (! $schoolId) {
+            abort(403, 'School profile not found.');
+        }
+
+        return (int) $schoolId;
     }
 
     public function messages()

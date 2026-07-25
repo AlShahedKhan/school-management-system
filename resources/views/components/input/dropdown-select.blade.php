@@ -152,6 +152,10 @@
                         const targetModal = document.getElementById(target);
                         const currentModal = root.closest('[role="dialog"]');
 
+                        if (targetModal && currentModal) {
+                            targetModal.dataset.returnModalId = currentModal.id;
+                        }
+
                         currentModal?.classList.add('hidden');
                         targetModal?.classList.remove('hidden');
                     });

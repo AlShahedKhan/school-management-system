@@ -24,6 +24,8 @@
             populateDropdown('examFormSectionMenu', [], 'id', 'section_name');
             setDropdownValue('examFormSession', '', 'Select Session');
             populateDropdown('examFormSessionMenu', [], 'id', 'session_year');
+
+            loadExamFormSectionByGroup(classId, '');
         }).catch(() => {});
     }
 
@@ -71,6 +73,25 @@
             const groupInput = document.getElementById('examFormGroup');
             const groupId = groupInput ? groupInput.value : '';
             loadExamFormSessionBySection(classId, groupId, this.value);
+        });
+
+        document.addEventListener('school:class-saved', async function (event) {
+            const { classItem, returnModalId, isNew } = event.detail || {};
+
+            if (returnModalId !== 'examModal' || !isNew || !classItem?.id) {
+                return;
+            }
+
+            event.preventDefault();
+
+            try {
+                const response = await axios.get('/api/get-school-classes');
+                populateDropdown('examFormClassMenu', response.data.data || [], 'id', 'class_name');
+                setDropdownValue('examFormClass', classItem.id, classItem.class_name);
+                loadExamFormGroupByClass(classItem.id);
+            } finally {
+                document.getElementById('examModal')?.classList.remove('hidden');
+            }
         });
     });
 
@@ -156,24 +177,27 @@
                 const groups = groupRes.data.data || [];
                 populateDropdown('examFormGroupMenu', groups, 'id', 'group_name');
                 const matchedGroup = groups.find(g => String(g.id) === String(item.group_id));
+                const groupId = matchedGroup ? matchedGroup.id : '';
+                const groupQuery = groupId ? '&group_id=' + groupId : '';
+
                 if (matchedGroup) {
                     setDropdownValue('examFormGroup', matchedGroup.id, matchedGroup.group_name);
+                }
 
-                    const sectionRes = await axios.get('/api/get-school-sections?class_id=' + matchedClass.id + '&group_id=' + matchedGroup.id);
-                    const sections = sectionRes.data.data || [];
-                    populateDropdown('examFormSectionMenu', sections, 'id', 'section_name');
-                    const matchedSection = sections.find(s => String(s.id) === String(item.section_id));
-                    if (matchedSection) {
-                        setDropdownValue('examFormSection', matchedSection.id, matchedSection.section_name);
+                const sectionRes = await axios.get('/api/get-school-sections?class_id=' + matchedClass.id + groupQuery);
+                const sections = sectionRes.data.data || [];
+                populateDropdown('examFormSectionMenu', sections, 'id', 'section_name');
+                const matchedSection = sections.find(s => String(s.id) === String(item.section_id));
+                if (matchedSection) {
+                    setDropdownValue('examFormSection', matchedSection.id, matchedSection.section_name);
 
-                        const sessionRes = await axios.get('/api/get-school-sessions?class_id=' + matchedClass.id + '&section_id=' + matchedSection.id);
-                        const sessions = sessionRes.data.data || [];
-                        const sessionItems = sessions.map(s => ({ id: s.id, session_year: s.session_year }));
-                        populateDropdown('examFormSessionMenu', sessionItems, 'id', 'session_year');
-                        const matchedSession = sessions.find(s => String(s.id) === String(item.session_id));
-                        if (matchedSession) {
-                            setDropdownValue('examFormSession', matchedSession.id, matchedSession.session_year);
-                        }
+                    const sessionRes = await axios.get('/api/get-school-sessions?class_id=' + matchedClass.id + groupQuery + '&section_id=' + matchedSection.id);
+                    const sessions = sessionRes.data.data || [];
+                    const sessionItems = sessions.map(s => ({ id: s.id, session_year: s.session_year }));
+                    populateDropdown('examFormSessionMenu', sessionItems, 'id', 'session_year');
+                    const matchedSession = sessions.find(s => String(s.id) === String(item.session_id));
+                    if (matchedSession) {
+                        setDropdownValue('examFormSession', matchedSession.id, matchedSession.session_year);
                     }
                 }
             }

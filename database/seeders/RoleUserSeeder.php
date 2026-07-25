@@ -9,6 +9,7 @@ use App\Models\School;
 use App\Models\SchoolClass;
 use App\Models\SchoolEmployee;
 use App\Models\SchoolExamName;
+use App\Models\SchoolGroup;
 use App\Models\SchoolSection;
 use App\Models\SchoolSession;
 use App\Models\SchoolStudentFee;
@@ -111,6 +112,14 @@ class RoleUserSeeder extends Seeder
         $seededSessions = collect();
 
         foreach ($seededClasses as $class) {
+            $group = SchoolGroup::updateOrCreate(
+                [
+                    'school_id' => $school->id,
+                    'class_id' => $class->id,
+                    'group_name' => 'General',
+                ]
+            );
+
             $section = SchoolSection::updateOrCreate(
                 [
                     'school_id' => $school->id,
@@ -118,7 +127,7 @@ class RoleUserSeeder extends Seeder
                     'section_name' => 'A',
                 ],
                 [
-                    'group_id' => null,
+                    'group_id' => $group->id,
                 ]
             );
 
@@ -130,7 +139,7 @@ class RoleUserSeeder extends Seeder
                     'session_year' => '2026',
                 ],
                 [
-                    'group_id' => null,
+                    'group_id' => $group->id,
                     'start_date' => '2026-01-01',
                     'end_date' => '2026-12-31',
                     'total_days' => 365,

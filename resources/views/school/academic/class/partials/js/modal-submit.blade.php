@@ -3,6 +3,7 @@
         e.preventDefault();
         clearClassErrors();
         const classId = document.getElementById('class_id').value;
+        const classModalElement = document.getElementById('classModal');
         const formData = new FormData(this);
         if (classId) {
             formData.append('_method', 'PUT');
@@ -16,15 +17,33 @@
                 'Content-Type': 'multipart/form-data'
             }
         })
-        .then(() => {
+        .then((response) => {
             Toastify({
                 text: 'Class Saved Successfully!',
                 gravity: 'top',
                 position: 'right',
                 style: { background: '#10b981' }
             }).showToast();
-            classModal.classList.add('hidden');
-            setTimeout(() => { window.location.reload(); }, 500);
+
+            const classSavedEvent = new CustomEvent('school:class-saved', {
+                cancelable: true,
+                detail: {
+                    classItem: response.data.data,
+                    returnModalId: classModalElement?.dataset.returnModalId || null,
+                    isNew: !classId,
+                },
+            });
+
+            document.dispatchEvent(classSavedEvent);
+            classModalElement?.classList.add('hidden');
+            this.reset();
+            if (classModalElement) {
+                delete classModalElement.dataset.returnModalId;
+            }
+
+            if (!classSavedEvent.defaultPrevented) {
+                setTimeout(() => { window.location.reload(); }, 500);
+            }
         })
         .catch(error => {
             if (error.response?.status === 422) {

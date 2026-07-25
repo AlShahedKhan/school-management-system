@@ -7,7 +7,15 @@
     }
 
     function closeClassModal() {
-        document.getElementById('classModal').classList.add('hidden');
+        const modal = document.getElementById('classModal');
+        const returnModalId = modal?.dataset.returnModalId;
+
+        modal?.classList.add('hidden');
+
+        if (returnModalId) {
+            document.getElementById(returnModalId)?.classList.remove('hidden');
+            delete modal.dataset.returnModalId;
+        }
     }
 
     document.getElementById('openClassModalBtn')?.addEventListener('click', openClassModal);
