@@ -847,22 +847,22 @@ class DashboardController extends Controller
             return redirect()->back()->with('error', 'School profile not found.');
         }
         $schoolId = $school->id;
-        $expenses = SchoolExpense::query()
+        $expenses = Expense::query()
             ->when($schoolId, fn ($query) => $query->where('school_id', $schoolId))
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($expenseQuery) use ($search) {
                     $expenseQuery
-                        ->where('invoice_no', 'like', "%{$search}%")
-                        ->orWhere('expense_reason', 'like', "%{$search}%")
+                        ->where('expense_reason', 'like', "%{$search}%")
                         ->orWhere('amount', 'like', "%{$search}%")
-                        ->orWhere('balance', 'like', "%{$search}%");
+                        ->orWhere('date', 'like', "%{$search}%");
                 });
             })
-            ->when($month !== '', fn ($query) => $query->whereMonth('expense_date', $month))
-            ->when($year !== '', fn ($query) => $query->whereYear('expense_date', $year))
-            ->orderBy('invoice_no', 'asc')
+            ->when($month !== '', fn ($query) => $query->where('month', $month))
+            ->when($year !== '', fn ($query) => $query->where('year', $year))
+            ->orderBy('date', 'desc')
             ->paginate(30)
             ->withQueryString();
+
         return view('school.finance.expense.index', compact('expenses'));
     }
 

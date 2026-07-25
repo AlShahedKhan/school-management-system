@@ -13,6 +13,8 @@ class Expense extends Model
         'school_id',
         'date',
         'expense_reason',
+        'month',
+        'year',
         'name',
         'amount'
     ];
