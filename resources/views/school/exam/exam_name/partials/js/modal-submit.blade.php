@@ -17,6 +17,8 @@
             section_id: sectionInput ? sectionInput.value : '',
             session_id: sessionInput ? sessionInput.value : '',
             exam_name: document.getElementById('exam_name').value.trim(),
+            exam_start_date: document.getElementById('exam_start_date')?.value || '',
+            exam_end_date: document.getElementById('exam_end_date')?.value || '',
         };
 
         const editId = document.getElementById('edit_id').value;

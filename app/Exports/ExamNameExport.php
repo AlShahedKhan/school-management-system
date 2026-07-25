@@ -25,13 +25,15 @@ class ExamNameExport implements FromCollection, WithHeadings, WithTitle
                 'section_name' => $record->section_name,
                 'session_name' => $record->session_name,
                 'exam_name' => $record->exam_name,
+                'exam_start_date' => optional($record->exam_start_date)->format('d/m/Y') ?? '-',
+                'exam_end_date' => optional($record->exam_end_date)->format('d/m/Y') ?? '-',
             ];
         });
     }
 
     public function headings(): array
     {
-        return ['Class', 'Group', 'Section', 'Session', 'Exam Name'];
+        return ['Class', 'Group', 'Section', 'Session', 'Exam Name', 'Start Date', 'End Date'];
     }
 
     public function title(): string
