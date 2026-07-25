@@ -93,6 +93,46 @@
                 document.getElementById('examModal')?.classList.remove('hidden');
             }
         });
+
+        document.addEventListener('school:group-saved', async function (event) {
+            const { groupItem, returnModalId, isNew } = event.detail || {};
+
+            if (returnModalId !== 'examModal' || !isNew || !groupItem?.id || !groupItem?.class_id) {
+                return;
+            }
+
+            event.preventDefault();
+
+            try {
+                const classResponse = await axios.get('/api/get-school-classes');
+                const classes = classResponse.data.data || [];
+                populateDropdown('examFormClassMenu', classes, 'id', 'class_name');
+
+                const selectedClass = classes.find(item => String(item.id) === String(groupItem.class_id));
+                if (selectedClass) {
+                    setDropdownValue('examFormClass', selectedClass.id, selectedClass.class_name);
+                }
+
+                const groupResponse = await axios.get('/api/get-school-groups', {
+                    params: { class_id: groupItem.class_id },
+                });
+                const groups = groupResponse.data.data || [];
+                populateDropdown('examFormGroupMenu', groups, 'id', 'group_name');
+
+                const selectedGroup = groups.find(item => String(item.id) === String(groupItem.id));
+                if (selectedGroup) {
+                    setDropdownValue('examFormGroup', selectedGroup.id, selectedGroup.group_name);
+                }
+
+                setDropdownValue('examFormSection', '', 'Select Section');
+                populateDropdown('examFormSectionMenu', [], 'id', 'section_name');
+                setDropdownValue('examFormSession', '', 'Select Session');
+                populateDropdown('examFormSessionMenu', [], 'id', 'session_year');
+                loadExamFormSectionByGroup(groupItem.class_id, groupItem.id);
+            } finally {
+                document.getElementById('examModal')?.classList.remove('hidden');
+            }
+        });
     });
 
     function resetExamForm() {
