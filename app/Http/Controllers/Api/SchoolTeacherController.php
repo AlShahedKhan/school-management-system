@@ -114,6 +114,9 @@ class SchoolTeacherController extends Controller
                     'designation' => $request->designation,
                     'mobile' => $request->mobile,
                     'email' => $request->email,
+                    'salary_amount' => $request->salary_amount,
+                    'salary_start_date' => $request->salary_start_date,
+                    'pay_date' => $request->pay_date,
                     'password' => '00000000',
                     'photo' => $photoPath
                 ]);
@@ -138,6 +141,23 @@ class SchoolTeacherController extends Controller
                     'changed_by' => Auth::id(),
                     'notes' => 'Teacher account registered in school portal.'
                 ]);
+
+                // Create TeacherAcademicRecord
+                $activeSession = \App\Models\SchoolSession::where('school_id', $school->id)
+                    ->where('is_active', true)
+                    ->first() ?? \App\Models\SchoolSession::where('school_id', $school->id)->latest()->first();
+
+                if ($activeSession) {
+                    \App\Models\TeacherAcademicRecord::firstOrCreate([
+                        'school_id' => $school->id,
+                        'teacher_id' => $teacher->id,
+                        'session_year' => $activeSession->session_year,
+                    ], [
+                        'session_id' => $activeSession->id,
+                        'designation' => $teacher->designation,
+                        'status' => 'Active',
+                    ]);
+                }
 
                 return [
                     'mobile' => $request->mobile,
@@ -213,6 +233,10 @@ class SchoolTeacherController extends Controller
                 $teacher->designation = $request->designation;
                 $teacher->mobile = $request->mobile;
                 $teacher->email = $request->email;
+                $teacher->salary_amount = $request->salary_amount;
+                $teacher->salary_start_date = $request->salary_start_date;
+                $teacher->pay_date = $request->pay_date;
+                $teacher->save();
 
                 $updateData = [
                     'mobile' => $request->mobile,

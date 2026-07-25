@@ -3,8 +3,10 @@
         id="expenseSearch"
         name="search"
         value="{{ request('search') }}"
-        placeholder="Search..."
+        placeholder="Search Expense..."
         class="hidden w-full lg:block lg:w-72"
     />
-    @include('school.finance.expense.partials.restore-desktop')
+    <x-button.secondary id="btnRestoreDesktop" onclick="window.location.href='{{ route('school.expense') }}'">
+        Restore
+    </x-button.secondary>
 </form>

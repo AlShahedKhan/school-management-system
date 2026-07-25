@@ -466,11 +466,11 @@
         let currentPayrolls = [];
 
         function loadEmployees() {
-            axios.get('/api/school-employees').then(res => {
-                allEmployees = res.data.data;
+            axios.get('/api/employees').then(res => {
+                allEmployees = res.data.data || res.data;
                 const select = document.getElementById('school_employee_id');
                 allEmployees.forEach(e => {
-                    select.innerHTML += `<option value="${e.id}">${e.employee_name}</option>`;
+                    select.innerHTML += `<option value="${e.id}">${e.name}</option>`;
                 });
             });
         }

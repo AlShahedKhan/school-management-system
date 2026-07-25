@@ -22,6 +22,9 @@ class Teacher extends Model
         'password',
         'dob',
         'photo',
+        'salary_amount',
+        'salary_start_date',
+        'pay_date',
         'status', // Added on 2026-07-11
     ];
 
@@ -50,5 +53,15 @@ class Teacher extends Model
     public function school()
     {
         return $this->belongsTo(School::class);
+    }
+
+    public function academicRecords()
+    {
+        return $this->hasMany(TeacherAcademicRecord::class, 'teacher_id');
+    }
+
+    public function latestAcademicRecord()
+    {
+        return $this->hasOne(TeacherAcademicRecord::class, 'teacher_id')->latestOfMany();
     }
 }

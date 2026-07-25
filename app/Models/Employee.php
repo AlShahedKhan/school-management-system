@@ -17,6 +17,7 @@ class Employee extends Model
         'designation',
         'salary_amount',
         'salary_start_date',
+        'pay_date',
         'employee_status',
         'note',
     ];
