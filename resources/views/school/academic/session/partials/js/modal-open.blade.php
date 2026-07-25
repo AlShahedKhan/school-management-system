@@ -1,4 +1,45 @@
 <script>
+    function calculateSession() {
+        const startInput = document.getElementById('start_date');
+        const endInput = document.getElementById('end_date');
+        const sessionYearInput = document.getElementById('session_year');
+        const totalDaysInput = document.getElementById('total_days');
+        const remainingDaysInput = document.getElementById('remaining_days');
+
+        if (!startInput || !endInput || !sessionYearInput || !totalDaysInput || !remainingDaysInput) {
+            return;
+        }
+
+        const startVal = startInput.value;
+        const endVal = endInput.value;
+
+        sessionYearInput.value = '';
+        totalDaysInput.value = '';
+        remainingDaysInput.value = '';
+
+        if (!startVal || !endVal) {
+            return;
+        }
+
+        const start = new Date(`${startVal}T00:00:00`);
+        const end = new Date(`${endVal}T00:00:00`);
+
+        if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end < start) {
+            return;
+        }
+
+        const sYear = start.getFullYear();
+        const eYearShort = String(end.getFullYear()).slice(-2);
+        const total = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const remaining = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+
+        sessionYearInput.value = `${sYear}-${eYearShort}`;
+        totalDaysInput.value = total > 0 ? total : 0;
+        remainingDaysInput.value = remaining > 0 ? remaining : 0;
+    }
+
     function loadSessionClassSelect(selectedId = null) {
         return axios.get('/api/get-school-classes').then(res => {
             const data = res.data.data || [];
@@ -261,4 +302,7 @@
             loadSessionSectionSelect(classId, this.value);
         }
     });
+
+    document.getElementById('start_date')?.addEventListener('change', calculateSession);
+    document.getElementById('end_date')?.addEventListener('change', calculateSession);
 </script>

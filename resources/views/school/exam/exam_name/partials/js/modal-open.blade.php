@@ -427,6 +427,10 @@
         }).catch(() => {});
     }
 
+    function normalizeDateInputValue(value) {
+        return value ? String(value).slice(0, 10) : '';
+    }
+
     async function editExam(id) {
         try {
             const res = await axios.get('/api/school-exam-names/' + id);
@@ -435,6 +439,8 @@
             document.getElementById('edit_id').value = item.id;
             document.getElementById('examModalTitle').textContent = 'Edit Exam';
             document.getElementById('exam_name').value = item.exam_name || '';
+            document.getElementById('exam_start_date').value = normalizeDateInputValue(item.exam_start_date);
+            document.getElementById('exam_end_date').value = normalizeDateInputValue(item.exam_end_date);
 
             const classRes = await axios.get('/api/get-school-classes');
             const classes = classRes.data.data || [];

@@ -27,6 +27,8 @@ class SchoolExamNameRequest extends FormRequest
             'section_id' => 'required|integer|exists:school_sections,id',
             'group_id'   => 'nullable|integer|exists:school_groups,id',
             'session_id' => 'required|integer|exists:school_sessions,id',
+            'exam_start_date' => ['nullable', 'date'],
+            'exam_end_date' => ['nullable', 'date', 'after_or_equal:exam_start_date'],
             'exam_name'  => [
                 'required',
                 'string',
@@ -57,6 +59,7 @@ class SchoolExamNameRequest extends FormRequest
     {
         return [
             'exam_name.unique' => 'An exam with this name already exists for this class, section, group and session.',
+            'exam_end_date.after_or_equal' => 'Exam end date must be the same as or after the exam start date.',
         ];
     }
 }

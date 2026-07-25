@@ -56,3 +56,13 @@
     <x-input.floating-label for="exam_name">Exam Name</x-input.floating-label>
     <div id="exam_name_error" class="mt-1 hidden text-[10px] text-red-500"></div>
 </div>
+<div class="relative">
+    <x-input.control type="date" id="exam_start_date" class="peer placeholder:text-transparent" name="exam_start_date" placeholder=" " />
+    <x-input.floating-label for="exam_start_date">Exam Start Date</x-input.floating-label>
+    <div id="exam_start_date_error" class="mt-1 hidden text-[10px] text-red-500"></div>
+</div>
+<div class="relative">
+    <x-input.control type="date" id="exam_end_date" class="peer placeholder:text-transparent" name="exam_end_date" placeholder=" " />
+    <x-input.floating-label for="exam_end_date">Exam End Date</x-input.floating-label>
+    <div id="exam_end_date_error" class="mt-1 hidden text-[10px] text-red-500"></div>
+</div>
