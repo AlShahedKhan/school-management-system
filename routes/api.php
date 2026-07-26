@@ -20,6 +20,8 @@ use App\Http\Controllers\Api\PrincipalController;
 use App\Http\Controllers\Api\SchoolController;
 use App\Http\Controllers\Api\SchoolDueListController;
 use App\Http\Controllers\Api\SchoolEmployeeController;
+use App\Http\Controllers\Api\EmployeeController;
+use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\SchoolExamAdmitCardController;
 use App\Http\Controllers\Api\SchoolExamGradeController;
 use App\Http\Controllers\Api\SchoolExamMarkSubmitController;
@@ -219,12 +221,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('incomes-receipt/{id}', [SchoolIncomeController::class, 'receipt']); // Single Receipt
 
     // Finance (Expense)
-    // Route::get('/expenses', [SchoolExpenseController::class, 'index']);
-    Route::post('/expenses', [SchoolExpenseController::class, 'store']);
-    // Route::get('/expenses/{id}', [SchoolExpenseController::class, 'show']);
-    // Route::post('/expenses/{id}', [SchoolExpenseController::class, 'update']);
-    Route::delete('/expenses/{id}', [SchoolExpenseController::class, 'destroy']);
-    // Route::get('/expenses-export', [SchoolExpenseController::class, 'export']);
+    Route::apiResource('expenses', ExpenseController::class);
 
     //School Membership
     Route::get('/memberships', [SchoolMembershipController::class, 'index']);
@@ -298,7 +295,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Employees
-    Route::apiResource('school-employees', SchoolEmployeeController::class);
+    Route::apiResource('employees', EmployeeController::class);
 
     // Payrolls
     Route::apiResource('school-payrolls', SchoolPayrollController::class);

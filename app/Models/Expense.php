@@ -11,8 +11,12 @@ class Expense extends Model
 
     protected $fillable = [
         'school_id',
+        'invoice_no',
         'date',
         'expense_reason',
+        'details',
+        'month',
+        'year',
         'name',
         'amount'
     ];

@@ -3,8 +3,10 @@
         id="expenseSearchMobile"
         name="search"
         value="{{ request('search') }}"
-        placeholder="Search Faculty..."
+        placeholder="Search Expense..."
         class="col-span-2 min-w-0"
     />
-    @include('school.finance.expense.partials.restore-mobile')
+    <x-button.secondary id="btnRestoreMobile" onclick="window.location.href='{{ route('school.expense') }}'">
+        Restore
+    </x-button.secondary>
 </form>

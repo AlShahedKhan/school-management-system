@@ -140,7 +140,7 @@ class DashboardController extends Controller
         $admissionsCount = $applyDashboardFilter(AdmissionStudent::where('school_id', $schoolId)
             ->whereIn('status', ['Active', 'approved', 'Inactive'])
         )->count();
-        $employeesCount = $applyDashboardFilter(SchoolEmployee::where('school_id', $school->id))->count();
+        $employeesCount = $applyDashboardFilter(Employee::where('school_id', $school->id))->count();
         $promotionsCount = $applyDashboardFilter(StudentPromotion::where('school_id', $school->id))->count();
         $totalTuitionFees = $applyDashboardFilter(SchoolStudentFee::where('school_id', $school->id)
             ->where('fee_type_name', 'Tuition'))->sum('payable_amount');
@@ -680,7 +680,7 @@ class DashboardController extends Controller
             ->values()
             ->all();
 
-        return view('school.teacher-registration', compact('teachers', 'teacherFilterOptions'));
+        return view('school.teacher.index', compact('teachers', 'teacherFilterOptions'));
     }
 
     public function SchoolclassPermission()
@@ -696,7 +696,7 @@ class DashboardController extends Controller
 
     public function studentLists()
     {
-        return view('school.student-lists');
+        return view('school.student.index');
     }
 
     // Modified on 2026-07-07: Added studentPromote and studentPromoteHistory methods
@@ -847,22 +847,22 @@ class DashboardController extends Controller
             return redirect()->back()->with('error', 'School profile not found.');
         }
         $schoolId = $school->id;
-        $expenses = SchoolExpense::query()
+        $expenses = Expense::query()
             ->when($schoolId, fn ($query) => $query->where('school_id', $schoolId))
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($expenseQuery) use ($search) {
                     $expenseQuery
-                        ->where('invoice_no', 'like', "%{$search}%")
-                        ->orWhere('expense_reason', 'like', "%{$search}%")
+                        ->where('expense_reason', 'like', "%{$search}%")
                         ->orWhere('amount', 'like', "%{$search}%")
-                        ->orWhere('balance', 'like', "%{$search}%");
+                        ->orWhere('date', 'like', "%{$search}%");
                 });
             })
-            ->when($month !== '', fn ($query) => $query->whereMonth('expense_date', $month))
-            ->when($year !== '', fn ($query) => $query->whereYear('expense_date', $year))
-            ->orderBy('invoice_no', 'asc')
+            ->when($month !== '', fn ($query) => $query->where('month', $month))
+            ->when($year !== '', fn ($query) => $query->where('year', $year))
+            ->orderBy('date', 'desc')
             ->paginate(30)
             ->withQueryString();
+
         return view('school.finance.expense.index', compact('expenses'));
     }
 
