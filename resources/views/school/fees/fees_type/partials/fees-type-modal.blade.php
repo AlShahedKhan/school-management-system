@@ -5,8 +5,8 @@
     close-button-id="closeFeeModal"
     title-class="fee-register-modal-title m-0 text-center font-semibold leading-tight text-slate-800"
     submit-label="Save"
-    panel-class="custom-scrollbar mx-auto my-auto w-full max-w-4xl overflow-y-auto border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)]"
-    panel-style="border-radius:4px; max-height:min(480px, calc(100dvh - 2.5rem));"
+    panel-class="custom-scrollbar mx-auto my-auto w-full max-w-[288px] overflow-y-auto border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)] md:max-w-[480px]"
+    panel-style="border-radius:4px; max-height:min(360px, calc(100dvh - 2.5rem));"
 >
     @include('school.fees.fees_type.partials.inc.form')
 

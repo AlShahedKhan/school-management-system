@@ -38,7 +38,7 @@
         const freq = document.getElementById('div_frequency');
         if (freq) freq.style.display = 'none';
         const fn = document.getElementById('fee_name_input');
-        if (fn) fn.value = '';
+        if (fn) { fn.value = ''; fn.readOnly = false; }
         const amt = document.getElementById('amount');
         if (amt) amt.value = '';
         const pd = document.getElementById('pay_date');
