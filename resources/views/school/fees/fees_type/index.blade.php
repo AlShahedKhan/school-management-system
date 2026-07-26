@@ -158,16 +158,38 @@
             return `${parts[2]}/${parts[1]}/${parts[0]}`;
         }
 
+        function getSessionLabel() {
+            const label = document.querySelector('#feeFormSessionButton [data-dropdown-select-label]');
+            return label ? label.textContent.trim() : '';
+        }
+
+        function autoGenerateFeeName(type) {
+            const input = document.getElementById('fee_name_input');
+            if (!input) return;
+            const sessionLabel = getSessionLabel();
+            const session = sessionLabel && sessionLabel !== 'Select Session' ? sessionLabel : '';
+            if (type === 'Admission') {
+                input.value = session ? 'Admission-' + session : 'Admission';
+                input.readOnly = true;
+            } else if (type === 'Promote') {
+                input.value = session ? 'Promote-' + session : 'Promote';
+                input.readOnly = true;
+            } else {
+                input.readOnly = false;
+            }
+        }
+
         function handleFeeTypeChange() {
             const type = document.getElementById('fee_type_name').value;
             resetConditionalFields();
             const fields = {
                 'Exams': ['div_exam_name', 'div_amount', 'div_pay_date'],
-                'Food': ['div_food_type'],
-                'Fine': ['div_fee_name', 'div_amount', 'div_pay_date'],
+                'Food': ['div_food_type', 'div_fee_name', 'div_amount', 'div_due_day'],
+                'Fine': ['div_amount', 'div_pay_date'],
                 'Session': ['div_fee_name', 'div_amount', 'div_pay_date'],
                 'Admission': ['div_fee_name', 'div_amount', 'div_pay_date'],
-                'Tuition': ['div_fee_name', 'div_amount', 'div_pay_date'],
+                'Promote': ['div_fee_name', 'div_amount', 'div_pay_date'],
+                'Tuition': ['div_fee_name', 'div_amount', 'div_due_day'],
             };
 
             (fields[type] || []).forEach(showEl);
@@ -175,19 +197,23 @@
             const nameWrapper = document.getElementById('fee_name_wrapper');
             if (type === 'Fine') {
                 showEl('fine_fee_wrapper');
-                if (nameWrapper) nameWrapper.classList.remove('col-span-2');
                 const fr = document.getElementById('frequency');
-                if (fr) { fr.value = 'event_triggered'; showEl('div_frequency'); }
+                if (fr) { fr.value = 'event_triggered'; }
             } else {
                 hideEl('fine_fee_wrapper');
-                if (nameWrapper) nameWrapper.classList.add('col-span-2');
-                if (type === 'Tuition' || type === 'Food') {
+                if (type === 'Tuition') {
                     const fr = document.getElementById('frequency');
-                    if (fr) { fr.value = 'monthly'; showEl('div_frequency'); }
+                    if (fr) { fr.value = 'monthly'; }
+                } else if (type === 'Food') {
+                    const fr = document.getElementById('frequency');
+                    if (fr) { fr.value = 'monthly'; }
                 } else if (type === 'Exams') {
                     loadExams();
                     const fr = document.getElementById('frequency');
                     if (fr) { fr.value = 'per_exam'; showEl('div_frequency'); }
+                } else if (type === 'Session') {
+                    const fr = document.getElementById('frequency');
+                    if (fr) { fr.value = 'yearly'; }
                 } else if (type) {
                     const fr = document.getElementById('frequency');
                     if (fr) { fr.value = 'one_time'; }
@@ -197,24 +223,19 @@
             if (type === 'Exams') {
                 hideEl('div_fee_name');
             }
-            if (type === 'Food') {
-                showEl('div_amount');
-                showEl('div_pay_date');
-            }
+
+            autoGenerateFeeName(type);
         }
 
         function handleFoodTypeChange() {
             const foodType = document.getElementById('food_type').value;
             const studentDiv = document.getElementById('div_food_students');
-            const studentSelect = document.getElementById('food_student_ids');
             if (foodType === 'single' || foodType === 'multiple') {
                 studentDiv.style.display = 'block';
                 loadStudentsForFood();
-            } else if (foodType === 'all') {
-                studentDiv.style.display = 'none';
-                studentSelect.innerHTML = '';
             } else {
                 studentDiv.style.display = 'none';
+                document.getElementById('food_student_list').innerHTML = '';
             }
         }
 
@@ -231,14 +252,17 @@
             if (!classId || !sessionId) return;
             axios.get('/api/get-school-students', { params: { class_id: classId, session_id: sessionId } }).then(res => {
                 const data = res.data.data || res.data || [];
-                const select = document.getElementById('food_student_ids');
-                select.innerHTML = '';
+                const list = document.getElementById('food_student_list');
+                list.innerHTML = '';
                 data.forEach(student => {
-                    select.innerHTML += `<option value="${student.id}">${student.student_name}</option>`;
+                    const label = document.createElement('label');
+                    label.className = 'flex items-center gap-2 cursor-pointer py-0.5';
+                    label.innerHTML = '<input type="checkbox" name="student_ids[]" value="' + student.id + '" class="w-3.5 h-3.5 accent-blue-600 cursor-pointer"> <span class="text-[11px] text-slate-700">' + (student.student_name || student.name || 'Student #' + student.id) + '</span>';
+                    list.appendChild(label);
                 });
                 const count = document.getElementById('food_student_count');
                 if (count) {
-                    count.textContent = `${data.length} student(s) available`;
+                    count.textContent = data.length + ' student(s) available';
                     count.classList.remove('hidden');
                 }
             }).catch(() => {});
@@ -548,11 +572,17 @@
             const fw = document.getElementById('fine_fee_wrapper');
             if (fw) fw.style.display = 'none';
             const fn = document.getElementById('fee_name_input');
-            if (fn) fn.value = '';
+            if (fn) { fn.value = ''; fn.readOnly = false; }
             const amt = document.getElementById('amount');
             if (amt) amt.value = '';
             const pd = document.getElementById('pay_date');
             if (pd) pd.value = '';
+            const dd = document.getElementById('due_day');
+            if (dd) { dd.value = ''; resetDropdownLabel('due_day'); }
+            const fsl = document.getElementById('food_student_list');
+            if (fsl) fsl.innerHTML = '';
+            const fsc = document.getElementById('food_student_count');
+            if (fsc) fsc.classList.add('hidden');
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -625,7 +655,11 @@
                 if (this.value) loadFeeSessionSelect();
             });
 
-            document.getElementById('feeFormSession')?.addEventListener('change', toggleFeeTypeDisabled);
+            document.getElementById('feeFormSession')?.addEventListener('change', function() {
+                toggleFeeTypeDisabled();
+                const type = document.getElementById('fee_type_name')?.value;
+                if (type === 'Promote') autoGenerateFeeName(type);
+            });
 
             document.getElementById('btnFilter')?.addEventListener('click', () => {
                 document.getElementById('filterModal')?.classList.remove('hidden');

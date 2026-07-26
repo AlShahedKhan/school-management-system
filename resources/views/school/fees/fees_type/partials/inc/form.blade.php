@@ -59,6 +59,7 @@
         :value="old('fee_type_name')"
         :options="[
             'Admission' => 'Admission',
+            'Promote' => 'Promote',
             'Tuition' => 'Tuition',
             'Food' => 'Food',
             'Fine' => 'Fine',
@@ -75,22 +76,22 @@
             <x-input.floating-label for="fee_name_input">Fee Name</x-input.floating-label>
             <div id="fee_name_error" class="mt-1 hidden text-[10px] text-red-500"></div>
         </div>
-        <div id="fine_fee_wrapper" class="relative hidden-field">
-            <x-input.dropdown-select
-                id="fine_fee_name_select"
-                name="fine_fee_name"
-                placeholder="Select Fine Type"
-                :value="old('fine_fee_name')"
-                :options="[
-                    'late' => 'Late',
-                    'absent' => 'Absent',
-                    'payment-due' => 'Payment Due',
-                    'payment-overdue' => 'Payment Overdue',
-                    'exam-fee-due' => 'Exam Fee Due',
-                ]"
-            />
-        </div>
     </div>
+</div>
+<div id="fine_fee_wrapper" class="relative hidden-field">
+    <x-input.dropdown-select
+        id="fine_fee_name_select"
+        name="fine_fee_name"
+        placeholder="Select Fine Type"
+        :value="old('fine_fee_name')"
+        :options="[
+            'late' => 'Late',
+            'absent' => 'Absent',
+            'payment-due' => 'Payment Due',
+            'payment-overdue' => 'Payment Overdue',
+            'exam-fee-due' => 'Exam Fee Due',
+        ]"
+    />
 </div>
 <div id="div_exam_name" class="relative hidden-field">
     <x-input.dropdown-select
@@ -108,7 +109,7 @@
 </div>
 <div id="div_pay_date" class="relative hidden-field">
     <x-input.control id="pay_date" name="pay_date" type="date" placeholder=" " class="peer" />
-    <x-input.floating-label id="pay_date_label" for="pay_date" :floating="false">Pay Date</x-input.floating-label>
+    <x-input.floating-label id="pay_date_label" for="pay_date" :floating="false">Due Date</x-input.floating-label>
     <div id="pay_date_error" class="mt-1 hidden text-[10px] text-red-500"></div>
 </div>
 <div id="div_frequency" class="relative hidden">
@@ -120,6 +121,7 @@
         :options="[
             'one_time' => 'One Time',
             'monthly' => 'Monthly',
+            'yearly' => 'Yearly',
             'per_exam' => 'Per Exam',
             'event_triggered' => 'Event Triggered',
         ]"
@@ -147,8 +149,10 @@
         ]"
     />
 </div>
-<div id="div_food_students" class="relative hidden-field sm:col-span-2">
-    <x-input.select id="food_student_ids" name="student_ids[]" multiple class="h-[160px]" />
-    <x-input.floating-label for="food_student_ids" :floating="false">Select Students</x-input.floating-label>
-    <div id="food_student_count" class="text-[10px] text-gray-400 mt-1 hidden"></div>
+<div id="div_food_students" class="relative hidden-field sm:col-span-2" style="display:none;">
+    <label class="mb-1 block text-[10px] font-medium text-slate-600">Select Students</label>
+    <div class="grid grid-cols-2 gap-2 border border-slate-300 bg-white p-3" style="border-radius:0; max-height:180px; overflow-y:auto;">
+        <div id="food_student_list" class="col-span-2 space-y-1"></div>
+    </div>
+    <div id="food_student_count" class="mt-1 text-[10px] text-gray-400 hidden"></div>
 </div>
