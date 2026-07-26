@@ -1259,8 +1259,15 @@ class DashboardController extends Controller
         return view('student.assignment');
     }
 
-    public function underConstruction()
+    public function underConstruction(Request $request)
     {
-        return view('upcoming.under_construction');
+        $developmentNotice = $request->route('development_notice')
+            ? [
+                'module' => $request->route('development_module', 'This module'),
+                'completion' => '10 August 2026, 12:00 AM (Midnight)',
+            ]
+            : null;
+
+        return view('upcoming.under_construction', compact('developmentNotice'));
     }
 }

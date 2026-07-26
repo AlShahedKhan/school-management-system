@@ -105,112 +105,32 @@
 @endpush
 
 @section('content')
-    <div class="mx-auto w-full max-w-7xl mb-8">
-        <div
-            class="mt-3 grid w-full grid-cols-2 items-center gap-3 md:grid-cols-[8rem_minmax(0,1fr)_8rem] lg:grid-cols-[13rem_minmax(0,1fr)_13rem]">
-            <div
-                class="col-start-1 row-start-1 inline-flex h-10 min-w-[84px] items-center justify-self-start bg-white px-3 text-xs font-normal leading-none text-slate-500 shadow-sm sm:h-8 sm:w-52 sm:justify-center md:h-10 md:w-full">
+    <x-dashboard.shell>
+        <x-dashboard.toolbar
+            :greeting="$greeting"
+            :filter-label="$dashboardFilterLabel ?? 'Filter'"
+            :filter-start="$dashboardFilterStart ?? null"
+            :filter-end="$dashboardFilterEnd ?? null"
+            :news-label="$dashboardNews['label'] ?? 'News'"
+            :news-message="$dashboardNews['message'] ?? 'No news available'"
+        />
 
-                {{ $greeting }}
-            </div>
-
-            <div class="relative col-start-2 row-start-1 w-full justify-self-end sm:w-52 md:col-start-3 md:w-full"
-                data-dashboard-filter>
-                <button type="button"
-                    class="inline-flex h-10 w-full items-center bg-white px-3 text-xs font-normal leading-none text-slate-500 shadow-sm sm:h-8 sm:w-52 md:h-10 md:w-full"
-                    aria-expanded="false" aria-haspopup="menu" data-dashboard-filter-button>
-                    <i class="fas fa-filter w-4 shrink-0 text-left text-[10px] text-slate-400" aria-hidden="true"></i>
-                    <span class="min-w-0 flex-1 truncate whitespace-nowrap px-1 text-center text-xs font-normal leading-none text-slate-500"
-                        data-dashboard-filter-label>{{ $dashboardFilterLabel ?? 'Filter' }}</span>
-                    <i class="fas fa-chevron-down w-4 shrink-0 text-right text-[7px] text-slate-300 transition-transform duration-150"
-                        aria-hidden="true" data-dashboard-filter-icon></i>
-                </button>
-
-                <div class="absolute right-0 top-full z-30 mt-1 hidden w-full border border-slate-100 bg-white py-2 shadow-sm sm:w-52 md:w-full lg:w-52"
-                    role="menu" data-dashboard-filter-menu>
-                    @foreach (['Today', 'Last 7 Days', 'This Month', 'This Year', 'Custom'] as $filterOption)
-                        <button type="button"
-                            class="block w-full px-3 py-1.5 text-left !text-xs !font-normal !leading-none text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                            role="menuitem" data-value="{{ $filterOption }}" data-dashboard-filter-option>
-                            {{ $filterOption }}
-                        </button>
-                    @endforeach
-
-                    <div class="hidden border-t border-slate-100 px-3 pt-3 text-xs font-normal text-slate-500"
-                        data-dashboard-custom-range>
-                        <label
-                            class="dashboard-filter-date-label block min-w-0 overflow-hidden text-xs font-normal text-slate-500">Start
-                            date
-                            <span
-                                class="dashboard-filter-date-wrap relative mt-1 block h-8 w-full min-w-0 overflow-hidden border border-slate-200 bg-white shadow-sm focus-within:border-blue-500">
-                                <span class="flex h-full items-center truncate px-2 pr-6 text-xs text-slate-500"
-                                    data-dashboard-start-date-display>
-                                    {{ isset($dashboardFilterStart) && $dashboardFilterStart ? $dashboardFilterStart->format('d M y') : 'Select' }}
-                                </span>
-                                <input type="date" class="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
-                                    value="{{ isset($dashboardFilterStart) && $dashboardFilterStart ? $dashboardFilterStart->toDateString() : '' }}"
-                                    aria-label="Start date" data-dashboard-start-date>
-                                <i class="far fa-calendar-alt pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-slate-700"
-                                    aria-hidden="true"></i>
-                            </span>
-                        </label>
-                        <label
-                            class="dashboard-filter-date-label mt-2 block min-w-0 overflow-hidden text-xs font-normal text-slate-500">
-                            End date
-                            <span
-                                class="dashboard-filter-date-wrap relative mt-1 block h-8 w-full min-w-0 overflow-hidden border border-slate-200 bg-white shadow-sm focus-within:border-blue-500">
-                                <span class="flex h-full items-center truncate px-2 pr-6 text-xs text-slate-500"
-                                    data-dashboard-end-date-display>
-                                    {{ isset($dashboardFilterEnd) && $dashboardFilterEnd ? $dashboardFilterEnd->format('d M y') : 'Select' }}
-                                </span>
-                                <input type="date" class="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
-                                    value="{{ isset($dashboardFilterEnd) && $dashboardFilterEnd ? $dashboardFilterEnd->toDateString() : '' }}"
-                                    aria-label="End date" data-dashboard-end-date>
-                                <i class="far fa-calendar-alt pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-slate-700"
-                                    aria-hidden="true"></i>
-                            </span>
-                        </label>
-                        <p class="mt-1 hidden text-[9px] text-red-600" data-dashboard-date-error>Select a valid date range.
-                        </p>
-                        <button type="button"
-                            class="mt-3 h-8 w-full bg-blue-600 text-xs font-semibold text-white hover:bg-blue-700"
-                            data-dashboard-apply-range>
-                            Apply
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div
-                class="col-span-2 row-start-2 flex h-10 w-full items-center overflow-hidden border border-blue-100 bg-white shadow-sm md:col-span-1 md:col-start-2 md:row-start-1">
-                <div
-                    class="relative flex h-full w-[70px] shrink-0 items-center justify-center bg-blue-600 pr-1 text-[10px] font-bold uppercase tracking-wide text-white">
-                    <span class="mr-1 h-2 w-2 rounded-full border-2 border-blue-200 bg-white"></span>
-                    {{ $dashboardNews['label'] ?? 'News' }}
-                    <span
-                        class="absolute -right-3 top-0 h-0 w-0 border-y-[18px] border-l-[12px] border-y-transparent border-l-blue-600"></span>
-                </div>
-
-                <p class="dashboard-news-marquee m-0 flex h-full min-w-0 flex-1 items-center overflow-hidden px-4 text-xs text-slate-600">
-                    <span class="dashboard-news-marquee-track">
-                        <span class="dashboard-news-marquee-copy">{{ $dashboardNews['message'] ?? 'No news available' }}</span>
-                        <span class="dashboard-news-marquee-copy" aria-hidden="true">{{ $dashboardNews['message'] ?? 'No news available' }}</span>
-                    </span>
-                </p>
-            </div>
-        </div>
-
-        <figure
-            class="relative mt-3 aspect-[11/5] w-full overflow-hidden bg-[#ff6f79] shadow-sm md:aspect-[12/5] lg:aspect-[16/6] xl:aspect-[16/5] xl:max-h-[360px]"
-            data-dashboard-hero>
-            <img src="{{ asset('images/school-dashboard/boys-classroom-banner.png') }}" alt="Boys learning in classroom"
-                class="dashboard-hero-slide is-active absolute inset-0 h-full w-full object-cover object-center" data-dashboard-hero-slide>
-            <img src="{{ asset('images/school-dashboard/madrasa-boys-banner.png') }}" alt="Boys learning in a madrasa classroom"
-                class="dashboard-hero-slide absolute inset-0 h-full w-full object-cover object-center" data-dashboard-hero-slide>
-            <img src="{{ asset('images/school-dashboard/kindergarten-boys-banner.png') }}" alt="Boys learning in a kindergarten classroom"
-                class="dashboard-hero-slide absolute inset-0 h-full w-full object-cover object-center" data-dashboard-hero-slide>
-
-        </figure>
+        <x-dashboard.hero
+            :slides="[
+                [
+                    'src' => asset('images/school-dashboard/boys-classroom-banner.png'),
+                    'alt' => 'Boys learning in classroom',
+                ],
+                [
+                    'src' => asset('images/school-dashboard/madrasa-boys-banner.png'),
+                    'alt' => 'Boys learning in a madrasa classroom',
+                ],
+                [
+                    'src' => asset('images/school-dashboard/kindergarten-boys-banner.png'),
+                    'alt' => 'Boys learning in a kindergarten classroom',
+                ],
+            ]"
+        />
 
         @php
             $dashboardCards = [
@@ -240,27 +160,7 @@
 
         @endphp
 
-        <div class="mt-4 grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            @foreach ($dashboardCards as $card)
-                <div
-                    class="flex h-[72px] items-center border border-slate-200 bg-white px-[14px] md:h-[76px] xl:h-20 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md">
-                    <div
-                        class="{{ $card['icon_style'] }} mr-2 flex h-9 w-8 shrink-0 items-center justify-center rounded-sm">
-                        <i class="fas {{ $card['icon'] }} text-[15px]" aria-hidden="true"></i>
-                    </div>
-
-                    <div class="flex min-w-0 flex-col justify-center gap-0">
-                        <span class="block truncate text-xs font-medium leading-4 text-slate-600">
-                            {{ $card['label'] }}
-                        </span>
-                        <span
-                            class="block truncate text-xs font-bold leading-4 tracking-wide text-slate-950">
-                            {{ $card['value'] }}
-                        </span>
-                    </div>
-                </div>
-            @endforeach
-        </div>
+        <x-dashboard.stats :cards="$dashboardCards" />
 
         @php
             $recentPanels = [
@@ -311,8 +211,7 @@
             ];
         @endphp
 
-        <div class="dashboard-recent-tables mt-4 grid grid-cols-1 gap-3">
-        <!-- <div class="dashboard-recent-tables mt-4 grid grid-cols-1 gap-3 md:grid-cols-2"> -->
+        <x-dashboard.recent-grid>
             @foreach ($recentPanels as $panel)
                 @switch($panel['title'])
                     @case('Recent Admissions')
@@ -358,10 +257,10 @@
                     --}}
                 @endswitch
             @endforeach
-        </div>
+        </x-dashboard.recent-grid>
 
 
-    </div>
+    </x-dashboard.shell>
 @endsection
 
 @push('scripts')

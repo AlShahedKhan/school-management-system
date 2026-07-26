@@ -323,6 +323,18 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
     // HRM Management
     Route::get('/school/employee', [DashboardController::class, 'employee'])->name('school.employee');
     Route::get('/school/Payroll', [DashboardController::class, 'Payroll'])->name('school.Payroll');
+    Route::get('/school/hrm-employee-coming-soon', [DashboardController::class, 'underConstruction'])
+        ->defaults('development_notice', true)
+        ->defaults('development_module', 'Employee')
+        ->name('school.hrm-employee-coming-soon');
+    Route::get('/school/hrm-payroll-coming-soon', [DashboardController::class, 'underConstruction'])
+        ->defaults('development_notice', true)
+        ->defaults('development_module', 'Payroll')
+        ->name('school.hrm-payroll-coming-soon');
+    Route::get('/school/hrm-expense-coming-soon', [DashboardController::class, 'underConstruction'])
+        ->defaults('development_notice', true)
+        ->defaults('development_module', 'Expense')
+        ->name('school.hrm-expense-coming-soon');
 
     // Subscription / Plans
     Route::get('/school/current-plan', [DashboardController::class, 'currentPlan'])->name('school.current-plan');
@@ -391,6 +403,18 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
      Route::get('/school/notice', [DashboardController::class, 'notice'])->name('school.notice');
      Route::get('/school/holiday', [DashboardController::class, 'holiday'])->name('school.holiday');
      Route::get('/school/leave', [DashboardController::class, 'leave'])->name('school.leave');
+     Route::get('/school/notification-holiday-coming-soon', [DashboardController::class, 'underConstruction'])
+        ->defaults('development_notice', true)
+        ->defaults('development_module', 'Holiday')
+        ->name('school.notification-holiday-coming-soon');
+     Route::get('/school/notification-notice-coming-soon', [DashboardController::class, 'underConstruction'])
+        ->defaults('development_notice', true)
+        ->defaults('development_module', 'Notice')
+        ->name('school.notification-notice-coming-soon');
+     Route::get('/school/notification-leave-coming-soon', [DashboardController::class, 'underConstruction'])
+        ->defaults('development_notice', true)
+        ->defaults('development_module', 'Leave')
+        ->name('school.notification-leave-coming-soon');
 
 
     // ================= Exam Management =================

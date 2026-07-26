@@ -8,7 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
 
     <style>
-        /* 1. Global Reset & Sharp Edges */
         html,
         body {
             max-width: 100vw;
@@ -17,7 +16,6 @@
             padding: 0;
         }
 
-        /* 2. Container Padding */
         .main-view-container {
             display: grid;
             grid-template-columns: minmax(0, 1fr);
@@ -33,8 +31,6 @@
             }
         }
 
-
-        /* 3. Table Sharp Style */
         .table-card {
             border: 1px solid #e2e8f0;
             background: #ffffff;
@@ -49,7 +45,6 @@
         <div class="max-w-full mx-auto w-full">
             <div class="bg-white border border-gray-200 p-2.5 sm:p-4 mb-4" style="border-radius: 0;">
                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-
                     <div class="w-full lg:w-auto">
                         <h2 id="pageHeader" class="text-[15px] sm:text-xl text-gray-800 font-normal leading-tight"></h2>
                         <div class="flex items-center text-slate-400 text-[12px] mt-1">
@@ -70,29 +65,59 @@
 
             <div class="table-card p-4">
                 <div class="flex flex-col items-center justify-center my-10 sm:my-20 p-8 bg-white rounded-2xl shadow-sm border border-gray-100 gap-6 max-w-2xl mx-auto">
-                    <!-- icon with pulse animation -->
                     <div class="relative">
                         <i class="fas fa-tools text-6xl text-blue-500 animate-bounce"></i>
                         <div class="absolute -inset-1 bg-blue-100 rounded-full blur opacity-30 animate-pulse"></div>
                     </div>
 
-                    <!-- text section -->
                     <div class="text-center space-y-3">
-                        <h3 class="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-gray-800 to-gray-500 bg-clip-text text-transparent">
-                            সিস্টেম আপডেট চলছে
-                        </h3>
+                        @if ($developmentNotice)
+                            <h3 class="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-gray-800 to-gray-500 bg-clip-text text-transparent">
+                                Development Notice
+                            </h3>
 
-                        <p class="text-lg text-gray-500 font-medium leading-relaxed">
-                            আমাদের এই ফিচারের কাজ বর্তমানে প্রক্রিয়াধীন। আপডেটটি সম্পন্ন হবে:
-                            <span class="block mt-2 py-1 px-4 bg-blue-50 text-blue-700 rounded-full inline-block font-semibold">
-                                ১৫/০৮/২০২৬, রাত ১২:০০ টায়
-                            </span>
-                        </p>
+                            <div class="mx-auto max-w-xl text-left text-sm text-gray-500 font-medium leading-relaxed">
+                                <p>Dear Users,</p>
+
+                                <p class="mt-3">
+                                    Our development team is currently working on the following module to provide a more complete and stable experience.
+                                </p>
+
+                                <div class="mt-4">
+                                    <p class="font-bold text-gray-800">{{ $developmentNotice['module'] }}</p>
+                                </div>
+
+                                <p class="mt-4 font-bold text-gray-800">
+                                    Expected Completion Time:
+                                </p>
+
+                                <p class="mt-1">
+                                    {{ $developmentNotice['completion'] }}
+                                </p>
+
+                                <p class="mt-4">
+                                    Thank you for your patience and support. We are committed to delivering these features with the highest quality and reliability.
+                                </p>
+
+                                <p class="mt-4 font-semibold text-gray-800">
+                                    Astha Academics Development Team
+                                </p>
+                            </div>
+                        @else
+                            <h3 class="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-gray-800 to-gray-500 bg-clip-text text-transparent">
+                                সিস্টেম আপডেট চলছে
+                            </h3>
+
+                            <p class="text-lg text-gray-500 font-medium leading-relaxed">
+                                আমাদের এই ফিচারের কাজ বর্তমানে প্রক্রিয়াধীন। আপডেটটি সম্পন্ন হবে:
+                                <span class="block mt-2 py-1 px-4 bg-blue-50 text-blue-700 rounded-full inline-block font-semibold">
+                                    ১৫/০৮/২০২৬, রাত ১২:০০ টায়
+                                </span>
+                            </p>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-
 @endsection
