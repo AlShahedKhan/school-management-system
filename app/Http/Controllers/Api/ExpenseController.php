@@ -31,6 +31,8 @@ class ExpenseController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('expense_reason', 'like', "%{$search}%")
+                  ->orWhere('invoice_no', 'like', "%{$search}%")
+                  ->orWhere('details', 'like', "%{$search}%")
                   ->orWhere('amount', 'like', "%{$search}%")
                   ->orWhere('date', 'like', "%{$search}%");
             });
@@ -58,9 +60,11 @@ class ExpenseController extends Controller
 
         $validator = Validator::make($request->all(), [
             'date' => 'required|date',
+            'invoice_no' => 'nullable|string|max:255',
             'expense_reason' => 'required|string|max:255',
-            'month' => 'required|string',
-            'year' => 'required|string',
+            'details' => 'nullable|string',
+            'month' => 'nullable|string',
+            'year' => 'nullable|string',
             'amount' => 'required|numeric|min:0',
         ]);
 
@@ -68,12 +72,22 @@ class ExpenseController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        $month = $request->month;
+        $year = $request->year;
+        if ((!$month || !$year) && $request->date) {
+            $parsedDate = Carbon::parse($request->date);
+            $month = $month ?: $parsedDate->format('F');
+            $year = $year ?: $parsedDate->format('Y');
+        }
+
         $expense = Expense::create([
             'school_id' => $schoolId,
+            'invoice_no' => $request->invoice_no,
             'date' => $request->date,
             'expense_reason' => $request->expense_reason,
-            'month' => $request->month,
-            'year' => $request->year,
+            'details' => $request->details,
+            'month' => $month,
+            'year' => $year,
             'name' => $request->expense_reason,
             'amount' => $request->amount,
         ]);
@@ -101,9 +115,11 @@ class ExpenseController extends Controller
 
         $validator = Validator::make($request->all(), [
             'date' => 'required|date',
+            'invoice_no' => 'nullable|string|max:255',
             'expense_reason' => 'required|string|max:255',
-            'month' => 'required|string',
-            'year' => 'required|string',
+            'details' => 'nullable|string',
+            'month' => 'nullable|string',
+            'year' => 'nullable|string',
             'amount' => 'required|numeric|min:0',
         ]);
 
@@ -111,11 +127,21 @@ class ExpenseController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        $month = $request->month;
+        $year = $request->year;
+        if ((!$month || !$year) && $request->date) {
+            $parsedDate = Carbon::parse($request->date);
+            $month = $month ?: $parsedDate->format('F');
+            $year = $year ?: $parsedDate->format('Y');
+        }
+
         $expense->update([
+            'invoice_no' => $request->invoice_no,
             'date' => $request->date,
             'expense_reason' => $request->expense_reason,
-            'month' => $request->month,
-            'year' => $request->year,
+            'details' => $request->details,
+            'month' => $month,
+            'year' => $year,
             'name' => $request->expense_reason,
             'amount' => $request->amount,
         ]);
