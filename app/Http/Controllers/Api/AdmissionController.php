@@ -12,6 +12,7 @@ use App\Models\SchoolClass;
 use App\Models\SchoolGroup;
 use App\Models\SchoolSession;
 use App\Models\SchoolFeeTemplate;
+use App\Services\SchoolStudentFeeGenerationService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,13 @@ use Illuminate\Support\Facades\Log;
 
 class AdmissionController extends Controller
 {
+    protected $feeGenerationService;
+
+    public function __construct(SchoolStudentFeeGenerationService $feeGenerationService)
+    {
+        $this->feeGenerationService = $feeGenerationService;
+    }
+
     /* ============================================================
         DROPDOWN DATA FETCHING METHODS
     ============================================================ */
@@ -118,15 +126,24 @@ class AdmissionController extends Controller
         $sessionYear = $session ? $session->session_year : $request->a_session;
         $groupName   = $group ? $group->group_name : $request->a_group;
 
-        // Check admission deadline
+        // Check admission deadline & template existence
         $admissionFeeTemplate = SchoolFeeTemplate::where('school_id', $school->id)
             ->where('class_id', $request->a_class)
             ->where('session_id', $request->a_session)
-            ->where('fee_type_name', 'Admission')
+            ->where(function ($q) {
+                $q->where('fee_type_name', 'Admission')
+                  ->orWhereHas('assign', fn ($q) => $q->where('name', 'Admission'));
+            })
             ->where('is_active', true)
             ->first(['id', 'pay_date']);
 
-        if ($admissionFeeTemplate && $admissionFeeTemplate->pay_date) {
+        if (!$admissionFeeTemplate) {
+            return response()->json([
+                'message' => 'Admission is not allowed. No active Admission Fee Template exists for this class and session.'
+            ], 422);
+        }
+
+        if ($admissionFeeTemplate->pay_date) {
             $deadline = \Carbon\Carbon::parse($admissionFeeTemplate->pay_date);
             if ($deadline->isPast()) {
                 return response()->json([
@@ -204,6 +221,14 @@ class AdmissionController extends Controller
                     'id_number'   => $admission->student_id_number,
                     'password'    => Hash::make($request->password),
                 ]);
+
+                // Auto-generate Admission Fee
+                $this->feeGenerationService->generateAdmissionFee(
+                    $admission,
+                    $request->a_class,
+                    $request->a_session,
+                    $school->id
+                );
 
                 // 6. Send SMS via MiMSMS Gateway
                 $this->sendMiMSMS($request->student_mobile, $schoolName, $admission->student_id_number);
