@@ -15,6 +15,7 @@ use App\Models\StudentPromotion;
 use App\Models\User;
 use App\Models\StudentAcademicRecord;
 use App\Services\SmsService;
+use App\Services\SchoolStudentFeeGenerationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,13 +25,12 @@ use Illuminate\Support\Facades\Log;
 class SchoolPromoteController extends Controller
 {
     protected $smsService;
+    protected $feeGenerationService;
 
-    /**
-     * Created/Modified on 2026-07-06: Controller for student promotion flow
-     */
-    public function __construct(SmsService $smsService)
+    public function __construct(SmsService $smsService, SchoolStudentFeeGenerationService $feeGenerationService)
     {
         $this->smsService = $smsService;
+        $this->feeGenerationService = $feeGenerationService;
     }
 
     /**
@@ -93,6 +93,23 @@ class SchoolPromoteController extends Controller
             return response()->json(['message' => 'School profile not found.'], 400);
         }
 
+        // Enforce: Promote Fee Template must exist
+        $templateExists = SchoolFeeTemplate::where('school_id', $school->id)
+            ->where('class_id', $request->to_class)
+            ->where('session_id', $request->to_session)
+            ->where(function ($q) {
+                $q->where('fee_type_name', 'like', '%Promote%')
+                  ->orWhere('fee_name', 'like', '%Promote%');
+            })
+            ->where('is_active', true)
+            ->exists();
+
+        if (!$templateExists) {
+            return response()->json([
+                'message' => 'Promotion is not allowed. No active Promote Fee Template exists for the destination class and session. Please create one first.'
+            ], 422);
+        }
+
         try {
             DB::transaction(function () use ($request, $schoolUser, $school) {
                 // Pre-resolve destination descriptions for SMS template
@@ -105,20 +122,6 @@ class SchoolPromoteController extends Controller
                 $toGroupName = $groupObj?->group_name ?? 'n/a';
                 $toSectionName = $sectionObj?->section_name ?? 'n/a';
                 $toSessionYear = $sessionObj?->session_year ?? 'N/A';
-
-                // Look for an existing fee template matching destination class, session and "Promote"
-                $template = SchoolFeeTemplate::where('school_id', $school->id)
-                    ->where('class_id', $request->to_class)
-                    ->where('session_id', $request->to_session)
-                    ->where(function ($q) {
-                        $q->where('fee_type_name', 'like', '%Promote%')
-                          ->orWhere('fee_name', 'like', '%Promote%');
-                    })
-                    ->first();
-
-                $feeTemplateId = $template?->id;
-                $feeTypeName = $template?->fee_type_name ?? 'Promote';
-                $feeName = $template?->fee_name ?? 'Promote Fee';
 
                 // Prepare Dynamic Admission ID Generation Prefix
                 $schoolPrefix = substr($schoolUser->id_number, -5);
@@ -187,20 +190,12 @@ class SchoolPromoteController extends Controller
                         ]
                     );
 
-                    // Generate Promote Fee Once (if not exists already)
-                    SchoolStudentFee::firstOrCreate(
-                        [
-                            'school_id'     => $school->id,
-                            'student_id'    => $student->id,
-                            'fee_type_name' => $feeTypeName,
-                            'fee_name'      => $feeName,
-                            'pay_date'      => $request->promote_date,
-                        ],
-                        [
-                            'fee_template_id' => $feeTemplateId,
-                            'amount'          => $request->promote_fee,
-                            'status'          => 'pending',
-                        ]
+                    // Auto-generate Promote Fee via service
+                    $this->feeGenerationService->generatePromoteFee(
+                        $student,
+                        $request->to_class,
+                        $request->to_session,
+                        $school->id
                     );
 
                     // Send Promote SMS
