@@ -1,6 +1,6 @@
 <input type="hidden" name="record_id" id="record_id">
 
-<div class="grid grid-cols-2 gap-3">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
     <div class="relative">
         <x-input.dropdown-select
             id="subjectFormClass"
@@ -84,8 +84,6 @@
             <x-input.floating-label for="practical_mark">Practical Mark</x-input.floating-label>
             <div id="practical_mark_error" class="mt-1 hidden text-[10px] text-red-500"></div>
         </div>
-    </div>
-    <div class="grid grid-cols-2 gap-x-4 mt-4">
         <div class="relative">
             <x-input.control type="number" id="total_mark" class="peer placeholder:text-transparent bg-gray-100/50" name="total_mark" placeholder=" " readonly />
             <x-input.floating-label for="total_mark">Total Mark</x-input.floating-label>
