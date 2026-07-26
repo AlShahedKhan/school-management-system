@@ -177,9 +177,10 @@ class AdmissionController extends Controller
                     'upazila'        => $request->a_upazila,
                     'school_id'      => $schoolOwnerUserId,
                     'school'         => $schoolName,
-                    'class'          => $className,
-                    'group'          => $groupName,
-                    'session'        => $sessionYear,
+                    'class_id'       => $request->a_class,
+                    'group_id'       => $request->a_group,
+                    'section_id'     => $request->a_section,
+                    'session_id'     => $request->a_session,
                     'admission_fee'  => $request->a_fee,
                     'admission_date' => $request->a_date,
 
@@ -206,7 +207,7 @@ class AdmissionController extends Controller
                     'permanent_village'  => $request->p_village2,
 
                     'mobile'   => $request->student_mobile,
-                    'password' => Hash::make($request->password),
+                    'password' => Hash::make('00000000'),
                     'image'    => $imagePath,
                     'status'   => 'pending'
                 ]);

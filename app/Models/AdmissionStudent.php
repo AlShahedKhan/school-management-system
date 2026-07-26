@@ -18,10 +18,10 @@ class AdmissionStudent extends Model
         'student_id_number',
         'admission_id',
         'roll_no',
-        'class',
-        'group',
-        'section',
-        'session',
+        'class_id',
+        'group_id',
+        'section_id',
+        'session_id',
         'admission_fee',
         'admission_date',
         'mobile',
@@ -56,6 +56,27 @@ class AdmissionStudent extends Model
         'status_updated_by',
     ];
 
+    // Backward compatibility accessors for legacy code accessing ->class, ->section, ->session, ->group
+    public function getClassAttribute()
+    {
+        return $this->attributes['class_id'] ?? null;
+    }
+
+    public function getSectionAttribute()
+    {
+        return $this->attributes['section_id'] ?? null;
+    }
+
+    public function getSessionAttribute()
+    {
+        return $this->attributes['session_id'] ?? null;
+    }
+
+    public function getGroupAttribute()
+    {
+        return $this->attributes['group_id'] ?? null;
+    }
+
     protected static function booted()
     {
         static::creating(function ($model) {
@@ -69,8 +90,9 @@ class AdmissionStudent extends Model
 
             // 2. Dynamic Admission ID
             $sessionYear = '0000';
-            if ($model->session) {
-                $sessionYear = SchoolSession::where('id', $model->session)->value('session_year') ?? '0000';
+            $sessionId = $model->session_id ?? $model->session;
+            if ($sessionId) {
+                $sessionYear = SchoolSession::where('id', $sessionId)->value('session_year') ?? '0000';
             }
 
             $lastAdmission = static::where('school_id', $model->school_id)
@@ -85,11 +107,13 @@ class AdmissionStudent extends Model
             $model->admission_id = $schoolPrefix . $sessionYear . str_pad($nextAdmSerial, 4, '0', STR_PAD_LEFT);
 
             // 3. Auto Roll Number
-            if (empty($model->roll_no) && $model->class && $model->section && $model->session) {
+            $classId = $model->class_id ?? $model->class;
+            $sectionId = $model->section_id ?? $model->section;
+            if (empty($model->roll_no) && $classId && $sectionId && $sessionId) {
                 $maxRoll = (int) static::where('school_id', $model->school_id)
-                    ->where('class', $model->class)
-                    ->where('section', $model->section)
-                    ->where('session', $model->session)
+                    ->where('class_id', $classId)
+                    ->where('section_id', $sectionId)
+                    ->where('session_id', $sessionId)
                     ->pluck('roll_no')
                     ->max(fn ($r) => (int) $r);
                 $model->roll_no = $maxRoll + 1;
@@ -97,12 +121,15 @@ class AdmissionStudent extends Model
         });
 
         static::updating(function ($model) {
-            if ($model->isDirty(['class', 'section', 'session']) || empty($model->roll_no)) {
-                if ($model->class && $model->section && $model->session) {
+            $classId = $model->class_id ?? $model->class;
+            $sectionId = $model->section_id ?? $model->section;
+            $sessionId = $model->session_id ?? $model->session;
+            if ($model->isDirty(['class_id', 'section_id', 'session_id', 'class', 'section', 'session']) || empty($model->roll_no)) {
+                if ($classId && $sectionId && $sessionId) {
                     $maxRoll = (int) static::where('school_id', $model->school_id)
-                        ->where('class', $model->class)
-                        ->where('section', $model->section)
-                        ->where('session', $model->session)
+                        ->where('class_id', $classId)
+                        ->where('section_id', $sectionId)
+                        ->where('session_id', $sessionId)
                         ->where('id', '!=', $model->id)
                         ->pluck('roll_no')
                         ->max(fn($r) => (int) $r);
@@ -112,8 +139,13 @@ class AdmissionStudent extends Model
         });
 
         static::created(function ($model) {
+            $sessionId = $model->session_id ?? $model->session;
+            $classId = $model->class_id ?? $model->class;
+            $groupId = $model->group_id ?? $model->group;
+            $sectionId = $model->section_id ?? $model->section;
+
             $sessionYear = $model->schoolSession?->session_year
-                ?? SchoolSession::where('id', $model->session)->value('session_year')
+                ?? SchoolSession::where('id', $sessionId)->value('session_year')
                 ?? date('Y');
             StudentAcademicRecord::firstOrCreate(
                 [
@@ -122,10 +154,10 @@ class AdmissionStudent extends Model
                     'session_year' => $sessionYear,
                 ],
                 [
-                    'session_id' => $model->session,
-                    'class_id'   => $model->class,
-                    'group_id'   => $model->group,
-                    'section_id' => $model->section,
+                    'session_id' => $sessionId,
+                    'class_id'   => $classId,
+                    'group_id'   => $groupId,
+                    'section_id' => $sectionId,
                     'roll_no'    => $model->roll_no,
                     'status'     => $model->status ?? 'Active',
                 ]
@@ -140,22 +172,22 @@ class AdmissionStudent extends Model
 
     public function schoolClass()
     {
-        return $this->belongsTo(SchoolClass::class, 'class', 'id');
+        return $this->belongsTo(SchoolClass::class, 'class_id', 'id');
     }
 
     public function schoolSection()
     {
-        return $this->belongsTo(SchoolSection::class, 'section', 'id');
+        return $this->belongsTo(SchoolSection::class, 'section_id', 'id');
     }
 
     public function schoolGroup()
     {
-        return $this->belongsTo(SchoolGroup::class, 'group', 'id');
+        return $this->belongsTo(SchoolGroup::class, 'group_id', 'id');
     }
 
     public function schoolSession()
     {
-        return $this->belongsTo(SchoolSession::class, 'session', 'id');
+        return $this->belongsTo(SchoolSession::class, 'session_id', 'id');
     }
 
     public function academicRecords()

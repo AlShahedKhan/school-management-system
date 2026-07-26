@@ -40,22 +40,39 @@
         input.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-    function syncPermanentFromCurrent() {
-        if (!document.getElementById('sameAsCurrentAddress').checked) return;
-        ['country', 'division', 'district', 'upazila', 'village'].forEach(field => {
-            const current = document.getElementById(`current_${field}`);
-            const permanent = document.getElementById(`permanent_${field}`);
-            if (current && permanent) {
-                if (field === 'village') {
-                    permanent.value = current.value;
-                } else {
-                    setSelectedValue(`permanent_${field}`, current.value);
-                }
-            }
-        });
+    async function syncPermanentFromCurrent() {
+        if (!document.getElementById('sameAsCurrentAddress')?.checked) return;
+
+        const currentCountry = document.getElementById('current_country')?.value || '';
+        const currentDivision = document.getElementById('current_division')?.value || '';
+        const currentDistrict = document.getElementById('current_district')?.value || '';
+        const currentUpazila = document.getElementById('current_upazila')?.value || '';
+        const currentVillage = document.getElementById('current_village')?.value || '';
+
+        setSelectedValue('permanent_country', currentCountry);
+        setSelectedValue('permanent_division', currentDivision);
+
+        if (currentDivision) {
+            await populateDistrict(currentDivision, 'permanent_district');
+            setSelectedValue('permanent_district', currentDistrict);
+        } else {
+            populateDropdownSelect('permanent_district', [], '', 'Select District');
+        }
+
+        if (currentDistrict) {
+            await populateUpazila(currentDistrict, 'permanent_upazila');
+            setSelectedValue('permanent_upazila', currentUpazila);
+        } else {
+            populateDropdownSelect('permanent_upazila', [], '', 'Select Upazila');
+        }
+
+        const permVillage = document.getElementById('permanent_village');
+        if (permVillage) {
+            permVillage.value = currentVillage;
+        }
     }
 
-    function toggleSameAddress() {
+    async function toggleSameAddress() {
         const checked = document.getElementById('sameAsCurrentAddress').checked;
         ['country', 'division', 'district', 'upazila', 'village'].forEach(field => {
             if (field === 'village') {
@@ -76,7 +93,7 @@
                 }
             }
         });
-        if (checked) syncPermanentFromCurrent();
+        if (checked) await syncPermanentFromCurrent();
     }
     // --- DYNAMIC DROPDOWN POPULATION HELPER ---
     function populateDropdownSelect(id, options, selectedValue, placeholder = 'Select...') {
