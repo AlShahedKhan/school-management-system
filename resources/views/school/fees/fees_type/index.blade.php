@@ -210,7 +210,7 @@
                 } else if (type === 'Exams') {
                     loadExams();
                     const fr = document.getElementById('frequency');
-                    if (fr) { fr.value = 'per_exam'; showEl('div_frequency'); }
+                    if (fr) { fr.value = 'per_exam'; }
                 } else if (type === 'Session') {
                     const fr = document.getElementById('frequency');
                     if (fr) { fr.value = 'yearly'; }
@@ -240,9 +240,29 @@
         }
 
         function loadExams() {
-            axios.get('/api/exam-names').then(res => {
+            const classId = document.querySelector('#feeFormClass')?.value;
+            const groupId = document.querySelector('#feeFormGroup')?.value;
+            const sectionId = document.querySelector('#feeFormSection')?.value;
+            const sessionId = document.querySelector('#feeFormSession')?.value;
+            const params = {};
+            if (classId) params.class_id = classId;
+            if (groupId) params.group_id = groupId;
+            if (sectionId) params.section_id = sectionId;
+            if (sessionId) params.session_id = sessionId;
+            axios.get('/api/school-exam-names', { params }).then(res => {
                 const data = res.data.data || res.data || [];
                 populateDropdown('exam_idMenu', data, 'id', 'exam_name');
+            }).catch(() => {});
+        }
+
+        function handleExamSelect() {
+            const examId = document.getElementById('exam_id').value;
+            if (!examId) return;
+            axios.get('/api/school-exam-names/' + examId).then(res => {
+                const exam = res.data.data || res.data;
+                if (exam && exam.exam_end_date) {
+                    document.getElementById('pay_date').value = exam.exam_end_date;
+                }
             }).catch(() => {});
         }
 
@@ -517,6 +537,7 @@
                                     }
                                     if (item.exam_id) {
                                         setDropdownValueFromMenu('exam_id', String(item.exam_id));
+                                        handleExamSelect();
                                     }
                                     if (item.food_type) {
                                         setDropdownValueFromMenu('food_type', item.food_type);
@@ -596,6 +617,7 @@
 
             document.getElementById('fee_type_name')?.addEventListener('change', handleFeeTypeChange);
             document.getElementById('food_type')?.addEventListener('change', handleFoodTypeChange);
+            document.getElementById('exam_id')?.addEventListener('change', handleExamSelect);
 
             document.getElementById('feeClassFilter')?.addEventListener('change', function() {
                 loadFeeGroupFilterByClass(this.value);
@@ -639,6 +661,7 @@
                 populateDropdown('feeFormSessionMenu', [], 'id', 'session_year');
                 if (this.value) loadFeeGroupSelect();
                 toggleFeeTypeDisabled();
+                reloadExamsForCurrentType();
             });
 
             document.getElementById('feeFormGroup')?.addEventListener('change', function() {
@@ -647,19 +670,27 @@
                 populateDropdown('feeFormSectionMenu', [], 'id', 'section_name');
                 populateDropdown('feeFormSessionMenu', [], 'id', 'session_year');
                 if (this.value) loadFeeSectionSelect();
+                reloadExamsForCurrentType();
             });
 
             document.getElementById('feeFormSection')?.addEventListener('change', function() {
                 setDropdownValue('feeFormSession', '', 'Select Session');
                 populateDropdown('feeFormSessionMenu', [], 'id', 'session_year');
                 if (this.value) loadFeeSessionSelect();
+                reloadExamsForCurrentType();
             });
 
             document.getElementById('feeFormSession')?.addEventListener('change', function() {
                 toggleFeeTypeDisabled();
                 const type = document.getElementById('fee_type_name')?.value;
                 if (type === 'Promote') autoGenerateFeeName(type);
+                reloadExamsForCurrentType();
             });
+
+            function reloadExamsForCurrentType() {
+                const type = document.getElementById('fee_type_name')?.value;
+                if (type === 'Exams') loadExams();
+            }
 
             document.getElementById('btnFilter')?.addEventListener('click', () => {
                 document.getElementById('filterModal')?.classList.remove('hidden');
