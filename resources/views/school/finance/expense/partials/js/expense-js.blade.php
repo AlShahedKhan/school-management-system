@@ -3,45 +3,8 @@
     const expenseForm = document.getElementById('expenseForm');
     let currentPage = 1;
 
-    const monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
-
-    function setDropdownValue(id, value, placeholder = 'Select...') {
-        const input = document.getElementById(id);
-        const label = document.querySelector(`#${id}Button [data-dropdown-select-label]`);
-        const menu = document.getElementById(`${id}Menu`);
-        if (input) input.value = value || '';
-
-        let selectedText = placeholder;
-        if (menu) {
-            menu.querySelectorAll('[data-dropdown-select-option]').forEach(opt => {
-                const isSelected = (opt.dataset.value || '') === String(value || '');
-                opt.classList.toggle('bg-slate-100', isSelected);
-                opt.classList.toggle('text-slate-900', isSelected);
-                opt.classList.toggle('text-slate-800', !isSelected);
-                opt.setAttribute('aria-selected', String(isSelected));
-                if (isSelected) {
-                    selectedText = opt.textContent.trim();
-                }
-            });
-        }
-        if (label) label.textContent = selectedText;
-    }
-
-    function setDropdownDisabled(id, disabled) {
-        const btn = document.getElementById(`${id}Button`);
-        if (btn) {
-            btn.disabled = disabled;
-            btn.classList.toggle('pointer-events-none', disabled);
-            btn.classList.toggle('bg-gray-100', disabled);
-            btn.classList.toggle('opacity-75', disabled);
-        }
-    }
-
     function setFormEditable(editable) {
-        const inputs = expenseForm.querySelectorAll('input:not([type="hidden"])');
+        const inputs = expenseForm.querySelectorAll('input:not([type="hidden"]), textarea');
         inputs.forEach(input => {
             input.readOnly = !editable;
             if (!editable) {
@@ -50,8 +13,6 @@
                 input.classList.remove('bg-gray-100', 'cursor-not-allowed');
             }
         });
-        setDropdownDisabled('expenseMonth', !editable);
-        setDropdownDisabled('expenseYear', !editable);
     }
 
     function enableFormEditing() {
@@ -60,37 +21,15 @@
         if (dateInput) dateInput.focus();
     }
 
-    // Auto update Month & Year when Date changes
-    const expenseDateInput = document.querySelector('#expenseForm input[name="date"]');
-    if (expenseDateInput) {
-        expenseDateInput.addEventListener('change', function() {
-            if (this.value) {
-                const d = new Date(this.value);
-                if (!isNaN(d.getTime())) {
-                    const monthName = monthNames[d.getMonth()];
-                    const yearStr = String(d.getFullYear());
-                    setDropdownValue('expenseMonth', monthName, 'Select Month...');
-                    setDropdownValue('expenseYear', yearStr, 'Select Year...');
-                }
-            }
-        });
-    }
-
     // Open Add Modal
     document.getElementById('openExpenseModal')?.addEventListener('click', () => {
         expenseForm.reset();
         document.getElementById('expense_id').value = '';
         
         const todayStr = new Date().toISOString().split('T')[0];
-        const todayDate = new Date();
-        const curMonth = monthNames[todayDate.getMonth()];
-        const curYear = String(todayDate.getFullYear());
 
         const dateEl = document.querySelector('#expenseForm input[name="date"]');
         if (dateEl) dateEl.value = todayStr;
-
-        setDropdownValue('expenseMonth', curMonth, 'Select Month...');
-        setDropdownValue('expenseYear', curYear, 'Select Year...');
 
         setFormEditable(true);
 
@@ -125,21 +64,15 @@
                 if (dateVal.includes('T')) dateVal = dateVal.split('T')[0];
                 document.querySelector('#expenseForm input[name="date"]').value = dateVal;
 
+                const invEl = document.querySelector('#expenseForm input[name="invoice_no"]');
+                if (invEl) invEl.value = exp.invoice_no || '';
+
                 document.querySelector('#expenseForm input[name="expense_reason"]').value = exp.expense_reason || exp.name || '';
+                
+                const detailsEl = document.querySelector('#expenseForm input[name="details"]') || document.querySelector('#expenseForm textarea[name="details"]');
+                if (detailsEl) detailsEl.value = exp.details || '';
+
                 document.querySelector('#expenseForm input[name="amount"]').value = exp.amount || '';
-
-                let mVal = exp.month;
-                let yVal = exp.year;
-                if (!mVal && dateVal) {
-                    const d = new Date(dateVal);
-                    if (!isNaN(d.getTime())) {
-                        mVal = monthNames[d.getMonth()];
-                        yVal = String(d.getFullYear());
-                    }
-                }
-
-                setDropdownValue('expenseMonth', mVal || '', 'Select Month...');
-                setDropdownValue('expenseYear', yVal || '', 'Select Year...');
 
                 // Initial state: Not editable
                 setFormEditable(false);
@@ -287,15 +220,9 @@
                 let dateVal = exp.date || '-';
                 if (dateVal.includes('T')) dateVal = dateVal.split('T')[0];
 
-                let monthVal = exp.month;
-                let yearVal = exp.year;
-                if (!monthVal && dateVal !== '-') {
-                    const d = new Date(dateVal);
-                    if (!isNaN(d.getTime())) {
-                        monthVal = monthNames[d.getMonth()];
-                        yearVal = String(d.getFullYear());
-                    }
-                }
+                const invoiceNo = exp.invoice_no || '-';
+                const reason = exp.expense_reason || exp.name || '-';
+                const details = exp.details || '-';
 
                 const amountFormatted = parseFloat(exp.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -303,13 +230,15 @@
                     <tr class="hover:bg-gray-50">
                         <td class="h-8 border border-gray-300 px-3 text-center">${sl}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${dateVal}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${yearVal || '-'}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${monthVal || '-'}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-right font-medium">৳${amountFormatted}</td>
-                        <td class="h-8 border border-gray-300 px-3 font-medium">
-                            <div class="donate-cell-scroll" title="${exp.expense_reason || exp.name}">${exp.expense_reason || exp.name}</div>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-medium">${invoiceNo}</td>
+                        <td class="h-8 border border-gray-300 px-3">
+                            <div class="donate-cell-scroll" title="${reason}">${reason}</div>
                         </td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
+                        <td class="h-8 border border-gray-300 px-3">
+                            <div class="donate-cell-scroll" title="${details}">${details}</div>
+                        </td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-right font-medium">৳${amountFormatted}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center min-w-[90px]">
                             <div class="flex h-6 w-full items-center justify-center space-x-1">
                                 <button type="button" onclick="editExpense(${exp.id})" class="text-blue-600 hover:text-blue-800 p-1" title="Edit Expense">
                                     <i class="far fa-edit text-xs"></i>
