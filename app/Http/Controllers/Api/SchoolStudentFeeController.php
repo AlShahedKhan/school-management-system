@@ -84,8 +84,8 @@ class SchoolStudentFeeController extends Controller
                     ->where('school_discounts.school_id', $fee->school_id)
                     ->select('discount_students.*', 'school_discounts.discount_type', 'school_discounts.discount_value', 'school_discounts.months')
                     ->get();
+                $originalAmount = (float) $fee->amount;
 
-                $originalAmount = (float) $fee->base_amount;
                 $feeMonth = $fee->pay_date ? Carbon::parse($fee->pay_date)->format('Y-m') : null;
                 $bestAmount = $originalAmount;
                 $hasDiscount = false;
@@ -110,7 +110,7 @@ class SchoolStudentFeeController extends Controller
                 $fee->has_discount = $hasDiscount;
                 $fee->original_amount = $originalAmount;
 
-                $fee->base_amount = round($effectiveAmount, 2); // Send back adjusted amount as base_amount for API compatibility if needed
+                $fee->amount = round($effectiveAmount, 2);
                 $fee->total_paid = $totalPaid;
                 $fee->remaining_due = max($effectiveAmount - $totalPaid, 0);
 
@@ -169,11 +169,13 @@ class SchoolStudentFeeController extends Controller
                 'amount' => 'required|numeric|min:0',
                 'pay_date' => 'required|date',
                 'fee_name' => 'nullable|string|max:255',
-                'status' => 'nullable|in:pending,paid,partial_paid,due,due_partial,over_due,over_due_partial,advance,advance_partial',
+                'status' => 'nullable|in:unpaid,paid,partial_paid,due,partial_due,over_due,partial_over_due,advance,partial_advance',
             ]);
 
             DB::transaction(function () use ($school, $id, $validated) {
                 $fee = SchoolStudentFee::where('school_id', $school->id)->findOrFail($id);
+                $validated['payable_amount'] = $validated['amount'];
+                $validated['due_amount'] = $validated['amount'];
                 $fee->update($validated);
             });
 
@@ -235,7 +237,7 @@ class SchoolStudentFeeController extends Controller
                     ->sum('type_amount');
 
                 $totalPaid = (float) $totalPaid;
-                $amount = (float) $fee->base_amount;
+                $amount = (float) $fee->amount;
                 $fee->total_paid = $totalPaid;
                 $fee->remaining_due = max($amount - $totalPaid, 0);
 

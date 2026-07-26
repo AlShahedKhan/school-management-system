@@ -9,7 +9,9 @@ use App\Models\Guardian;
 use App\Models\AdmissionStudent;
 use App\Models\SchoolClass;
 use App\Models\School;
+use App\Models\SchoolFeeTemplate;
 use App\Services\SmsService;
+use App\Services\SchoolStudentFeeGenerationService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,13 +21,12 @@ use Illuminate\Validation\ValidationException;
 class SchoolAdmissionController extends Controller
 {
     protected $smsService;
+    protected $feeGenerationService;
 
-    /**
-     * Inject the SmsService
-     */
-    public function __construct(SmsService $smsService)
+    public function __construct(SmsService $smsService, SchoolStudentFeeGenerationService $feeGenerationService)
     {
         $this->smsService = $smsService;
+        $this->feeGenerationService = $feeGenerationService;
     }
 
     public function register(Request $request)
@@ -68,14 +69,33 @@ class SchoolAdmissionController extends Controller
             ], 422);
         }
 
+        $currentUser = Auth::user();
+        $schoolId = $currentUser->id;
+
+        // Enforce: Admission Fee Template must exist
+        $templateExists = SchoolFeeTemplate::where('school_id', function ($q) use ($schoolId) {
+            $q->select('id')->from('schools')->where('user_id', $schoolId)->limit(1);
+        })
+        ->where('class_id', $request->a_class)
+        ->where('session_id', $request->a_session)
+        ->where(function ($q) {
+            $q->where('fee_type_name', 'Admission')
+              ->orWhereHas('assign', fn ($q) => $q->where('name', 'Admission'));
+        })
+        ->where('is_active', true)
+        ->exists();
+
+        if (!$templateExists) {
+            return response()->json([
+                'message' => 'Admission is not allowed. No active Admission Fee Template exists for this class and session. Please create one first.'
+            ], 422);
+        }
+
         try {
             // Use DB Transaction to ensure data integrity
-            $result = DB::transaction(function () use ($request) {
+            $result = DB::transaction(function () use ($request, $schoolId) {
 
                 $currentUser = Auth::user();
-
-                // FORCE schoolId to be the logged-in User's ID
-                $schoolId = $currentUser->id;
                 $schoolName = $currentUser->school_name;
 
                 if (!$schoolId) {
@@ -157,6 +177,15 @@ class SchoolAdmissionController extends Controller
                     'id_number' => $admission->student_id_number ?? '',
                     'password' => Hash::make('00000000'),
                 ]);
+
+                // Auto-generate Admission Fee
+                $school = \App\Models\School::where('user_id', $schoolId)->first();
+                $this->feeGenerationService->generateAdmissionFee(
+                    $admission,
+                    $request->a_class,
+                    $request->a_session,
+                    $school?->id
+                );
 
                 return [
                     'student_mobile' => $request->student_mobile,

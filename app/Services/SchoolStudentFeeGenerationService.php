@@ -21,16 +21,24 @@ class SchoolStudentFeeGenerationService
     /**
      * Generate Admission Fee automatically after Admission or Promotion.
      * Only once per student for the specific class+session.
+     * @return SchoolStudentFee|false
      */
-    public function generateAdmissionFee(AdmissionStudent $student, $classId, $sessionId)
+    public function generateAdmissionFee(AdmissionStudent $student, $classId, $sessionId, $schoolId = null)
     {
-        $template = SchoolFeeTemplate::whereHas('assign', function ($q) {
-            $q->where('name', 'Admission');
+        $query = SchoolFeeTemplate::where(function ($q) {
+            $q->whereHas('assign', function ($q) {
+                $q->where('name', 'Admission');
+            })->orWhere('fee_type_name', 'Admission');
         })
         ->where('class_id', $classId)
         ->where('session_id', $sessionId)
-        ->where('is_active', true)
-        ->first();
+        ->where('is_active', true);
+
+        if ($schoolId) {
+            $query->where('school_id', $schoolId);
+        }
+
+        $template = $query->first();
 
         if (!$template) {
             throw new Exception("Active Admission Fee Template not found. Cannot generate fee.");
@@ -40,12 +48,17 @@ class SchoolStudentFeeGenerationService
         $exists = SchoolStudentFee::where('student_id', $student->id)
             ->where('fee_template_id', $template->id)
             ->exists();
-            
+
         if ($exists) {
             return false;
         }
 
-        return $this->generateFeeRecord($template, $student, Carbon::now()->addDays(7));
+        // Use template's pay_date as due_date, fallback to 7 days from now
+        $dueDate = $template->pay_date
+            ? Carbon::parse($template->pay_date)
+            : Carbon::now()->addDays(7);
+
+        return $this->generateFeeRecord($template, $student, $dueDate);
     }
 
     /**
@@ -133,7 +146,7 @@ class SchoolStudentFeeGenerationService
             'fee_template_id' => $template->id,
             'fee_type_name' => $template->fee_type_name ?? $template->assign->name,
             'fee_name' => $template->fee_name,
-            'base_amount' => $template->amount,
+            'amount' => $template->amount,
             'discount_amount' => $amounts['discount_amount'],
             'payable_amount' => $amounts['payable_amount'],
             'paid_amount' => 0,

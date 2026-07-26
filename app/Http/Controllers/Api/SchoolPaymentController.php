@@ -321,7 +321,7 @@ class SchoolPaymentController extends Controller
                 ->select('discount_students.*', 'school_discounts.discount_type', 'school_discounts.discount_value', 'school_discounts.months')
                 ->get();
 
-            $baseAmount = (float) $studentFee->base_amount;
+            $baseAmount = (float) $studentFee->amount;
             $feeMonth = $studentFee->pay_date ? Carbon::parse($studentFee->pay_date)->format('Y-m') : null;
             $bestAmount = $baseAmount;
 
@@ -716,7 +716,7 @@ class SchoolPaymentController extends Controller
                 'fee_template_id' => $template?->id,
                 'fee_type_name'   => $validated['fees_type'],
                 'fee_name'        => $validated['fee_name'],
-                'base_amount'     => $feeAmount,
+                'amount'          => $feeAmount,
                 'payable_amount'  => $feeAmount,
                 'due_amount'      => $feeAmount,
                 'pay_date'        => $feePayDate,
@@ -731,7 +731,7 @@ class SchoolPaymentController extends Controller
             ->where('fee_name', $validated['fee_name'])
             ->sum('type_amount');
 
-        $feeAmount = (float) $feeRecord->base_amount;
+        $feeAmount = (float) $feeRecord->amount;
         $remainingDue = max($feeAmount - $alreadyPaid, 0);
 
         if ($amount > $remainingDue) {

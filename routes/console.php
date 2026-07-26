@@ -35,7 +35,13 @@ Schedule::command('fees:process-fines')
     ->withoutOverlapping();
 
 Schedule::command('fees:sync-status')
-    ->dailyAt('01:00')
+    ->dailyAt('00:30')
+    ->timezone('Asia/Dhaka')
+    ->withoutOverlapping();
+
+// Overdue status transition: runs at 23:59 daily (checks if due_date month has ended)
+Schedule::command('fees:sync-status')
+    ->dailyAt('23:59')
     ->timezone('Asia/Dhaka')
     ->withoutOverlapping();
 

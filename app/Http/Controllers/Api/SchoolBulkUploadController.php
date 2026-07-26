@@ -16,6 +16,8 @@ use App\Models\School;
 
 use App\Models\SchoolClass;
 
+use App\Models\SchoolFeeTemplate;
+
 use App\Models\SchoolGroup;
 
 use App\Models\SchoolSection;
@@ -23,6 +25,8 @@ use App\Models\SchoolSection;
 use App\Models\SchoolSession;
 
 use App\Models\User;
+
+use App\Services\SchoolStudentFeeGenerationService;
 
 use Illuminate\Http\JsonResponse;
 
@@ -181,6 +185,23 @@ class SchoolBulkUploadController extends Controller
 
         if ($authError) {
             return response()->json(['message' => $authError], 403);
+        }
+
+        // Enforce: Admission Fee Template must exist
+        $templateExists = SchoolFeeTemplate::where('school_id', $schoolInternalId)
+            ->where('class_id', $classId)
+            ->where('session_id', $sessionId)
+            ->where(function ($q) {
+                $q->where('fee_type_name', 'Admission')
+                  ->orWhereHas('assign', fn ($q) => $q->where('name', 'Admission'));
+            })
+            ->where('is_active', true)
+            ->exists();
+
+        if (!$templateExists) {
+            return response()->json([
+                'message' => 'Bulk upload is not allowed. No active Admission Fee Template exists for this class and session. Please create one first.'
+            ], 422);
         }
 
         try {
@@ -398,6 +419,14 @@ class SchoolBulkUploadController extends Controller
 
                         'password'    => Hash::make('00000000'),
                     ]);
+
+                    // Auto-generate Admission Fee
+                    app(SchoolStudentFeeGenerationService::class)->generateAdmissionFee(
+                        $admission,
+                        $classId,
+                        $sessionId,
+                        $schoolInternalId
+                    );
 
                     $count++;
                 }
