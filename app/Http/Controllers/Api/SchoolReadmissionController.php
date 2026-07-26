@@ -15,6 +15,7 @@ use App\Models\StudentReadmission;
 use App\Models\User;
 use App\Models\StudentAcademicRecord;
 use App\Services\SmsService;
+use App\Services\SchoolStudentFeeGenerationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,13 +24,15 @@ use Illuminate\Support\Facades\Log;
 class SchoolReadmissionController extends Controller
 {
     protected $smsService;
+    protected $feeGenerationService;
 
     /**
      * Created on 2026-07-09: Controller for student same-class re-admission flow
      */
-    public function __construct(SmsService $smsService)
+    public function __construct(SmsService $smsService, SchoolStudentFeeGenerationService $feeGenerationService)
     {
         $this->smsService = $smsService;
+        $this->feeGenerationService = $feeGenerationService;
     }
 
     /**
@@ -88,6 +91,29 @@ class SchoolReadmissionController extends Controller
         $school = School::where('user_id', $schoolUser->id)->first();
         if (!$school) {
             return response()->json(['message' => 'School profile not found.'], 400);
+        }
+
+        // Enforce: Admission Fee Template must exist
+        $firstStudent = AdmissionStudent::where('school_id', $schoolUser->id)->find($request->student_ids[0]);
+        $classId = $firstStudent?->class;
+
+        if ($classId) {
+            $templateExists = SchoolFeeTemplate::where('school_id', $school->id)
+                ->where('class_id', $classId)
+                ->where('session_id', $request->to_session)
+                ->where(function ($q) {
+                    $q->where('fee_type_name', 'Admission')
+                      ->orWhere('fee_type_name', 'like', '%Re-Admission%')
+                      ->orWhereHas('assign', fn ($q) => $q->where('name', 'Admission'));
+                })
+                ->where('is_active', true)
+                ->exists();
+
+            if (!$templateExists) {
+                return response()->json([
+                    'message' => 'Re-Admission is not allowed. No active Admission Fee Template exists for this class and session. Please create one first.'
+                ], 422);
+            }
         }
 
         try {
@@ -172,36 +198,12 @@ class SchoolReadmissionController extends Controller
                         ]
                     );
 
-                    // Look for an existing fee template matching class, target session, and Re-Admission
-                    $template = SchoolFeeTemplate::where('school_id', $school->id)
-                        ->where('class_id', $student->class)
-                        ->where('session_id', $request->to_session)
-                        ->where(function ($q) {
-                            $q->where('fee_type_name', 'like', '%Re-Admission%')
-                              ->orWhere('fee_name', 'like', '%Re-Admission%')
-                              ->orWhere('fee_type_name', 'like', '%Admission%')
-                              ->orWhere('fee_name', 'like', '%Admission%');
-                        })
-                        ->first();
-
-                    $feeTemplateId = $template?->id;
-                    $feeTypeName = $template?->fee_type_name ?? 'Re-Admission';
-                    $feeName = $template?->fee_name ?? 'Re-Admission Fee';
-
-                    // Generate Re-Admission Fee Record
-                    SchoolStudentFee::firstOrCreate(
-                        [
-                            'school_id'     => $school->id,
-                            'student_id'    => $student->id,
-                            'fee_type_name' => $feeTypeName,
-                            'fee_name'      => $feeName,
-                            'pay_date'      => $request->readmit_date,
-                        ],
-                        [
-                            'fee_template_id' => $feeTemplateId,
-                            'amount'          => $request->readmit_fee,
-                            'status'          => 'pending',
-                        ]
+                    // Auto-generate Admission Fee via service
+                    $this->feeGenerationService->generateAdmissionFee(
+                        $student,
+                        $student->class,
+                        $request->to_session,
+                        $school->id
                     );
 
                     // Send Re-Admission SMS

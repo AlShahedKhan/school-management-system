@@ -10,8 +10,9 @@ class FeeStatusSyncService
 {
     public function syncPending(?int $schoolId = null): int
     {
-        $query = SchoolStudentFee::where('pay_date', '<', Carbon::today())
-            ->where('status', 'pending');
+        $query = SchoolStudentFee::whereIn('status', ['unpaid', 'pending'])
+            ->whereNotNull('due_date')
+            ->whereDate('due_date', '<', Carbon::today());
 
         if ($schoolId) {
             $query->where('school_id', $schoolId);
@@ -44,18 +45,19 @@ class FeeStatusSyncService
     {
         $paid = (float) SchoolPayment::where('school_student_fee_id', $fee->id)
             ->sum('type_amount');
-        $amount = (float) $fee->amount;
+        $amount = (float) ($fee->payable_amount ?: $fee->amount);
         $today = Carbon::today();
-        $payDate = $fee->pay_date ? Carbon::parse($fee->pay_date) : null;
+        $dueDate = $fee->due_date ? Carbon::parse($fee->due_date) : null;
 
         return match (true) {
             $paid >= $amount && $amount > 0 => 'paid',
-            $payDate && $payDate->copy()->startOfMonth()->lt($today->copy()->startOfMonth()) && $paid > 0 => 'over_due_partial',
-            $payDate && $payDate->copy()->startOfMonth()->lt($today->copy()->startOfMonth()) => 'over_due',
-            $payDate && $payDate->lt($today) && $paid > 0 => 'due_partial',
-            $payDate && $payDate->lt($today) => 'due',
+            $dueDate && $dueDate->copy()->startOfMonth()->lt($today->copy()->startOfMonth()) && $paid > 0 => 'over_due_partial',
+            $dueDate && $dueDate->copy()->startOfMonth()->lt($today->copy()->startOfMonth()) => 'over_due',
+            $dueDate && $dueDate->lt($today) && $paid > 0 => 'due_partial',
+            $dueDate && $dueDate->lt($today) => 'due',
             $paid > 0 => 'partial_paid',
-            default => 'pending',
+            $amount > 0 => 'unpaid',
+            default => 'paid',
         };
     }
 }

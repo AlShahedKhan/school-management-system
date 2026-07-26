@@ -155,7 +155,9 @@ class SchoolFeeTemplateController extends Controller
 
                 $created = 0;
 
-                $generateFees = $validated['frequency'] === 'one_time' || $validated['fee_type_name'] === 'Food';
+                // Promote fees are generated only during student promotion, not on template creation
+                $generateFees = ($validated['frequency'] === 'one_time' || $validated['fee_type_name'] === 'Food')
+                    && $validated['fee_type_name'] !== 'Promote';
 
                 if ($generateFees) {
                     if ($validated['fee_type_name'] === 'Food' && !empty($validated['student_ids'])) {
@@ -195,16 +197,19 @@ class SchoolFeeTemplateController extends Controller
                             }
 
                             $rows[] = [
-                                'school_id' => $school->id,
-                                'student_id' => $student->id,
+                                'school_id'       => $school->id,
+                                'student_id'      => $student->id,
                                 'fee_template_id' => $template->id,
-                                'fee_type_name' => $validated['fee_type_name'],
-                                'fee_name' => $validated['fee_name'] ?? null,
-                                'amount' => $validated['amount'],
-                                'pay_date' => $validated['pay_date'],
-                                'status' => 'pending',
-                                'created_at' => $now,
-                                'updated_at' => $now,
+                                'fee_type_name'   => $validated['fee_type_name'],
+                                'fee_name'        => $validated['fee_name'] ?? null,
+                                'amount'          => $validated['amount'],
+                                'payable_amount'  => $validated['amount'],
+                                'due_amount'      => $validated['amount'],
+                                'pay_date'        => $validated['pay_date'],
+                                'due_date'        => $validated['pay_date'],
+                                'status'          => 'unpaid',
+                                'created_at'      => $now,
+                                'updated_at'      => $now,
                             ];
                             $created++;
                         }

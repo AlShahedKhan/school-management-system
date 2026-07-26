@@ -16,7 +16,7 @@ class SchoolStudentFee extends Model
         'fee_template_id',
         'fee_type_name',
         'fee_name',
-        'base_amount',
+        'amount',
         'discount_amount',
         'payable_amount',
         'paid_amount',
@@ -29,7 +29,7 @@ class SchoolStudentFee extends Model
     ];
 
     protected $casts = [
-        'base_amount'     => 'decimal:2',
+        'amount'          => 'decimal:2',
         'discount_amount' => 'decimal:2',
         'payable_amount'  => 'decimal:2',
         'paid_amount'     => 'decimal:2',
