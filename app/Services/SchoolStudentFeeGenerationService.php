@@ -62,6 +62,48 @@ class SchoolStudentFeeGenerationService
     }
 
     /**
+     * Generate Promote Fee automatically after Student Promotion.
+     * Only once per student for the specific class+session.
+     * @return SchoolStudentFee|false
+     */
+    public function generatePromoteFee(AdmissionStudent $student, $classId, $sessionId, $schoolId = null)
+    {
+        $query = SchoolFeeTemplate::where(function ($q) {
+            $q->where('fee_type_name', 'like', '%Promote%')
+              ->orWhere('fee_name', 'like', '%Promote%');
+        })
+        ->where('class_id', $classId)
+        ->where('session_id', $sessionId)
+        ->where('is_active', true);
+
+        if ($schoolId) {
+            $query->where('school_id', $schoolId);
+        }
+
+        $template = $query->first();
+
+        if (!$template) {
+            throw new Exception("Active Promote Fee Template not found. Cannot generate fee.");
+        }
+
+        // Prevent duplicate generation
+        $exists = SchoolStudentFee::where('student_id', $student->id)
+            ->where('fee_template_id', $template->id)
+            ->exists();
+
+        if ($exists) {
+            return false;
+        }
+
+        // Use template's pay_date as due_date, fallback to 7 days from now
+        $dueDate = $template->pay_date
+            ? Carbon::parse($template->pay_date)
+            : Carbon::now()->addDays(7);
+
+        return $this->generateFeeRecord($template, $student, $dueDate);
+    }
+
+    /**
      * Generate Monthly Fees (e.g. Tuition, Food)
      * Called by a Scheduler (e.g. on the 1st of every month).
      */
