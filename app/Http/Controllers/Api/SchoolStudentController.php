@@ -45,12 +45,12 @@ class SchoolStudentController extends Controller
             $q->where(function ($sq) use ($permissions) {
                 foreach ($permissions as $permission) {
                     $sq->orWhere(function ($ssq) use ($permission) {
-                        $ssq->where('class', $permission->class_id);
+                        $ssq->where('class_id', $permission->class_id);
                         if ($permission->group_id) {
-                            $ssq->where('group', $permission->group_id);
+                            $ssq->where('group_id', $permission->group_id);
                         }
                         if ($permission->section_id) {
-                            $ssq->where('section', $permission->section_id);
+                            $ssq->where('section_id', $permission->section_id);
                         }
                     });
                 }
@@ -63,10 +63,10 @@ class SchoolStudentController extends Controller
                     ->orWhere('admission_id', 'like', "%$search%")
                     ->orWhere('mobile', 'like', "%$search%");
             });
-        })->when($request->filled('class'), fn($q) => $q->where('class', $request->class))
-          ->when($request->filled('group'), fn($q) => $q->where('group', $request->group))
-          ->when($request->filled('section'), fn($q) => $q->where('section', $request->section))
-          ->when($request->filled('session'), fn($q) => $q->where('session', $request->session));
+        })->when($request->filled('class'), fn($q) => $q->where('class_id', $request->class))
+          ->when($request->filled('group'), fn($q) => $q->where('group_id', $request->group))
+          ->when($request->filled('section'), fn($q) => $q->where('section_id', $request->section))
+          ->when($request->filled('session'), fn($q) => $q->where('session_id', $request->session));
         if ($request->boolean('all')) {
             $query->where('status', '!=', StudentStatus::Inactive->value);
             $students = $query->orderBy('id', 'desc')->get();

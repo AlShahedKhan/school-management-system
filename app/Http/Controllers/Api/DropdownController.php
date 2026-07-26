@@ -171,8 +171,6 @@ class DropdownController extends Controller
 
         if (!empty($classIds)) {
             $query->whereIn('class_id', Arr::wrap($classIds));
-        } else {
-            return response()->json(['data' => []]);
         }
 
         $groupIds = $request->input('group_ids', []);
