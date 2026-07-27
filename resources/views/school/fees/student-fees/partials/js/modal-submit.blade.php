@@ -9,8 +9,8 @@
             formData.append('_method', 'PUT');
         }
         const apiUrl = recordId
-            ? `{{ url('/api/fee-templates') }}/${recordId}`
-            : `{{ url('/api/fee-templates') }}`;
+            ? `{{ url('/api/student-fees') }}/${recordId}`
+            : `{{ url('/api/student-fees') }}`;
         axios.post(apiUrl, formData, {
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -19,13 +19,13 @@
         })
         .then(() => {
             Toastify({
-                text: 'Fee Template Saved Successfully!',
+                text: 'Student Fee Updated Successfully!',
                 gravity: 'top',
                 position: 'right',
                 style: { background: '#10b981' }
             }).showToast();
             document.getElementById('feeModal').classList.add('hidden');
-            setTimeout(() => { window.location.reload(); }, 500);
+            fetchStudentFees(currentPage);
         })
         .catch(error => {
             if (error.response?.status === 422) {

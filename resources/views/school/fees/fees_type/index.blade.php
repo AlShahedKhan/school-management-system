@@ -185,7 +185,6 @@
             const fields = {
                 'Exams': ['div_exam_name', 'div_amount', 'div_pay_date'],
                 'Food': ['div_food_type', 'div_fee_name', 'div_amount', 'div_due_day'],
-                'Fine': ['div_amount', 'div_pay_date'],
                 'Session': ['div_fee_name', 'div_amount', 'div_pay_date'],
                 'Admission': ['div_fee_name', 'div_amount', 'div_pay_date'],
                 'Promote': ['div_fee_name', 'div_amount', 'div_pay_date'],
@@ -195,36 +194,36 @@
             (fields[type] || []).forEach(showEl);
 
             const nameWrapper = document.getElementById('fee_name_wrapper');
-            if (type === 'Fine') {
-                showEl('fine_fee_wrapper');
+            if (type === 'Tuition') {
                 const fr = document.getElementById('frequency');
-                if (fr) { fr.value = 'event_triggered'; }
-            } else {
-                hideEl('fine_fee_wrapper');
-                if (type === 'Tuition') {
-                    const fr = document.getElementById('frequency');
-                    if (fr) { fr.value = 'monthly'; }
-                } else if (type === 'Food') {
-                    const fr = document.getElementById('frequency');
-                    if (fr) { fr.value = 'monthly'; }
-                } else if (type === 'Exams') {
-                    loadExams();
-                    const fr = document.getElementById('frequency');
-                    if (fr) { fr.value = 'per_exam'; }
-                } else if (type === 'Session') {
-                    const fr = document.getElementById('frequency');
-                    if (fr) { fr.value = 'yearly'; }
-                } else if (type) {
-                    const fr = document.getElementById('frequency');
-                    if (fr) { fr.value = 'one_time'; }
-                }
+                if (fr) { fr.value = 'monthly'; }
+            } else if (type === 'Food') {
+                const fr = document.getElementById('frequency');
+                if (fr) { fr.value = 'monthly'; }
+            } else if (type === 'Exams') {
+                loadExams();
+                const fr = document.getElementById('frequency');
+                if (fr) { fr.value = 'per_exam'; }
+            } else if (type === 'Session') {
+                const fr = document.getElementById('frequency');
+                if (fr) { fr.value = 'one_time'; }
+            } else if (type) {
+                const fr = document.getElementById('frequency');
+                if (fr) { fr.value = 'one_time'; }
             }
 
             if (type === 'Exams') {
                 hideEl('div_fee_name');
+                const nameInput = document.getElementById('fee_name_input');
+                if (nameInput) { nameInput.value = ''; nameInput.readOnly = true; }
             }
 
             autoGenerateFeeName(type);
+
+            if (type === 'Exams') {
+                const nameInput = document.getElementById('fee_name_input');
+                if (nameInput) nameInput.readOnly = true;
+            }
         }
 
         function handleFoodTypeChange() {
@@ -232,10 +231,13 @@
             const studentDiv = document.getElementById('div_food_students');
             if (foodType === 'single' || foodType === 'multiple') {
                 studentDiv.style.display = 'block';
-                loadStudentsForFood();
+                document.getElementById('food_student_list_select_label').textContent = foodType === 'single' ? 'Select' : 'Select';
+                loadStudentsForFood(foodType);
             } else {
                 studentDiv.style.display = 'none';
-                document.getElementById('food_student_list').innerHTML = '';
+                document.getElementById('food_student_list').innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">Please select academic details first.</td></tr>';
+                const count = document.getElementById('food_student_count');
+                if (count) count.classList.add('hidden');
             }
         }
 
@@ -257,35 +259,66 @@
 
         function handleExamSelect() {
             const examId = document.getElementById('exam_id').value;
-            if (!examId) return;
+            if (!examId) {
+                document.getElementById('fee_name_input').value = '';
+                return;
+            }
             axios.get('/api/school-exam-names/' + examId).then(res => {
                 const exam = res.data.data || res.data;
-                if (exam && exam.exam_end_date) {
+                if (!exam) return;
+                document.getElementById('fee_name_input').value = exam.exam_name || '';
+                if (exam.exam_end_date) {
                     document.getElementById('pay_date').value = exam.exam_end_date;
                 }
             }).catch(() => {});
         }
 
-        function loadStudentsForFood() {
+        function loadStudentsForFood(type) {
             const classId = document.querySelector('#feeFormClass')?.value;
             const sessionId = document.querySelector('#feeFormSession')?.value;
             if (!classId || !sessionId) return;
+            const isMultiple = type === 'multiple';
+            const tbody = document.getElementById('food_student_list');
+            const selectAllWrapper = document.getElementById('food_student_list_all_wrapper');
+            const selectAllCb = document.getElementById('food_student_list_all');
+            if (selectAllWrapper) selectAllWrapper.style.display = isMultiple ? 'flex' : 'none';
+            if (selectAllCb) selectAllCb.checked = false;
+            tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400"><i class="fas fa-spinner fa-spin mr-1"></i> Loading students...</td></tr>';
             axios.get('/api/get-school-students', { params: { class_id: classId, session_id: sessionId } }).then(res => {
                 const data = res.data.data || res.data || [];
-                const list = document.getElementById('food_student_list');
-                list.innerHTML = '';
-                data.forEach(student => {
-                    const label = document.createElement('label');
-                    label.className = 'flex items-center gap-2 cursor-pointer py-0.5';
-                    label.innerHTML = '<input type="checkbox" name="student_ids[]" value="' + student.id + '" class="w-3.5 h-3.5 accent-blue-600 cursor-pointer"> <span class="text-[11px] text-slate-700">' + (student.student_name || student.name || 'Student #' + student.id) + '</span>';
-                    list.appendChild(label);
+                tbody.innerHTML = '';
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">No active students found.</td></tr>';
+                    const count = document.getElementById('food_student_count');
+                    if (count) count.classList.add('hidden');
+                    return;
+                }
+                const inputType = isMultiple ? 'checkbox' : 'radio';
+                const inputName = isMultiple ? 'student_ids[]' : 'student_id';
+                data.forEach((student, index) => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors';
+                    tr.innerHTML =
+                        '<td class="p-2 text-slate-500 font-normal">' + (index + 1) + '</td>' +
+                        '<td class="p-2 font-semibold text-slate-700">' + (student.student_id_number || '-') + '</td>' +
+                        '<td class="p-2 text-slate-600">' + (student.student_name || student.name || 'Student #' + student.id) + '</td>' +
+                        '<td class="p-2 text-center"><input type="' + inputType + '" name="' + inputName + '" value="' + student.id + '" class="food-student-select w-4 h-4 cursor-pointer accent-blue-600"></td>';
+                    tbody.appendChild(tr);
                 });
                 const count = document.getElementById('food_student_count');
                 if (count) {
                     count.textContent = data.length + ' student(s) available';
                     count.classList.remove('hidden');
                 }
-            }).catch(() => {});
+            }).catch(() => {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-red-500">Failed to load students.</td></tr>';
+            });
+        }
+
+        function toggleAllFoodStudents(master) {
+            document.querySelectorAll('.food-student-select').forEach(function(el) {
+                if (el.type === 'checkbox') el.checked = master.checked;
+            });
         }
 
         async function loadFeeGroupFilterByClass(classId) {
@@ -543,9 +576,6 @@
                                         setDropdownValueFromMenu('food_type', item.food_type);
                                         handleFoodTypeChange();
                                     }
-                                    if (item.fee_type_name === 'Fine') {
-                                        setDropdownValueFromMenu('fine_fee_name_select', item.fee_name || '');
-                                    }
                                 }, 200);
                                 document.getElementById('feeModal').classList.remove('hidden');
                             }, 300);
@@ -590,8 +620,6 @@
         function resetConditionalFields() {
             document.querySelectorAll('.hidden-field').forEach(el => el.style.display = 'none');
             hideEl('div_frequency');
-            const fw = document.getElementById('fine_fee_wrapper');
-            if (fw) fw.style.display = 'none';
             const fn = document.getElementById('fee_name_input');
             if (fn) { fn.value = ''; fn.readOnly = false; }
             const amt = document.getElementById('amount');

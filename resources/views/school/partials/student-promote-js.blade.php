@@ -132,6 +132,7 @@
         populateDropdown('to_group', [], 'id', 'group_name', 'Select Group');
         populateDropdown('to_section', [], 'id', 'section_name', 'Select Section');
         populateDropdown('to_session', [], 'id', 'session_year', 'Select Session');
+        document.getElementById('promote_fee').value = '';
         if (!classId) return;
         const filteredGroups = globalGroups.filter(g => g.class_id == classId);
         populateDropdown('to_group', filteredGroups, 'id', 'group_name', 'Select Group');
@@ -141,6 +142,7 @@
         const classId = document.getElementById('to_class').value;
         const groupId = document.getElementById('to_group').value;
         populateDropdown('to_section', [], 'id', 'section_name', 'Select Section');
+        document.getElementById('promote_fee').value = '';
         if (!classId) {
             loadDestSessions();
             return;
@@ -172,8 +174,10 @@
         }
     }
     async function fetchPromoteFeeFromTemplate() {
-        const classId = document.getElementById('from_class').value;
-        const sessionId = document.getElementById('from_session').value;
+        const classId = document.getElementById('to_class').value;
+        const groupId = document.getElementById('to_group').value;
+        const sectionId = document.getElementById('to_section').value;
+        const sessionId = document.getElementById('to_session').value;
         const feeInput = document.getElementById('promote_fee');
         if (!classId || !sessionId) {
             feeInput.value = '';
@@ -181,14 +185,10 @@
         }
         feeInput.value = 'Loading...';
         try {
-            const res = await localApi.get('/api/fee-templates', {
-                params: {
-                    class_id: classId,
-                    session_id: sessionId,
-                    search: 'Promote',
-                    all: 1
-                }
-            });
+            const params = { class_id: classId, session_id: sessionId, search: 'Promote', all: 1 };
+            if (groupId) params.group_id = groupId;
+            if (sectionId) params.section_id = sectionId;
+            const res = await localApi.get('/api/fee-templates', { params });
             const templates = res.data.data || [];
             const match = templates.find(t =>
                 t.fee_type_name.toLowerCase().includes('promote') ||
@@ -311,9 +311,8 @@
             }
         });
     }
-    async function handleFromSessionChange() {
+    async function handleToSessionChange() {
         await fetchPromoteFeeFromTemplate();
-        await loadStudentsList();
     }
     document.addEventListener('DOMContentLoaded', async () => {
         try {
@@ -334,10 +333,11 @@
         document.getElementById('from_class')?.addEventListener('change', loadSourceDependencies);
         document.getElementById('from_group')?.addEventListener('change', loadSourceSections);
         document.getElementById('from_section')?.addEventListener('change', loadSourceSessions);
-        document.getElementById('from_session')?.addEventListener('change', handleFromSessionChange);
+        document.getElementById('from_session')?.addEventListener('change', loadStudentsList);
         document.getElementById('to_class')?.addEventListener('change', loadDestDependencies);
-        document.getElementById('to_group')?.addEventListener('change', loadDestSections);
-        document.getElementById('to_section')?.addEventListener('change', loadDestSessions);
+        document.getElementById('to_group')?.addEventListener('change', () => { loadDestSections(); fetchPromoteFeeFromTemplate(); });
+        document.getElementById('to_section')?.addEventListener('change', () => { loadDestSessions(); fetchPromoteFeeFromTemplate(); });
+        document.getElementById('to_session')?.addEventListener('change', handleToSessionChange);
         document.getElementById('closePromoteModal')?.addEventListener('click', () => {
             window.location.href = '/school/students';
         });
@@ -356,13 +356,13 @@
             submitPromote();
         });
         document.getElementById('btnCreateFeeTemplatePromote')?.addEventListener('click', () => {
-            const classId = document.getElementById('from_class').value;
-            const sessionId = document.getElementById('from_session').value;
+            const classId = document.getElementById('to_class').value;
+            const sessionId = document.getElementById('to_session').value;
             if (!classId || !sessionId) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Selection Required',
-                    text: 'Please select both Class and Session first.',
+                    text: 'Please select Destination Class and Session first.',
                     confirmButtonColor: '#2563eb'
                 });
                 return;
@@ -382,10 +382,10 @@
         });
         document.getElementById('feeTemplateForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
-            const classId = document.getElementById('from_class').value;
-            const sessionId = document.getElementById('from_session').value;
-            const groupId = document.getElementById('from_group').value;
-            const sectionId = document.getElementById('from_section').value;
+            const classId = document.getElementById('to_class').value;
+            const sessionId = document.getElementById('to_session').value;
+            const groupId = document.getElementById('to_group').value;
+            const sectionId = document.getElementById('to_section').value;
             const feeName = document.getElementById('feeNameInput').value;
             const amount = document.getElementById('feeAmountInput').value;
             const payDate = document.getElementById('feePayDateInput').value;
@@ -408,7 +408,7 @@
                     Swal.close();
                     document.getElementById('feeTemplateModal').classList.add('hidden');
                     document.getElementById('feeTemplateForm').reset();
-                    handleFromSessionChange();
+                    handleToSessionChange();
                 })
                 .catch(err => {
                     Swal.close();

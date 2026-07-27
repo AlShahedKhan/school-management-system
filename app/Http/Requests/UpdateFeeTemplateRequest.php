@@ -29,6 +29,7 @@ class UpdateFeeTemplateRequest extends FormRequest
             'frequency'     => ['nullable', 'in:one_time,monthly,per_exam,event_triggered'],
             'due_day'       => ['nullable', 'integer', 'min:1', 'max:31'],
             'food_type'     => ['nullable', 'in:single,multiple,all'],
+            'student_id'    => ['nullable', 'exists:admission_students,id'],
             'student_ids'   => ['nullable', 'array'],
             'student_ids.*' => ['exists:admission_students,id'],
         ];
@@ -53,13 +54,14 @@ class UpdateFeeTemplateRequest extends FormRequest
             'due_day.min'            => 'Due day must be between 1 and 31.',
             'due_day.max'            => 'Due day must be between 1 and 31.',
             'food_type.in'           => 'Invalid food type selected.',
+            'student_id.exists'      => 'The selected student is invalid.',
             'student_ids.array'      => 'Student IDs must be an array.',
             'student_ids.*.exists'   => 'One or more selected students are invalid.',
         ];
     }
 
     /**
-     * Custom validator checks for duplicate template after rules pass.
+     * Custom validator checks for duplicate fee name within the same session.
      */
     public function withValidator(Validator $validator): void
     {
@@ -75,26 +77,25 @@ class UpdateFeeTemplateRequest extends FormRequest
 
             $id = $this->route('fee_template') ?? $this->route('id');
 
-            $existsQuery = \App\Models\SchoolFeeTemplate::where('school_id', $school->id)
-                ->where('class_id', $this->class_id)
-                ->where('session_id', $this->session_id)
-                ->where('group_id', $this->group_id ?? null)
-                ->where('section_id', $this->section_id ?? null)
-                ->where('fee_type_name', $this->fee_type_name)
-                ->where('id', '!=', $id);
-
-            if ($this->fee_type_name === 'Admission') {
-                $existsQuery->whereNull('exam_id');
-            } else {
-                $existsQuery->where('exam_id', $this->exam_id ?? null)
-                    ->where('fee_name', $this->fee_name ?? null);
+            if ($this->fee_type_name === 'Exams') {
+                $query = \App\Models\SchoolFeeTemplate::where('school_id', $school->id)
+                    ->where('session_id', $this->session_id)
+                    ->where('exam_id', $this->exam_id)
+                    ->where('id', '!=', $id);
+                if ($query->exists()) {
+                    $validator->errors()->add('exam_id', 'An exam fee already exists for this exam.');
+                    return;
+                }
             }
 
-            if ($existsQuery->exists()) {
-                $message = ($this->fee_type_name === 'Admission')
-                    ? 'An Admission fee already exists for this class, group, section & session.'
-                    : 'Another fee template with these details already exists.';
-                $validator->errors()->add('fee_type_name', $message);
+            $query = \App\Models\SchoolFeeTemplate::where('school_id', $school->id)
+                ->where('session_id', $this->session_id)
+                ->where('fee_type_name', $this->fee_type_name)
+                ->where('fee_name', $this->fee_name ?? null)
+                ->where('id', '!=', $id);
+
+            if ($query->exists()) {
+                $validator->errors()->add('fee_name', 'A fee with this name already exists in the selected session.');
             }
         });
     }
