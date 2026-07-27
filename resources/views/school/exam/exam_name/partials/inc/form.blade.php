@@ -52,8 +52,8 @@
     <div id="session_id_error" class="mt-1 hidden text-[10px] text-red-500"></div>
 </div>
 <div class="relative">
-    <x-input.control id="exam_name" class="peer placeholder:text-transparent" name="exam_name" placeholder=" " />
-    <x-input.floating-label for="exam_name">Exam Name</x-input.floating-label>
+    <x-input.control id="examFormName" class="peer placeholder:text-transparent" name="exam_name" placeholder=" " />
+    <x-input.floating-label for="examFormName">Exam Name</x-input.floating-label>
     <div id="exam_name_error" class="mt-1 hidden text-[10px] text-red-500"></div>
 </div>
 <div class="relative">

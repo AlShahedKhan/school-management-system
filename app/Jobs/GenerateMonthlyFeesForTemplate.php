@@ -7,6 +7,8 @@ use App\Models\AdvancePayment;
 use App\Models\SchoolFeeTemplate;
 use App\Models\SchoolPayment;
 use App\Models\SchoolStudentFee;
+use App\Models\StudentPromotion;
+use App\Models\StudentReadmission;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -50,6 +52,19 @@ class GenerateMonthlyFeesForTemplate implements ShouldQueue
 
         $now = Carbon::now();
         $yearMonth = $now->format('Y-m');
+        $currentMonthStart = $now->copy()->startOfMonth();
+
+        // Session date boundaries
+        $sessionStartDate = $schoolSession->start_date ? Carbon::parse($schoolSession->start_date)->startOfMonth() : null;
+        $sessionEndDate = $schoolSession->end_date ? Carbon::parse($schoolSession->end_date)->startOfMonth() : null;
+
+        // Skip if session hasn't started yet or has already ended
+        if ($sessionStartDate && $currentMonthStart->lt($sessionStartDate)) {
+            return;
+        }
+        if ($sessionEndDate && $currentMonthStart->gt($sessionEndDate)) {
+            return;
+        }
 
         if ($template->frequency === 'one_time' || $template->frequency === 'per_exam') {
             $payDate = $template->pay_date;
@@ -63,7 +78,7 @@ class GenerateMonthlyFeesForTemplate implements ShouldQueue
             $total = AdmissionStudent::whereIn('id', $studentIds)->count();
             if ($this->offset >= $total) return;
             $students = AdmissionStudent::whereIn('id', $studentIds)
-                ->skip($this->offset)->take($this->chunkSize)->get(['id']);
+                ->skip($this->offset)->take($this->chunkSize)->get(['id', 'admission_date']);
         } else {
             $studentQuery = AdmissionStudent::where('school_id', $schoolOwnerUserId)
                 ->where(function ($q) use ($template, $class) {
@@ -97,7 +112,7 @@ class GenerateMonthlyFeesForTemplate implements ShouldQueue
             $total = $studentQuery->count();
             if ($this->offset >= $total) return;
 
-            $students = $studentQuery->skip($this->offset)->take($this->chunkSize)->get(['id']);
+            $students = $studentQuery->skip($this->offset)->take($this->chunkSize)->get(['id', 'admission_date']);
         }
         if ($students->isEmpty()) {
             return;
@@ -112,6 +127,55 @@ class GenerateMonthlyFeesForTemplate implements ShouldQueue
             ->toArray();
 
         $newStudentIds = array_diff($studentIds, $existing);
+
+        // Filter students by fee start date (Admission Date, Promotion Date, or Re-Admission Date)
+        if (!empty($newStudentIds)) {
+            $studentDateMap = [];
+            foreach ($students as $s) {
+                $studentDateMap[$s->id] = $s->admission_date ? Carbon::parse($s->admission_date) : null;
+            }
+
+            // Load latest promotion dates for these students in this class+session
+            $promotions = StudentPromotion::whereIn('student_id', $newStudentIds)
+                ->where('to_class_id', $template->class_id)
+                ->where('to_session_id', $template->session_id)
+                ->select('student_id', 'promote_date')
+                ->get()
+                ->groupBy('student_id')
+                ->map(fn ($rows) => $rows->sortByDesc('id')->first()->promote_date);
+
+            // Load latest readmission dates for these students in this session
+            $readmissions = StudentReadmission::whereIn('student_id', $newStudentIds)
+                ->where('to_session_id', $template->session_id)
+                ->select('student_id', 'readmission_date')
+                ->get()
+                ->groupBy('student_id')
+                ->map(fn ($rows) => $rows->sortByDesc('id')->first()->readmission_date);
+
+            $filtered = [];
+            foreach ($newStudentIds as $sid) {
+                $startDate = $studentDateMap[$sid] ?? null;
+                $promoteDate = isset($promotions[$sid]) ? Carbon::parse($promotions[$sid]) : null;
+                $readmitDate = isset($readmissions[$sid]) ? Carbon::parse($readmissions[$sid]) : null;
+
+                // Fee start date is the latest of admission, promotion, or readmission
+                $feeStartDate = $startDate;
+                if ($promoteDate && (!$feeStartDate || $promoteDate->gt($feeStartDate))) {
+                    $feeStartDate = $promoteDate;
+                }
+                if ($readmitDate && (!$feeStartDate || $readmitDate->gt($feeStartDate))) {
+                    $feeStartDate = $readmitDate;
+                }
+
+                // Skip if student's fee start month is after the current month
+                if ($feeStartDate && $feeStartDate->copy()->startOfMonth()->gt($currentMonthStart)) {
+                    continue;
+                }
+
+                $filtered[] = $sid;
+            }
+            $newStudentIds = $filtered;
+        }
 
         if (!empty($newStudentIds)) {
             // Load advance credits for these students
@@ -162,13 +226,23 @@ class GenerateMonthlyFeesForTemplate implements ShouldQueue
                     }
                 }
 
+                // If status is still pending and the due day has passed, mark as due/over_due
+                if ($status === 'pending' && $payDate) {
+                    $dueDate = Carbon::parse($payDate);
+                    if ($dueDate->lte($now)) {
+                        $status = $dueDate->copy()->startOfMonth()->lt($now->copy()->startOfMonth())
+                            ? 'over_due'
+                            : 'due';
+                    }
+                }
+
                 $rows[] = [
                     'school_id'       => $template->school_id,
                     'student_id'      => $sid,
                     'fee_template_id' => $template->id,
                     'fee_type_name'   => $template->fee_type_name,
                     'fee_name'        => $template->fee_name,
-                    'amount'          => $template->amount,
+                    'base_amount'     => $template->amount,
                     'pay_date'        => $payDate,
                     'status'          => $status,
                     'created_at'      => $nowTimestamp,

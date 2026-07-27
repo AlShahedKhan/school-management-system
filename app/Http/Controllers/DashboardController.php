@@ -944,6 +944,7 @@ class DashboardController extends Controller
             ->withQueryString();
         return view('school.hrm.payroll.index', compact('payrolls'));
     }
+    
 
     // Subscription / Plans
     public function currentPlan()
@@ -964,12 +965,12 @@ class DashboardController extends Controller
 
     public function discount()
     {
-        return view('school.discount');
+        return view('school.fees.discount.index');
     }
 
     public function discountsNew()
     {
-        return view('school.discount');
+        return view('school.fees.discount.index');
     }
 
     public function payment()

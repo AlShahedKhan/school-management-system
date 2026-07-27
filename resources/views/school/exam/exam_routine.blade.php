@@ -491,6 +491,9 @@
 
     {{-- Exam Routine Modal --}}
     <div id="routineModal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modalTitle"
         class="fixed inset-0 bg-gray-900/60 flex items-center justify-center hidden z-[100] px-8 sm:px-40 py-12 backdrop-blur-sm overflow-y-auto">
 
         <div
@@ -505,7 +508,7 @@
             </div>
 
             <form id="routineForm" class="flex flex-col overflow-hidden m-0">
-                <input type="hidden" id="edit_id">
+                <input type="hidden" id="routine_edit_id">
 
                 {{-- Scrollable Content Area --}}
                 <div class="overflow-y-auto custom-scrollbar p-4 sm:p-6 flex-grow bg-gray-50/30">
@@ -561,48 +564,84 @@
                         {{-- Academic Selection --}}
                         <div class="col-span-1">
                             <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Class</label>
-                            <select id="class_name" name="class_name"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                onchange="handleCascade(this, 'group')" style="border-radius: 0;"></select>
+                            <x-input.dropdown-select
+                                id="class_name"
+                                name="class_name"
+                                placeholder="Select Class"
+                                :options="[]"
+                                add-button-id="openClassFromRoutineForm"
+                                add-button-label="Add class"
+                                add-button-target="classModal"
+                            />
                         </div>
 
                         <div class="col-span-1">
                             <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Group</label>
-                            <select id="group_name" name="group_name"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                onchange="handleCascade(this, 'section')" style="border-radius: 0;"></select>
+                            <x-input.dropdown-select
+                                id="group_name"
+                                name="group_name"
+                                placeholder="Select Group"
+                                :options="[]"
+                                add-button-id="openGroupFromRoutineForm"
+                                add-button-label="Add group"
+                                add-button-target="groupModal"
+                            />
                         </div>
 
                         <div class="col-span-1">
                             <label
                                 class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Section</label>
-                            <select id="section_name" name="section_name"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                onchange="handleCascade(this, 'session')" style="border-radius: 0;"></select>
+                            <x-input.dropdown-select
+                                id="section_name"
+                                name="section_name"
+                                placeholder="Select Section"
+                                :options="[]"
+                                add-button-id="openSectionFromRoutineForm"
+                                add-button-label="Add section"
+                                add-button-target="sectionModal"
+                            />
                         </div>
 
                         <div class="col-span-1">
                             <label
                                 class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Session</label>
-                            <select id="session_name" name="session_name"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                onchange="loadExamAndSubject()" style="border-radius: 0;"></select>
+                            <x-input.dropdown-select
+                                id="session_name"
+                                name="session_name"
+                                placeholder="Select Session"
+                                :options="[]"
+                                add-button-id="openSessionFromRoutineForm"
+                                add-button-label="Add session"
+                                add-button-target="sessionModal"
+                            />
                         </div>
 
                         <div class="col-span-1">
                             <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Exam
                                 Name</label>
-                            <select id="exam_name" name="exam_name"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                style="border-radius: 0;"></select>
+                            <x-input.dropdown-select
+                                id="exam_name"
+                                name="exam_name"
+                                placeholder="Select Exam"
+                                :options="[]"
+                                add-button-id="openExamFromRoutineForm"
+                                add-button-label="Add exam"
+                                add-button-target="examModal"
+                            />
                         </div>
 
                         <div class="col-span-1">
                             <label
                                 class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Subject</label>
-                            <select id="subject_name" name="subject_name"
-                                class="form-input-fixed w-full border border-blue-200 py-1.5 px-3 text-xs h-[32px] bg-blue-50/10"
-                                style="border-radius: 0;"></select>
+                            <x-input.dropdown-select
+                                id="subject_name"
+                                name="subject_name"
+                                placeholder="Select Subject"
+                                :options="[]"
+                                add-button-id="openSubjectFromRoutineForm"
+                                add-button-label="Add subject"
+                                add-button-target="subjectModal"
+                            />
                         </div>
 
                     </div>
@@ -626,6 +665,31 @@
         </div>
     </div>
 
+    @include('school.academic.class.partials.class-modal')
+    @include('school.academic.group.partials.group-modal')
+    @include('school.academic.section.partials.section-modal')
+    @include('school.academic.session.partials.session-modal')
+    @include('school.academic.subject.partials.subject-modal')
+    @include('school.exam.exam_name.partials.exam-modal')
+
+    @include('school.academic.class.partials.js.modal-open')
+    @include('school.academic.group.partials.js.modal-open')
+    @include('school.academic.section.partials.js.modal-open')
+    @include('school.academic.session.partials.js.modal-open')
+    @include('school.academic.subject.partials.js.modal-open')
+    @include('school.exam.exam_name.partials.js.modal-open')
+    @include('school.academic.class.partials.js.modal-submit')
+    @include('school.academic.group.partials.js.modal-submit')
+    @include('school.academic.section.partials.js.modal-submit')
+    @include('school.academic.session.partials.js.modal-submit')
+    @include('school.academic.subject.partials.js.modal-submit')
+    @include('school.exam.exam_name.partials.js.modal-submit')
+    @include('school.academic.class.partials.js.error-validation')
+    @include('school.academic.group.partials.js.error-validation')
+    @include('school.academic.section.partials.js.error-validation')
+    @include('school.academic.subject.partials.js.error-validation')
+    @include('school.academic.session.partials.js.error-validation')
+    @include('school.exam.exam_name.partials.js.error-validation')
 
     <script>
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -699,23 +763,122 @@
                 let opts = '<option value="">Select Class</option>';
                 res.data.data.forEach(c => opts +=
                     `<option value="${c.class_name}" data-id="${c.id}">${c.class_name}</option>`);
-                document.getElementById('class_name').innerHTML = opts;
+                populateComponentDropdown('class_nameMenu', res.data.data || [], 'class_name', 'class_name', {
+                    id: 'id'
+                });
+                setComponentDropdownValue('class_name', '', 'Select Class');
                 document.getElementById('f_class').innerHTML = opts.replace('Select', 'All');
             } catch (e) {
                 console.error("Initial Load Error", e);
             }
         }
 
+        function populateComponentDropdown(menuId, data, valueField, labelField, dataFields = {}) {
+            const menu = document.getElementById(menuId);
+            if (!menu) return;
+
+            menu.innerHTML = '';
+
+            data.forEach(item => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'dropdown-select-option m-0 flex min-h-6 w-full items-center border-0 bg-white px-3 py-1 text-left text-[11px] font-normal leading-tight transition-colors hover:bg-slate-100 text-slate-800';
+                btn.dataset.value = String(item[valueField] ?? '');
+                btn.textContent = item[labelField] ?? '';
+                btn.setAttribute('role', 'option');
+                btn.setAttribute('aria-selected', 'false');
+                btn.setAttribute('data-dropdown-select-option', '');
+
+                Object.entries(dataFields).forEach(([dataKey, sourceKey]) => {
+                    btn.dataset[`option${dataKey.charAt(0).toUpperCase()}${dataKey.slice(1)}`] = String(item[sourceKey] ?? '');
+                });
+
+                btn.addEventListener('click', function() {
+                    const root = menu.closest('[data-dropdown-select]');
+                    const input = root?.querySelector('[data-dropdown-select-input]');
+                    const label = root?.querySelector('[data-dropdown-select-label]');
+
+                    if (!root || !input || !label) return;
+
+                    input.value = this.dataset.value || '';
+                    label.textContent = this.textContent.trim();
+
+                    menu.querySelectorAll('[data-dropdown-select-option]').forEach(option => {
+                        const selected = option === this;
+                        option.classList.toggle('bg-slate-100', selected);
+                        option.classList.toggle('text-slate-900', selected);
+                        option.classList.toggle('text-slate-800', !selected);
+                        option.setAttribute('aria-selected', String(selected));
+                    });
+
+                    menu.classList.add('hidden');
+                    root.querySelector('[data-dropdown-select-button]')?.setAttribute('aria-expanded', 'false');
+                    root.querySelector('[data-dropdown-select-button] i')?.classList.remove('rotate-180');
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+
+                menu.appendChild(btn);
+            });
+        }
+
+        function setComponentDropdownValue(dropdownId, value, label) {
+            const input = document.getElementById(dropdownId);
+            const labelEl = document.querySelector(`#${dropdownId}Button [data-dropdown-select-label]`);
+            const menu = document.getElementById(`${dropdownId}Menu`);
+
+            if (input) input.value = value || '';
+            if (labelEl) labelEl.textContent = label || labelEl.dataset.placeholder || 'Select...';
+
+            menu?.querySelectorAll('[data-dropdown-select-option]').forEach(option => {
+                const selected = String(option.dataset.value || '') === String(value || '');
+                option.classList.toggle('bg-slate-100', selected);
+                option.classList.toggle('text-slate-900', selected);
+                option.classList.toggle('text-slate-800', !selected);
+                option.setAttribute('aria-selected', String(selected));
+            });
+        }
+
+        function populateDropdown(menuId, data, valueField, labelField) {
+            populateComponentDropdown(menuId, data, valueField, labelField);
+        }
+
+        function setDropdownValue(dropdownId, value, label) {
+            setComponentDropdownValue(dropdownId, value, label);
+        }
+
+        function getSelectedDataId(elementOrId) {
+            const el = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
+            if (!el) return '';
+
+            if (el.matches?.('[data-dropdown-select-input]')) {
+                const menu = document.getElementById(`${el.id}Menu`);
+                const selected = menu?.querySelector(`[data-value="${CSS.escape(el.value)}"]`);
+                return selected?.dataset.optionId || '';
+            }
+
+            return el.options?.[el.selectedIndex]?.getAttribute('data-id') || '';
+        }
+
         // Reset downstream dropdowns to empty placeholder
         function resetDropdown(id, label, isFilter = false) {
-            document.getElementById(id).innerHTML =
-                `<option value="">${isFilter ? 'All' : 'Select'} ${label}</option>`;
+            const element = document.getElementById(id);
+            const placeholder = `${isFilter ? 'All' : 'Select'} ${label}`;
+
+            if (!element) return;
+
+            if (element.matches?.('[data-dropdown-select-input]')) {
+                populateComponentDropdown(`${id}Menu`, [], 'value', 'label');
+                setComponentDropdownValue(id, '', placeholder);
+                return;
+            }
+
+            element.innerHTML = `<option value="">${placeholder}</option>`;
         }
 
         // Updated Cascade Logic
         async function handleCascade(el, next) {
-            const id = el.options[el.selectedIndex].getAttribute('data-id');
             const isFilter = next.startsWith('f_');
+            const id = getSelectedDataId(el);
 
             // Reset all fields downstream of the changed one
             if (next === 'group' || next === 'f_group') {
@@ -745,7 +908,7 @@
 
             // NEW: Get the class_id for session filtering mandate
             const classEl = document.getElementById(isFilter ? 'f_class' : 'class_name');
-            const classId = classEl.options[classEl.selectedIndex].getAttribute('data-id');
+            const classId = getSelectedDataId(classEl);
 
             try {
                 if (next === 'group' || next === 'f_group') {
@@ -764,9 +927,22 @@
         }
 
         function fillDropdown(target, data, field, label, isFilter = false) {
-            let opts = `<option value="">${isFilter ? 'All' : 'Select'} ${label}</option>`;
+            const element = document.getElementById(target);
+            const placeholder = `${isFilter ? 'All' : 'Select'} ${label}`;
+
+            if (!element) return;
+
+            if (element.matches?.('[data-dropdown-select-input]')) {
+                populateComponentDropdown(`${target}Menu`, data, field, field, {
+                    id: 'id'
+                });
+                setComponentDropdownValue(target, '', placeholder);
+                return;
+            }
+
+            let opts = `<option value="">${placeholder}</option>`;
             data.forEach(item => opts += `<option value="${item[field]}" data-id="${item.id}">${item[field]}</option>`);
-            document.getElementById(target).innerHTML = opts;
+            element.innerHTML = opts;
         }
 
         async function loadExamAndSubject() {
@@ -775,7 +951,7 @@
             const groupName = document.getElementById('group_name').value;
             const sectionName = document.getElementById('section_name').value;
             const sessionName = document.getElementById('session_name').value;
-            const classId = classSelect.options[classSelect.selectedIndex].getAttribute('data-id');
+            const classId = getSelectedDataId(classSelect);
 
             // Always reset exam and subject first
             resetDropdown('exam_name',    'Exam');
@@ -806,6 +982,188 @@
             const res = await axios.get(`/api/get-school-exams?class_name=${className}&session_name=${sessionName}`);
             fillDropdown('f_exam', res.data.data, 'exam_name', 'Exam', true);
         }
+
+        document.addEventListener('school:class-saved', async function (event) {
+            const { classItem, returnModalId, isNew } = event.detail || {};
+            if (returnModalId !== 'routineModal' || !isNew || !classItem?.id) {
+                return;
+            }
+            event.preventDefault();
+
+            try {
+                const response = await axios.get('/api/get-school-classes');
+                populateComponentDropdown('class_nameMenu', response.data.data || [], 'class_name', 'class_name', { id: 'id' });
+                setComponentDropdownValue('class_name', classItem.class_name, classItem.class_name);
+                resetDropdown('group_name', 'Group');
+                resetDropdown('section_name', 'Section');
+                resetDropdown('session_name', 'Session');
+                resetDropdown('exam_name', 'Exam');
+                document.getElementById('subject_name').innerHTML = '<option value="">Select Subject</option>';
+            } finally {
+                document.getElementById('routineModal')?.classList.remove('hidden');
+            }
+        });
+
+        document.addEventListener('school:group-saved', async function (event) {
+            const { groupItem, returnModalId, isNew } = event.detail || {};
+            if (returnModalId !== 'routineModal' || !isNew || !groupItem?.id || !groupItem?.class_id) {
+                return;
+            }
+            event.preventDefault();
+
+            try {
+                const classResponse = await axios.get('/api/get-school-classes');
+                const classes = classResponse.data.data || [];
+                populateComponentDropdown('class_nameMenu', classes, 'class_name', 'class_name', { id: 'id' });
+                const selectedClass = classes.find(item => String(item.id) === String(groupItem.class_id));
+                if (selectedClass) {
+                    setComponentDropdownValue('class_name', selectedClass.class_name, selectedClass.class_name);
+                }
+
+                const groupResponse = await axios.get(`/api/get-school-groups?class_id=${groupItem.class_id}`);
+                populateComponentDropdown('group_nameMenu', groupResponse.data.data || [], 'group_name', 'group_name', { id: 'id' });
+                setComponentDropdownValue('group_name', groupItem.group_name, groupItem.group_name);
+                resetDropdown('section_name', 'Section');
+                resetDropdown('session_name', 'Session');
+                resetDropdown('exam_name', 'Exam');
+                document.getElementById('subject_name').innerHTML = '<option value="">Select Subject</option>';
+            } finally {
+                document.getElementById('routineModal')?.classList.remove('hidden');
+            }
+        });
+
+        document.addEventListener('school:section-already-exists', async function (event) {
+            const { sectionName, classId, groupId, returnModalId } = event.detail || {};
+            if (returnModalId !== 'routineModal' || !sectionName || !classId || !groupId) {
+                return;
+            }
+            event.preventDefault();
+
+            try {
+                const sectionResponse = await axios.get(`/api/get-school-sections?class_id=${classId}&group_id=${groupId}`);
+                if (sectionResponse.data?.data) {
+                    fillDropdown('section_name', sectionResponse.data.data, 'section_name', 'Section');
+                    const existingSection = sectionResponse.data.data.find(item => item.section_name === sectionName);
+                    if (existingSection) {
+                        setComponentDropdownValue('section_name', existingSection.section_name, existingSection.section_name);
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to refresh existing section list', e);
+            } finally {
+                document.getElementById('routineModal')?.classList.remove('hidden');
+            }
+        });
+
+        document.addEventListener('school:section-saved', async function (event) {
+            const { sectionItem, returnModalId, isNew } = event.detail || {};
+            if (returnModalId !== 'routineModal' || !isNew || !sectionItem?.id || !sectionItem?.class_id || !sectionItem?.group_id) {
+                return;
+            }
+            event.preventDefault();
+
+            try {
+                const classResponse = await axios.get('/api/get-school-classes');
+                const classes = classResponse.data.data || [];
+                populateComponentDropdown('class_nameMenu', classes, 'class_name', 'class_name', { id: 'id' });
+                const selectedClass = classes.find(item => String(item.id) === String(sectionItem.class_id));
+                if (selectedClass) {
+                    setComponentDropdownValue('class_name', selectedClass.class_name, selectedClass.class_name);
+                }
+
+                const groupResponse = await axios.get(`/api/get-school-groups?class_id=${sectionItem.class_id}`);
+                populateComponentDropdown('group_nameMenu', groupResponse.data.data || [], 'group_name', 'group_name', { id: 'id' });
+                const selectedGroup = groupResponse.data.data.find(item => String(item.id) === String(sectionItem.group_id));
+                if (selectedGroup) {
+                    setComponentDropdownValue('group_name', selectedGroup.group_name, selectedGroup.group_name);
+                }
+
+                const sectionResponse = await axios.get(`/api/get-school-sections?class_id=${sectionItem.class_id}&group_id=${sectionItem.group_id}`);
+                populateComponentDropdown('section_nameMenu', sectionResponse.data.data || [], 'section_name', 'section_name', { id: 'id' });
+                setComponentDropdownValue('section_name', sectionItem.section_name, sectionItem.section_name);
+                resetDropdown('session_name', 'Session');
+                resetDropdown('exam_name', 'Exam');
+                document.getElementById('subject_name').innerHTML = '<option value="">Select Subject</option>';
+            } finally {
+                document.getElementById('routineModal')?.classList.remove('hidden');
+            }
+        });
+
+        document.addEventListener('school:session-saved', async function (event) {
+            const { sessionItem, returnModalId, isNew } = event.detail || {};
+            if (returnModalId !== 'routineModal' || !isNew || !sessionItem?.id || !sessionItem?.class_id || !sessionItem?.group_id || !sessionItem?.section_id) {
+                return;
+            }
+            event.preventDefault();
+
+            try {
+                const classResponse = await axios.get('/api/get-school-classes');
+                const classes = classResponse.data.data || [];
+                populateComponentDropdown('class_nameMenu', classes, 'class_name', 'class_name', { id: 'id' });
+                const selectedClass = classes.find(item => String(item.id) === String(sessionItem.class_id));
+                if (selectedClass) {
+                    setDropdownValue('class_name', selectedClass.class_name, selectedClass.class_name);
+                }
+
+                const groupResponse = await axios.get(`/api/get-school-groups?class_id=${sessionItem.class_id}`);
+                populateComponentDropdown('group_nameMenu', groupResponse.data.data || [], 'group_name', 'group_name', { id: 'id' });
+                const selectedGroup = groupResponse.data.data.find(item => String(item.id) === String(sessionItem.group_id));
+                if (selectedGroup) {
+                    setDropdownValue('group_name', selectedGroup.group_name, selectedGroup.group_name);
+                }
+
+                const sectionResponse = await axios.get(`/api/get-school-sections?class_id=${sessionItem.class_id}&group_id=${sessionItem.group_id}`);
+                populateComponentDropdown('section_nameMenu', sectionResponse.data.data || [], 'section_name', 'section_name', { id: 'id' });
+                const selectedSection = sectionResponse.data.data.find(item => String(item.id) === String(sessionItem.section_id));
+                if (selectedSection) {
+                    setDropdownValue('section_name', selectedSection.section_name, selectedSection.section_name);
+                }
+
+                const sessionResponse = await axios.get(`/api/get-school-sessions?class_id=${sessionItem.class_id}&section_id=${sessionItem.section_id}`);
+                populateComponentDropdown('session_nameMenu', sessionResponse.data.data || [], 'session_year', 'session_year', { id: 'id' });
+                setDropdownValue('session_name', sessionItem.session_year, sessionItem.session_year);
+                resetDropdown('exam_name', 'Exam');
+                document.getElementById('subject_name').innerHTML = '<option value="">Select Subject</option>';
+                await loadExamAndSubject();
+            } finally {
+                document.getElementById('routineModal')?.classList.remove('hidden');
+            }
+        });
+
+        document.addEventListener('school:exam-saved', async function (event) {
+            const { examItem, returnModalId } = event.detail || {};
+            if (returnModalId !== 'routineModal' || !examItem?.id) {
+                return;
+            }
+            event.preventDefault();
+
+            try {
+                await loadExamAndSubject();
+                setComponentDropdownValue('exam_name', examItem.exam_name, examItem.exam_name);
+            } finally {
+                document.getElementById('routineModal')?.classList.remove('hidden');
+            }
+        });
+
+        document.addEventListener('school:subject-saved', async function (event) {
+            const { subjectItem, returnModalId } = event.detail || {};
+            if (returnModalId !== 'routineModal' || !subjectItem?.id) {
+                return;
+            }
+            event.preventDefault();
+
+            try {
+                await loadExamAndSubject();
+                if (typeof refreshSubjectDropdown === 'function') {
+                    await refreshSubjectDropdown(subjectItem);
+                } else {
+                    const value = subjectItem.subject_name;
+                    setComponentDropdownValue('subject_name', value, value);
+                }
+            } finally {
+                document.getElementById('routineModal')?.classList.remove('hidden');
+            }
+        });
 
         // CRUD Operations
         async function fetchRoutines(page = 1, isFiltering = false) {
@@ -890,7 +1248,7 @@
                 const res = await axios.get(`/api/school-exam-routines/${id}`);
                 const data = res.data;
 
-                document.getElementById('edit_id').value = data.id;
+                document.getElementById('routine_edit_id').value = data.id;
                 document.getElementById('exam_date').value = data.exam_date;
                 document.getElementById('day_name').value = data.day_name;
                 document.getElementById('start_time').value = data.start_time;
@@ -898,27 +1256,27 @@
                 document.getElementById('total_hours').value = data.total_hours;
 
                 const classSelect = document.getElementById('class_name');
-                classSelect.value = data.class_name;
+                setComponentDropdownValue('class_name', data.class_name, data.class_name || 'Select Class');
                 // Important: Trigger cascade and WAIT for it
                 await handleCascade(classSelect, 'group');
 
                 const groupSelect = document.getElementById('group_name');
-                groupSelect.value = data.group_name;
+                setComponentDropdownValue('group_name', data.group_name, data.group_name || 'Select Group');
                 await handleCascade(groupSelect, 'section');
 
                 const sectionSelect = document.getElementById('section_name');
-                sectionSelect.value = data.section_name;
+                setComponentDropdownValue('section_name', data.section_name, data.section_name || 'Select Section');
 
                 // MODIFIED: Fetch sessions with explicit class_id
-                const classId = classSelect.options[classSelect.selectedIndex].getAttribute('data-id');
-                const sectionId = sectionSelect.options[sectionSelect.selectedIndex].getAttribute('data-id');
+                const classId = getSelectedDataId(classSelect);
+                const sectionId = getSelectedDataId(sectionSelect);
                 const sessRes = await axios.get(`/api/get-school-sessions?class_id=${classId}&section_id=${sectionId}`);
                 fillDropdown('session_name', sessRes.data.data, 'session_year', 'Session');
 
-                document.getElementById('session_name').value = data.session_name;
+                setComponentDropdownValue('session_name', data.session_name, data.session_name || 'Select Session');
 
                 await loadExamAndSubject();
-                document.getElementById('exam_name').value = data.exam_name;
+                setComponentDropdownValue('exam_name', data.exam_name, data.exam_name || 'Select Exam');
                 document.getElementById('subject_name').value = data.subject_name;
 
                 document.getElementById('modalTitle').innerText = "Edit Exam Routine";
@@ -957,7 +1315,7 @@
 
         document.getElementById('routineForm').onsubmit = async function(e) {
             e.preventDefault();
-            const id = document.getElementById('edit_id').value;
+            const id = document.getElementById('routine_edit_id').value;
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
 
@@ -1013,8 +1371,9 @@
         }
 
         function openRoutineModal() {
-            if (!document.getElementById('edit_id').value) {
+            if (!document.getElementById('routine_edit_id').value) {
                 document.getElementById('routineForm').reset();
+                setComponentDropdownValue('class_name', '', 'Select Class');
                 document.getElementById('modalTitle').innerText = "Create Exam Routine";
             }
             document.getElementById('routineModal').classList.remove('hidden');
@@ -1023,7 +1382,8 @@
         function closeRoutineModal() {
             document.getElementById('routineModal').classList.add('hidden');
             document.getElementById('routineForm').reset();
-            document.getElementById('edit_id').value = "";
+            setComponentDropdownValue('class_name', '', 'Select Class');
+            document.getElementById('routine_edit_id').value = "";
         }
 
         function openFilterModal() {
@@ -1036,6 +1396,9 @@
 
         window.onload = () => {
             loadInitialData();
+            document.getElementById('class_name')?.addEventListener('change', function() {
+                handleCascade(this, 'group');
+            });
             fetchRoutines();
         };
     </script>

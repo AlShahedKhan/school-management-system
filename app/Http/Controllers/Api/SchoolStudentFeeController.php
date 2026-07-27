@@ -26,18 +26,33 @@ class SchoolStudentFeeController extends Controller
             $query = SchoolStudentFee::with([
                 'student.schoolClass',
                 'student.schoolSession',
-                'feeTemplate',
+                'feeTemplate.schoolClass',
+                'feeTemplate.schoolGroup',
+                'feeTemplate.schoolSection',
+                'feeTemplate.schoolSession',
             ])->where('school_id', $school->id);
 
             if ($request->filled('class_id')) {
                 $query->whereHas('student', function ($q) use ($request) {
-                    $q->where('class', $request->class_id);
+                    $q->where('class_id', $request->class_id);
+                });
+            }
+
+            if ($request->filled('group_id')) {
+                $query->whereHas('student', function ($q) use ($request) {
+                    $q->where('group_id', $request->group_id);
+                });
+            }
+
+            if ($request->filled('section_id')) {
+                $query->whereHas('student', function ($q) use ($request) {
+                    $q->where('section_id', $request->section_id);
                 });
             }
 
             if ($request->filled('session_id')) {
                 $query->whereHas('student', function ($q) use ($request) {
-                    $q->where('session', $request->session_id);
+                    $q->where('session_id', $request->session_id);
                 });
             }
 
@@ -68,6 +83,12 @@ class SchoolStudentFeeController extends Controller
             }
 
             $results->transform(function ($fee) {
+                $template = $fee->feeTemplate;
+                $fee->destination_class = $template?->schoolClass?->class_name;
+                $fee->destination_group = $template?->schoolGroup?->group_name;
+                $fee->destination_section = $template?->schoolSection?->section_name;
+                $fee->destination_session = $template?->schoolSession?->session_year;
+
                 $totalPaid = SchoolPayment::where('admission_student_id', $fee->student_id)
                     ->where('fees_type', $fee->fee_type_name)
                     ->where('fee_name', $fee->fee_name)
@@ -84,7 +105,7 @@ class SchoolStudentFeeController extends Controller
                     ->where('school_discounts.school_id', $fee->school_id)
                     ->select('discount_students.*', 'school_discounts.discount_type', 'school_discounts.discount_value', 'school_discounts.months')
                     ->get();
-                $originalAmount = (float) $fee->amount;
+                $originalAmount = (float) $fee->base_amount;
 
                 $feeMonth = $fee->pay_date ? Carbon::parse($fee->pay_date)->format('Y-m') : null;
                 $bestAmount = $originalAmount;
@@ -110,7 +131,7 @@ class SchoolStudentFeeController extends Controller
                 $fee->has_discount = $hasDiscount;
                 $fee->original_amount = $originalAmount;
 
-                $fee->amount = round($effectiveAmount, 2);
+                $fee->base_amount = round($effectiveAmount, 2);
                 $fee->total_paid = $totalPaid;
                 $fee->remaining_due = max($effectiveAmount - $totalPaid, 0);
 
@@ -174,8 +195,11 @@ class SchoolStudentFeeController extends Controller
 
             DB::transaction(function () use ($school, $id, $validated) {
                 $fee = SchoolStudentFee::where('school_id', $school->id)->findOrFail($id);
-                $validated['payable_amount'] = $validated['amount'];
-                $validated['due_amount'] = $validated['amount'];
+                $a = $validated['amount'];
+                unset($validated['amount']);
+                $validated['base_amount'] = $a;
+                $validated['payable_amount'] = $a;
+                $validated['due_amount'] = $a;
                 $fee->update($validated);
             });
 
@@ -237,7 +261,7 @@ class SchoolStudentFeeController extends Controller
                     ->sum('type_amount');
 
                 $totalPaid = (float) $totalPaid;
-                $amount = (float) $fee->amount;
+                $amount = (float) $fee->base_amount;
                 $fee->total_paid = $totalPaid;
                 $fee->remaining_due = max($amount - $totalPaid, 0);
 

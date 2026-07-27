@@ -16,7 +16,7 @@
         </div>
         <div class="grid w-full grid-cols-2 gap-2 lg:flex lg:w-auto">
             <x-button.secondary id="btnFilter">Filter</x-button.secondary>
-            <x-dropdown button-id="btnExport1" menu-id="exportDropdown" label="Export">
+            <x-dropdown button-id="btnExport" menu-id="exportDropdown" label="Export">
                 <x-dropdown.item id="exportPdf">PDF</x-dropdown.item>
                 <x-dropdown.item id="exportExcel">Excel</x-dropdown.item>
                 <x-dropdown.item id="exportPrint">Print</x-dropdown.item>

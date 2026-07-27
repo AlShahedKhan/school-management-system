@@ -11,7 +11,15 @@
     }
 
     function closeExamModal() {
-        document.getElementById('examModal').classList.add('hidden');
+        const examModal = document.getElementById('examModal');
+        const returnModalId = examModal?.dataset.returnModalId;
+
+        examModal?.classList.add('hidden');
+
+        if (returnModalId) {
+            document.getElementById(returnModalId)?.classList.remove('hidden');
+            delete examModal.dataset.returnModalId;
+        }
     }
 
     function loadExamFormGroupByClass(classId) {
@@ -174,6 +182,60 @@
             const groupInput = document.getElementById('examFormGroup');
             const groupId = groupInput ? groupInput.value : '';
             loadExamFormSessionBySection(classId, groupId, this.value);
+        });
+
+        document.addEventListener('school:dropdown-add-modal-opened', async function (event) {
+            const { targetModalId, sourceDropdownId } = event.detail || {};
+            if (targetModalId !== 'examModal') {
+                return;
+            }
+
+            const sourceMap = {
+                exam_name: ['class_name', 'group_name', 'section_name', 'session_name'],
+            };
+
+            const parentIds = sourceMap[sourceDropdownId];
+            if (!parentIds) {
+                return;
+            }
+
+            const [classField, groupField, sectionField, sessionField] = parentIds;
+            const className = getDropdownSelectSelectedLabel(classField);
+            const groupName = getDropdownSelectSelectedLabel(groupField);
+            const sectionName = getDropdownSelectSelectedLabel(sectionField);
+            const sessionName = getDropdownSelectSelectedLabel(sessionField);
+
+            setDropdownValue('examFormClass', '', 'Select Class');
+            setDropdownValue('examFormGroup', '', 'Select Group');
+            setDropdownValue('examFormSection', '', 'Select Section');
+            setDropdownValue('examFormSession', '', 'Select Session');
+            populateDropdown('examFormGroupMenu', [], 'id', 'group_name');
+            populateDropdown('examFormSectionMenu', [], 'id', 'section_name');
+            populateDropdown('examFormSessionMenu', [], 'id', 'session_year');
+
+            if (!className) {
+                return;
+            }
+
+            await loadExamFormClassSelect(className);
+            const classId = document.getElementById('examFormClass')?.value || '';
+            if (!classId) {
+                return;
+            }
+
+            if (groupName) {
+                await loadExamFormGroupSelect(classId, groupName);
+            }
+
+            const groupId = document.getElementById('examFormGroup')?.value || '';
+            if (sectionName && groupId) {
+                await loadExamFormSectionSelect(classId, groupId, sectionName);
+            }
+
+            const sectionId = document.getElementById('examFormSection')?.value || '';
+            if (sessionName && sectionId) {
+                await loadExamFormSessionSelect(classId, groupId, sectionId, sessionName);
+            }
         });
 
         document.addEventListener('school:class-saved', async function (event) {
@@ -376,7 +438,7 @@
     }
 
     function loadExamFormClassSelect(selectedName = null) {
-        axios.get('/api/get-school-classes').then(res => {
+        return axios.get('/api/get-school-classes').then(res => {
             const data = res.data.data || [];
             populateDropdown('examFormClassMenu', data, 'id', 'class_name');
             if (selectedName) {
@@ -388,7 +450,7 @@
 
     function loadExamFormGroupSelect(classId, selectedName = null) {
         const params = classId ? { class_id: classId } : {};
-        axios.get('/api/get-school-groups', { params }).then(res => {
+        return axios.get('/api/get-school-groups', { params }).then(res => {
             const data = res.data.data || [];
             populateDropdown('examFormGroupMenu', data, 'id', 'group_name');
             if (selectedName) {
@@ -402,7 +464,7 @@
         const params = {};
         if (classId) params.class_id = classId;
         if (groupId) params.group_id = groupId;
-        axios.get('/api/get-school-sections', { params }).then(res => {
+        return axios.get('/api/get-school-sections', { params }).then(res => {
             const data = res.data.data || [];
             populateDropdown('examFormSectionMenu', data, 'id', 'section_name');
             if (selectedName) {
@@ -412,11 +474,12 @@
         }).catch(() => {});
     }
 
-    function loadExamFormSessionSelect(classId, sectionId, selectedName = null) {
+    function loadExamFormSessionSelect(classId, groupId, sectionId, selectedName = null) {
         const params = {};
         if (classId) params.class_id = classId;
+        if (groupId) params.group_id = groupId;
         if (sectionId) params.section_id = sectionId;
-        axios.get('/api/get-school-sessions', { params }).then(res => {
+        return axios.get('/api/get-school-sessions', { params }).then(res => {
             const data = res.data.data || [];
             const items = data.map(s => ({ id: s.id, session_year: s.session_year }));
             populateDropdown('examFormSessionMenu', items, 'id', 'session_year');
@@ -425,6 +488,32 @@
                 if (item) setDropdownValue('examFormSession', item.id, item.session_year);
             }
         }).catch(() => {});
+    }
+
+    function getDropdownSelectSelectedId(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) {
+            return '';
+        }
+
+        const menu = document.getElementById(`${inputId}Menu`);
+        if (!menu) {
+            return input.value || '';
+        }
+
+        const option = menu.querySelector(`[data-value="${CSS.escape(input.value)}"]`);
+        return option?.dataset.optionId || option?.dataset.id || input.value || '';
+    }
+
+    function getDropdownSelectSelectedLabel(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) {
+            return '';
+        }
+
+        const menu = document.getElementById(`${inputId}Menu`);
+        const option = menu?.querySelector(`[data-value="${CSS.escape(input.value)}"]`);
+        return option?.textContent?.trim() || input.value || '';
     }
 
     function normalizeDateInputValue(value) {
@@ -438,7 +527,7 @@
 
             document.getElementById('edit_id').value = item.id;
             document.getElementById('examModalTitle').textContent = 'Edit Exam';
-            document.getElementById('exam_name').value = item.exam_name || '';
+            document.getElementById('examFormName').value = item.exam_name || '';
             document.getElementById('exam_start_date').value = normalizeDateInputValue(item.exam_start_date);
             document.getElementById('exam_end_date').value = normalizeDateInputValue(item.exam_end_date);
 

@@ -55,8 +55,19 @@
             examGroupFilter: 'examClassFilter',
             sectionGroupSelect: 'sectionClassSelect',
             sessionFormGroup: 'sessionFormClass',
+            group_name: 'class_name',
         };
-        const selectedClassId = document.getElementById(sourceClassMap[sourceDropdownId] || '')?.value || null;
+        const sourceClassInputId = sourceClassMap[sourceDropdownId] || '';
+        let selectedClassId = null;
+
+        if (sourceClassInputId) {
+            const sourceClassInput = document.getElementById(sourceClassInputId);
+            if (sourceClassInput) {
+                selectedClassId = sourceClassInput.dataset.dropdownSelectInput !== undefined
+                    ? getSelectedDataId(sourceClassInput)
+                    : sourceClassInput.value || null;
+            }
+        }
 
         loadGroupClassSelect(selectedClassId);
     });

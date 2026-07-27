@@ -16,12 +16,6 @@
         </div>
     </div>
 
-    @php
-        $statusOptions = collect(config('feestatus'))->map(function($cfg, $key) {
-            return $cfg['label'];
-        })->toArray();
-    @endphp
-
     <x-modal.form
         id="filterModal"
         form-id="feeFilterForm"
@@ -34,22 +28,42 @@
         panel-class="custom-scrollbar mx-auto my-auto w-full max-w-[288px] overflow-visible border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)] md:max-w-[480px]"
     >
         <x-input.dropdown-select
-            id="classFilter"
+            id="feeClassFilter"
             name="class_id"
             placeholder="Select Class"
             :value="request('class_id')"
             :options="[]"
-            add-button-id="openClassFromFeeFilter"
+            add-button-id="openClassFromStudentFeeFilter"
             add-button-label="Add class"
             add-button-target="classModal"
         />
         <x-input.dropdown-select
-            id="sessionFilter"
+            id="feeGroupFilter"
+            name="group_id"
+            placeholder="Select Group"
+            :value="request('group_id')"
+            :options="[]"
+            add-button-id="openGroupFromStudentFeeFilter"
+            add-button-label="Add group"
+            add-button-target="groupModal"
+        />
+        <x-input.dropdown-select
+            id="feeSectionFilter"
+            name="section_id"
+            placeholder="Select Section"
+            :value="request('section_id')"
+            :options="[]"
+            add-button-id="openSectionFromStudentFeeFilter"
+            add-button-label="Add section"
+            add-button-target="sectionModal"
+        />
+        <x-input.dropdown-select
+            id="feeSessionFilter"
             name="session_id"
             placeholder="Select Session"
             :value="request('session_id')"
             :options="[]"
-            add-button-id="openSessionFromFeeFilter"
+            add-button-id="openSessionFromStudentFeeFilter"
             add-button-label="Add session"
             add-button-target="sessionModal"
         />
@@ -64,7 +78,6 @@
                 'Exams' => 'Exams',
                 'Food' => 'Food',
                 'Session' => 'Session',
-                'Fine' => 'Fine',
                 'Others' => 'Others',
             ]"
         />
@@ -73,7 +86,17 @@
             name="status"
             placeholder="Select Status"
             :value="request('status')"
-            :options="$statusOptions"
+            :options="[
+                'paid' => 'Paid',
+                'partial_paid' => 'Partial Paid',
+                'due' => 'Due',
+                'due_partial' => 'Due Partial',
+                'over_due' => 'Over Due',
+                'over_due_partial' => 'Over Due Partial',
+                'advance' => 'Advance',
+                'advance_partial' => 'Advance Partial',
+                'pending' => 'Pending',
+            ]"
         />
 
         <x-slot:footer>
@@ -85,17 +108,21 @@
     </x-modal.form>
 
     @include('school.fees.student-fees.partials.student-fees-modal')
-    @include('school.academic.class.partials.class-modal')
-    @include('school.academic.session.partials.session-modal')
     @include('school.fees.student-fees.partials.js.modal-open')
-    @include('school.academic.class.partials.js.modal-open')
-    @include('school.academic.session.partials.js.modal-open')
     @include('school.fees.student-fees.partials.js.error-validation')
-    @include('school.academic.class.partials.js.error-validation')
-    @include('school.academic.session.partials.js.error-validation')
     @include('school.fees.student-fees.partials.js.modal-submit')
-    @include('school.academic.class.partials.js.modal-submit')
-    @include('school.academic.session.partials.js.modal-submit')
+    @include('school.academic.class.partials.class-modal')
+    @include('school.academic.group.partials.group-modal')
+    @include('school.academic.section.partials.section-modal')
+    @include('school.academic.session.partials.session-modal')
+    @include('school.academic.class.partials.js.modal-open')
+    @include('school.academic.group.partials.js.modal-open')
+    @include('school.academic.section.partials.js.modal-open')
+    @include('school.academic.session.partials.js.modal-open')
+    @include('school.academic.class.partials.js.error-validation')
+    @include('school.academic.group.partials.js.error-validation')
+    @include('school.academic.section.partials.js.error-validation')
+    @include('school.academic.session.partials.js.error-validation')
     @include('school.partials.export-dropdown')
 
     <script>
@@ -104,7 +131,11 @@
 
         let currentPage = 1;
         let currentFilterClass = '';
+        let currentFilterGroup = '';
+        let currentFilterSection = '';
         let currentFilterSession = '';
+        let currentFilterFeeType = '';
+        let currentFilterStatus = '';
 
         function populateDropdown(menuId, data, valueField, labelField) {
             const menu = document.querySelector(`#${menuId}`);
@@ -149,59 +180,146 @@
             if (labelEl) labelEl.textContent = label;
         }
 
-        function fetchFees(page = 1) {
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const parts = dateString.split('T')[0];
+            if (!parts) return dateString;
+            const [year, month, day] = parts.split('-');
+            return (year && month && day) ? `${day}/${month}/${year}` : dateString;
+        }
+
+        function setDropdownValueFromMenu(inputId, value) {
+            const input = document.getElementById(inputId);
+            if (input) input.value = value;
+            const menu = document.querySelector('#' + inputId + 'Menu');
+            const label = document.querySelector('#' + inputId + 'Button [data-dropdown-select-label]');
+            if (label) {
+                const opt = menu?.querySelector('[data-value="' + value + '"]');
+                label.textContent = opt ? opt.textContent.trim() : (label.dataset.placeholder || 'Select...');
+            }
+        }
+
+        async function loadFeeFilterOptions() {
+            try {
+                const classRes = await axios.get('/api/get-school-classes');
+                populateDropdown('feeClassFilterMenu', classRes.data.data || [], 'id', 'class_name');
+            } catch (err) {
+                console.error('Failed to load filter options:', err);
+            }
+        }
+
+        async function loadFeeGroupFilter() {
+            const classId = document.getElementById('feeClassFilter')?.value;
+            setDropdownValue('feeGroupFilter', '', 'Select Group');
+            setDropdownValue('feeSectionFilter', '', 'Select Section');
+            setDropdownValue('feeSessionFilter', '', 'Select Session');
+            if (!classId) return;
+            const params = classId ? { class_id: classId } : {};
+            try {
+                const res = await axios.get('/api/get-school-groups', { params });
+                populateDropdown('feeGroupFilterMenu', res.data.data || [], 'id', 'group_name');
+            } catch (e) { console.error(e); }
+            loadFeeSectionFilter();
+        }
+
+        async function loadFeeSectionFilter() {
+            const classId = document.getElementById('feeClassFilter')?.value;
+            const groupId = document.getElementById('feeGroupFilter')?.value;
+            setDropdownValue('feeSectionFilter', '', 'Select Section');
+            setDropdownValue('feeSessionFilter', '', 'Select Session');
+            if (!classId) return;
+            const params = { class_id: classId };
+            if (groupId) params.group_id = groupId;
+            try {
+                const res = await axios.get('/api/get-school-sections', { params });
+                populateDropdown('feeSectionFilterMenu', res.data.data || [], 'id', 'section_name');
+            } catch (e) { console.error(e); }
+            loadFeeSessionFilter();
+        }
+
+        async function loadFeeSessionFilter() {
+            const classId = document.getElementById('feeClassFilter')?.value;
+            const groupId = document.getElementById('feeGroupFilter')?.value;
+            const sectionId = document.getElementById('feeSectionFilter')?.value;
+            setDropdownValue('feeSessionFilter', '', 'Select Session');
+            if (!classId) return;
+            const params = { class_id: classId };
+            if (groupId) params.group_id = groupId;
+            if (sectionId) params.section_id = sectionId;
+            try {
+                const res = await axios.get('/api/school-sessions', { params });
+                const sessions = res.data.data || [];
+                const uniqueYears = [...new Set(sessions.map(s => s.session_year).filter(Boolean))];
+                const yearItems = uniqueYears.map(y => ({ id: y, session_year: y }));
+                populateDropdown('feeSessionFilterMenu', yearItems, 'id', 'session_year');
+            } catch (e) { console.error(e); }
+        }
+
+        function fetchStudentFees(page = 1) {
             currentPage = page;
             const search = document.getElementById('feeSearch')?.value || document.getElementById('feeSearchMobile')?.value || '';
             axios.get('/api/student-fees', {
                 params: {
-                    page,
                     search,
+                    page,
                     class_id: currentFilterClass,
+                    group_id: currentFilterGroup,
+                    section_id: currentFilterSection,
                     session_id: currentFilterSession,
-                    fee_type_name: document.getElementById('feeTypeFilter')?.value || '',
-                    status: document.getElementById('statusFilter')?.value || '',
+                    fee_type_name: currentFilterFeeType,
+                    status: currentFilterStatus,
                 }
             })
             .then(res => {
-                const meta = res.data;
                 const items = res.data.data || [];
+                const meta = res.data;
                 const tbody = document.getElementById('feeTableBody');
                 tbody.innerHTML = '';
                 if (items.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="11" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No student fees found.</td></tr>';
+                    tbody.innerHTML = `<tr><td colspan="11" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No student fees found.</td></tr>`;
                     document.getElementById('paginationInfo').innerText = '0 of 0';
                     document.getElementById('paginationControls').innerHTML = '';
                     return;
                 }
                 items.forEach((item, index) => {
+                    const sl = meta.from ? meta.from + index : index + 1;
                     const student = item.student || {};
                     const studentName = student.student_name || 'N/A';
                     const studentIdNumber = student.student_id_number || 'N/A';
                     const className = student.school_class?.class_name || student.class_name || 'N/A';
-                    let totalPaid = item.total_paid || 0;
-                    let remainingDue = item.remaining_due || parseFloat(item.amount) - totalPaid;
-                    if (remainingDue < 0) remainingDue = 0;
-                    const sl = meta.from ? meta.from + index : index + 1;
+                    const totalPaid = item.total_paid || 0;
+                    const remainingDue = item.remaining_due || 0;
+                    const statusClass = `status-${item.status || 'pending'}`;
                     tbody.innerHTML += `
                         <tr class="hover:bg-gray-50">
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${studentName}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${studentIdNumber}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${className}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.fee_type_name || '-'}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.fee_name || '-'}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${parseFloat(item.amount).toFixed(2)}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${totalPaid.toFixed(2)}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 ${remainingDue > 0 ? 'text-red-500 font-medium' : ''}">${remainingDue.toFixed(2)}</td>
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <span class="status-badge status-${item.status || 'pending'}">${item.status || 'pending'}</span>
+                                <div class="donate-cell-scroll" title="${studentName}">${studentName}</div>
+                            </td>
+                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                                <div class="donate-cell-scroll" title="${studentIdNumber}">${studentIdNumber}</div>
+                            </td>
+                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                                <div class="donate-cell-scroll" title="${className}">${className}</div>
+                            </td>
+                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                                <div class="donate-cell-scroll" title="${item.fee_type_name || '-'}">${item.fee_type_name || '-'}</div>
+                            </td>
+                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                                <div class="donate-cell-scroll" title="${item.fee_name || '-'}">${item.fee_name || '-'}</div>
+                            </td>
+                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${parseFloat(item.base_amount).toFixed(2)}</td>
+                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${totalPaid.toFixed(2)}</td>
+                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${remainingDue.toFixed(2)}</td>
+                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                                <span class="status-badge ${statusClass}">${item.status || 'pending'}</span>
                             </td>
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
                                 <div class="flex h-6 w-full items-center justify-center -space-x-[3px]">
-                                    <button type="button" title="Edit" aria-label="Edit" onclick="editFee(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 hover:bg-gray-100 hover:text-blue-600 focus-visible:ring-blue-500">
+                                    <button type="button" title="Edit" aria-label="Edit" onclick="editStudentFee(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 hover:bg-gray-100 hover:text-blue-600 focus-visible:ring-blue-500">
                                         <i class="far fa-edit text-xs" aria-hidden="true"></i>
                                     </button>
-                                    <button type="button" title="Delete" aria-label="Delete" onclick="deleteFee(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 hover:bg-gray-100 hover:text-red-600 focus-visible:ring-red-500">
+                                    <button type="button" title="Delete" aria-label="Delete" onclick="deleteStudentFee(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 hover:bg-gray-100 hover:text-red-600 focus-visible:ring-red-500">
                                         <i class="far fa-trash-alt text-xs" aria-hidden="true"></i>
                                     </button>
                                 </div>
@@ -210,44 +328,41 @@
                 });
                 renderPagination(meta);
             })
-            .catch(() => {
-                document.getElementById('feeTableBody').innerHTML = '<tr><td colspan="11" class="border border-gray-300 px-3 py-10 text-center text-red-400">Error loading data.</td></tr>';
-            });
+            .catch(err => console.error('Load Error:', err));
         }
 
         function renderPagination(meta) {
             const controls = document.getElementById('paginationControls');
-            document.getElementById('paginationInfo').innerText = `${meta.to || 0} of ${meta.total || 0}`;
+            document.getElementById('paginationInfo').innerText = `${meta.to || 0} of ${meta.total}`;
             controls.innerHTML = '';
-            if (!meta.total || meta.total === 0) return;
             const prevBtn = document.createElement('button');
             prevBtn.className = 'pagination-btn';
             prevBtn.innerHTML = '<i class="mdi mdi-chevron-left"></i>';
             prevBtn.disabled = meta.current_page === 1;
-            prevBtn.onclick = () => fetchFees(meta.current_page - 1);
+            prevBtn.onclick = () => fetchStudentFees(meta.current_page - 1);
             controls.appendChild(prevBtn);
             for (let i = 1; i <= meta.last_page; i++) {
                 const btn = document.createElement('button');
                 btn.className = `pagination-btn ${meta.current_page === i ? 'active' : ''}`;
                 btn.innerText = i;
-                btn.onclick = () => fetchFees(i);
+                btn.onclick = () => fetchStudentFees(i);
                 controls.appendChild(btn);
             }
             const nextBtn = document.createElement('button');
             nextBtn.className = 'pagination-btn';
             nextBtn.innerHTML = '<i class="mdi mdi-chevron-right"></i>';
             nextBtn.disabled = meta.current_page === meta.last_page;
-            nextBtn.onclick = () => fetchFees(meta.current_page + 1);
+            nextBtn.onclick = () => fetchStudentFees(meta.current_page + 1);
             controls.appendChild(nextBtn);
         }
 
-        function editFee(id) {
+        function editStudentFee(id) {
             axios.get('/api/student-fees/' + id)
                 .then(res => {
                     const item = res.data;
-                    document.getElementById('fee_id').value = item.id;
+                    document.getElementById('record_id').value = item.id;
                     document.getElementById('feeModalTitle').innerText = 'Edit Student Fee';
-                    document.getElementById('amount').value = item.amount || '';
+                    document.getElementById('amount').value = item.base_amount || item.amount || '';
                     if (item.pay_date) {
                         const d = new Date(item.pay_date);
                         if (!isNaN(d.getTime())) {
@@ -257,15 +372,15 @@
                         }
                     }
                     document.getElementById('fee_name_input').value = item.fee_name || '';
-                    setDropdownValue('status_input', item.status || 'pending', item.status || 'pending');
+                    setDropdownValueFromMenu('status_input', item.status || 'pending');
                     document.getElementById('feeModal').classList.remove('hidden');
                 })
-                .catch(() => Swal.fire('Error', 'Failed to fetch record.', 'error'));
+                .catch(() => Swal.fire('Error', 'Failed to load student fee data.', 'error'));
         }
 
-        function deleteFee(id) {
+        function deleteStudentFee(id) {
             Swal.fire({
-                title: 'Delete this fee record?',
+                title: 'Delete Student Fee?',
                 text: 'This action cannot be undone.',
                 icon: 'warning',
                 showCancelButton: true,
@@ -275,113 +390,117 @@
                 if (r.isConfirmed) {
                     axios.delete('/api/student-fees/' + id)
                         .then(() => {
-                            Toastify({ text: 'Deleted Successfully', style: { background: '#ef4444' } }).showToast();
-                            fetchFees(currentPage);
+                            Toastify({ text: 'Student Fee Deleted', style: { background: '#ef4444' } }).showToast();
+                            fetchStudentFees(currentPage);
                         })
-                        .catch(() => Swal.fire('Error', 'Could not delete fee record.', 'error'));
+                        .catch(() => Swal.fire('Error', 'Could not delete student fee.', 'error'));
                 }
             });
         }
 
-        function loadFilterOptions() {
-            axios.get('/api/get-school-classes').then(res => {
-                populateDropdown('classFilterMenu', res.data.data || [], 'id', 'class_name');
-            }).catch(() => {});
-        }
-
-        function loadSessionFilterByClass(classId) {
-            if (!classId) {
-                populateDropdown('sessionFilterMenu', [], 'id', 'session_year');
-                return;
-            }
-            axios.get('/api/school-sessions', { params: { class_id: classId } }).then(res => {
-                const sessions = res.data.data || [];
-                const uniqueYears = [...new Set(sessions.map(s => s.session_year).filter(Boolean))];
-                const yearItems = uniqueYears.map(y => ({ id: y, session_year: y }));
-                populateDropdown('sessionFilterMenu', yearItems, 'id', 'session_year');
-            }).catch(() => {});
-        }
+        function showEl(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
+        function hideEl(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
 
         document.addEventListener('DOMContentLoaded', function() {
-            loadFilterOptions();
+            loadFeeFilterOptions();
 
-            document.getElementById('feeSearch')?.addEventListener('input', () => fetchFees(1));
-            document.getElementById('feeSearchMobile')?.addEventListener('input', function() {
-                document.getElementById('feeSearch').value = this.value;
-                fetchFees(1);
+            document.getElementById('feeSearch')?.addEventListener('input', () => fetchStudentFees(1));
+            document.getElementById('feeSearchMobile')?.addEventListener('input', () => fetchStudentFees(1));
+
+            document.getElementById('feeClassFilter')?.addEventListener('change', function() {
+                currentFilterClass = this.value || '';
+                loadFeeGroupFilter();
+            });
+
+            document.getElementById('feeGroupFilter')?.addEventListener('change', function() {
+                currentFilterGroup = this.value || '';
+                currentFilterSection = '';
+                currentFilterSession = '';
+                loadFeeSectionFilter();
+            });
+
+            document.getElementById('feeSectionFilter')?.addEventListener('change', function() {
+                currentFilterSection = this.value || '';
+                currentFilterSession = '';
+                loadFeeSessionFilter();
+            });
+
+            document.getElementById('feeSessionFilter')?.addEventListener('change', function() {
+                currentFilterSession = this.value || '';
             });
 
             document.getElementById('btnFilter')?.addEventListener('click', () => {
+                loadFeeGroupFilter();
                 document.getElementById('filterModal')?.classList.remove('hidden');
             });
+
             document.getElementById('resetFilter')?.addEventListener('click', () => {
-                setDropdownValue('classFilter', '', 'Select Class');
-                setDropdownValue('sessionFilter', '', 'Select Session');
-                populateDropdown('sessionFilterMenu', [], 'id', 'session_year');
+                setDropdownValue('feeClassFilter', '', 'Select Class');
+                setDropdownValue('feeGroupFilter', '', 'Select Group');
+                setDropdownValue('feeSectionFilter', '', 'Select Section');
+                setDropdownValue('feeSessionFilter', '', 'Select Session');
                 setDropdownValue('feeTypeFilter', '', 'Select Fee Type');
                 setDropdownValue('statusFilter', '', 'Select Status');
                 currentFilterClass = '';
+                currentFilterGroup = '';
+                currentFilterSection = '';
                 currentFilterSession = '';
+                currentFilterFeeType = '';
+                currentFilterStatus = '';
                 currentPage = 1;
-                fetchFees(1);
+                fetchStudentFees(1);
                 document.getElementById('filterModal')?.classList.add('hidden');
             });
+
             document.getElementById('applyFilter')?.addEventListener('click', () => {
-                const classInput = document.getElementById('classFilter');
+                const classInput = document.getElementById('feeClassFilter');
                 currentFilterClass = classInput ? classInput.value : '';
-                const sessionInput = document.getElementById('sessionFilter');
+                const groupInput = document.getElementById('feeGroupFilter');
+                currentFilterGroup = groupInput ? groupInput.value : '';
+                const sectionInput = document.getElementById('feeSectionFilter');
+                currentFilterSection = sectionInput ? sectionInput.value : '';
+                const sessionInput = document.getElementById('feeSessionFilter');
                 currentFilterSession = sessionInput ? sessionInput.value : '';
+                const feeTypeInput = document.getElementById('feeTypeFilter');
+                currentFilterFeeType = feeTypeInput ? feeTypeInput.value : '';
+                const statusInput = document.getElementById('statusFilter');
+                currentFilterStatus = statusInput ? statusInput.value : '';
                 currentPage = 1;
-                fetchFees(1);
+                fetchStudentFees(1);
                 document.getElementById('filterModal')?.classList.add('hidden');
             });
+
             document.getElementById('btnRestoreDesktop')?.addEventListener('click', () => {
                 document.getElementById('feeSearch').value = '';
-                document.getElementById('feeSearchMobile').value = '';
                 currentFilterClass = '';
+                currentFilterGroup = '';
+                currentFilterSection = '';
                 currentFilterSession = '';
+                currentFilterFeeType = '';
+                currentFilterStatus = '';
                 currentPage = 1;
-                fetchFees(1);
+                fetchStudentFees(1);
             });
+
             document.getElementById('btnRestoreMobile')?.addEventListener('click', () => {
                 document.getElementById('feeSearchMobile').value = '';
-                document.getElementById('feeSearch').value = '';
                 currentFilterClass = '';
+                currentFilterGroup = '';
+                currentFilterSection = '';
                 currentFilterSession = '';
+                currentFilterFeeType = '';
+                currentFilterStatus = '';
                 currentPage = 1;
-                fetchFees(1);
+                fetchStudentFees(1);
             });
-
-            document.getElementById('classFilter')?.addEventListener('change', function() {
-                setDropdownValue('sessionFilter', '', 'Select Session');
-                populateDropdown('sessionFilterMenu', [], 'id', 'session_year');
-                loadSessionFilterByClass(this.value);
-            });
-
-            const closeFeeModalBtn = document.getElementById('closeFeeModal');
-            if (closeFeeModalBtn) {
-                closeFeeModalBtn.addEventListener('click', closeFeeModal);
-            }
 
             document.querySelectorAll('[role="dialog"]').forEach(dialog => {
                 dialog.addEventListener('click', function(e) {
                     if (e.target === this) this.classList.add('hidden');
                 });
             });
-
-            document.addEventListener('click', function(e) {
-                const btn = e.target.closest('[data-dropdown-add-target]');
-                if (btn) {
-                    const map = { classModal: 'Add Class', sessionModal: 'Add Session' };
-                    const title = map[btn.dataset.dropdownAddTarget];
-                    if (title) {
-                        const el = document.getElementById(btn.dataset.dropdownAddTarget + 'Title');
-                        if (el) el.innerText = title;
-                    }
-                }
-            });
         });
 
-        fetchFees(1);
+        fetchStudentFees();
     </script>
 @endsection

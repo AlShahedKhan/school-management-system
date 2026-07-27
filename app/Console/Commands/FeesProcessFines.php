@@ -55,7 +55,7 @@ class FeesProcessFines extends Command
                     'fee_template_id' => $template->id,
                     'fee_type_name'   => 'Fine',
                     'fee_name'        => $template->fee_name,
-                    'amount'          => $template->amount,
+                    'base_amount'     => $template->amount,
                     'pay_date'        => $now->toDateString(),
                     'status'          => 'over_due',
                 ]);

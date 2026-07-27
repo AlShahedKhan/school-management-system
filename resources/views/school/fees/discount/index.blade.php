@@ -1,0 +1,726 @@
+@extends('layouts.school')
+
+@section('content')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <div class="main-view-container">
+        <div class="max-w-full mx-auto w-full">
+            @include('school.fees.discount.partials.header')
+            @include('school.fees.discount.partials.table')
+        </div>
+    </div>
+
+    <x-modal.form
+        id="discountFilterModal"
+        form-id="discountFilterForm"
+        title="Discount Filter"
+        close-button-id="discountResetFilter"
+        action="#"
+        method="GET"
+        :enctype="null"
+        class="discount-filter-modal"
+        panel-class="custom-scrollbar mx-auto my-auto w-full max-w-[288px] overflow-visible border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)] md:max-w-[480px]"
+    >
+        <x-input.dropdown-select
+            id="discountClassFilter"
+            name="class_id"
+            placeholder="Select Class"
+            :value="request('class_id')"
+            :options="[]"
+            add-button-id="openClassFromDiscountFilter"
+            add-button-label="Add class"
+            add-button-target="classModal"
+        />
+        <x-input.dropdown-select
+            id="discountGroupFilter"
+            name="group_id"
+            placeholder="Select Group"
+            :value="request('group_id')"
+            :options="[]"
+            add-button-id="openGroupFromDiscountFilter"
+            add-button-label="Add group"
+            add-button-target="groupModal"
+        />
+        <x-input.dropdown-select
+            id="discountSectionFilter"
+            name="section_id"
+            placeholder="Select Section"
+            :value="request('section_id')"
+            :options="[]"
+            add-button-id="openSectionFromDiscountFilter"
+            add-button-label="Add section"
+            add-button-target="sectionModal"
+        />
+        <x-input.dropdown-select
+            id="discountSessionFilter"
+            name="session_id"
+            placeholder="Select Session"
+            :value="request('session_id')"
+            :options="[]"
+            add-button-id="openSessionFromDiscountFilter"
+            add-button-label="Add session"
+            add-button-target="sessionModal"
+        />
+
+        <x-slot:footer>
+            <div class="grid grid-cols-2 gap-3 border-slate-200 bg-white px-6 py-3">
+                <x-button.secondary id="discountResetFilter" type="button" class="w-full">Reset</x-button.secondary>
+                <x-button.primary id="discountApplyFilter" type="button" class="w-full">Apply</x-button.primary>
+            </div>
+        </x-slot:footer>
+    </x-modal.form>
+
+    @include('school.fees.discount.partials.discount-modal')
+    @include('school.academic.class.partials.class-modal')
+    @include('school.academic.group.partials.group-modal')
+    @include('school.academic.section.partials.section-modal')
+    @include('school.academic.session.partials.session-modal')
+    @include('school.fees.discount.partials.js.modal-open')
+    @include('school.academic.class.partials.js.modal-open')
+    @include('school.academic.group.partials.js.modal-open')
+    @include('school.academic.section.partials.js.modal-open')
+    @include('school.academic.session.partials.js.modal-open')
+    @include('school.fees.discount.partials.js.error-validation')
+    @include('school.academic.class.partials.js.error-validation')
+    @include('school.academic.group.partials.js.error-validation')
+    @include('school.academic.section.partials.js.error-validation')
+    @include('school.academic.session.partials.js.error-validation')
+    @include('school.fees.discount.partials.js.modal-submit')
+    @include('school.academic.class.partials.js.modal-submit')
+    @include('school.academic.group.partials.js.modal-submit')
+    @include('school.academic.section.partials.js.modal-submit')
+    @include('school.academic.session.partials.js.modal-submit')
+    @include('school.partials.export-dropdown')
+
+    <script>
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+
+        let currentPage = 1;
+        let currentFilterClass = '';
+        let currentFilterGroup = '';
+        let currentFilterSection = '';
+        let currentFilterSession = '';
+
+        function populateDropdown(menuId, data, valueField, labelField) {
+            const menu = document.querySelector(`#${menuId}`);
+            if (!menu) return;
+            menu.innerHTML = '';
+            data.forEach(item => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'dropdown-select-option m-0 flex min-h-6 w-full items-center border-0 bg-white px-3 py-1 text-left text-[11px] font-normal leading-tight transition-colors hover:bg-slate-100 text-slate-800';
+                btn.dataset.value = String(item[valueField]);
+                btn.textContent = item[labelField];
+                btn.setAttribute('role', 'option');
+                btn.setAttribute('aria-selected', 'false');
+                btn.setAttribute('data-dropdown-select-option', '');
+                btn.addEventListener('click', function() {
+                    const root = menu.closest('[data-dropdown-select]');
+                    const input = root.querySelector('[data-dropdown-select-input]');
+                    const label = root.querySelector('[data-dropdown-select-label]');
+                    input.value = this.dataset.value || '';
+                    label.textContent = this.textContent.trim();
+                    menu.querySelectorAll('[data-dropdown-select-option]').forEach(item => {
+                        const sel = item === this;
+                        item.classList.toggle('bg-slate-100', sel);
+                        item.classList.toggle('text-slate-900', sel);
+                        item.classList.toggle('text-slate-800', !sel);
+                        item.setAttribute('aria-selected', String(sel));
+                    });
+                    menu.classList.add('hidden');
+                    root.querySelector('[data-dropdown-select-button]')?.setAttribute('aria-expanded', 'false');
+                    const icon = root.querySelector('[data-dropdown-select-button] i');
+                    if (icon) icon.classList.remove('rotate-180');
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+                menu.appendChild(btn);
+            });
+        }
+
+        function setDropdownValue(dropdownId, value, label) {
+            const input = document.querySelector(`#${dropdownId}`);
+            if (input) input.value = value;
+            const labelEl = document.querySelector(`#${dropdownId}Button [data-dropdown-select-label]`);
+            if (labelEl) labelEl.textContent = label || (labelEl.dataset.placeholder || 'Select...');
+        }
+
+        function setDropdownValueFromMenu(inputId, value) {
+            const input = document.getElementById(inputId);
+            if (input) input.value = value;
+            const menu = document.getElementById(inputId + 'Menu');
+            const label = document.querySelector('#' + inputId + 'Button [data-dropdown-select-label]');
+            if (label) {
+                const opt = menu?.querySelector('[data-value="' + value + '"]');
+                label.textContent = opt ? opt.textContent.trim() : (label.dataset.placeholder || 'Select...');
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const parts = dateString.split('-');
+            if (parts.length !== 3) return dateString;
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        function showEl(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
+        function hideEl(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+
+        function populateStaticMenu(menuId, options) {
+            const menu = document.querySelector(`#${menuId}`);
+            if (!menu) return;
+            menu.innerHTML = '';
+            options.forEach(({ value, label }) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'dropdown-select-option m-0 flex min-h-6 w-full items-center border-0 bg-white px-3 py-1 text-left text-[11px] font-normal leading-tight transition-colors hover:bg-slate-100 text-slate-800';
+                btn.dataset.value = String(value);
+                btn.textContent = label;
+                btn.setAttribute('role', 'option');
+                btn.setAttribute('aria-selected', 'false');
+                btn.setAttribute('data-dropdown-select-option', '');
+                btn.addEventListener('click', function() {
+                    const root = menu.closest('[data-dropdown-select]');
+                    const input = root.querySelector('[data-dropdown-select-input]');
+                    const labelEl = root.querySelector('[data-dropdown-select-label]');
+                    input.value = this.dataset.value || '';
+                    labelEl.textContent = this.textContent.trim();
+                    menu.querySelectorAll('[data-dropdown-select-option]').forEach(item => {
+                        const sel = item === this;
+                        item.classList.toggle('bg-slate-100', sel);
+                        item.classList.toggle('text-slate-900', sel);
+                        item.classList.toggle('text-slate-800', !sel);
+                        item.setAttribute('aria-selected', String(sel));
+                    });
+                    menu.classList.add('hidden');
+                    root.querySelector('[data-dropdown-select-button]')?.setAttribute('aria-expanded', 'false');
+                    const icon = root.querySelector('[data-dropdown-select-button] i');
+                    if (icon) icon.classList.remove('rotate-180');
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+                menu.appendChild(btn);
+            });
+        }
+
+        function runCalc() {
+            const base = parseFloat(document.getElementById('beforeDiscount')?.value) || 0;
+            const val = parseFloat(document.getElementById('discountValue')?.value) || 0;
+            const discType = document.getElementById('discountType')?.value || 'Fixed';
+            const discAmt = discType === 'Percentage' ? (base * val / 100) : val;
+            document.getElementById('discount_amount').value = discAmt.toFixed(2);
+            document.getElementById('afterDiscount').value = (base - discAmt).toFixed(2);
+        }
+
+        async function loadDiscountClassSelect(selectedId = null) {
+            try {
+                const res = await axios.get('/api/get-school-classes');
+                const data = res.data.data || [];
+                populateDropdown('discountClassMenu', data, 'id', 'class_name');
+                if (selectedId) {
+                    const item = data.find(c => String(c.id) === String(selectedId));
+                    if (item) setDropdownValue('discountClass', item.id, item.class_name);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadDiscountGroupSelect(selectedId = null) {
+            const classId = document.querySelector('#discountClass')?.value;
+            const params = classId ? { class_id: classId } : {};
+            try {
+                const res = await axios.get('/api/get-school-groups', { params });
+                const data = res.data.data || [];
+                populateDropdown('discountGroupMenu', data, 'id', 'group_name');
+                if (selectedId) {
+                    const item = data.find(g => String(g.id) === String(selectedId));
+                    if (item) setDropdownValue('discountGroup', item.id, item.group_name);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadDiscountSectionSelect(selectedId = null) {
+            const classId = document.querySelector('#discountClass')?.value;
+            const groupId = document.querySelector('#discountGroup')?.value;
+            const params = {};
+            if (classId) params.class_id = classId;
+            if (groupId) params.group_id = groupId;
+            try {
+                const res = await axios.get('/api/get-school-sections', { params });
+                const data = res.data.data || [];
+                populateDropdown('discountSectionMenu', data, 'id', 'section_name');
+                if (selectedId) {
+                    const item = data.find(s => String(s.id) === String(selectedId));
+                    if (item) setDropdownValue('discountSection', item.id, item.section_name);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadDiscountSessionSelect(selectedId = null) {
+            const classId = document.querySelector('#discountClass')?.value;
+            const groupId = document.querySelector('#discountGroup')?.value;
+            const sectionId = document.querySelector('#discountSection')?.value;
+            const params = {};
+            if (classId) params.class_id = classId;
+            if (groupId) params.group_id = groupId;
+            if (sectionId) params.section_id = sectionId;
+            try {
+                const res = await axios.get('/api/school-sessions', { params });
+                const data = res.data.data || [];
+                populateDropdown('discountSessionMenu', data, 'id', 'session_year');
+                if (selectedId) {
+                    const item = data.find(s => String(s.id) === String(selectedId));
+                    if (item) setDropdownValue('discountSession', item.id, item.session_year);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadDiscountStudents(selectedId = null) {
+            const classId = document.querySelector('#discountClass')?.value;
+            const sessionId = document.querySelector('#discountSession')?.value;
+            const groupId = document.querySelector('#discountGroup')?.value;
+            const sectionId = document.querySelector('#discountSection')?.value;
+            if (!classId || !sessionId) return;
+            const params = { class_id: classId, session_id: sessionId };
+            if (groupId) params.group_id = groupId;
+            if (sectionId) params.section_id = sectionId;
+            try {
+                const res = await axios.get('/api/get-school-students', { params });
+                const data = res.data.data || [];
+                populateDropdown('discountStudentMenu', data, 'id', 'student_name');
+                if (selectedId) {
+                    const item = data.find(s => String(s.id) === String(selectedId));
+                    if (item) setDropdownValue('discountStudent', item.id, item.student_name);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadFeeTypes(selectedId = null) {
+            const studentId = document.querySelector('#discountStudent')?.value;
+            if (!studentId) { populateDropdown('discountFeeTypeMenu', [], 'id', 'fee_name'); return; }
+            try {
+                const res = await axios.get('/api/student-fees/by-student', { params: { student_id: studentId, all: true } });
+                const allFees = res.data.data || [];
+                const fees = allFees.filter(f => f.status !== 'paid');
+                const items = fees.map(f => ({ id: f.fee_template_id, fee_name: f.fee_type_name + ' - ' + (f.fee_name || '') + ' (' + f.amount + ')', amount: f.amount, name: f.fee_name }));
+                populateDropdown('discountFeeTypeMenu', items, 'id', 'fee_name');
+
+                items.forEach(f => {
+                    const opt = document.querySelector('#discountFeeTypeMenu [data-value="' + f.id + '"]');
+                    if (opt) {
+                        opt.dataset.amount = f.amount;
+                        opt.dataset.feename = f.name || '';
+                    }
+                });
+
+                if (selectedId) {
+                    const item = items.find(f => String(f.id) === String(selectedId));
+                    if (item) {
+                        setDropdownValue('discountFeeType', item.id, item.fee_name);
+                        document.getElementById('discountFeeName').value = item.name || '';
+                        document.getElementById('beforeDiscount').value = item.amount || 0;
+                        runCalc();
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadDiscountFilterOptions() {
+            try {
+                const classRes = await axios.get('/api/get-school-classes');
+                populateDropdown('discountClassFilterMenu', classRes.data.data || [], 'id', 'class_name');
+            } catch (err) { console.error('Failed to load filter options:', err); }
+        }
+
+        async function loadDiscountGroupFilterByClass(classId) {
+            setDropdownValue('discountGroupFilter', '', 'Select Group');
+            setDropdownValue('discountSectionFilter', '', 'Select Section');
+            setDropdownValue('discountSessionFilter', '', 'Select Session');
+            populateDropdown('discountSectionFilterMenu', [], 'id', 'section_name');
+            populateDropdown('discountSessionFilterMenu', [], 'id', 'session_year');
+            if (!classId) { populateDropdown('discountGroupFilterMenu', [], 'id', 'group_name'); return; }
+            try {
+                const res = await axios.get('/api/get-school-groups', { params: { class_id: classId } });
+                const groups = res.data.data || [];
+                const seen = new Set();
+                const unique = groups.filter(g => { const k = g.group_name; return seen.has(k) ? false : seen.add(k); });
+                populateDropdown('discountGroupFilterMenu', unique, 'id', 'group_name');
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadDiscountSectionFilterByGroup(classId, groupId) {
+            setDropdownValue('discountSectionFilter', '', 'Select Section');
+            setDropdownValue('discountSessionFilter', '', 'Select Session');
+            populateDropdown('discountSessionFilterMenu', [], 'id', 'session_year');
+            if (!classId) { populateDropdown('discountSectionFilterMenu', [], 'id', 'section_name'); return; }
+            const params = { class_id: classId };
+            if (groupId) params.group_id = groupId;
+            try {
+                const res = await axios.get('/api/get-school-sections', { params });
+                const sections = res.data.data || [];
+                const seen = new Set();
+                const unique = sections.filter(s => { const k = s.section_name; return seen.has(k) ? false : seen.add(k); });
+                populateDropdown('discountSectionFilterMenu', unique, 'id', 'section_name');
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadDiscountSessionFilterBySection(classId, groupId, sectionId) {
+            setDropdownValue('discountSessionFilter', '', 'Select Session');
+            if (!classId) { populateDropdown('discountSessionFilterMenu', [], 'id', 'session_year'); return; }
+            const params = { class_id: classId };
+            if (groupId) params.group_id = groupId;
+            if (sectionId) params.section_id = sectionId;
+            try {
+                const res = await axios.get('/api/school-sessions', { params });
+                const sessions = res.data.data || [];
+                const years = [...new Set(sessions.map(s => s.session_year).filter(Boolean))];
+                populateDropdown('discountSessionFilterMenu', years.map(y => ({ id: y, session_year: y })), 'id', 'session_year');
+            } catch (e) { console.error(e); }
+        }
+
+        function fetchDiscounts(page = 1) {
+            currentPage = page;
+            const search = document.getElementById('discountSearch')?.value || document.getElementById('discountSearchMobile')?.value || '';
+            axios.get('/api/fee-discounts', {
+                params: {
+                    search,
+                    page,
+                    class_id: currentFilterClass,
+                    group_id: currentFilterGroup,
+                    section_id: currentFilterSection,
+                    session_id: currentFilterSession,
+                }
+            })
+            .then(res => {
+                const items = res.data.data || [];
+                const meta = res.data;
+                const tbody = document.getElementById('discountTableBody');
+                tbody.innerHTML = '';
+                if (items.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="16" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No discounts configured.</td></tr>`;
+                    document.getElementById('paginationInfo').innerText = '0 of 0';
+                    document.getElementById('paginationControls').innerHTML = '';
+                    return;
+                }
+                items.forEach((item, index) => {
+                    const sl = meta.from ? meta.from + index : index + 1;
+                    const discDisplay = item.discount_type === 'Percentage' ? item.discount_value + '%' : item.discount_amount;
+                    tbody.innerHTML += `<tr class="hover:bg-gray-50">
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${item.school_class?.class_name || '-'}">${item.school_class?.class_name || '-'}</div></td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${item.school_group?.group_name || 'General'}">${item.school_group?.group_name || 'General'}</div></td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${item.school_section?.section_name || '-'}">${item.school_section?.section_name || '-'}</div></td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${item.school_session?.session_year || '-'}">${item.school_session?.session_year || '-'}</div></td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.student?.student_id_number || '-'}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${item.student?.student_name || '-'}</div></td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.fee_type?.fee_type_name || '-'}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${item.fee_name || '-'}</div></td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.before_discount}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.discount_type}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${discDisplay}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.after_discount}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${formatDate(item.start_date)}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${formatDate(item.end_date)}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
+                            <div class="flex h-6 w-full items-center justify-center -space-x-[3px]">
+                                <button type="button" title="Edit" onclick="editDiscount(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 hover:text-blue-600"><i class="far fa-edit text-xs"></i></button>
+                                <button type="button" title="Delete" onclick="deleteDiscount(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 hover:text-red-600"><i class="far fa-trash-alt text-xs"></i></button>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+                renderDiscountPagination(meta);
+            })
+            .catch(err => console.error('Load Error:', err));
+        }
+
+        function renderDiscountPagination(meta) {
+            const controls = document.getElementById('paginationControls');
+            document.getElementById('paginationInfo').innerText = `${meta.to || 0} of ${meta.total}`;
+            controls.innerHTML = '';
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pagination-btn';
+            prevBtn.innerHTML = '<i class="mdi mdi-chevron-left"></i>';
+            prevBtn.disabled = meta.current_page === 1;
+            prevBtn.onclick = () => fetchDiscounts(meta.current_page - 1);
+            controls.appendChild(prevBtn);
+            for (let i = 1; i <= meta.last_page; i++) {
+                const btn = document.createElement('button');
+                btn.className = `pagination-btn ${meta.current_page === i ? 'active' : ''}`;
+                btn.innerText = i;
+                btn.onclick = () => fetchDiscounts(i);
+                controls.appendChild(btn);
+            }
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pagination-btn';
+            nextBtn.innerHTML = '<i class="mdi mdi-chevron-right"></i>';
+            nextBtn.disabled = meta.current_page === meta.last_page;
+            nextBtn.onclick = () => fetchDiscounts(meta.current_page + 1);
+            controls.appendChild(nextBtn);
+        }
+
+        function editDiscount(id) {
+            axios.get('/api/fee-discounts/' + id)
+                .then(res => {
+                    const item = res.data;
+                    document.getElementById('edit_id').value = item.id;
+                    document.getElementById('discountModalTitle').innerText = 'Edit Discount';
+
+                    loadDiscountClassSelect(item.class_id);
+                    setTimeout(() => {
+                        loadDiscountGroupSelect(item.group_id);
+                        setTimeout(() => {
+                            loadDiscountSectionSelect(item.section_id);
+                            setTimeout(() => {
+                                loadDiscountSessionSelect(item.session_id);
+                                setTimeout(() => {
+                                    loadDiscountStudents(item.student_id);
+                                    setTimeout(() => {
+                                        loadFeeTypes(item.fee_type_id);
+                                        setTimeout(() => {
+                                            setDropdownValueFromMenu('discountType', item.discount_type);
+                                            document.getElementById('discountValue').value = item.discount_value;
+                                            document.getElementById('discountStartDate').value = item.start_date || '';
+                                            document.getElementById('discountEndDate').value = item.end_date || '';
+                                            runCalc();
+                                            document.getElementById('discountModal').classList.remove('hidden');
+                                        }, 200);
+                                    }, 300);
+                                }, 200);
+                            }, 300);
+                        }, 300);
+                    }, 300);
+                })
+                .catch(() => Swal.fire('Error', 'Failed to load discount data.', 'error'));
+        }
+
+        function deleteDiscount(id) {
+            Swal.fire({
+                title: 'Delete Discount?',
+                text: 'This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Yes, delete it'
+            }).then(r => {
+                if (r.isConfirmed) {
+                    axios.delete('/api/fee-discounts/' + id)
+                        .then(() => {
+                            Toastify({ text: 'Discount Deleted', style: { background: '#ef4444' } }).showToast();
+                            fetchDiscounts(currentPage);
+                        })
+                        .catch(() => Swal.fire('Error', 'Could not delete discount.', 'error'));
+                }
+            });
+        }
+
+        function handleDiscountTypeChange() {
+            const val = document.getElementById('discountType').value;
+            if (val === 'Percentage') {
+                document.getElementById('discountValue').placeholder = 'Enter %';
+            } else {
+                document.getElementById('discountValue').placeholder = 'Enter amount';
+            }
+            runCalc();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDiscountFilterOptions();
+
+            populateStaticMenu('discountTypeMenu', [
+                { value: 'Fixed', label: 'Fixed Amount' },
+                { value: 'Percentage', label: 'Percentage %' },
+            ]);
+
+            document.getElementById('discountSearch')?.addEventListener('input', () => fetchDiscounts(1));
+            document.getElementById('discountSearchMobile')?.addEventListener('input', () => fetchDiscounts(1));
+
+            document.getElementById('discountType')?.addEventListener('change', handleDiscountTypeChange);
+            document.getElementById('discountValue')?.addEventListener('input', runCalc);
+
+            document.getElementById('discountClassFilter')?.addEventListener('change', function() {
+                currentFilterClass = this.value || '';
+                loadDiscountGroupFilterByClass(this.value);
+            });
+
+            document.getElementById('discountGroupFilter')?.addEventListener('change', function() {
+                currentFilterGroup = this.value || '';
+                currentFilterSection = '';
+                currentFilterSession = '';
+                const classInput = document.getElementById('discountClassFilter');
+                const classId = classInput ? classInput.value : '';
+                loadDiscountSectionFilterByGroup(classId, this.value);
+            });
+
+            document.getElementById('discountSectionFilter')?.addEventListener('change', function() {
+                currentFilterSection = this.value || '';
+                currentFilterSession = '';
+                const classInput = document.getElementById('discountClassFilter');
+                const classId = classInput ? classInput.value : '';
+                const groupInput = document.getElementById('discountGroupFilter');
+                const groupId = groupInput ? groupInput.value : '';
+                loadDiscountSessionFilterBySection(classId, groupId, this.value);
+            });
+
+            document.getElementById('discountSessionFilter')?.addEventListener('change', function() {
+                currentFilterSession = this.value || '';
+            });
+
+            document.getElementById('btnFilter')?.addEventListener('click', () => {
+                document.getElementById('discountFilterModal')?.classList.remove('hidden');
+            });
+
+            document.getElementById('discountResetFilter')?.addEventListener('click', () => {
+                setDropdownValue('discountClassFilter', '', 'Select Class');
+                setDropdownValue('discountGroupFilter', '', 'Select Group');
+                setDropdownValue('discountSectionFilter', '', 'Select Section');
+                setDropdownValue('discountSessionFilter', '', 'Select Session');
+                populateDropdown('discountGroupFilterMenu', [], 'id', 'group_name');
+                populateDropdown('discountSectionFilterMenu', [], 'id', 'section_name');
+                populateDropdown('discountSessionFilterMenu', [], 'id', 'session_year');
+                currentFilterClass = '';
+                currentFilterGroup = '';
+                currentFilterSection = '';
+                currentFilterSession = '';
+                currentPage = 1;
+                fetchDiscounts(1);
+                document.getElementById('discountFilterModal')?.classList.add('hidden');
+            });
+
+            document.getElementById('discountApplyFilter')?.addEventListener('click', () => {
+                const classInput = document.getElementById('discountClassFilter');
+                currentFilterClass = classInput ? classInput.value : '';
+                const groupInput = document.getElementById('discountGroupFilter');
+                currentFilterGroup = groupInput ? groupInput.value : '';
+                const sectionInput = document.getElementById('discountSectionFilter');
+                currentFilterSection = sectionInput ? sectionInput.value : '';
+                const sessionInput = document.getElementById('discountSessionFilter');
+                currentFilterSession = sessionInput ? sessionInput.value : '';
+                currentPage = 1;
+                fetchDiscounts(1);
+                document.getElementById('discountFilterModal')?.classList.add('hidden');
+            });
+
+            document.getElementById('btnRestoreDesktop')?.addEventListener('click', () => {
+                document.getElementById('discountSearch').value = '';
+                currentFilterClass = '';
+                currentFilterGroup = '';
+                currentFilterSection = '';
+                currentFilterSession = '';
+                currentPage = 1;
+                fetchDiscounts(1);
+            });
+
+            document.getElementById('btnRestoreMobile')?.addEventListener('click', () => {
+                document.getElementById('discountSearchMobile').value = '';
+                currentFilterClass = '';
+                currentFilterGroup = '';
+                currentFilterSection = '';
+                currentFilterSession = '';
+                currentPage = 1;
+                fetchDiscounts(1);
+            });
+
+            document.getElementById('discountClass')?.addEventListener('change', function() {
+                setDropdownValue('discountGroup', '', 'Select Group');
+                setDropdownValue('discountSection', '', 'Select Section');
+                setDropdownValue('discountSession', '', 'Select Session');
+                setDropdownValue('discountStudent', '', 'Select Student');
+                setDropdownValue('discountFeeType', '', 'Select Fee Type');
+                populateDropdown('discountGroupMenu', [], 'id', 'group_name');
+                populateDropdown('discountSectionMenu', [], 'id', 'section_name');
+                populateDropdown('discountSessionMenu', [], 'id', 'session_year');
+                populateDropdown('discountStudentMenu', [], 'id', 'student_name');
+                populateDropdown('discountFeeTypeMenu', [], 'id', 'fee_name');
+                document.getElementById('discountFeeName').value = '';
+                document.getElementById('beforeDiscount').value = '';
+                runCalc();
+                if (this.value) loadDiscountGroupSelect();
+            });
+
+            document.getElementById('discountGroup')?.addEventListener('change', function() {
+                setDropdownValue('discountSection', '', 'Select Section');
+                setDropdownValue('discountSession', '', 'Select Session');
+                setDropdownValue('discountStudent', '', 'Select Student');
+                setDropdownValue('discountFeeType', '', 'Select Fee Type');
+                populateDropdown('discountSectionMenu', [], 'id', 'section_name');
+                populateDropdown('discountSessionMenu', [], 'id', 'session_year');
+                populateDropdown('discountStudentMenu', [], 'id', 'student_name');
+                populateDropdown('discountFeeTypeMenu', [], 'id', 'fee_name');
+                document.getElementById('discountFeeName').value = '';
+                document.getElementById('beforeDiscount').value = '';
+                runCalc();
+                if (this.value) loadDiscountSectionSelect();
+            });
+
+            document.getElementById('discountSection')?.addEventListener('change', function() {
+                setDropdownValue('discountSession', '', 'Select Session');
+                setDropdownValue('discountStudent', '', 'Select Student');
+                setDropdownValue('discountFeeType', '', 'Select Fee Type');
+                populateDropdown('discountSessionMenu', [], 'id', 'session_year');
+                populateDropdown('discountStudentMenu', [], 'id', 'student_name');
+                populateDropdown('discountFeeTypeMenu', [], 'id', 'fee_name');
+                document.getElementById('discountFeeName').value = '';
+                document.getElementById('beforeDiscount').value = '';
+                runCalc();
+                if (this.value) loadDiscountSessionSelect();
+            });
+
+            document.getElementById('discountSession')?.addEventListener('change', function() {
+                setDropdownValue('discountStudent', '', 'Select Student');
+                setDropdownValue('discountFeeType', '', 'Select Fee Type');
+                populateDropdown('discountStudentMenu', [], 'id', 'student_name');
+                populateDropdown('discountFeeTypeMenu', [], 'id', 'fee_name');
+                document.getElementById('discountFeeName').value = '';
+                document.getElementById('beforeDiscount').value = '';
+                runCalc();
+                if (this.value) loadDiscountStudents();
+            });
+
+            document.getElementById('discountStudent')?.addEventListener('change', function() {
+                setDropdownValue('discountFeeType', '', 'Select Fee Type');
+                populateDropdown('discountFeeTypeMenu', [], 'id', 'fee_name');
+                document.getElementById('discountFeeName').value = '';
+                document.getElementById('beforeDiscount').value = '';
+                runCalc();
+                if (this.value) loadFeeTypes();
+            });
+
+            document.getElementById('discountFeeType')?.addEventListener('change', function() {
+                const sel = document.querySelector('#discountFeeTypeMenu [data-value="' + this.value + '"]');
+                if (sel) {
+                    document.getElementById('discountFeeName').value = sel.dataset.feename || '';
+                    document.getElementById('beforeDiscount').value = sel.dataset.amount || 0;
+                } else {
+                    document.getElementById('discountFeeName').value = '';
+                    document.getElementById('beforeDiscount').value = '';
+                }
+                runCalc();
+            });
+
+            document.querySelectorAll('[role="dialog"]').forEach(dialog => {
+                dialog.addEventListener('click', function(e) {
+                    if (e.target === this) this.classList.add('hidden');
+                });
+            });
+
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('[data-dropdown-add-target]');
+                if (btn) {
+                    const map = { classModal: 'Add Class', groupModal: 'Add Group', sectionModal: 'Add Section', sessionModal: 'Add Session' };
+                    const title = map[btn.dataset.dropdownAddTarget];
+                    if (title) {
+                        const el = document.getElementById(btn.dataset.dropdownAddTarget + 'Title');
+                        if (el) el.innerText = title;
+                    }
+                }
+            });
+        });
+
+        fetchDiscounts();
+    </script>
+@endsection

@@ -62,7 +62,6 @@
             'Promote' => 'Promote',
             'Tuition' => 'Tuition',
             'Food' => 'Food',
-            'Fine' => 'Fine',
             'Session' => 'Session',
             'Exams' => 'Exam',
         ]"
@@ -78,21 +77,7 @@
         </div>
     </div>
 </div>
-<div id="fine_fee_wrapper" class="relative hidden-field">
-    <x-input.dropdown-select
-        id="fine_fee_name_select"
-        name="fine_fee_name"
-        placeholder="Select Fine Type"
-        :value="old('fine_fee_name')"
-        :options="[
-            'late' => 'Late',
-            'absent' => 'Absent',
-            'payment-due' => 'Payment Due',
-            'payment-overdue' => 'Payment Overdue',
-            'exam-fee-due' => 'Exam Fee Due',
-        ]"
-    />
-</div>
+
 <div id="div_exam_name" class="relative hidden-field">
     <x-input.dropdown-select
         id="exam_id"
@@ -140,19 +125,19 @@
     <x-input.dropdown-select
         id="food_type"
         name="food_type"
-        placeholder="Select Type"
+        placeholder="Select Student"
         :value="old('food_type')"
         :options="[
-            'single' => 'Single',
-            'multiple' => 'Multiple',
-            'all' => 'All',
+            'all' => 'All Students',
+            'multiple' => 'Multiple Students',
+            'single' => 'Single Student',
         ]"
     />
 </div>
 <div id="div_food_students" class="relative hidden-field sm:col-span-2" style="display:none;">
-    <label class="mb-1 block text-[10px] font-medium text-slate-600">Select Students</label>
-    <div class="grid grid-cols-2 gap-2 border border-slate-300 bg-white p-3" style="border-radius:0; max-height:180px; overflow-y:auto;">
-        <div id="food_student_list" class="col-span-2 space-y-1"></div>
-    </div>
-    <div id="food_student_count" class="mt-1 text-[10px] text-gray-400 hidden"></div>
+    <x-fee.student-selector
+        id="food_student_list"
+        label="Select Students"
+        count-id="food_student_count"
+    />
 </div>

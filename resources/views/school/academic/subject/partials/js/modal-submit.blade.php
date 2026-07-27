@@ -3,6 +3,7 @@
         e.preventDefault();
         clearSubjectErrors();
         const recordId = document.getElementById('record_id').value;
+        const subjectModalElement = document.getElementById('subjectModal');
         const formData = new FormData(this);
         if (recordId) {
             formData.append('_method', 'PUT');
@@ -16,15 +17,35 @@
                 'Content-Type': 'multipart/form-data'
             }
         })
-        .then(() => {
+        .then((response) => {
             Toastify({
                 text: 'Subject Saved Successfully!',
                 gravity: 'top',
                 position: 'right',
                 style: { background: '#10b981' }
             }).showToast();
-            subjectModal.classList.add('hidden');
-            fetchSubjects(currentPage);
+
+            const subjectSavedEvent = new CustomEvent('school:subject-saved', {
+                cancelable: true,
+                detail: {
+                    subjectItem: response.data.data,
+                    returnModalId: subjectModalElement?.dataset.returnModalId || null,
+                    isNew: !recordId,
+                },
+            });
+            document.dispatchEvent(subjectSavedEvent);
+
+            subjectModalElement?.classList.add('hidden');
+            this.reset();
+            if (subjectModalElement) {
+                delete subjectModalElement.dataset.returnModalId;
+            }
+
+            if (!subjectSavedEvent.defaultPrevented) {
+                if (typeof fetchSubjects === 'function') {
+                    fetchSubjects(currentPage);
+                }
+            }
         })
         .catch(error => {
             if (error.response?.status === 422) {

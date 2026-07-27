@@ -32,6 +32,54 @@
         closeSubjectModal();
     });
 
+    document.addEventListener('school:dropdown-add-modal-opened', async function (event) {
+        const { targetModalId, sourceDropdownId } = event.detail || {};
+        if (targetModalId !== 'subjectModal') {
+            return;
+        }
+
+        const sourceMap = {
+            subject_name: ['class_name', 'group_name', 'section_name'],
+            f_subject: ['f_class', 'f_group', 'f_section'],
+        };
+
+        const [classField, groupField, sectionField] = sourceMap[sourceDropdownId] || [];
+        if (!classField) {
+            return;
+        }
+
+        const classId = getSelectedDropdownId(classField);
+        const groupId = getSelectedDropdownId(groupField);
+        const sectionId = getSelectedDropdownId(sectionField);
+
+        setDropdownValue('subjectFormClass', '', 'Select Class');
+        setDropdownValue('subjectFormGroup', '', 'Select Group');
+        setDropdownValue('subjectFormSection', '', 'Select Section');
+        populateDropdown('subjectFormGroupMenu', [], 'id', 'group_name');
+        populateDropdown('subjectFormSectionMenu', [], 'id', 'section_name');
+
+        if (!classId) {
+            return;
+        }
+
+        loadSubjectClassSelect(classId);
+        if (groupId) {
+            await loadSubjectGroupSelect(groupId);
+        }
+        if (sectionId) {
+            await loadSubjectSectionSelect(sectionId);
+        }
+    });
+
+    function getSelectedDropdownId(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) return '';
+        const menu = document.getElementById(`${inputId}Menu`);
+        if (!menu) return input.value || '';
+        const option = menu.querySelector(`[data-value="${CSS.escape(input.value)}"]`);
+        return option?.dataset.optionId || option?.dataset.id || input.value || '';
+    }
+
     function loadSubjectClassSelect(selectedId = null) {
         axios.get('/api/get-school-classes').then(res => {
             const data = res.data.data || [];

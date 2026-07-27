@@ -171,8 +171,6 @@ class DropdownController extends Controller
 
         if (!empty($classIds)) {
             $query->whereIn('class_id', Arr::wrap($classIds));
-        } else {
-            return response()->json(['data' => []]);
         }
 
         $groupIds = $request->input('group_ids', []);
@@ -342,7 +340,7 @@ class DropdownController extends Controller
                 $classIds = [$request->class_id];
             }
             if (!empty($classIds)) {
-                $query->whereIn('class', Arr::wrap($classIds));
+                $query->whereIn('class_id', Arr::wrap($classIds));
             }
 
             $sessionIds = $request->input('session_ids', []);
@@ -350,7 +348,7 @@ class DropdownController extends Controller
                 $sessionIds = [$request->session_id];
             }
             if (!empty($sessionIds)) {
-                $query->whereIn('session', Arr::wrap($sessionIds));
+                $query->whereIn('session_id', Arr::wrap($sessionIds));
             }
 
             $groupIds = $request->input('group_ids', []);
@@ -358,7 +356,7 @@ class DropdownController extends Controller
                 $groupIds = [$request->group_id];
             }
             if (!empty($groupIds)) {
-                $query->whereIn('group', Arr::wrap($groupIds));
+                $query->whereIn('group_id', Arr::wrap($groupIds));
             }
 
             $sectionIds = $request->input('section_ids', []);
@@ -366,7 +364,7 @@ class DropdownController extends Controller
                 $sectionIds = [$request->section_id];
             }
             if (!empty($sectionIds)) {
-                $query->whereIn('section', Arr::wrap($sectionIds));
+                $query->whereIn('section_id', Arr::wrap($sectionIds));
             }
 
             $students = $query->select('id', 'student_name', 'student_id_number')

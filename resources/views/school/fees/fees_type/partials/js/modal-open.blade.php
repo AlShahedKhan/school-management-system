@@ -30,7 +30,6 @@
         resetDropdownLabel('fee_type_name');
         resetDropdownLabel('frequency');
         resetDropdownLabel('food_type');
-        resetDropdownLabel('fine_fee_name_select');
         resetDropdownLabel('exam_id');
         resetDropdownLabel('due_day');
         loadFeeClassSelect();

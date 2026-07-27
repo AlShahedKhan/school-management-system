@@ -45,12 +45,12 @@ class SchoolStudentController extends Controller
             $q->where(function ($sq) use ($permissions) {
                 foreach ($permissions as $permission) {
                     $sq->orWhere(function ($ssq) use ($permission) {
-                        $ssq->where('class', $permission->class_id);
+                        $ssq->where('class_id', $permission->class_id);
                         if ($permission->group_id) {
-                            $ssq->where('group', $permission->group_id);
+                            $ssq->where('group_id', $permission->group_id);
                         }
                         if ($permission->section_id) {
-                            $ssq->where('section', $permission->section_id);
+                            $ssq->where('section_id', $permission->section_id);
                         }
                     });
                 }
@@ -63,10 +63,10 @@ class SchoolStudentController extends Controller
                     ->orWhere('admission_id', 'like', "%$search%")
                     ->orWhere('mobile', 'like', "%$search%");
             });
-        })->when($request->filled('class'), fn($q) => $q->where('class', $request->class))
-          ->when($request->filled('group'), fn($q) => $q->where('group', $request->group))
-          ->when($request->filled('section'), fn($q) => $q->where('section', $request->section))
-          ->when($request->filled('session'), fn($q) => $q->where('session', $request->session));
+        })->when($request->filled('class'), fn($q) => $q->where('class_id', $request->class))
+          ->when($request->filled('group'), fn($q) => $q->where('group_id', $request->group))
+          ->when($request->filled('section'), fn($q) => $q->where('section_id', $request->section))
+          ->when($request->filled('session'), fn($q) => $q->where('session_id', $request->session));
         if ($request->boolean('all')) {
             $query->where('status', '!=', StudentStatus::Inactive->value);
             $students = $query->orderBy('id', 'desc')->get();
@@ -207,43 +207,52 @@ class SchoolStudentController extends Controller
         $student = AdmissionStudent::where(function ($q) use ($schoolName, $schoolId) {
             $q->where('school', $schoolName)->orWhere('school_id', $schoolId);
         })->findOrFail($id);
+
         $validator = Validator::make($request->all(), [
             'student_name' => 'required|string|max:255',
             'father_name' => 'required|string|max:255',
             'mother_name' => 'required|string|max:255',
             'mobile' => 'required|string|max:20',
-            'class' => 'required|exists:school_classes,id',
-            'section' => 'required|exists:school_sections,id',
-            'session' => 'required|exists:school_sessions,id',
-            'group' => 'nullable|exists:school_groups,id',
+            'class_id' => 'nullable|exists:school_classes,id',
+            'section_id' => 'nullable|exists:school_sections,id',
+            'session_id' => 'nullable|exists:school_sessions,id',
+            'group_id' => 'nullable|exists:school_groups,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'admission_fee' => 'required',
-            'admission_date' => 'required|date',
-            'current_country' => 'required|string|max:100',
-            'current_division' => 'required|string|max:100',
-            'current_district' => 'required|string|max:100',
-            'current_upazila' => 'required|string|max:100',
-            'current_village' => 'required|string|max:255',
-            'permanent_country' => 'required|string|max:100',
-            'permanent_division' => 'required|string|max:100',
-            'permanent_district' => 'required|string|max:100',
-            'permanent_upazila' => 'required|string|max:100',
-            'permanent_village' => 'required|string|max:255',
-            'g_name' => 'required|string|max:255',
-            'g_relation' => 'required|string|max:255',
-            'g_mobile' => 'required|string|max:20',
+            'admission_fee' => 'nullable',
+            'admission_date' => 'nullable|date',
+            'current_country' => 'nullable|string|max:100',
+            'current_division' => 'nullable|string|max:100',
+            'current_district' => 'nullable|string|max:100',
+            'current_upazila' => 'nullable|string|max:100',
+            'current_village' => 'nullable|string|max:255',
+            'permanent_country' => 'nullable|string|max:100',
+            'permanent_division' => 'nullable|string|max:100',
+            'permanent_district' => 'nullable|string|max:100',
+            'permanent_upazila' => 'nullable|string|max:100',
+            'permanent_village' => 'nullable|string|max:255',
+            'g_name' => 'nullable|string|max:255',
+            'g_relation' => 'nullable|string|max:255',
+            'g_mobile' => 'nullable|string|max:20',
         ]);
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
+
         $student->student_name = $request->student_name;
         $student->father_name = $request->father_name;
         $student->mother_name = $request->mother_name;
         $student->mobile = $request->mobile;
-        $student->class = $request->class;
-        $student->session = $request->session;
-        $student->section = $request->section;
-        $student->group = $request->group;
+
+        $classId = $request->input('class_id') ?? $request->input('class');
+        $sessionId = $request->input('session_id') ?? $request->input('session');
+        $sectionId = $request->input('section_id') ?? $request->input('section');
+        $groupId = $request->input('group_id') ?? $request->input('group');
+
+        if ($classId) $student->class_id = $classId;
+        if ($sessionId) $student->session_id = $sessionId;
+        if ($sectionId) $student->section_id = $sectionId;
+        if ($groupId) $student->group_id = $groupId;
         if ($request->filled('admission_fee')) $student->admission_fee = $request->admission_fee;
         if ($request->filled('admission_date')) $student->admission_date = $request->admission_date;
         if ($request->has('current_country')) $student->current_country = $request->current_country;

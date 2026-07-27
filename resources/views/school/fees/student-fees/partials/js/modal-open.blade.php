@@ -1,8 +1,8 @@
 <script>
-    function openFeeModal(title) {
+    function openFeeModal() {
         document.getElementById('feeForm').reset();
-        document.getElementById('fee_id').value = '';
-        document.getElementById('feeModalTitle').innerText = typeof title === 'string' ? title : 'Edit Student Fee';
+        document.getElementById('record_id').value = '';
+        document.getElementById('feeModalTitle').innerText = 'Edit Student Fee';
         document.getElementById('feeModal').classList.remove('hidden');
     }
     function closeFeeModal() {
