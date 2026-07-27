@@ -41,7 +41,7 @@ class AdvancePaymentController extends Controller
                 ->where('fees_type', $fee->fee_type_name)
                 ->where('fee_name', $fee->fee_name)
                 ->sum('type_amount');
-            return max((float) $fee->amount - (float) $paid, 0);
+            return max((float) $fee->base_amount - (float) $paid, 0);
         });
 
         return response()->json([

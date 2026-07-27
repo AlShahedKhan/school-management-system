@@ -84,7 +84,7 @@ class SchoolStudentFeeController extends Controller
                     ->where('school_discounts.school_id', $fee->school_id)
                     ->select('discount_students.*', 'school_discounts.discount_type', 'school_discounts.discount_value', 'school_discounts.months')
                     ->get();
-                $originalAmount = (float) $fee->amount;
+                $originalAmount = (float) $fee->base_amount;
 
                 $feeMonth = $fee->pay_date ? Carbon::parse($fee->pay_date)->format('Y-m') : null;
                 $bestAmount = $originalAmount;
@@ -110,7 +110,7 @@ class SchoolStudentFeeController extends Controller
                 $fee->has_discount = $hasDiscount;
                 $fee->original_amount = $originalAmount;
 
-                $fee->amount = round($effectiveAmount, 2);
+                $fee->base_amount = round($effectiveAmount, 2);
                 $fee->total_paid = $totalPaid;
                 $fee->remaining_due = max($effectiveAmount - $totalPaid, 0);
 
@@ -174,8 +174,11 @@ class SchoolStudentFeeController extends Controller
 
             DB::transaction(function () use ($school, $id, $validated) {
                 $fee = SchoolStudentFee::where('school_id', $school->id)->findOrFail($id);
-                $validated['payable_amount'] = $validated['amount'];
-                $validated['due_amount'] = $validated['amount'];
+                $a = $validated['amount'];
+                unset($validated['amount']);
+                $validated['base_amount'] = $a;
+                $validated['payable_amount'] = $a;
+                $validated['due_amount'] = $a;
                 $fee->update($validated);
             });
 
@@ -237,7 +240,7 @@ class SchoolStudentFeeController extends Controller
                     ->sum('type_amount');
 
                 $totalPaid = (float) $totalPaid;
-                $amount = (float) $fee->amount;
+                $amount = (float) $fee->base_amount;
                 $fee->total_paid = $totalPaid;
                 $fee->remaining_due = max($amount - $totalPaid, 0);
 
