@@ -299,10 +299,30 @@
                             Filter
                         </button>
 
-                        <button onclick="document.getElementById('exportModal').classList.remove('hidden')"
-                            class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
-                            Export
-                        </button>
+                        <div id="exportDropdown" class="relative flex-1 lg:flex-none">
+                            <x-button.secondary
+                                id="exportDropdownButton"
+                                onclick="toggleExportMenu(event)"
+                                class="h-7 w-full px-0.5 text-[9px] tracking-wider sm:h-9 sm:px-4 sm:text-xs">
+                                <span>Export</span>
+                                <i class="fas fa-chevron-down ml-2 text-[8px]" aria-hidden="true"></i>
+                            </x-button.secondary>
+
+                            <div
+                                id="exportMenu"
+                                class="absolute left-0 top-full z-50 mt-1 hidden w-full min-w-[110px] border border-slate-300 bg-white shadow-sm"
+                            >
+                                <x-button.secondary onclick="exportData('pdf')" class="w-full justify-start border-x-0 border-t-0">
+                                    PDF
+                                </x-button.secondary>
+                                <x-button.secondary onclick="exportData('excel')" class="w-full justify-start border-x-0 border-t-0">
+                                    Excel
+                                </x-button.secondary>
+                                <x-button.secondary onclick="window.print(); closeExportMenu()" class="w-full justify-start border-x-0 border-b-0 border-t-0">
+                                    Print
+                                </x-button.secondary>
+                            </div>
+                        </div>
 
                         <button onclick="openRoutineModal()"
                             class="btn-outline-premium border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
@@ -339,81 +359,31 @@
                         {{-- Class Filter --}}
                         <div class="relative">
                             <label class="text-[10px] text-gray-500 block mb-1">Class</label>
-                            <div class="relative">
-                                <select id="f_class" onchange="handleCascade(this, 'f_group')"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                    <option value="">All Classes</option>
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
+                            <x-input.dropdown-select id="f_class" placeholder="All Classes" :options="[]" />
                         </div>
 
                         {{-- Group Filter --}}
                         <div class="relative">
                             <label class="text-[10px] text-gray-500 block mb-1">Group</label>
-                            <div class="relative">
-                                <select id="f_group" onchange="handleCascade(this, 'f_section')"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                    <option value="">All Groups</option>
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
+                            <x-input.dropdown-select id="f_group" placeholder="All Groups" :options="[]" />
                         </div>
 
                         {{-- Section Filter --}}
                         <div class="relative">
                             <label class="text-[10px] text-gray-500 block mb-1">Section</label>
-                            <div class="relative">
-                                <select id="f_section" onchange="handleCascade(this, 'f_session')"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                    <option value="">All Sections</option>
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
+                            <x-input.dropdown-select id="f_section" placeholder="All Sections" :options="[]" />
                         </div>
 
                         {{-- Session Filter --}}
                         <div class="relative">
                             <label class="text-[10px] text-gray-500 block mb-1">Session</label>
-                            <div class="relative">
-                                <select id="f_session" onchange="loadFilterExams()"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                    <option value="">All Sessions</option>
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
+                            <x-input.dropdown-select id="f_session" placeholder="All Sessions" :options="[]" />
                         </div>
 
                         {{-- Exam Filter --}}
                         <div class="relative">
                             <label class="text-[10px] text-gray-500 block mb-1">Exam</label>
-                            <div class="relative">
-                                <select id="f_exam"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                    <option value="">All Exams</option>
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
+                            <x-input.dropdown-select id="f_exam" placeholder="All Exams" :options="[]" />
                         </div>
                     </div>
 
@@ -429,50 +399,28 @@
                 </div>
             </div>
 
-            {{-- Export Modal --}}
-            <div id="exportModal"
-                class="premium-modal fixed inset-0 bg-black/50 hidden z-[9999] flex items-center justify-center p-12 sm:p-20"
-                onclick="this.classList.add('hidden')">
-                <div class="bg-white p-4 w-auto min-w-[140px] modal-content-sharp shadow-2xl"
-                    onclick="event.stopPropagation()">
-                    <div class="flex flex-col gap-1.5">
-                        <button onclick="exportData('pdf')"
-                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                            PDF
-                        </button>
-                        <button onclick="exportData('excel')"
-                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                            EXCEL
-                        </button>
-                        <button onclick="window.print()"
-                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                            PRINT
-                        </button>
-                        <button onclick="document.getElementById('exportModal').classList.add('hidden')"
-                            class="mt-1 py-1.5 text-[10px] text-gray-400 hover:text-gray-600 w-full text-center border border-gray-200 transition-all">
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            </div>
-
             <div class="table-card">
                 <div class="table-responsive">
-                    <table class="min-w-[1000px]">
+                    <table class="min-w-[1500px]">
                         <thead>
                             <tr>
                                 <th width="60">Sl</th>
+                                <th>Class</th>
+                                <th>Group</th>
+                                <th>Section</th>
+                                <th>Session</th>
+                                <th>Exam</th>
+                                <th>Subject</th>
                                 <th>Date</th>
                                 <th>Day Name</th>
                                 <th>Start Time</th>
                                 <th>End Time</th>
-                                <th>Subject</th>
                                 <th width="120" class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody id="routineTableBody">
                             <tr>
-                                <td colspan="7" class="loader-row">Loading routines...</td>
+                                <td colspan="12" class="loader-row">Loading routines...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -592,7 +540,7 @@
                             <label
                                 class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Section</label>
                             <x-input.dropdown-select
-                                id="section_name"
+                                id="routine_section_name"
                                 name="section_name"
                                 placeholder="Select Section"
                                 :options="[]"
@@ -760,14 +708,14 @@
         async function loadInitialData() {
             try {
                 const res = await axios.get('/api/get-school-classes');
-                let opts = '<option value="">Select Class</option>';
-                res.data.data.forEach(c => opts +=
-                    `<option value="${c.class_name}" data-id="${c.id}">${c.class_name}</option>`);
                 populateComponentDropdown('class_nameMenu', res.data.data || [], 'class_name', 'class_name', {
                     id: 'id'
                 });
                 setComponentDropdownValue('class_name', '', 'Select Class');
-                document.getElementById('f_class').innerHTML = opts.replace('Select', 'All');
+                populateComponentDropdown('f_classMenu', res.data.data || [], 'class_name', 'class_name', {
+                    id: 'id'
+                });
+                setComponentDropdownValue('f_class', '', 'All Classes');
             } catch (e) {
                 console.error("Initial Load Error", e);
             }
@@ -883,14 +831,14 @@
             // Reset all fields downstream of the changed one
             if (next === 'group' || next === 'f_group') {
                 resetDropdown(isFilter ? 'f_group'   : 'group_name',   'Group',   isFilter);
-                resetDropdown(isFilter ? 'f_section' : 'section_name', 'Section', isFilter);
+                resetDropdown(isFilter ? 'f_section' : 'routine_section_name', 'Section', isFilter);
                 resetDropdown(isFilter ? 'f_session' : 'session_name', 'Session', isFilter);
                 if (!isFilter) {
                     resetDropdown('exam_name',    'Exam');
                     resetDropdown('subject_name', 'Subject');
                 }
             } else if (next === 'section' || next === 'f_section') {
-                resetDropdown(isFilter ? 'f_section' : 'section_name', 'Section', isFilter);
+                resetDropdown(isFilter ? 'f_section' : 'routine_section_name', 'Section', isFilter);
                 resetDropdown(isFilter ? 'f_session' : 'session_name', 'Session', isFilter);
                 if (!isFilter) {
                     resetDropdown('exam_name',    'Exam');
@@ -916,7 +864,7 @@
                     fillDropdown(isFilter ? 'f_group' : 'group_name', res.data.data, 'group_name', 'Group', isFilter);
                 } else if (next === 'section' || next === 'f_section') {
                     const res = await axios.get(`/api/get-school-sections?group_id=${id}`);
-                    fillDropdown(isFilter ? 'f_section' : 'section_name', res.data.data, 'section_name', 'Section', isFilter);
+                    fillDropdown(isFilter ? 'f_section' : 'routine_section_name', res.data.data, 'section_name', 'Section', isFilter);
                 } else if (next === 'session' || next === 'f_session') {
                     const res = await axios.get(`/api/get-school-sessions?class_id=${classId}&section_id=${id}`);
                     fillDropdown(isFilter ? 'f_session' : 'session_name', res.data.data, 'session_year', 'Session', isFilter);
@@ -949,7 +897,7 @@
             const classSelect = document.getElementById('class_name');
             const className = classSelect.value;
             const groupName = document.getElementById('group_name').value;
-            const sectionName = document.getElementById('section_name').value;
+            const sectionName = document.getElementById('routine_section_name').value;
             const sessionName = document.getElementById('session_name').value;
             const classId = getSelectedDataId(classSelect);
 
@@ -977,9 +925,14 @@
         }
 
         async function loadFilterExams() {
-            const className = document.getElementById('f_class').value;
-            const sessionName = document.getElementById('f_session').value;
-            const res = await axios.get(`/api/get-school-exams?class_name=${className}&session_name=${sessionName}`);
+            const res = await axios.get('/api/get-school-exams', {
+                params: {
+                    class_id: getSelectedDataId('f_class') || undefined,
+                    group_id: getSelectedDataId('f_group') || undefined,
+                    section_id: getSelectedDataId('f_section') || undefined,
+                    session_id: getSelectedDataId('f_session') || undefined,
+                },
+            });
             fillDropdown('f_exam', res.data.data, 'exam_name', 'Exam', true);
         }
 
@@ -995,7 +948,7 @@
                 populateComponentDropdown('class_nameMenu', response.data.data || [], 'class_name', 'class_name', { id: 'id' });
                 setComponentDropdownValue('class_name', classItem.class_name, classItem.class_name);
                 resetDropdown('group_name', 'Group');
-                resetDropdown('section_name', 'Section');
+                resetDropdown('routine_section_name', 'Section');
                 resetDropdown('session_name', 'Session');
                 resetDropdown('exam_name', 'Exam');
                 document.getElementById('subject_name').innerHTML = '<option value="">Select Subject</option>';
@@ -1023,7 +976,7 @@
                 const groupResponse = await axios.get(`/api/get-school-groups?class_id=${groupItem.class_id}`);
                 populateComponentDropdown('group_nameMenu', groupResponse.data.data || [], 'group_name', 'group_name', { id: 'id' });
                 setComponentDropdownValue('group_name', groupItem.group_name, groupItem.group_name);
-                resetDropdown('section_name', 'Section');
+                resetDropdown('routine_section_name', 'Section');
                 resetDropdown('session_name', 'Session');
                 resetDropdown('exam_name', 'Exam');
                 document.getElementById('subject_name').innerHTML = '<option value="">Select Subject</option>';
@@ -1040,13 +993,39 @@
             event.preventDefault();
 
             try {
-                const sectionResponse = await axios.get(`/api/get-school-sections?class_id=${classId}&group_id=${groupId}`);
-                if (sectionResponse.data?.data) {
-                    fillDropdown('section_name', sectionResponse.data.data, 'section_name', 'Section');
-                    const existingSection = sectionResponse.data.data.find(item => item.section_name === sectionName);
-                    if (existingSection) {
-                        setComponentDropdownValue('section_name', existingSection.section_name, existingSection.section_name);
-                    }
+                // Match the Exam Name modal flow: restore the complete academic
+                // selection chain by IDs before selecting the existing section.
+                const classResponse = await axios.get('/api/get-school-classes');
+                const classes = classResponse.data?.data || [];
+                populateComponentDropdown('class_nameMenu', classes, 'class_name', 'class_name', { id: 'id' });
+
+                const selectedClass = classes.find(item => String(item.id) === String(classId));
+                if (selectedClass) {
+                    setComponentDropdownValue('class_name', selectedClass.class_name, selectedClass.class_name);
+                }
+
+                const groupResponse = await axios.get('/api/get-school-groups', {
+                    params: { class_id: classId },
+                });
+                const groups = groupResponse.data?.data || [];
+                populateComponentDropdown('group_nameMenu', groups, 'group_name', 'group_name', { id: 'id' });
+
+                const selectedGroup = groups.find(item => String(item.id) === String(groupId));
+                if (selectedGroup) {
+                    setComponentDropdownValue('group_name', selectedGroup.group_name, selectedGroup.group_name);
+                }
+
+                const sectionResponse = await axios.get('/api/get-school-sections', {
+                    params: { class_id: classId, group_id: groupId },
+                });
+                const sections = sectionResponse.data?.data || [];
+                populateComponentDropdown('routine_section_nameMenu', sections, 'section_name', 'section_name', { id: 'id' });
+
+                const existingSection = sections.find(item =>
+                    String(item.section_name).trim().toLowerCase() === String(sectionName).trim().toLowerCase()
+                );
+                if (existingSection) {
+                    setComponentDropdownValue('routine_section_name', existingSection.section_name, existingSection.section_name);
                 }
             } catch (e) {
                 console.error('Failed to refresh existing section list', e);
@@ -1079,8 +1058,8 @@
                 }
 
                 const sectionResponse = await axios.get(`/api/get-school-sections?class_id=${sectionItem.class_id}&group_id=${sectionItem.group_id}`);
-                populateComponentDropdown('section_nameMenu', sectionResponse.data.data || [], 'section_name', 'section_name', { id: 'id' });
-                setComponentDropdownValue('section_name', sectionItem.section_name, sectionItem.section_name);
+                populateComponentDropdown('routine_section_nameMenu', sectionResponse.data.data || [], 'section_name', 'section_name', { id: 'id' });
+                setComponentDropdownValue('routine_section_name', sectionItem.section_name, sectionItem.section_name);
                 resetDropdown('session_name', 'Session');
                 resetDropdown('exam_name', 'Exam');
                 document.getElementById('subject_name').innerHTML = '<option value="">Select Subject</option>';
@@ -1113,10 +1092,10 @@
                 }
 
                 const sectionResponse = await axios.get(`/api/get-school-sections?class_id=${sessionItem.class_id}&group_id=${sessionItem.group_id}`);
-                populateComponentDropdown('section_nameMenu', sectionResponse.data.data || [], 'section_name', 'section_name', { id: 'id' });
+                populateComponentDropdown('routine_section_nameMenu', sectionResponse.data.data || [], 'section_name', 'section_name', { id: 'id' });
                 const selectedSection = sectionResponse.data.data.find(item => String(item.id) === String(sessionItem.section_id));
                 if (selectedSection) {
-                    setDropdownValue('section_name', selectedSection.section_name, selectedSection.section_name);
+                    setDropdownValue('routine_section_name', selectedSection.section_name, selectedSection.section_name);
                 }
 
                 const sessionResponse = await axios.get(`/api/get-school-sessions?class_id=${sessionItem.class_id}&section_id=${sessionItem.section_id}`);
@@ -1169,16 +1148,16 @@
         async function fetchRoutines(page = 1, isFiltering = false) {
             currentPage = page;
             const tbody = document.getElementById('routineTableBody');
-            tbody.innerHTML = '<tr><td colspan="7" class="loader-row text-center py-4">Loading...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="12" class="loader-row text-center py-4">Loading...</td></tr>';
 
             try {
                 const params = new URLSearchParams({
                     page: page,
-                    class_name: document.getElementById('f_class').value,
-                    group_name: document.getElementById('f_group').value,
-                    section_name: document.getElementById('f_section').value,
-                    session_name: document.getElementById('f_session').value,
-                    exam_name: document.getElementById('f_exam').value
+                    class_id: getSelectedDataId('f_class'),
+                    group_id: getSelectedDataId('f_group'),
+                    section_id: getSelectedDataId('f_section'),
+                    session_id: getSelectedDataId('f_session'),
+                    exam_id: getSelectedDataId('f_exam')
                 });
 
                 const res = await axios.get(`/api/school-exam-routines?${params.toString()}`);
@@ -1188,18 +1167,23 @@
                 tbody.innerHTML = '';
                 if (!items || items.length === 0) {
                     tbody.innerHTML =
-                        '<tr><td colspan="7" class="text-center py-4 text-gray-400">No routines found matching the criteria.</td></tr>';
+                        '<tr><td colspan="12" class="text-center py-4 text-gray-400">No routines found matching the criteria.</td></tr>';
                 } else {
                     items.forEach((item, i) => {
                         const sl = (data.current_page - 1) * data.per_page + (i + 1);
                         tbody.innerHTML += `
                             <tr>
                                 <td>${sl}</td>
+                                <td>${item.school_class?.class_name ?? '-'}</td>
+                                <td>${item.school_group?.group_name ?? '-'}</td>
+                                <td>${item.school_section?.section_name ?? '-'}</td>
+                                <td>${item.school_session?.session_year ?? '-'}</td>
+                                <td>${item.school_exam?.exam_name ?? '-'}</td>
+                                <td class="text-gray-700">${item.school_subject?.subject_name ?? '-'}</td>
                                 <td>${formatDateDDMMYYYY(item.exam_date)}</td>
                                 <td>${item.day_name}</td>
                                 <td>${formatTime12h(item.start_time)}</td>
                                 <td>${formatTime12h(item.end_time)}</td>
-                                <td class="text-gray-700">${item.subject_name}</td>
                                 <td class="text-center">
                                     <div class="flex justify-center gap-3">
                                     <button onclick="editRoutine(${item.id})" class="action-icon-btn text-blue-500"><i class="far fa-edit" style="font-size: 15px;"></i></button>
@@ -1264,8 +1248,8 @@
                 setComponentDropdownValue('group_name', data.group_name, data.group_name || 'Select Group');
                 await handleCascade(groupSelect, 'section');
 
-                const sectionSelect = document.getElementById('section_name');
-                setComponentDropdownValue('section_name', data.section_name, data.section_name || 'Select Section');
+                const sectionSelect = document.getElementById('routine_section_name');
+                setComponentDropdownValue('routine_section_name', data.section_name, data.section_name || 'Select Section');
 
                 // MODIFIED: Fetch sessions with explicit class_id
                 const classId = getSelectedDataId(classSelect);
@@ -1319,6 +1303,15 @@
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
 
+            // The dropdown values are names for display/filtering. The routine
+            // API validates relational IDs, stored on each dropdown option.
+            data.class_id = getSelectedDataId('class_name');
+            data.group_id = getSelectedDataId('group_name') || null;
+            data.section_id = getSelectedDataId('routine_section_name') || null;
+            data.session_id = getSelectedDataId('session_name');
+            data.exam_id = getSelectedDataId('exam_name');
+            data.subject_id = getSelectedDataId('subject_name');
+
             try {
                 const req = id ? axios.put(`/api/school-exam-routines/${id}`, data) : axios.post(
                     '/api/school-exam-routines', data);
@@ -1349,25 +1342,47 @@
         };
 
         function resetFilters() {
-            ['f_class', 'f_group', 'f_section', 'f_session', 'f_exam'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = "";
-            });
+            setComponentDropdownValue('f_class', '', 'All Classes');
+            resetDropdown('f_group', 'Groups', true);
+            resetDropdown('f_section', 'Sections', true);
+            resetDropdown('f_session', 'Sessions', true);
+            resetDropdown('f_exam', 'Exams', true);
             fetchRoutines(1, true);
         }
+
+        function toggleExportMenu(event) {
+            event?.stopPropagation();
+            const menu = document.getElementById('exportMenu');
+            const icon = document.querySelector('#exportDropdownButton i');
+            const isOpen = !menu.classList.contains('hidden');
+
+            menu.classList.toggle('hidden', isOpen);
+            icon?.classList.toggle('rotate-180', !isOpen);
+        }
+
+        function closeExportMenu() {
+            document.getElementById('exportMenu')?.classList.add('hidden');
+            document.querySelector('#exportDropdownButton i')?.classList.remove('rotate-180');
+        }
+
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('#exportDropdown')) {
+                closeExportMenu();
+            }
+        });
 
         function exportData(type) {
             const params = new URLSearchParams({
                 type,
                 search: document.getElementById('tableSearch').value,
-                class_name: document.getElementById('f_class').value,
-                group_name: document.getElementById('f_group').value,
-                section_name: document.getElementById('f_section').value,
-                session_name: document.getElementById('f_session').value,
-                exam_name: document.getElementById('f_exam').value
+                class_id: getSelectedDataId('f_class'),
+                group_id: getSelectedDataId('f_group'),
+                section_id: getSelectedDataId('f_section'),
+                session_id: getSelectedDataId('f_session'),
+                exam_id: getSelectedDataId('f_exam')
             });
             window.location.href = `/api/school-exam-routines-export?${params.toString()}`;
-            document.getElementById('exportModal').classList.add('hidden');
+            closeExportMenu();
         }
 
         function openRoutineModal() {
@@ -1398,6 +1413,27 @@
             loadInitialData();
             document.getElementById('class_name')?.addEventListener('change', function() {
                 handleCascade(this, 'group');
+            });
+            document.getElementById('group_name')?.addEventListener('change', function() {
+                handleCascade(this, 'section');
+            });
+            document.getElementById('routine_section_name')?.addEventListener('change', function() {
+                handleCascade(this, 'session');
+            });
+            document.getElementById('session_name')?.addEventListener('change', function() {
+                loadExamAndSubject();
+            });
+            document.getElementById('f_class')?.addEventListener('change', function() {
+                handleCascade(this, 'f_group');
+            });
+            document.getElementById('f_group')?.addEventListener('change', function() {
+                handleCascade(this, 'f_section');
+            });
+            document.getElementById('f_section')?.addEventListener('change', function() {
+                handleCascade(this, 'f_session');
+            });
+            document.getElementById('f_session')?.addEventListener('change', function() {
+                loadFilterExams();
             });
             fetchRoutines();
         };

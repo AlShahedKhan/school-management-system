@@ -30,18 +30,15 @@
     >
         <div class="relative">
             <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Total Mark (Full Mark)</label>
-            <div class="relative">
-                <select id="filter_full_mark"
-                    class="w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px] focus:border-blue-600 outline-none transition-colors appearance-none bg-white"
-                    style="border-radius: 0;">
-                    <option value="">All Marks</option>
-                    <option value="100">100 Mark Grade</option>
-                    <option value="50">50 Mark Grade</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                    <i class="fas fa-chevron-down text-[9px]"></i>
-                </div>
-            </div>
+            <x-input.dropdown-select
+                id="filter_full_mark"
+                placeholder="All Marks"
+                :options="[
+                    ['value' => '', 'label' => 'All Marks'],
+                    ['value' => '100', 'label' => '100 Mark Grade'],
+                    ['value' => '50', 'label' => '50 Mark Grade'],
+                ]"
+            />
         </div>
 
         <x-slot:footer>
@@ -176,6 +173,22 @@
             window.location.href = `/api/school-exam-grades-export?${params.toString()}`;
         }
 
+        function resetGradeFilterFullMark() {
+            const input = document.getElementById('filter_full_mark');
+            const label = document.querySelector('#filter_full_markButton [data-dropdown-select-label]');
+            const menu = document.getElementById('filter_full_markMenu');
+
+            if (input) input.value = '';
+            if (label) label.textContent = 'All Marks';
+            menu?.querySelectorAll('[data-dropdown-select-option]').forEach(option => {
+                const selected = option.dataset.value === '';
+                option.setAttribute('aria-selected', String(selected));
+                option.classList.toggle('bg-slate-100', selected);
+                option.classList.toggle('text-slate-900', selected);
+                option.classList.toggle('text-slate-800', !selected);
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('gradeSearch')?.addEventListener('input', () => fetchGrades(1));
 
@@ -188,7 +201,7 @@
             });
 
             document.getElementById('resetFilter')?.addEventListener('click', () => {
-                document.getElementById('filter_full_mark').value = '';
+                resetGradeFilterFullMark();
                 currentPage = 1;
                 fetchGrades(1);
                 document.getElementById('filterModal').classList.add('hidden');

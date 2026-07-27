@@ -111,6 +111,7 @@
             examSectionFilter: ['examClassFilter', 'examGroupFilter'],
             sessionFormSection: ['sessionFormClass', 'sessionFormGroup'],
             section_name: ['class_name', 'group_name'],
+            routine_section_name: ['class_name', 'group_name'],
         };
         const [classInputId, groupInputId] = sourceMap[sourceDropdownId] || [];
         let selectedClassId = null;

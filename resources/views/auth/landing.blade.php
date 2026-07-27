@@ -9,7 +9,6 @@
     <link rel="icon" type="{{ $brandAssets['faviconType'] ?? 'image/png' }}" href="{{ $brandAssets['faviconUrl'] ?? asset('images/logo.png') }}">
     <link rel="shortcut icon" href="{{ $brandAssets['faviconUrl'] ?? asset('images/logo.png') }}">
     <link rel="apple-touch-icon" href="{{ $brandAssets['faviconUrl'] ?? asset('images/logo.png') }}">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">

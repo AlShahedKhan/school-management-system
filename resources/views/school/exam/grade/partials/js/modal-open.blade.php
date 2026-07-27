@@ -20,7 +20,45 @@
         document.getElementById('edit_id').value = '';
         document.getElementById('gradeRowsContainer').innerHTML = '';
         document.getElementById('full_mark').value = '100';
+        document.getElementById('custom_full_mark').value = '';
+        document.getElementById('customFullMarkInput').classList.add('hidden');
         document.querySelectorAll('#gradeForm .text-red-500').forEach(e => e.classList.add('hidden'));
+    }
+
+    function toggleCustomFullMarkInput() {
+        const container = document.getElementById('customFullMarkInput');
+        const input = document.getElementById('custom_full_mark');
+        const isHidden = container.classList.toggle('hidden');
+
+        if (!isHidden) {
+            input.focus();
+        }
+    }
+
+    function addCustomFullMark() {
+        const input = document.getElementById('custom_full_mark');
+        const select = document.getElementById('full_mark');
+        const error = document.getElementById('full_mark_error');
+        const value = Number(input.value);
+
+        if (!Number.isFinite(value) || value <= 0) {
+            error.textContent = 'Please enter a valid full mark.';
+            error.classList.remove('hidden');
+            input.focus();
+            return;
+        }
+
+        const optionValue = String(value);
+        const exists = Array.from(select.options).some(option => option.value === optionValue);
+
+        if (!exists) {
+            select.add(new Option(`${optionValue} Mark Grade`, optionValue));
+        }
+
+        select.value = optionValue;
+        input.value = '';
+        error.classList.add('hidden');
+        document.getElementById('customFullMarkInput').classList.add('hidden');
     }
 
     function toggleStep(step) {
@@ -103,7 +141,12 @@
             document.getElementById('gradeModalTitle').textContent = 'Edit Exam Grade';
             document.getElementById('gradeRowsContainer').innerHTML = '';
             addGradeRow(item);
-            document.getElementById('full_mark').value = item.full_mark;
+            const fullMark = String(Number(item.full_mark));
+            const fullMarkSelect = document.getElementById('full_mark');
+            if (!Array.from(fullMarkSelect.options).some(option => option.value === fullMark)) {
+                fullMarkSelect.add(new Option(`${fullMark} Mark Grade`, fullMark));
+            }
+            fullMarkSelect.value = fullMark;
 
             toggleStep(2);
             document.getElementById('backBtn').classList.add('hidden');
