@@ -77,7 +77,7 @@ class SchoolSessionController extends Controller
                     'start_date'     => $request->validated()['start_date'],
                     'end_date'       => $request->validated()['end_date'],
                     'total_days'     => $request->validated()['total_days'],
-                    'remaining_days' => $request->validated()['remaining_days'],
+                    'remaining_days' => $request->validated()['remaining_days'] ?? $request->validated()['total_days'],
                 ]);
             });
 
