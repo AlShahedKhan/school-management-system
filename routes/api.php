@@ -192,7 +192,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/school-admission', [SchoolAdmissionController::class, 'register']);
     Route::get('/school/students', [SchoolStudentController::class, 'index']);
     Route::get('/school/students/{id}', [SchoolStudentController::class, 'show']);
-    Route::post('/school/students/{id}', [SchoolStudentController::class, 'update']);
+    Route::match(['post', 'put'], '/school/students/{id}', [SchoolStudentController::class, 'update']);
     Route::delete('/school/students/{id}', [SchoolStudentController::class, 'destroy']);
     Route::post('/school/students/status/{id}', [SchoolStudentController::class, 'updateStatus']);
     // New specific route for comprehensive details

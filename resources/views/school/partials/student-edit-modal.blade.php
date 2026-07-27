@@ -16,19 +16,19 @@
         <x-input.floating-label for="edit_school">School Name</x-input.floating-label>
     </div>
     <div class="relative">
-        <x-input.dropdown-select id="edit_class" name="class" placeholder="Select Class" add-button-id="add_edit_class_btn" add-button-label="Add Class" add-button-target="quickClassModal" />
+        <x-input.dropdown-select id="edit_class" name="class_id" placeholder="Select Class" add-button-id="add_edit_class_btn" add-button-label="Add Class" add-button-target="quickClassModal" />
         <x-input.floating-label for="edit_class" :floating="false">Class</x-input.floating-label>
     </div>
     <div class="relative">
-        <x-input.dropdown-select id="edit_group" name="group" placeholder="Select Group" add-button-id="add_edit_group_btn" add-button-label="Add Group" add-button-target="quickGroupModal" />
+        <x-input.dropdown-select id="edit_group" name="group_id" placeholder="Select Group" add-button-id="add_edit_group_btn" add-button-label="Add Group" add-button-target="quickGroupModal" />
         <x-input.floating-label for="edit_group" :floating="false">Group</x-input.floating-label>
     </div>
     <div class="relative">
-        <x-input.dropdown-select id="edit_section" name="section" placeholder="Select Section" add-button-id="add_edit_section_btn" add-button-label="Add Section" add-button-target="quickSectionModal" />
+        <x-input.dropdown-select id="edit_section" name="section_id" placeholder="Select Section" add-button-id="add_edit_section_btn" add-button-label="Add Section" add-button-target="quickSectionModal" />
         <x-input.floating-label for="edit_section" :floating="false">Section</x-input.floating-label>
     </div>
     <div class="relative">
-        <x-input.dropdown-select id="edit_session" name="session" placeholder="Select Session" add-button-id="add_edit_session_btn" add-button-label="Add Session" add-button-target="quickSessionModal" />
+        <x-input.dropdown-select id="edit_session" name="session_id" placeholder="Select Session" add-button-id="add_edit_session_btn" add-button-label="Add Session" add-button-target="quickSessionModal" />
         <x-input.floating-label for="edit_session" :floating="false">Session</x-input.floating-label>
     </div>
     <div class="flex items-start gap-2">

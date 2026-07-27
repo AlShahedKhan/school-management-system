@@ -319,7 +319,7 @@ class SchoolBulkUploadController extends Controller
         try {
             DB::transaction(function () use (
                 $dataRows, $classId, $groupId, $sectionId, $sessionId,
-                $schoolId, $schoolName, &$count
+                $schoolId, $schoolName, $schoolInternalId, &$count
             ) {
                 foreach ($dataRows as $row) {
                     $guardian = Guardian::create([
@@ -343,13 +343,13 @@ class SchoolBulkUploadController extends Controller
 
                         'school'             => $schoolName,
 
-                        'class'              => $classId,
+                        'class_id'           => $classId,
 
-                        'section'            => $sectionId,
+                        'section_id'         => $sectionId,
 
-                        'session'            => $sessionId,
+                        'session_id'         => $sessionId,
 
-                        'group'              => $groupId,
+                        'group_id'           => $groupId,
 
                         'admission_fee'      => 'N/A',
 
@@ -406,19 +406,22 @@ class SchoolBulkUploadController extends Controller
                         'status'             => 'Active',
                     ]);
 
-                    User::create([
-                        'role'        => 'student',
+                    User::updateOrCreate(
+                        [
+                            'id_number'   => $admission->student_id_number ?? '',
+                        ],
+                        [
+                            'role'        => 'student',
 
-                        'name'        => $row['student_name'],
+                            'name'        => $row['student_name'],
 
-                        'school_name' => $schoolName,
+                            'school_name' => $schoolName,
 
-                        'mobile'      => $row['mobile'],
+                            'mobile'      => $row['mobile'],
 
-                        'id_number'   => $admission->student_id_number ?? '',
-
-                        'password'    => Hash::make('00000000'),
-                    ]);
+                            'password'    => Hash::make('00000000'),
+                        ]
+                    );
 
                     // Auto-generate Admission Fee
                     app(SchoolStudentFeeGenerationService::class)->generateAdmissionFee(

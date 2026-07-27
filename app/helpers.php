@@ -64,8 +64,14 @@ if (! function_exists('generate_school_common_id_number')) {
             ->first();
         $lastTeacherSerial = $lastTeacher?->id_number ? (int) substr($lastTeacher->id_number, -6) : 0;
 
-        // 3. Increment the highest active sequence serial
-        $nextSerial = max($lastStudentSerial, $lastTeacherSerial) + 1;
+        // 3. Fetch max suffix from User table (using school prefix)
+        $lastUser = \App\Models\User::where('id_number', 'LIKE', $schoolPrefix . '%')
+            ->orderBy('id_number', 'desc')
+            ->first();
+        $lastUserSerial = $lastUser?->id_number ? (int) substr($lastUser->id_number, -6) : 0;
+
+        // 4. Increment the highest active sequence serial
+        $nextSerial = max($lastStudentSerial, $lastTeacherSerial, $lastUserSerial) + 1;
 
         return $schoolPrefix . str_pad($nextSerial, 6, '0', STR_PAD_LEFT);
     }
