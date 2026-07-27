@@ -167,16 +167,17 @@ class SchoolFeeTemplateController extends Controller
                             ->get(['id']);
                     } else {
                         // Modified on 2026-07-09: Exclude Inactive students from class fee templates
+                        // Updated on 2026-07-27: Use renamed columns (class_id, session_id, group_id, section_id)
                         $studentQuery = AdmissionStudent::where('school_id', $school->user_id)
                             ->where('status', '!=', 'Inactive')
-                            ->where('class', $validated['class_id'])
-                            ->where('session', $validated['session_id']);
+                            ->where('class_id', $validated['class_id'])
+                            ->where('session_id', $validated['session_id']);
 
                         if (!empty($validated['group_id'])) {
-                            $studentQuery->where('group', $validated['group_id']);
+                            $studentQuery->where('group_id', $validated['group_id']);
                         }
                         if (!empty($validated['section_id'])) {
-                            $studentQuery->where('section', $validated['section_id']);
+                            $studentQuery->where('section_id', $validated['section_id']);
                         }
 
                         $students = $studentQuery->get(['id']);
