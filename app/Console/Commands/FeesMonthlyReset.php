@@ -14,7 +14,7 @@ class FeesMonthlyReset extends Command
 
     public function handle(): void
     {
-        $templates = SchoolFeeTemplate::whereIn('fee_type_name', ['Tuition', 'Food', 'Fine'])
+        $templates = SchoolFeeTemplate::whereIn('fee_type_name', ['Tuition', 'Food'])
             ->where('is_active', true)
             ->get(['id']);
 

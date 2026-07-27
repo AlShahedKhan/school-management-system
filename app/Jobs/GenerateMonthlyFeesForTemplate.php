@@ -226,6 +226,16 @@ class GenerateMonthlyFeesForTemplate implements ShouldQueue
                     }
                 }
 
+                // If status is still pending and the due day has passed, mark as due/over_due
+                if ($status === 'pending' && $payDate) {
+                    $dueDate = Carbon::parse($payDate);
+                    if ($dueDate->lte($now)) {
+                        $status = $dueDate->copy()->startOfMonth()->lt($now->copy()->startOfMonth())
+                            ? 'over_due'
+                            : 'due';
+                    }
+                }
+
                 $rows[] = [
                     'school_id'       => $template->school_id,
                     'student_id'      => $sid,

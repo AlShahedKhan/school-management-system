@@ -119,8 +119,13 @@ class SchoolFeeTemplateController extends Controller
             $school = $this->getSchool($request->user());
             $validated = $request->validated();
 
+            // Normalize single student_id to an array for uniform handling
+            if (!empty($validated['student_id'])) {
+                $validated['student_ids'] = [$validated['student_id']];
+            }
+
             $validated['frequency'] = $validated['frequency'] ?? match ($validated['fee_type_name']) {
-                'Tuition', 'Food', 'Fine' => 'monthly',
+                'Tuition', 'Food' => 'monthly',
                 'Exams' => 'per_exam',
                 default => 'one_time',
             };
@@ -156,7 +161,7 @@ class SchoolFeeTemplateController extends Controller
                 $created = 0;
 
                 // Promote fees are generated only during student promotion, not on template creation
-                $generateFees = ($validated['frequency'] === 'one_time' || $validated['fee_type_name'] === 'Food')
+                $generateFees = (in_array($validated['frequency'], ['one_time', 'per_exam']) || $validated['fee_type_name'] === 'Food')
                     && $validated['fee_type_name'] !== 'Promote';
 
                 if ($generateFees) {
@@ -164,7 +169,7 @@ class SchoolFeeTemplateController extends Controller
                         // Modified on 2026-07-09: Exclude Inactive students from food fee templates
                         $students = AdmissionStudent::whereIn('id', $validated['student_ids'])
                             ->where('status', '!=', 'Inactive')
-                            ->get(['id']);
+                            ->get(['id', 'admission_date']);
                     } else {
                         // Modified on 2026-07-09: Exclude Inactive students from class fee templates
                         // Updated on 2026-07-27: Use renamed columns (class_id, session_id, group_id, section_id)
@@ -180,13 +185,56 @@ class SchoolFeeTemplateController extends Controller
                             $studentQuery->where('section_id', $validated['section_id']);
                         }
 
-                        $students = $studentQuery->get(['id']);
+                        $students = $studentQuery->get(['id', 'admission_date']);
                     }
 
                     if ($students->isNotEmpty()) {
                         $rows = [];
                         $now = now();
+                        $nowCarbon = \Carbon\Carbon::now();
+                        $feeDate = $validated['pay_date'] ?? null;
+                        if (!$feeDate && !empty($validated['due_day'])) {
+                            $dueDay = min((int) $validated['due_day'], 28);
+                            $feeDate = $nowCarbon->format('Y-m') . '-' . str_pad($dueDay, 2, '0', STR_PAD_LEFT);
+                        }
+                        $initialStatus = 'unpaid';
+                        if ($feeDate) {
+                            $parsedDate = \Carbon\Carbon::parse($feeDate);
+                            if ($parsedDate->lte($nowCarbon)) {
+                                $initialStatus = $parsedDate->copy()->startOfMonth()->lt($nowCarbon->copy()->startOfMonth())
+                                    ? 'over_due'
+                                    : 'due';
+                            }
+                        }
+
+                        // Load promotion dates for Session fee eligibility check
+                        $promotionDates = [];
+                        if ($validated['fee_type_name'] === 'Session') {
+                            $studentIds = $students->pluck('id')->toArray();
+                            $promotions = \App\Models\StudentPromotion::whereIn('student_id', $studentIds)
+                                ->where('to_session_id', $validated['session_id'])
+                                ->select('student_id', 'promote_date')
+                                ->get()
+                                ->groupBy('student_id')
+                                ->map(fn ($rows) => $rows->sortByDesc('id')->first()->promote_date);
+                            $promotionDates = $promotions->toArray();
+                        }
+
                         foreach ($students as $student) {
+                            // Session Fee eligibility: only if admission/promotion date <= fee creation date
+                            if ($validated['fee_type_name'] === 'Session') {
+                                $feeStartDate = $student->admission_date ? \Carbon\Carbon::parse($student->admission_date) : null;
+                                if (isset($promotionDates[$student->id])) {
+                                    $promoteDate = \Carbon\Carbon::parse($promotionDates[$student->id]);
+                                    if (!$feeStartDate || $promoteDate->gt($feeStartDate)) {
+                                        $feeStartDate = $promoteDate;
+                                    }
+                                }
+                                if ($feeStartDate && $feeStartDate->gt($nowCarbon)) {
+                                    continue;
+                                }
+                            }
+
                             $alreadyExists = SchoolStudentFee::where('school_id', $school->id)
                                 ->where('student_id', $student->id)
                                 ->where('fee_type_name', $validated['fee_type_name'])
@@ -206,9 +254,9 @@ class SchoolFeeTemplateController extends Controller
                                 'base_amount'     => $validated['amount'],
                                 'payable_amount'  => $validated['amount'],
                                 'due_amount'      => $validated['amount'],
-                                'pay_date'        => $validated['pay_date'],
-                                'due_date'        => $validated['pay_date'],
-                                'status'          => 'unpaid',
+                                'pay_date'        => $feeDate,
+                                'due_date'        => $feeDate,
+                                'status'          => $initialStatus,
                                 'created_at'      => $now,
                                 'updated_at'      => $now,
                             ];
@@ -252,8 +300,12 @@ class SchoolFeeTemplateController extends Controller
             $template = SchoolFeeTemplate::where('school_id', $school->id)->findOrFail($id);
             $validated = $request->validated();
 
+            if (!empty($validated['student_id'])) {
+                $validated['student_ids'] = [$validated['student_id']];
+            }
+
             $validated['frequency'] = $validated['frequency'] ?? match ($validated['fee_type_name']) {
-                'Tuition', 'Food', 'Fine' => 'monthly',
+                'Tuition', 'Food' => 'monthly',
                 'Exams' => 'per_exam',
                 default => 'one_time',
             };

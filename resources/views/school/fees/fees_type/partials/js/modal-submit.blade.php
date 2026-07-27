@@ -3,12 +3,6 @@
         e.preventDefault();
         clearFeeErrors();
 
-        const feeType = document.getElementById('fee_type_name').value;
-        if (feeType === 'Fine') {
-            const fineVal = document.getElementById('fine_fee_name_select').value;
-            document.getElementById('fee_name_input').value = fineVal || '';
-        }
-
         const recordId = document.getElementById('record_id').value;
         const formData = new FormData(this);
         if (recordId) {
