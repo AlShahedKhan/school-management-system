@@ -100,6 +100,75 @@
         return desktopSearch?.value || mobileSearch?.value || '';
     };
 
+    function populateDropdownSelect(id, options, selectedValue, placeholder = 'Select...') {
+        const input = document.getElementById(id);
+        const button = document.getElementById(id + 'Button');
+        const label = button ? button.querySelector('[data-dropdown-select-label]') : null;
+        const menu = document.getElementById(id + 'Menu');
+
+        if (!input || !menu) return;
+
+        let menuHtml = '';
+        let selectedText = placeholder;
+
+        options.forEach(opt => {
+            const isSelected = String(opt.value) === String(selectedValue);
+            if (isSelected) {
+                selectedText = opt.label;
+            }
+            menuHtml += `
+                <button
+                    type="button"
+                    class="dropdown-select-option m-0 flex min-h-6 w-full items-center border-0 bg-white px-3 py-1 text-left text-[11px] font-normal leading-tight transition-colors hover:bg-slate-100 ${isSelected ? 'bg-slate-100 text-slate-900' : 'text-slate-800'}"
+                    data-value="${opt.value}"
+                    role="option"
+                    aria-selected="${isSelected ? 'true' : 'false'}"
+                    data-dropdown-select-option
+                >
+                    ${opt.label}
+                </button>
+            `;
+        });
+
+        menu.innerHTML = menuHtml;
+        input.value = selectedValue || '';
+        if (label) {
+            label.textContent = selectedText;
+        }
+
+        menu.querySelectorAll('[data-dropdown-select-option]').forEach(option => {
+            option.addEventListener('click', () => {
+                input.value = option.dataset.value || '';
+                if (label) {
+                    label.textContent = option.textContent.trim();
+                }
+
+                menu.querySelectorAll('[data-dropdown-select-option]').forEach(item => {
+                    const isSel = item === option;
+                    item.classList.toggle('bg-slate-100', isSel);
+                    item.classList.toggle('text-slate-900', isSel);
+                    item.classList.toggle('text-slate-800', !isSel);
+                    item.setAttribute('aria-selected', String(isSel));
+                });
+
+                const root = input.closest('[data-dropdown-select]');
+                if (root) {
+                    root.classList.remove('is-open');
+                }
+                menu.classList.add('hidden');
+                if (button) {
+                    button.setAttribute('aria-expanded', 'false');
+                    const icon = button.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('rotate-180');
+                    }
+                }
+
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        });
+    }
+
     const fetchTeachers = (page = 1) => {
         currentPage = page;
         const tbody = document.getElementById('teacherTableBody');
@@ -110,10 +179,15 @@
 
         const search = getTeacherSearchValue();
         const teacherId = document.getElementById('teacherFilter')?.value || '';
+        const designation = document.getElementById('teacherFilterDesignation')?.value || '';
+        const status = document.getElementById('teacherFilterStatus')?.value || '';
+
         axios.get('{{ url('/api/teachers') }}', {
                 params: {
                     search,
                     teacher_id: teacherId,
+                    designation,
+                    status,
                     page
                 }
             })
@@ -332,9 +406,53 @@
         }
     }
 
+    function initFilterOptions() {
+        axios.get('{{ url('/api/teachers') }}', { params: { all: true } })
+            .then(res => {
+                const teachers = res.data.data || res.data || [];
+                const teacherOpts = teachers.map(t => ({ value: t.id, label: `${t.name} (${t.id_number || ''})` }));
+                populateDropdownSelect('teacherFilter', teacherOpts, '', 'Select Teacher');
+
+                const designations = [...new Set(teachers.map(t => t.designation).filter(Boolean))];
+                const desigOpts = designations.map(d => ({ value: d, label: d }));
+                populateDropdownSelect('teacherFilterDesignation', desigOpts, '', 'Select Designation');
+            })
+            .catch(err => console.error("Filter options load error", err));
+
+        const statusOpts = [
+            { value: 'Active', label: 'Active' },
+            { value: 'Hold', label: 'Hold' }
+        ];
+        populateDropdownSelect('teacherFilterStatus', statusOpts, '', 'Select Status');
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('closeDeactivateTeacherModal')?.addEventListener('click', () => {
             document.getElementById('deactivateTeacherModal').classList.add('hidden');
+        });
+
+        initFilterOptions();
+
+        document.getElementById('btnFilter')?.addEventListener('click', () => {
+            document.getElementById('filterModal')?.classList.remove('hidden');
+        });
+
+        document.getElementById('closeFilterModal')?.addEventListener('click', () => {
+            document.getElementById('filterModal')?.classList.add('hidden');
+        });
+
+        document.getElementById('resetFilter')?.addEventListener('click', () => {
+            populateDropdownSelect('teacherFilter', [], '', 'Select Teacher');
+            populateDropdownSelect('teacherFilterDesignation', [], '', 'Select Designation');
+            populateDropdownSelect('teacherFilterStatus', [], '', 'Select Status');
+            initFilterOptions();
+            document.getElementById('filterModal')?.classList.add('hidden');
+            fetchTeachers(1);
+        });
+
+        document.getElementById('applyFilter')?.addEventListener('click', () => {
+            document.getElementById('filterModal')?.classList.add('hidden');
+            fetchTeachers(1);
         });
     });
 </script>
