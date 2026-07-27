@@ -34,13 +34,25 @@ class SchoolStudentFeeController extends Controller
 
             if ($request->filled('class_id')) {
                 $query->whereHas('student', function ($q) use ($request) {
-                    $q->where('class', $request->class_id);
+                    $q->where('class_id', $request->class_id);
+                });
+            }
+
+            if ($request->filled('group_id')) {
+                $query->whereHas('student', function ($q) use ($request) {
+                    $q->where('group_id', $request->group_id);
+                });
+            }
+
+            if ($request->filled('section_id')) {
+                $query->whereHas('student', function ($q) use ($request) {
+                    $q->where('section_id', $request->section_id);
                 });
             }
 
             if ($request->filled('session_id')) {
                 $query->whereHas('student', function ($q) use ($request) {
-                    $q->where('session', $request->session_id);
+                    $q->where('session_id', $request->session_id);
                 });
             }
 
