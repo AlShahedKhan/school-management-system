@@ -633,9 +633,15 @@
                         <div class="col-span-1">
                             <label
                                 class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Subject</label>
-                            <select id="subject_name" name="subject_name"
-                                class="form-input-fixed w-full border border-blue-200 py-1.5 px-3 text-xs h-[32px] bg-blue-50/10"
-                                style="border-radius: 0;"></select>
+                            <x-input.dropdown-select
+                                id="subject_name"
+                                name="subject_name"
+                                placeholder="Select Subject"
+                                :options="[]"
+                                add-button-id="openSubjectFromRoutineForm"
+                                add-button-label="Add subject"
+                                add-button-target="subjectModal"
+                            />
                         </div>
 
                     </div>
@@ -663,21 +669,25 @@
     @include('school.academic.group.partials.group-modal')
     @include('school.academic.section.partials.section-modal')
     @include('school.academic.session.partials.session-modal')
+    @include('school.academic.subject.partials.subject-modal')
     @include('school.exam.exam_name.partials.exam-modal')
 
     @include('school.academic.class.partials.js.modal-open')
     @include('school.academic.group.partials.js.modal-open')
     @include('school.academic.section.partials.js.modal-open')
     @include('school.academic.session.partials.js.modal-open')
+    @include('school.academic.subject.partials.js.modal-open')
     @include('school.exam.exam_name.partials.js.modal-open')
     @include('school.academic.class.partials.js.modal-submit')
     @include('school.academic.group.partials.js.modal-submit')
     @include('school.academic.section.partials.js.modal-submit')
     @include('school.academic.session.partials.js.modal-submit')
+    @include('school.academic.subject.partials.js.modal-submit')
     @include('school.exam.exam_name.partials.js.modal-submit')
     @include('school.academic.class.partials.js.error-validation')
     @include('school.academic.group.partials.js.error-validation')
     @include('school.academic.section.partials.js.error-validation')
+    @include('school.academic.subject.partials.js.error-validation')
     @include('school.academic.session.partials.js.error-validation')
     @include('school.exam.exam_name.partials.js.error-validation')
 
@@ -1022,6 +1032,29 @@
             }
         });
 
+        document.addEventListener('school:section-already-exists', async function (event) {
+            const { sectionName, classId, groupId, returnModalId } = event.detail || {};
+            if (returnModalId !== 'routineModal' || !sectionName || !classId || !groupId) {
+                return;
+            }
+            event.preventDefault();
+
+            try {
+                const sectionResponse = await axios.get(`/api/get-school-sections?class_id=${classId}&group_id=${groupId}`);
+                if (sectionResponse.data?.data) {
+                    fillDropdown('section_name', sectionResponse.data.data, 'section_name', 'Section');
+                    const existingSection = sectionResponse.data.data.find(item => item.section_name === sectionName);
+                    if (existingSection) {
+                        setComponentDropdownValue('section_name', existingSection.section_name, existingSection.section_name);
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to refresh existing section list', e);
+            } finally {
+                document.getElementById('routineModal')?.classList.remove('hidden');
+            }
+        });
+
         document.addEventListener('school:section-saved', async function (event) {
             const { sectionItem, returnModalId, isNew } = event.detail || {};
             if (returnModalId !== 'routineModal' || !isNew || !sectionItem?.id || !sectionItem?.class_id || !sectionItem?.group_id) {
@@ -1107,6 +1140,26 @@
             try {
                 await loadExamAndSubject();
                 setComponentDropdownValue('exam_name', examItem.exam_name, examItem.exam_name);
+            } finally {
+                document.getElementById('routineModal')?.classList.remove('hidden');
+            }
+        });
+
+        document.addEventListener('school:subject-saved', async function (event) {
+            const { subjectItem, returnModalId } = event.detail || {};
+            if (returnModalId !== 'routineModal' || !subjectItem?.id) {
+                return;
+            }
+            event.preventDefault();
+
+            try {
+                await loadExamAndSubject();
+                if (typeof refreshSubjectDropdown === 'function') {
+                    await refreshSubjectDropdown(subjectItem);
+                } else {
+                    const value = subjectItem.subject_name;
+                    setComponentDropdownValue('subject_name', value, value);
+                }
             } finally {
                 document.getElementById('routineModal')?.classList.remove('hidden');
             }

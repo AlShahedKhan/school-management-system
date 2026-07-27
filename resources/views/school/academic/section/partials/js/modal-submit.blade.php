@@ -47,8 +47,25 @@
             }
         })
         .catch(error => {
-            if (error.response?.status === 422 || error.response?.data?.errors) {
-                showSectionErrors(error.response.data.errors);
+            const errors = error.response?.data?.errors;
+            const sectionNameInput = sectionModalElement?.querySelector('[name="section_name"]');
+            const sectionName = sectionNameInput?.value || sectionNameInput?.textContent || '';
+            const classId = sectionModalElement?.querySelector('#sectionClassSelect')?.value || '';
+            const groupId = sectionModalElement?.querySelector('#sectionGroupSelect')?.value || '';
+
+            if (error.response?.status === 422 || errors) {
+                if (error.response?.status === 422 && errors?.section_name && classId && groupId) {
+                    document.dispatchEvent(new CustomEvent('school:section-already-exists', {
+                        detail: {
+                            sectionName,
+                            classId,
+                            groupId,
+                            returnModalId: sectionModalElement?.dataset.returnModalId || null,
+                        }
+                    }));
+                }
+
+                showSectionErrors(errors);
                 return;
             }
             Swal.fire({
