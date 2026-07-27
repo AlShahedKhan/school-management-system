@@ -33,6 +33,29 @@
             placeholder="Select Class"
             :value="request('class_id')"
             :options="[]"
+            add-button-id="openClassFromStudentFeeFilter"
+            add-button-label="Add class"
+            add-button-target="classModal"
+        />
+        <x-input.dropdown-select
+            id="feeGroupFilter"
+            name="group_id"
+            placeholder="Select Group"
+            :value="request('group_id')"
+            :options="[]"
+            add-button-id="openGroupFromStudentFeeFilter"
+            add-button-label="Add group"
+            add-button-target="groupModal"
+        />
+        <x-input.dropdown-select
+            id="feeSectionFilter"
+            name="section_id"
+            placeholder="Select Section"
+            :value="request('section_id')"
+            :options="[]"
+            add-button-id="openSectionFromStudentFeeFilter"
+            add-button-label="Add section"
+            add-button-target="sectionModal"
         />
         <x-input.dropdown-select
             id="feeSessionFilter"
@@ -40,6 +63,9 @@
             placeholder="Select Session"
             :value="request('session_id')"
             :options="[]"
+            add-button-id="openSessionFromStudentFeeFilter"
+            add-button-label="Add session"
+            add-button-target="sessionModal"
         />
         <x-input.dropdown-select
             id="feeTypeFilter"
@@ -52,7 +78,6 @@
                 'Exams' => 'Exams',
                 'Food' => 'Food',
                 'Session' => 'Session',
-                'Fine' => 'Fine',
                 'Others' => 'Others',
             ]"
         />
@@ -86,6 +111,18 @@
     @include('school.fees.student-fees.partials.js.modal-open')
     @include('school.fees.student-fees.partials.js.error-validation')
     @include('school.fees.student-fees.partials.js.modal-submit')
+    @include('school.academic.class.partials.class-modal')
+    @include('school.academic.group.partials.group-modal')
+    @include('school.academic.section.partials.section-modal')
+    @include('school.academic.session.partials.session-modal')
+    @include('school.academic.class.partials.js.modal-open')
+    @include('school.academic.group.partials.js.modal-open')
+    @include('school.academic.section.partials.js.modal-open')
+    @include('school.academic.session.partials.js.modal-open')
+    @include('school.academic.class.partials.js.error-validation')
+    @include('school.academic.group.partials.js.error-validation')
+    @include('school.academic.section.partials.js.error-validation')
+    @include('school.academic.session.partials.js.error-validation')
     @include('school.partials.export-dropdown')
 
     <script>
@@ -94,6 +131,8 @@
 
         let currentPage = 1;
         let currentFilterClass = '';
+        let currentFilterGroup = '';
+        let currentFilterSection = '';
         let currentFilterSession = '';
         let currentFilterFeeType = '';
         let currentFilterStatus = '';
@@ -164,14 +203,56 @@
             try {
                 const classRes = await axios.get('/api/get-school-classes');
                 populateDropdown('feeClassFilterMenu', classRes.data.data || [], 'id', 'class_name');
-                const sessionRes = await axios.get('/api/school-sessions');
-                const sessions = sessionRes.data.data || [];
-                const uniqueYears = [...new Set(sessions.map(s => s.session_year).filter(Boolean))];
-                const yearItems = uniqueYears.map(y => ({ id: y, session_year: y }));
-                populateDropdown('feeSessionFilterMenu', yearItems, 'id', 'session_year');
             } catch (err) {
                 console.error('Failed to load filter options:', err);
             }
+        }
+
+        async function loadFeeGroupFilter() {
+            const classId = document.getElementById('feeClassFilter')?.value;
+            setDropdownValue('feeGroupFilter', '', 'Select Group');
+            setDropdownValue('feeSectionFilter', '', 'Select Section');
+            setDropdownValue('feeSessionFilter', '', 'Select Session');
+            if (!classId) return;
+            const params = classId ? { class_id: classId } : {};
+            try {
+                const res = await axios.get('/api/get-school-groups', { params });
+                populateDropdown('feeGroupFilterMenu', res.data.data || [], 'id', 'group_name');
+            } catch (e) { console.error(e); }
+            loadFeeSectionFilter();
+        }
+
+        async function loadFeeSectionFilter() {
+            const classId = document.getElementById('feeClassFilter')?.value;
+            const groupId = document.getElementById('feeGroupFilter')?.value;
+            setDropdownValue('feeSectionFilter', '', 'Select Section');
+            setDropdownValue('feeSessionFilter', '', 'Select Session');
+            if (!classId) return;
+            const params = { class_id: classId };
+            if (groupId) params.group_id = groupId;
+            try {
+                const res = await axios.get('/api/get-school-sections', { params });
+                populateDropdown('feeSectionFilterMenu', res.data.data || [], 'id', 'section_name');
+            } catch (e) { console.error(e); }
+            loadFeeSessionFilter();
+        }
+
+        async function loadFeeSessionFilter() {
+            const classId = document.getElementById('feeClassFilter')?.value;
+            const groupId = document.getElementById('feeGroupFilter')?.value;
+            const sectionId = document.getElementById('feeSectionFilter')?.value;
+            setDropdownValue('feeSessionFilter', '', 'Select Session');
+            if (!classId) return;
+            const params = { class_id: classId };
+            if (groupId) params.group_id = groupId;
+            if (sectionId) params.section_id = sectionId;
+            try {
+                const res = await axios.get('/api/school-sessions', { params });
+                const sessions = res.data.data || [];
+                const uniqueYears = [...new Set(sessions.map(s => s.session_year).filter(Boolean))];
+                const yearItems = uniqueYears.map(y => ({ id: y, session_year: y }));
+                populateDropdown('feeSessionFilterMenu', yearItems, 'id', 'session_year');
+            } catch (e) { console.error(e); }
         }
 
         function fetchStudentFees(page = 1) {
@@ -182,6 +263,8 @@
                     search,
                     page,
                     class_id: currentFilterClass,
+                    group_id: currentFilterGroup,
+                    section_id: currentFilterSection,
                     session_id: currentFilterSession,
                     fee_type_name: currentFilterFeeType,
                     status: currentFilterStatus,
@@ -193,7 +276,7 @@
                 const tbody = document.getElementById('feeTableBody');
                 tbody.innerHTML = '';
                 if (items.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="15" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No student fees found.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="11" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No student fees found.</td></tr>`;
                     document.getElementById('paginationInfo').innerText = '0 of 0';
                     document.getElementById('paginationControls').innerHTML = '';
                     return;
@@ -207,12 +290,6 @@
                     const totalPaid = item.total_paid || 0;
                     const remainingDue = item.remaining_due || 0;
                     const statusClass = `status-${item.status || 'pending'}`;
-                    const isPromote = item.fee_type_name === 'Promote';
-                    const destClass = isPromote && item.destination_class ? item.destination_class : '-';
-                    const destGroup = isPromote && item.destination_group ? item.destination_group : '-';
-                    const destSection = isPromote && item.destination_section ? item.destination_section : '-';
-                    const destSession = isPromote && item.destination_session ? item.destination_session : '-';
-
                     tbody.innerHTML += `
                         <tr class="hover:bg-gray-50">
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
@@ -230,18 +307,6 @@
                             </td>
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
                                 <div class="donate-cell-scroll" title="${item.fee_name || '-'}">${item.fee_name || '-'}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 ${isPromote ? 'font-medium text-blue-600' : 'text-gray-400'}">
-                                <div class="donate-cell-scroll" title="${destClass}">${destClass}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 ${isPromote ? 'font-medium text-blue-600' : 'text-gray-400'}">
-                                <div class="donate-cell-scroll" title="${destGroup}">${destGroup}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 ${isPromote ? 'font-medium text-blue-600' : 'text-gray-400'}">
-                                <div class="donate-cell-scroll" title="${destSection}">${destSection}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 ${isPromote ? 'font-medium text-blue-600' : 'text-gray-400'}">
-                                <div class="donate-cell-scroll" title="${destSession}">${destSession}</div>
                             </td>
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${parseFloat(item.base_amount).toFixed(2)}</td>
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${totalPaid.toFixed(2)}</td>
@@ -344,6 +409,20 @@
 
             document.getElementById('feeClassFilter')?.addEventListener('change', function() {
                 currentFilterClass = this.value || '';
+                loadFeeGroupFilter();
+            });
+
+            document.getElementById('feeGroupFilter')?.addEventListener('change', function() {
+                currentFilterGroup = this.value || '';
+                currentFilterSection = '';
+                currentFilterSession = '';
+                loadFeeSectionFilter();
+            });
+
+            document.getElementById('feeSectionFilter')?.addEventListener('change', function() {
+                currentFilterSection = this.value || '';
+                currentFilterSession = '';
+                loadFeeSessionFilter();
             });
 
             document.getElementById('feeSessionFilter')?.addEventListener('change', function() {
@@ -351,15 +430,20 @@
             });
 
             document.getElementById('btnFilter')?.addEventListener('click', () => {
+                loadFeeGroupFilter();
                 document.getElementById('filterModal')?.classList.remove('hidden');
             });
 
             document.getElementById('resetFilter')?.addEventListener('click', () => {
                 setDropdownValue('feeClassFilter', '', 'Select Class');
+                setDropdownValue('feeGroupFilter', '', 'Select Group');
+                setDropdownValue('feeSectionFilter', '', 'Select Section');
                 setDropdownValue('feeSessionFilter', '', 'Select Session');
                 setDropdownValue('feeTypeFilter', '', 'Select Fee Type');
                 setDropdownValue('statusFilter', '', 'Select Status');
                 currentFilterClass = '';
+                currentFilterGroup = '';
+                currentFilterSection = '';
                 currentFilterSession = '';
                 currentFilterFeeType = '';
                 currentFilterStatus = '';
@@ -371,6 +455,10 @@
             document.getElementById('applyFilter')?.addEventListener('click', () => {
                 const classInput = document.getElementById('feeClassFilter');
                 currentFilterClass = classInput ? classInput.value : '';
+                const groupInput = document.getElementById('feeGroupFilter');
+                currentFilterGroup = groupInput ? groupInput.value : '';
+                const sectionInput = document.getElementById('feeSectionFilter');
+                currentFilterSection = sectionInput ? sectionInput.value : '';
                 const sessionInput = document.getElementById('feeSessionFilter');
                 currentFilterSession = sessionInput ? sessionInput.value : '';
                 const feeTypeInput = document.getElementById('feeTypeFilter');
@@ -385,6 +473,8 @@
             document.getElementById('btnRestoreDesktop')?.addEventListener('click', () => {
                 document.getElementById('feeSearch').value = '';
                 currentFilterClass = '';
+                currentFilterGroup = '';
+                currentFilterSection = '';
                 currentFilterSession = '';
                 currentFilterFeeType = '';
                 currentFilterStatus = '';
@@ -395,6 +485,8 @@
             document.getElementById('btnRestoreMobile')?.addEventListener('click', () => {
                 document.getElementById('feeSearchMobile').value = '';
                 currentFilterClass = '';
+                currentFilterGroup = '';
+                currentFilterSection = '';
                 currentFilterSession = '';
                 currentFilterFeeType = '';
                 currentFilterStatus = '';
