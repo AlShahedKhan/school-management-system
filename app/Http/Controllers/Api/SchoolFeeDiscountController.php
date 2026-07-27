@@ -70,6 +70,19 @@ class SchoolFeeDiscountController extends Controller
             'feeType'
         ])->where('school_id', $school->id);
 
+        if ($request->filled('class_id')) {
+            $query->where('class_id', $request->class_id);
+        }
+        if ($request->filled('group_id')) {
+            $query->where('group_id', $request->group_id);
+        }
+        if ($request->filled('section_id')) {
+            $query->where('section_id', $request->section_id);
+        }
+        if ($request->filled('session_id')) {
+            $query->where('session_id', $request->session_id);
+        }
+
         if ($request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {

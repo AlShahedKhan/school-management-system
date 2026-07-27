@@ -20,7 +20,7 @@ class UpdateDiscountRequest extends FormRequest
             'group_id'                => 'nullable|exists:school_groups,id',
             'section_id'              => 'nullable|exists:school_sections,id',
             'session_id'              => 'sometimes|required|exists:school_sessions,id',
-            'discount_category'       => 'sometimes|required|in:exam_waiver,specific_months,full_session',
+            'discount_category'       => 'sometimes|required|in:percentage,fixed,exam_waiver,specific_months,full_session',
             'discount_type'           => 'sometimes|required|in:Fixed,Percentage',
             'discount_value'          => 'sometimes|required|numeric|min:0',
             'fee_template_id'         => 'sometimes|required|exists:school_fee_templates,id',
