@@ -18,9 +18,9 @@
         title=""
         closeButtonId="closeAdmissionFormBtn"
         :action="null"
-        panelClass="custom-scrollbar mx-auto my-auto overflow-y-auto border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)]"
-        panelStyle="border-radius: 4px; max-height: min(90vh, calc(100dvh - 2.5rem)); max-width: 620px; width: 100%;"
-        bodyClass="bg-white p-0"
+        panelClass="custom-scrollbar mx-auto my-auto overflow-y-auto overflow-x-hidden border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)] max-w-full"
+        panelStyle="border-radius: 4px; max-height: min(95vh, calc(100dvh - 1rem)); max-width: 650px; width: calc(100vw - 1rem);"
+        bodyClass="bg-white p-0 overflow-x-hidden"
         fieldsClass=""
     >
             {{-- Printable Form Area --}}

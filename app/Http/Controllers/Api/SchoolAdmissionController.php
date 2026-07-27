@@ -134,10 +134,10 @@ class SchoolAdmissionController extends Controller
                 $admission = AdmissionStudent::create([
                     'school_id' => $schoolId,
                     'school' => $schoolName,
-                    'class' => $request->a_class,      // Storing ID
-                    'group' => $request->a_group,      // Storing ID
-                    'section' => $request->a_section,  // Storing ID
-                    'session' => $request->a_session,  // Storing ID
+                    'class_id' => $request->a_class,
+                    'group_id' => $request->a_group,
+                    'section_id' => $request->a_section,
+                    'session_id' => $request->a_session,
                     'admission_fee' => $request->a_fee,
                     'admission_date' => $request->a_date,
                     'previous_school' => $request->p_school ?? 'n/a',

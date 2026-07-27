@@ -1,19 +1,40 @@
 <script>
-const exportBtn = document.getElementById('btnExport1');
-const exportDropdown = document.getElementById('exportDropdown');
+(function() {
+    function initDropdowns() {
+        document.addEventListener('click', function (e) {
+            const trigger = e.target.closest('button[aria-controls]');
+            if (trigger) {
+                const menuId = trigger.getAttribute('aria-controls');
+                const menu = document.getElementById(menuId);
+                if (menu) {
+                    e.stopPropagation();
+                    document.querySelectorAll('[role="menu"]').forEach(m => {
+                        if (m !== menu) m.classList.add('hidden');
+                    });
+                    menu.classList.toggle('hidden');
+                    trigger.setAttribute('aria-expanded', String(!menu.classList.contains('hidden')));
+                    return;
+                }
+            }
 
-exportBtn.addEventListener('click', function (e) {
-    e.stopPropagation();
-    exportDropdown.classList.toggle('hidden');
-    exportBtn.setAttribute('aria-expanded', String(!exportDropdown.classList.contains('hidden')));
-});
+            const openMenu = e.target.closest('[role="menu"]');
+            if (openMenu) {
+                return;
+            }
 
-document.addEventListener('click', function () {
-    exportDropdown.classList.add('hidden');
-    exportBtn.setAttribute('aria-expanded', 'false');
-});
+            document.querySelectorAll('[role="menu"]').forEach(m => {
+                m.classList.add('hidden');
+            });
+            document.querySelectorAll('button[aria-controls]').forEach(b => {
+                b.setAttribute('aria-expanded', 'false');
+            });
+        });
+    }
 
-exportDropdown.addEventListener('click', function (e) {
-    e.stopPropagation();
-});
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDropdowns);
+    } else {
+        initDropdowns();
+    }
+})();
 </script>
