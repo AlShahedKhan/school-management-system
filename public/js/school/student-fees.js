@@ -5,7 +5,6 @@ const feesApi = axios.create({
 });
 
 let currentPage = 1;
-let classesList = [];
 
 async function preloadData() {
     try {
@@ -57,7 +56,7 @@ function fetchFees(page = 1) {
                 const className = student.school_class?.class_name || student.class_name || 'N/A';
 
                 let totalPaid = item.total_paid || 0;
-                let remainingDue = item.remaining_due || parseFloat(item.amount) - totalPaid;
+                let remainingDue = item.remaining_due || parseFloat(item.base_amount) - totalPaid;
                 if (remainingDue < 0) remainingDue = 0;
 
                 const statusClass = `status-${item.status || 'pending'}`;
@@ -70,7 +69,7 @@ function fetchFees(page = 1) {
                     <td class="text-gray-600">${className}</td>
                     <td class="text-gray-600">${item.fee_type_name}</td>
                     <td class="text-gray-600">${item.fee_name || '---'}</td>
-                    <td class="text-gray-700 font-medium">${parseFloat(item.amount).toFixed(2)}</td>
+                    <td class="text-gray-700 font-medium">${parseFloat(item.base_amount).toFixed(2)}</td>
                     <td class="text-emerald-600">${totalPaid.toFixed(2)}</td>
                     <td class="${remainingDue > 0 ? 'text-red-500 font-medium' : 'text-gray-500'}">${remainingDue.toFixed(2)}</td>
                     <td><span class="status-badge ${statusClass}">${item.status}</span></td>
@@ -96,7 +95,7 @@ async function editFee(id) {
         document.getElementById('feeForm').reset();
         document.getElementById('fee_id').value = item.id;
         document.getElementById('modalTitle').innerText = 'Edit Student Fee';
-        document.getElementById('amount').value = item.amount || '';
+        document.getElementById('amount').value = item.base_amount || '';
         document.getElementById('pay_date').value = item.pay_date ? item.pay_date.split('T')[0] : '';
         document.getElementById('fee_name_input').value = item.fee_name || '';
         document.getElementById('status_input').value = item.status || 'pending';

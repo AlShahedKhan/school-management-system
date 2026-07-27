@@ -26,7 +26,10 @@ class SchoolStudentFeeController extends Controller
             $query = SchoolStudentFee::with([
                 'student.schoolClass',
                 'student.schoolSession',
-                'feeTemplate',
+                'feeTemplate.schoolClass',
+                'feeTemplate.schoolGroup',
+                'feeTemplate.schoolSection',
+                'feeTemplate.schoolSession',
             ])->where('school_id', $school->id);
 
             if ($request->filled('class_id')) {
@@ -68,6 +71,12 @@ class SchoolStudentFeeController extends Controller
             }
 
             $results->transform(function ($fee) {
+                $template = $fee->feeTemplate;
+                $fee->destination_class = $template?->schoolClass?->class_name;
+                $fee->destination_group = $template?->schoolGroup?->group_name;
+                $fee->destination_section = $template?->schoolSection?->section_name;
+                $fee->destination_session = $template?->schoolSession?->session_year;
+
                 $totalPaid = SchoolPayment::where('admission_student_id', $fee->student_id)
                     ->where('fees_type', $fee->fee_type_name)
                     ->where('fee_name', $fee->fee_name)

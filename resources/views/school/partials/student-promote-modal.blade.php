@@ -9,7 +9,7 @@
 >
     <div class="col-span-1 md:col-span-2 flex items-center gap-2 mt-2 mb-2 pb-1 border-b border-slate-100">
         <div class="h-3.5 w-1 bg-blue-600 rounded-full"></div>
-        <span class="text-xs font-bold text-slate-700">Source Academic Details & Date</span>
+        <span class="text-xs font-bold text-slate-700">Source Academic Details</span>
     </div>
     <div class="relative">
         <x-input.dropdown-select id="from_class" name="from_class" placeholder="Select Class" add-button-id="add_promote_from_class_btn" add-button-label="Add Class" add-button-target="quickClassModal" />
@@ -26,20 +26,6 @@
     <div class="relative">
         <x-input.dropdown-select id="from_session" name="from_session" placeholder="Select Session" add-button-id="add_promote_from_session_btn" add-button-label="Add Session" add-button-target="quickSessionModal" />
         <x-input.floating-label for="from_session" :floating="false">Session *</x-input.floating-label>
-    </div>
-    <div class="flex items-start gap-2">
-        <div class="relative flex-grow">
-            <x-input.control id="promote_fee" class="peer bg-slate-50" readonly placeholder=" " required />
-            <x-input.floating-label for="promote_fee">Promote Fee *</x-input.floating-label>
-        </div>
-        <button id="btnCreateFeeTemplatePromote" type="button"
-            class="flex h-[30px] w-[30px] flex-shrink-0 items-center justify-center border border-gray-200 bg-white text-blue-600 text-xs font-semibold transition-colors hover:bg-slate-50 hover:border-gray-300"
-            style="border-radius: 0;"
-        >+</button>
-    </div>
-    <div class="relative">
-        <x-input.control id="promote_date" class="peer" type="date" required placeholder=" " />
-        <x-input.floating-label for="promote_date" :floating="false">Promote Date *</x-input.floating-label>
     </div>
     <div class="col-span-1 md:col-span-2 flex items-center justify-between mt-4 mb-2 pb-1 border-b border-slate-100">
         <div class="flex items-center gap-2">
@@ -70,7 +56,7 @@
     </div>
     <div class="col-span-1 md:col-span-2 flex items-center gap-2 mt-2 mb-2 pb-1 border-b border-slate-100">
         <div class="h-3.5 w-1 bg-blue-600 rounded-full"></div>
-        <span class="text-xs font-bold text-slate-700">Destination Academic Details</span>
+        <span class="text-xs font-bold text-slate-700">Destination Academic Details & Fee</span>
     </div>
     <div class="relative">
         <x-input.dropdown-select id="to_class" name="to_class" placeholder="Select Class" add-button-id="add_promote_to_class_btn" add-button-label="Add Class" add-button-target="quickClassModal" />
@@ -87,6 +73,20 @@
     <div class="relative">
         <x-input.dropdown-select id="to_session" name="to_session" placeholder="Select Session" add-button-id="add_promote_to_session_btn" add-button-label="Add Session" add-button-target="quickSessionModal" />
         <x-input.floating-label for="to_session" :floating="false">Session *</x-input.floating-label>
+    </div>
+    <div class="flex items-start gap-2">
+        <div class="relative flex-grow">
+            <x-input.control id="promote_fee" class="peer bg-slate-50" readonly placeholder=" " required />
+            <x-input.floating-label for="promote_fee">Promote Fee *</x-input.floating-label>
+        </div>
+        <button id="btnCreateFeeTemplatePromote" type="button"
+            class="flex h-[30px] w-[30px] flex-shrink-0 items-center justify-center border border-gray-200 bg-white text-blue-600 text-xs font-semibold transition-colors hover:bg-slate-50 hover:border-gray-300"
+            style="border-radius: 0;"
+        >+</button>
+    </div>
+    <div class="relative">
+        <x-input.control id="promote_date" class="peer" type="date" required placeholder=" " />
+        <x-input.floating-label for="promote_date" :floating="false">Promote Date *</x-input.floating-label>
     </div>
 </x-modal.form>
 @include('school.partials.fee-template-modal')
