@@ -321,7 +321,7 @@ class SchoolPaymentController extends Controller
                 ->select('discount_students.*', 'school_discounts.discount_type', 'school_discounts.discount_value', 'school_discounts.months')
                 ->get();
 
-            $baseAmount = (float) $studentFee->amount;
+            $baseAmount = (float) $studentFee->base_amount;
             $feeMonth = $studentFee->pay_date ? Carbon::parse($studentFee->pay_date)->format('Y-m') : null;
             $bestAmount = $baseAmount;
 
@@ -400,14 +400,14 @@ class SchoolPaymentController extends Controller
             ->where('fee_name', $request->fee_name)
             ->sum('type_amount');
 
-        $amountToBePaid = $fee->amount;
+        $amountToBePaid = $fee->base_amount;
 
         if ($paymentRecord) {
-            $amountToBePaid = max($fee->amount - $paymentRecord, 0);
+            $amountToBePaid = max($fee->base_amount - $paymentRecord, 0);
         }
 
         return response()->json([
-            'total_payable' => $fee->amount,
+            'total_payable' => $fee->base_amount,
             'remaining_due' => $amountToBePaid,
             'has_discount'  => false,
         ]);
@@ -716,7 +716,7 @@ class SchoolPaymentController extends Controller
                 'fee_template_id' => $template?->id,
                 'fee_type_name'   => $validated['fees_type'],
                 'fee_name'        => $validated['fee_name'],
-                'amount'          => $feeAmount,
+                'base_amount'     => $feeAmount,
                 'payable_amount'  => $feeAmount,
                 'due_amount'      => $feeAmount,
                 'pay_date'        => $feePayDate,
@@ -731,7 +731,7 @@ class SchoolPaymentController extends Controller
             ->where('fee_name', $validated['fee_name'])
             ->sum('type_amount');
 
-        $feeAmount = (float) $feeRecord->amount;
+        $feeAmount = (float) $feeRecord->base_amount;
         $remainingDue = max($feeAmount - $alreadyPaid, 0);
 
         if ($amount > $remainingDue) {

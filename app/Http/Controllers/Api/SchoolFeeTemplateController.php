@@ -202,7 +202,7 @@ class SchoolFeeTemplateController extends Controller
                                 'fee_template_id' => $template->id,
                                 'fee_type_name'   => $validated['fee_type_name'],
                                 'fee_name'        => $validated['fee_name'] ?? null,
-                                'amount'          => $validated['amount'],
+                                'base_amount'     => $validated['amount'],
                                 'payable_amount'  => $validated['amount'],
                                 'due_amount'      => $validated['amount'],
                                 'pay_date'        => $validated['pay_date'],
@@ -289,7 +289,7 @@ class SchoolFeeTemplateController extends Controller
                 if ($amountChanged || $payDateChanged) {
                     $updateData = [];
                     if ($amountChanged)
-                        $updateData['amount'] = $validated['amount'];
+                        $updateData['base_amount'] = $validated['amount'];
                     if ($payDateChanged)
                         $updateData['pay_date'] = $validated['pay_date'];
 
@@ -489,7 +489,7 @@ class SchoolFeeTemplateController extends Controller
                         'fee_template_id' => $templateId,
                         'fee_type_name' => $row->fee_type_name,
                         'fee_name' => $row->fee_name,
-                        'amount' => $row->amount,
+                        'base_amount' => $row->amount,
                         'pay_date' => $row->pay_date,
                         'status' => 'pending',
                         'created_at' => $row->created_at ?? now(),

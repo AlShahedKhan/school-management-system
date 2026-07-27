@@ -355,7 +355,7 @@ class RoleUserSeeder extends Seeder
                 [
                     'fee_template_id' => null,
                     'fee_assign_id' => null,
-                    'amount' => $baseAmount,
+                    'base_amount' => $baseAmount,
                     'discount_amount' => 0,
                     'payable_amount' => $baseAmount,
                     'paid_amount' => $paidAmount,
@@ -422,7 +422,7 @@ class RoleUserSeeder extends Seeder
                     [
                         'fee_template_id' => null,
                         'fee_assign_id' => null,
-                    'amount' => $baseAmount,
+                        'base_amount' => $baseAmount,
                         'discount_amount' => 0,
                         'payable_amount' => $baseAmount,
                         'paid_amount' => $paidAmount,
@@ -455,7 +455,7 @@ class RoleUserSeeder extends Seeder
                 [
                     'fee_template_id' => null,
                     'fee_assign_id' => null,
-                    'amount' => $baseAmount,
+                    'base_amount' => $baseAmount,
                     'discount_amount' => 0,
                     'payable_amount' => $baseAmount,
                     'paid_amount' => $index % 2 === 0 ? $baseAmount : 0,

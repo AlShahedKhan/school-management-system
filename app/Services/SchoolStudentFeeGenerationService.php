@@ -188,7 +188,7 @@ class SchoolStudentFeeGenerationService
             'fee_template_id' => $template->id,
             'fee_type_name' => $template->fee_type_name ?? $template->assign->name,
             'fee_name' => $template->fee_name,
-            'amount' => $template->amount,
+            'base_amount' => $template->amount,
             'discount_amount' => $amounts['discount_amount'],
             'payable_amount' => $amounts['payable_amount'],
             'paid_amount' => 0,

@@ -83,7 +83,7 @@ class SchoolDueListController extends Controller
     {
         $paid = (float) SchoolPayment::where('school_student_fee_id', $fee->id)
             ->sum('type_amount');
-        $amount = (float) $fee->amount;
+        $amount = (float) $fee->base_amount;
         $remainingDue = max($amount - $paid, 0);
 
         $payDate = $fee->pay_date ? Carbon::parse($fee->pay_date) : null;
@@ -151,7 +151,7 @@ class SchoolDueListController extends Controller
         $alreadyPaid = (float) SchoolPayment::where('school_student_fee_id', $fee->id)
             ->sum('type_amount');
 
-        $remainingAfter = max($fee->amount - ($alreadyPaid + $validated['type_amount']), 0);
+        $remainingAfter = max($fee->base_amount - ($alreadyPaid + $validated['type_amount']), 0);
 
         SchoolPayment::create([
             'school_id'             => $schoolId,
@@ -159,7 +159,7 @@ class SchoolDueListController extends Controller
             'admission_student_id'  => $fee->student_id,
             'fees_type'             => $fee->fee_type_name,
             'fee_name'              => $fee->fee_name,
-            'total_payable'         => $fee->amount,
+            'total_payable'         => $fee->base_amount,
             'payable_due'           => $remainingAfter,
             'status'                => 'paid',
             'total_amount'          => $validated['type_amount'],

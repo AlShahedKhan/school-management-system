@@ -232,7 +232,7 @@ class GenerateMonthlyFeesForTemplate implements ShouldQueue
                     'fee_template_id' => $template->id,
                     'fee_type_name'   => $template->fee_type_name,
                     'fee_name'        => $template->fee_name,
-                    'amount'          => $template->amount,
+                    'base_amount'     => $template->amount,
                     'pay_date'        => $payDate,
                     'status'          => $status,
                     'created_at'      => $nowTimestamp,
