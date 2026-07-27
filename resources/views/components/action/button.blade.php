@@ -6,6 +6,10 @@
 
 @php
     [$variantClasses, $iconClasses] = match ($variant) {
+        'view' => [
+            'hover:bg-gray-100 hover:text-emerald-600 focus-visible:ring-emerald-500',
+            'far fa-eye text-sm',
+        ],
         'edit' => [
             'hover:bg-gray-100 hover:text-blue-600 focus-visible:ring-blue-500',
             'far fa-edit text-sm',

@@ -187,18 +187,18 @@
                     </span>
                 </td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center min-w-[110px]">
-                    <div class="flex h-8 items-center justify-center space-x-1 mx-auto">
-                        <button type="button" onclick="viewAdmissionForm(${s.id}, ${sl})" title="View" aria-label="View" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-emerald-500">
-                            <i class="far fa-eye text-sm" aria-hidden="true"></i>
+                    <div class="flex h-7 w-full items-center justify-center space-x-1">
+                        <button type="button" onclick="viewAdmissionForm(${s.id}, ${sl})" title="View" aria-label="View" class="flex h-7 w-6 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-emerald-500">
+                            <i class="far fa-eye text-[15px]" aria-hidden="true"></i>
                         </button>
-                        <button type="button" onclick="editStudent(${s.id})" title="Edit" aria-label="Edit" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-blue-500">
-                            <i class="far fa-edit text-sm" aria-hidden="true"></i>
+                        <button type="button" onclick="editStudent(${s.id})" title="Edit" aria-label="Edit" class="flex h-7 w-6 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-blue-500">
+                            <i class="far fa-edit text-[15px]" aria-hidden="true"></i>
                         </button>
-                        <button type="button" onclick="deleteStudent(${s.id}, \`${s.student_name.replace(/`/g, '\\`').replace(/"/g, '\\"')}\`)" title="Delete" aria-label="Delete" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-red-500">
-                            <i class="far fa-trash-alt text-sm" aria-hidden="true"></i>
+                        <button type="button" onclick="deleteStudent(${s.id}, \`${s.student_name.replace(/`/g, '\\`').replace(/"/g, '\\"')}\`)" title="Delete" aria-label="Delete" class="flex h-7 w-6 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-red-500">
+                            <i class="far fa-trash-alt text-[15px]" aria-hidden="true"></i>
                         </button>
-                        <button type="button" onclick="toggleStudentStatus(${s.id}, '${s.status}', \`${s.student_name.replace(/`/g, '\\`').replace(/"/g, '\\"')}\`, '${s.student_id_number}', '${s.inactive_date || ''}')" title="${s.status === 'Inactive' ? 'Activate' : 'Deactivate'}" aria-label="Status" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-slate-500">
-                            <i class="fas fa-toggle-on text-sm ${s.status === 'Inactive' ? 'text-red-500' : 'text-emerald-500'}" aria-hidden="true"></i>
+                        <button type="button" onclick="toggleStudentStatus(${s.id}, '${s.status}', \`${s.student_name.replace(/`/g, '\\`').replace(/"/g, '\\"')}\`, '${s.student_id_number}', '${s.inactive_date || ''}')" title="${s.status === 'Inactive' ? 'Activate' : 'Deactivate'}" aria-label="Status" class="flex h-7 w-6 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-slate-500">
+                            <i class="fas fa-toggle-on text-[15px] ${s.status === 'Inactive' ? 'text-red-500' : 'text-emerald-500'}" aria-hidden="true"></i>
                         </button>
                     </div>
                 </td>
@@ -218,36 +218,52 @@
 
                 const setText = (elemId, text) => {
                     const el = document.getElementById(elemId);
-                    if (el) el.textContent = text || 'N/A';
+                    if (el) el.textContent = text || '';
                 };
 
                 setText('print_student_id_number', s.student_id_number);
                 setText('print_admission_id', s.admission_id || sl);
-                setText('print_date_box', s.admission_date || new Date().toISOString().split('T')[0]);
+                setText('print_date_box', s.created_at ? s.created_at.split('T')[0] : (s.admission_date || new Date().toISOString().split('T')[0]));
                 setText('print_student_name', s.student_name);
                 setText('print_father_name', s.father_name);
                 setText('print_mother_name', s.mother_name);
                 setText('print_mobile', s.mobile);
-                setText('print_guardian_name', s.guardian?.name || s.father_name);
-                setText('print_guardian_mobile', s.guardian?.phone || s.mobile);
-                setText('print_class_name', s.school_class?.class_name || s.schoolClass?.class_name || s.class_name || s.class);
-                setText('print_group_name', s.school_group?.group_name || s.schoolGroup?.group_name || s.group_name || s.group);
-                setText('print_section_name', s.school_section?.section_name || s.schoolSection?.section_name || s.section_name || s.section);
-                setText('print_session_year', s.school_session?.session_year || s.schoolSession?.session_year || s.session_year || s.session);
 
-                const currentAddr = [s.current_village, s.current_upazila, s.current_district, s.current_division, s.current_country].filter(Boolean).join(', ');
-                const permanentAddr = [s.permanent_village, s.permanent_upazila, s.permanent_district, s.permanent_division, s.permanent_country].filter(Boolean).join(', ');
+                setText('print_g_name', s.g_name || s.guardian_name || s.father_name);
+                setText('print_g_relation', s.g_relation || s.relation || 'Father');
+                setText('print_g_mobile', s.g_mobile || s.guardian_mobile || s.mobile);
 
-                setText('print_current_address', currentAddr);
-                setText('print_permanent_address', permanentAddr);
+                setText('print_class', s.class_name || s.school_class?.class_name || s.schoolClass?.class_name || s.class);
+                setText('print_group', s.group_name || s.school_group?.group_name || s.schoolGroup?.group_name || s.group);
+                setText('print_section', s.section_name || s.school_section?.section_name || s.schoolSection?.section_name || s.section);
+                setText('print_session', s.session_year || s.school_session?.session_year || s.schoolSession?.session_year || s.session);
+                setText('print_student_type', s.student_type || 'Admission');
+
+                setText('print_curr_country', s.current_country || s.country || 'Bangladesh');
+                setText('print_curr_division', s.current_division || s.division);
+                setText('print_curr_district', s.current_district || s.district);
+                setText('print_curr_upazila', s.current_upazila || s.upazila);
+                setText('print_curr_village', s.current_village || s.village);
+
+                setText('print_perm_country', s.permanent_country || s.country || 'Bangladesh');
+                setText('print_perm_division', s.permanent_division || s.division);
+                setText('print_perm_district', s.permanent_district || s.district);
+                setText('print_perm_upazila', s.permanent_upazila || s.upazila);
+                setText('print_perm_village', s.permanent_village || s.village);
 
                 const imgEl = document.getElementById('print_student_photo');
                 const placeholder = document.getElementById('print_photo_placeholder');
+                const imagePath = s.student_image || s.image || s.photo;
                 if (imgEl) {
-                    if (s.image) {
-                        imgEl.src = `/storage/${s.image}`;
+                    if (imagePath) {
+                        const srcUrl = imagePath.startsWith('http') || imagePath.startsWith('/') ? imagePath : `/storage/${imagePath}`;
+                        imgEl.src = srcUrl;
                         imgEl.classList.remove('hidden');
                         if (placeholder) placeholder.classList.add('hidden');
+                        imgEl.onerror = () => {
+                            imgEl.classList.add('hidden');
+                            if (placeholder) placeholder.classList.remove('hidden');
+                        };
                     } else {
                         imgEl.classList.add('hidden');
                         if (placeholder) placeholder.classList.remove('hidden');
@@ -255,11 +271,25 @@
                 }
 
                 modal.classList.remove('hidden');
+                setTimeout(fitAdmissionFormScale, 50);
             })
             .catch(err => {
                 console.error('Fetch student error', err);
             });
     }
+
+    function fitAdmissionFormScale() {
+        const container = document.querySelector('.adm-form-container');
+        if (!container) return;
+        const availableWidth = Math.min(window.innerWidth - 24, 650);
+        if (availableWidth < 650) {
+            const scale = availableWidth / 650;
+            container.style.zoom = scale;
+        } else {
+            container.style.zoom = '1';
+        }
+    }
+    window.addEventListener('resize', fitAdmissionFormScale);
 
     function printAdmissionForm() {
         window.print();
@@ -269,39 +299,201 @@
         document.getElementById('admissionFormModal')?.classList.add('hidden');
     }
 
-    function editStudent(id) {
-        axios.get(`{{ url('/api/school/students') }}/${id}`)
-            .then(res => {
-                const s = res.data.data || res.data;
-                const modal = document.getElementById('studentModal');
-                if (!modal) return;
+    // Global caches for instant loading
+    let cachedClasses = null;
+    let cachedGroups = null;
+    let cachedSections = null;
+    let cachedSessions = null;
+    const locationCache = new Map();
 
-                const idInp = document.getElementById('student_id');
-                if (idInp) idInp.value = s.id || id;
+    async function getGeoData(endpoint) {
+        if (locationCache.has(endpoint)) {
+            return locationCache.get(endpoint);
+        }
+        try {
+            const res = await geoApi.get(endpoint);
+            const data = res.data.data || [];
+            locationCache.set(endpoint, data);
+            return data;
+        } catch (err) {
+            console.error('Geo API fetch error:', endpoint, err);
+            return [];
+        }
+    }
 
-                const fieldMap = {
-                    'edit_school': s.school,
-                    'edit_student_name': s.student_name,
-                    'edit_father_name': s.father_name,
-                    'edit_mother_name': s.mother_name,
-                    'edit_mobile': s.mobile,
-                    'edit_current_village': s.current_village,
-                    'edit_permanent_village': s.permanent_village,
-                };
+    async function populateDivisions(selectId, selectedVal = '') {
+        const divs = await getGeoData('/divisions');
+        const options = divs.map(d => ({ value: d.division, label: d.division }));
+        populateDropdownSelect(selectId, options, selectedVal, 'Select Division');
+    }
 
-                for (const [fieldId, val] of Object.entries(fieldMap)) {
-                    const el = document.getElementById(fieldId);
-                    if (el) el.value = val || '';
+    async function populateDistrict(divisionValue, distId, selectedVal = '') {
+        populateDropdownSelect(distId, [], '', 'Select District');
+        if (!divisionValue) return;
+        const resData = await getGeoData(`/division/${divisionValue}`);
+        const options = resData.map(d => ({ value: d.district, label: d.district }));
+        populateDropdownSelect(distId, options, selectedVal, 'Select District');
+    }
+
+    async function populateUpazila(districtValue, upaId, selectedVal = '') {
+        populateDropdownSelect(upaId, [], '', 'Select Upazila');
+        if (!districtValue) return;
+        const resData = await getGeoData(`/district/${districtValue}`);
+        const upazillas = (resData && resData[0]) ? (resData[0].upazillas || []) : [];
+        const options = upazillas.map(u => ({ value: u, label: u }));
+        populateDropdownSelect(upaId, options, selectedVal, 'Select Upazila');
+    }
+
+    async function toggleSameAddressModal() {
+        const checked = document.getElementById('sameAsCurrentAddressModal')?.checked;
+        if (!checked) return;
+
+        const currentCountry = document.getElementById('edit_current_country')?.value || '';
+        const currentDivision = document.getElementById('edit_current_division')?.value || '';
+        const currentDistrict = document.getElementById('edit_current_district')?.value || '';
+        const currentUpazila = document.getElementById('edit_current_upazila')?.value || '';
+        const currentVillage = document.getElementById('edit_current_village')?.value || '';
+
+        setSelectedValue('edit_permanent_country', currentCountry);
+        setSelectedValue('edit_permanent_division', currentDivision);
+
+        if (currentDivision) {
+            await populateDistrict(currentDivision, 'edit_permanent_district', currentDistrict);
+        }
+        if (currentDistrict) {
+            await populateUpazila(currentDistrict, 'edit_permanent_upazila', currentUpazila);
+        }
+
+        const permVillage = document.getElementById('edit_permanent_village');
+        if (permVillage) permVillage.value = currentVillage;
+    }
+
+    async function editStudent(id) {
+        const modal = document.getElementById('studentModal');
+        if (!modal) return;
+
+        // 1. OPEN MODAL INSTANTLY FOR 0MS LATENCY RESPONSE
+        modal.classList.remove('hidden');
+
+        const idInp = document.getElementById('student_id');
+        if (idInp) idInp.value = id;
+
+        try {
+            const fetchPromises = [
+                axios.get(`{{ url('/api/school/students') }}/${id}`),
+                cachedClasses ? Promise.resolve({ data: cachedClasses }) : axios.get('/api/get-school-classes'),
+                cachedGroups ? Promise.resolve({ data: cachedGroups }) : axios.get('/api/get-school-groups'),
+                cachedSections ? Promise.resolve({ data: cachedSections }) : axios.get('/api/get-school-sections'),
+                cachedSessions ? Promise.resolve({ data: cachedSessions }) : axios.get('/api/get-school-sessions')
+            ];
+
+            const [studentRes, classRes, groupRes, sectionRes, sessionRes] = await Promise.all(fetchPromises);
+
+            cachedClasses = classRes.data;
+            cachedGroups = groupRes.data;
+            cachedSections = sectionRes.data;
+            cachedSessions = sessionRes.data;
+
+            const s = studentRes.data.data || studentRes.data;
+
+            // Input Fields
+            const inputValues = {
+                'edit_school': s.school_name || s.school?.school_name || s.school || '',
+                'edit_admission_fee': s.admission_fee || '',
+                'edit_admission_date': s.admission_date || (s.created_at ? s.created_at.split('T')[0] : ''),
+                'edit_student_name': s.student_name || '',
+                'edit_father_name': s.father_name || '',
+                'edit_mother_name': s.mother_name || '',
+                'edit_mobile': s.mobile || '',
+                'edit_g_name': s.g_name || s.guardian_name || s.father_name || '',
+                'edit_g_relation': s.g_relation || s.relation || 'Father',
+                'edit_g_mobile': s.g_mobile || s.guardian_mobile || s.mobile || '',
+                'edit_current_village': s.current_village || s.village || '',
+                'edit_permanent_village': s.permanent_village || s.village || ''
+            };
+
+            for (const [fieldId, val] of Object.entries(inputValues)) {
+                const el = document.getElementById(fieldId);
+                if (el) el.value = val;
+            }
+
+            // Dropdowns (Class, Group, Section, Session)
+            const classOpts = (classRes.data.data || classRes.data || []).map(c => ({ value: c.id, label: c.class_name }));
+            const groupOpts = (groupRes.data.data || groupRes.data || []).map(g => ({ value: g.id, label: g.group_name }));
+            const sectionOpts = (sectionRes.data.data || sectionRes.data || []).map(sec => ({ value: sec.id, label: sec.section_name }));
+            const rawSessions = sessionRes.data.data || sessionRes.data || [];
+            const sessionOpts = Array.from(new Map(rawSessions.map(sess => [sess.id, { value: sess.id, label: sess.session_year || sess.year || 'N/A' }])).values());
+
+            populateDropdownSelect('edit_class', classOpts, s.class_id || s.class, 'Select Class');
+            populateDropdownSelect('edit_group', groupOpts, s.group_id || s.group, 'Select Group');
+            populateDropdownSelect('edit_section', sectionOpts, s.section_id || s.section, 'Select Section');
+            populateDropdownSelect('edit_session', sessionOpts, s.session_id || s.session, 'Select Session');
+
+            // Photo Preview
+            const imgPreview = document.getElementById('imagePreview');
+            const photoPath = s.student_image || s.image || s.photo;
+            if (imgPreview) {
+                if (photoPath) {
+                    const srcUrl = photoPath.startsWith('http') || photoPath.startsWith('/') ? photoPath : `/storage/${photoPath}`;
+                    imgPreview.innerHTML = `<img src="${srcUrl}" class="w-full h-full object-cover" />`;
+                } else {
+                    imgPreview.innerHTML = `<i class="mdi mdi-camera text-gray-300"></i>`;
                 }
+            }
 
-                populateDropdownSelect('edit_class', [], s.class_id || s.class, 'Select Class');
-                populateDropdownSelect('edit_group', [], s.group_id || s.group, 'Select Group');
-                populateDropdownSelect('edit_section', [], s.section_id || s.section, 'Select Section');
-                populateDropdownSelect('edit_session', [], s.session_id || s.session, 'Select Session');
+            // Location Dropdowns (Load asynchronously in parallel using cached Geo API)
+            const currCountry = s.current_country || s.country || 'Bangladesh';
+            const permCountry = s.permanent_country || s.country || 'Bangladesh';
+            const currDiv = s.current_division || s.division || '';
+            const currDist = s.current_district || s.district || '';
+            const currUpa = s.current_upazila || s.upazila || '';
+            const permDiv = s.permanent_division || s.division || '';
+            const permDist = s.permanent_district || s.district || '';
+            const permUpa = s.permanent_upazila || s.upazila || '';
 
-                modal.classList.remove('hidden');
-            })
-            .catch(err => console.error('Edit student error', err));
+            // Auto-check "Same as Current Address" checkbox if permanent address matches current address or was saved as same
+            const sameAddressCb = document.getElementById('sameAsCurrentAddressModal');
+            const isSameAddress = Boolean(
+                s.same_as_current == 1 ||
+                s.same_as_current === true ||
+                s.same_as_current === '1' ||
+                s.same_as_current === 'true' ||
+                (!permDiv && !permDist && !permUpa) ||
+                (currDiv && currDiv === permDiv && (!currDist || currDist === permDist) && (!currUpa || currUpa === permUpa))
+            );
+            if (sameAddressCb) {
+                sameAddressCb.checked = isSameAddress;
+            }
+
+            const targetPermCountry = isSameAddress ? currCountry : permCountry;
+            const targetPermDiv = isSameAddress ? currDiv : permDiv;
+            const targetPermDist = isSameAddress ? currDist : permDist;
+            const targetPermUpa = isSameAddress ? currUpa : permUpa;
+
+            setSelectedValue('edit_current_country', currCountry);
+            setSelectedValue('edit_permanent_country', targetPermCountry);
+
+            if (isSameAddress) {
+                const permVillage = document.getElementById('edit_permanent_village');
+                if (permVillage) permVillage.value = s.current_village || s.village || '';
+            }
+
+            Promise.all([
+                populateDivisions('edit_current_division', currDiv).then(() => {
+                    if (currDiv) return populateDistrict(currDiv, 'edit_current_district', currDist);
+                }).then(() => {
+                    if (currDist) return populateUpazila(currDist, 'edit_current_upazila', currUpa);
+                }),
+                populateDivisions('edit_permanent_division', targetPermDiv).then(() => {
+                    if (targetPermDiv) return populateDistrict(targetPermDiv, 'edit_permanent_district', targetPermDist);
+                }).then(() => {
+                    if (targetPermDist) return populateUpazila(targetPermDist, 'edit_permanent_upazila', targetPermUpa);
+                })
+            ]);
+
+        } catch (err) {
+            console.error('Edit student load error:', err);
+        }
     }
 
     function deleteStudent(id, name) {
@@ -465,6 +657,56 @@
             fetchStudents(1);
         });
 
+        document.getElementById('studentForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('student_id')?.value;
+            if (!id) return;
+
+            const formData = new FormData(this);
+
+            axios.post(`{{ url('/api/school/students') }}/${id}`, formData)
+                .then(res => {
+                    document.getElementById('studentModal')?.classList.add('hidden');
+                    Toastify({ text: "Student updated successfully", duration: 3000, style: { background: "#10b981" } }).showToast();
+                    fetchStudents(currentPage);
+                })
+                .catch(err => {
+                    console.error('Update student error:', err);
+                    alert(err.response?.data?.message || 'Failed to update student');
+                });
+        });
+
+        document.getElementById('edit_current_division')?.addEventListener('change', async (e) => {
+            await populateDistrict(e.target.value, 'edit_current_district');
+            populateDropdownSelect('edit_current_upazila', [], '', 'Select Upazila');
+            if (document.getElementById('sameAsCurrentAddressModal')?.checked) {
+                toggleSameAddressModal();
+            }
+        });
+        document.getElementById('edit_current_district')?.addEventListener('change', async (e) => {
+            await populateUpazila(e.target.value, 'edit_current_upazila');
+            if (document.getElementById('sameAsCurrentAddressModal')?.checked) {
+                toggleSameAddressModal();
+            }
+        });
+        document.getElementById('edit_current_upazila')?.addEventListener('change', () => {
+            if (document.getElementById('sameAsCurrentAddressModal')?.checked) {
+                toggleSameAddressModal();
+            }
+        });
+        document.getElementById('edit_current_village')?.addEventListener('input', () => {
+            if (document.getElementById('sameAsCurrentAddressModal')?.checked) {
+                toggleSameAddressModal();
+            }
+        });
+        document.getElementById('edit_permanent_division')?.addEventListener('change', async (e) => {
+            await populateDistrict(e.target.value, 'edit_permanent_district');
+            populateDropdownSelect('edit_permanent_upazila', [], '', 'Select Upazila');
+        });
+        document.getElementById('edit_permanent_district')?.addEventListener('change', async (e) => {
+            await populateUpazila(e.target.value, 'edit_permanent_upazila');
+        });
+
         // Form Submission Event Handlers
         document.getElementById('deleteStudentForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -507,9 +749,23 @@
         });
 
         // Close handlers for modals
-        ['closeStudentModal', 'closeDeleteStudentModal', 'closeDeactivateStudentModal', 'closeActivateStudentModal', 'closeDetailsModal', 'closeAdmissionFormBtn'].forEach(closeId => {
-            document.getElementById(closeId)?.addEventListener('click', function() {
-                this.closest('.premium-modal, [data-modal], .student-filter-modal, [id$="Modal"]')?.classList.add('hidden');
+        const modalCloseMap = {
+            'closeStudentModal': 'studentModal',
+            'closeDeleteStudentModal': 'deleteStudentModal',
+            'closeDeactivateStudentModal': 'deactivateStudentModal',
+            'closeActivateStudentModal': 'activateStudentModal',
+            'closeDetailsModal': 'detailsModal',
+            'closeAdmissionFormBtn': 'admissionFormModal'
+        };
+
+        Object.entries(modalCloseMap).forEach(([btnId, modalId]) => {
+            document.getElementById(btnId)?.addEventListener('click', function() {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('hidden');
+                } else {
+                    this.closest('.premium-modal, [data-modal], .student-filter-modal')?.classList.add('hidden');
+                }
             });
         });
     });
