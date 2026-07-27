@@ -299,10 +299,30 @@
                             Filter
                         </button>
 
-                        <button onclick="document.getElementById('exportModal').classList.remove('hidden')"
-                            class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
-                            Export
-                        </button>
+                        <div id="exportDropdown" class="relative flex-1 lg:flex-none">
+                            <x-button.secondary
+                                id="exportDropdownButton"
+                                onclick="toggleExportMenu(event)"
+                                class="h-7 w-full px-0.5 text-[9px] tracking-wider sm:h-9 sm:px-4 sm:text-xs">
+                                <span>Export</span>
+                                <i class="fas fa-chevron-down ml-2 text-[8px]" aria-hidden="true"></i>
+                            </x-button.secondary>
+
+                            <div
+                                id="exportMenu"
+                                class="absolute left-0 top-full z-50 mt-1 hidden w-full min-w-[110px] border border-slate-300 bg-white shadow-sm"
+                            >
+                                <x-button.secondary onclick="exportData('pdf')" class="w-full justify-start border-x-0 border-t-0">
+                                    PDF
+                                </x-button.secondary>
+                                <x-button.secondary onclick="exportData('excel')" class="w-full justify-start border-x-0 border-t-0">
+                                    Excel
+                                </x-button.secondary>
+                                <x-button.secondary onclick="window.print(); closeExportMenu()" class="w-full justify-start border-x-0 border-b-0 border-t-0">
+                                    Print
+                                </x-button.secondary>
+                            </div>
+                        </div>
 
                         <button onclick="openRoutineModal()"
                             class="btn-outline-premium border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
@@ -379,50 +399,28 @@
                 </div>
             </div>
 
-            {{-- Export Modal --}}
-            <div id="exportModal"
-                class="premium-modal fixed inset-0 bg-black/50 hidden z-[9999] flex items-center justify-center p-12 sm:p-20"
-                onclick="this.classList.add('hidden')">
-                <div class="bg-white p-4 w-auto min-w-[140px] modal-content-sharp shadow-2xl"
-                    onclick="event.stopPropagation()">
-                    <div class="flex flex-col gap-1.5">
-                        <button onclick="exportData('pdf')"
-                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                            PDF
-                        </button>
-                        <button onclick="exportData('excel')"
-                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                            EXCEL
-                        </button>
-                        <button onclick="window.print()"
-                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                            PRINT
-                        </button>
-                        <button onclick="document.getElementById('exportModal').classList.add('hidden')"
-                            class="mt-1 py-1.5 text-[10px] text-gray-400 hover:text-gray-600 w-full text-center border border-gray-200 transition-all">
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            </div>
-
             <div class="table-card">
                 <div class="table-responsive">
-                    <table class="min-w-[1000px]">
+                    <table class="min-w-[1500px]">
                         <thead>
                             <tr>
                                 <th width="60">Sl</th>
+                                <th>Class</th>
+                                <th>Group</th>
+                                <th>Section</th>
+                                <th>Session</th>
+                                <th>Exam</th>
+                                <th>Subject</th>
                                 <th>Date</th>
                                 <th>Day Name</th>
                                 <th>Start Time</th>
                                 <th>End Time</th>
-                                <th>Subject</th>
                                 <th width="120" class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody id="routineTableBody">
                             <tr>
-                                <td colspan="7" class="loader-row">Loading routines...</td>
+                                <td colspan="12" class="loader-row">Loading routines...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -927,9 +925,14 @@
         }
 
         async function loadFilterExams() {
-            const className = document.getElementById('f_class').value;
-            const sessionName = document.getElementById('f_session').value;
-            const res = await axios.get(`/api/get-school-exams?class_name=${className}&session_name=${sessionName}`);
+            const res = await axios.get('/api/get-school-exams', {
+                params: {
+                    class_id: getSelectedDataId('f_class') || undefined,
+                    group_id: getSelectedDataId('f_group') || undefined,
+                    section_id: getSelectedDataId('f_section') || undefined,
+                    session_id: getSelectedDataId('f_session') || undefined,
+                },
+            });
             fillDropdown('f_exam', res.data.data, 'exam_name', 'Exam', true);
         }
 
@@ -1145,16 +1148,16 @@
         async function fetchRoutines(page = 1, isFiltering = false) {
             currentPage = page;
             const tbody = document.getElementById('routineTableBody');
-            tbody.innerHTML = '<tr><td colspan="7" class="loader-row text-center py-4">Loading...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="12" class="loader-row text-center py-4">Loading...</td></tr>';
 
             try {
                 const params = new URLSearchParams({
                     page: page,
-                    class_name: document.getElementById('f_class').value,
-                    group_name: document.getElementById('f_group').value,
-                    section_name: document.getElementById('f_section').value,
-                    session_name: document.getElementById('f_session').value,
-                    exam_name: document.getElementById('f_exam').value
+                    class_id: getSelectedDataId('f_class'),
+                    group_id: getSelectedDataId('f_group'),
+                    section_id: getSelectedDataId('f_section'),
+                    session_id: getSelectedDataId('f_session'),
+                    exam_id: getSelectedDataId('f_exam')
                 });
 
                 const res = await axios.get(`/api/school-exam-routines?${params.toString()}`);
@@ -1164,18 +1167,23 @@
                 tbody.innerHTML = '';
                 if (!items || items.length === 0) {
                     tbody.innerHTML =
-                        '<tr><td colspan="7" class="text-center py-4 text-gray-400">No routines found matching the criteria.</td></tr>';
+                        '<tr><td colspan="12" class="text-center py-4 text-gray-400">No routines found matching the criteria.</td></tr>';
                 } else {
                     items.forEach((item, i) => {
                         const sl = (data.current_page - 1) * data.per_page + (i + 1);
                         tbody.innerHTML += `
                             <tr>
                                 <td>${sl}</td>
+                                <td>${item.school_class?.class_name ?? '-'}</td>
+                                <td>${item.school_group?.group_name ?? '-'}</td>
+                                <td>${item.school_section?.section_name ?? '-'}</td>
+                                <td>${item.school_session?.session_year ?? '-'}</td>
+                                <td>${item.school_exam?.exam_name ?? '-'}</td>
+                                <td class="text-gray-700">${item.school_subject?.subject_name ?? '-'}</td>
                                 <td>${formatDateDDMMYYYY(item.exam_date)}</td>
                                 <td>${item.day_name}</td>
                                 <td>${formatTime12h(item.start_time)}</td>
                                 <td>${formatTime12h(item.end_time)}</td>
-                                <td class="text-gray-700">${item.subject_name}</td>
                                 <td class="text-center">
                                     <div class="flex justify-center gap-3">
                                     <button onclick="editRoutine(${item.id})" class="action-icon-btn text-blue-500"><i class="far fa-edit" style="font-size: 15px;"></i></button>
@@ -1342,18 +1350,39 @@
             fetchRoutines(1, true);
         }
 
+        function toggleExportMenu(event) {
+            event?.stopPropagation();
+            const menu = document.getElementById('exportMenu');
+            const icon = document.querySelector('#exportDropdownButton i');
+            const isOpen = !menu.classList.contains('hidden');
+
+            menu.classList.toggle('hidden', isOpen);
+            icon?.classList.toggle('rotate-180', !isOpen);
+        }
+
+        function closeExportMenu() {
+            document.getElementById('exportMenu')?.classList.add('hidden');
+            document.querySelector('#exportDropdownButton i')?.classList.remove('rotate-180');
+        }
+
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('#exportDropdown')) {
+                closeExportMenu();
+            }
+        });
+
         function exportData(type) {
             const params = new URLSearchParams({
                 type,
                 search: document.getElementById('tableSearch').value,
-                class_name: document.getElementById('f_class').value,
-                group_name: document.getElementById('f_group').value,
-                section_name: document.getElementById('f_section').value,
-                session_name: document.getElementById('f_session').value,
-                exam_name: document.getElementById('f_exam').value
+                class_id: getSelectedDataId('f_class'),
+                group_id: getSelectedDataId('f_group'),
+                section_id: getSelectedDataId('f_section'),
+                session_id: getSelectedDataId('f_session'),
+                exam_id: getSelectedDataId('f_exam')
             });
             window.location.href = `/api/school-exam-routines-export?${params.toString()}`;
-            document.getElementById('exportModal').classList.add('hidden');
+            closeExportMenu();
         }
 
         function openRoutineModal() {
