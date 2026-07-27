@@ -379,14 +379,15 @@
             return;
         }
         try {
-            const res = await axios.post('/api/sessions', {
+            const res = await axios.post('/api/school-sessions', {
                 class_id: classId,
                 group_id: groupId || null,
                 section_id: sectionId || null,
                 start_date: startDate,
                 end_date: endDate,
                 session_year: sessionYear,
-                total_days: totalDays
+                total_days: totalDays,
+                remaining_days: totalDays
             });
             const newSession = res.data.data;
 
@@ -412,6 +413,10 @@
                     }
                     setSelectedValue('bulkSession', newSession.id);
                 }
+            } else {
+                if (typeof loadDestSessions === 'function') {
+                    await loadDestSessions();
+                }
             }
 
             closeQuickModal('quickSessionModal');
@@ -426,7 +431,18 @@
             }
         } catch (err) {
             console.error(err);
-            alert("Failed to add session.");
+            let errMsg = "Failed to add session.";
+            if (err.response && err.response.data && err.response.data.message) {
+                errMsg = err.response.data.message;
+            }
+            if (err.response && err.response.data && err.response.data.errors) {
+                const errors = err.response.data.errors;
+                const firstKey = Object.keys(errors)[0];
+                if (firstKey && errors[firstKey][0]) {
+                    errMsg = errors[firstKey][0];
+                }
+            }
+            Swal.fire({ icon: 'error', title: 'Error', text: errMsg });
         }
     });
 

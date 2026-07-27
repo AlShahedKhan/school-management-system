@@ -54,13 +54,13 @@ class SchoolPromoteController extends Controller
         })
         // Modified on 2026-07-07: Exclude Inactive students from promotion candidates
         ->where('status', '!=', 'Inactive')
-        ->where('class', $request->class_id)
-        ->where('section', $request->section_id)
-        ->where('session', $request->session_id)
+        ->where('class_id', $request->class_id)
+        ->where('section_id', $request->section_id)
+        ->where('session_id', $request->session_id)
         ->when(
             $request->filled('group_id'),
-            fn ($q) => $q->where('group', $request->group_id),
-            fn ($q) => $q->whereNull('group')
+            fn ($q) => $q->where('group_id', $request->group_id),
+            fn ($q) => $q->where(fn($sq) => $sq->whereNull('group_id')->orWhere('group_id', ''))
         )
         ->orderBy('student_name', 'asc')
         ->get(['id', 'student_name', 'student_id_number']);
@@ -147,10 +147,10 @@ class SchoolPromoteController extends Controller
                     StudentPromotion::create([
                         'school_id' => $school->id,
                         'student_id' => $student->id,
-                        'from_class_id' => $student->class,
-                        'from_group_id' => $student->group,
-                        'from_section_id' => $student->section,
-                        'from_session_id' => $student->session,
+                        'from_class_id' => $student->class_id,
+                        'from_group_id' => $student->group_id,
+                        'from_section_id' => $student->section_id,
+                        'from_session_id' => $student->session_id,
                         'from_student_id_number' => $student->student_id_number,
                         'to_class_id' => $request->to_class,
                         'to_group_id' => $request->to_group,
@@ -166,10 +166,10 @@ class SchoolPromoteController extends Controller
                     // Update Student Record (Promote to next class/session)
                     // Modified on 2026-07-09: Keep student_id_number unchanged, update dynamic admission_id
                     $student->update([
-                        'class' => $request->to_class,
-                        'group' => $request->to_group,
-                        'section' => $request->to_section,
-                        'session' => $request->to_session,
+                        'class_id' => $request->to_class,
+                        'group_id' => $request->to_group,
+                        'section_id' => $request->to_section,
+                        'session_id' => $request->to_session,
                         'admission_id' => $newAdmissionId,
                     ]);
 
