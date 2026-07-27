@@ -55,13 +55,13 @@ class SchoolReadmissionController extends Controller
               ->orWhere('school', $schoolName);
         })
         ->where('status', '!=', 'Inactive')
-        ->where('class', $request->class_id)
-        ->where('section', $request->section_id)
-        ->where('session', $request->session_id)
+        ->where('class_id', $request->class_id)
+        ->where('section_id', $request->section_id)
+        ->where('session_id', $request->session_id)
         ->when(
             $request->filled('group_id'),
-            fn ($q) => $q->where('group', $request->group_id),
-            fn ($q) => $q->whereNull('group')
+            fn ($q) => $q->where('group_id', $request->group_id),
+            fn ($q) => $q->where(fn($sq) => $sq->whereNull('group_id')->orWhere('group_id', ''))
         )
         ->orderBy('student_name', 'asc')
         ->get(['id', 'student_name', 'student_id_number', 'admission_id']);
@@ -95,7 +95,7 @@ class SchoolReadmissionController extends Controller
 
         // Enforce: Admission Fee Template must exist
         $firstStudent = AdmissionStudent::where('school_id', $schoolUser->id)->find($request->student_ids[0]);
-        $classId = $firstStudent?->class;
+        $classId = $firstStudent?->class_id;
 
         if ($classId) {
             $templateExists = SchoolFeeTemplate::where('school_id', $school->id)
@@ -141,7 +141,7 @@ class SchoolReadmissionController extends Controller
                     $student = AdmissionStudent::where('school_id', $schoolUser->id)->findOrFail($sid);
 
                     // Re-resolve class description
-                    $classObj = SchoolClass::find($student->class);
+                    $classObj = SchoolClass::find($student->class_id);
                     $className = $classObj?->class_name ?? 'N/A';
 
                     // Group details
@@ -156,12 +156,12 @@ class SchoolReadmissionController extends Controller
                     StudentReadmission::create([
                         'school_id' => $school->id,
                         'student_id' => $student->id,
-                        'class_id' => $student->class,
-                        'from_group_id' => $student->group,
+                        'class_id' => $student->class_id,
+                        'from_group_id' => $student->group_id,
                         'to_group_id' => $request->to_group,
-                        'from_section_id' => $student->section,
+                        'from_section_id' => $student->section_id,
                         'to_section_id' => $request->to_section,
-                        'from_session_id' => $student->session,
+                        'from_session_id' => $student->session_id,
                         'to_session_id' => $request->to_session,
                         'student_id_number' => $student->student_id_number,
                         'from_admission_id' => $student->admission_id ?? $student->student_id_number,
@@ -172,9 +172,9 @@ class SchoolReadmissionController extends Controller
 
                     // Update Student Record (Re-admit in same class, target session/section)
                     $student->update([
-                        'group' => $request->to_group,
-                        'section' => $request->to_section,
-                        'session' => $request->to_session,
+                        'group_id' => $request->to_group,
+                        'section_id' => $request->to_section,
+                        'session_id' => $request->to_session,
                         'admission_id' => $newAdmissionId,
                     ]);
 
@@ -190,7 +190,7 @@ class SchoolReadmissionController extends Controller
                         ],
                         [
                             'session_id' => $request->to_session,
-                            'class_id'   => $student->class,
+                            'class_id'   => $student->class_id,
                             'group_id'   => $request->to_group,
                             'section_id' => $request->to_section,
                             'roll_no'    => $student->roll_no,
@@ -201,7 +201,7 @@ class SchoolReadmissionController extends Controller
                     // Auto-generate Admission Fee via service
                     $this->feeGenerationService->generateAdmissionFee(
                         $student,
-                        $student->class,
+                        $student->class_id,
                         $request->to_session,
                         $school->id
                     );
