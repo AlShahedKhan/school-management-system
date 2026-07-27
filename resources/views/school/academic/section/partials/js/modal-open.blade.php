@@ -110,13 +110,32 @@
             examFormSection: ['examFormClass', 'examFormGroup'],
             examSectionFilter: ['examClassFilter', 'examGroupFilter'],
             sessionFormSection: ['sessionFormClass', 'sessionFormGroup'],
+            section_name: ['class_name', 'group_name'],
         };
         const [classInputId, groupInputId] = sourceMap[sourceDropdownId] || [];
-        const selectedClassId = document.getElementById(classInputId || '')?.value || null;
-        const selectedGroupId = document.getElementById(groupInputId || '')?.value || null;
+        let selectedClassId = null;
+        let selectedGroupId = null;
+
+        if (classInputId) {
+            const classInput = document.getElementById(classInputId);
+            if (classInput) {
+                selectedClassId = classInput.dataset.dropdownSelectInput !== undefined
+                    ? getSelectedDataId(classInput)
+                    : classInput.value || null;
+            }
+        }
+
+        if (groupInputId) {
+            const groupInput = document.getElementById(groupInputId);
+            if (groupInput) {
+                selectedGroupId = groupInput.dataset.dropdownSelectInput !== undefined
+                    ? getSelectedDataId(groupInput)
+                    : groupInput.value || null;
+            }
+        }
 
         loadSectionClassSelect(selectedClassId);
-
+        
         if (selectedClassId) {
             loadSectionGroupSelect(selectedClassId, selectedGroupId);
         }
