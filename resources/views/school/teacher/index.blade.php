@@ -15,6 +15,7 @@
 
     @include('school.teacher.partials.teacher-modal')
     @include('school.teacher.partials.deactivate-modal')
+    @include('school.teacher.partials.filter-modal')
 @endsection
 
 @push('scripts')
