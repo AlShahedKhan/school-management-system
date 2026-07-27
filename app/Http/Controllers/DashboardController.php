@@ -944,6 +944,7 @@ class DashboardController extends Controller
             ->withQueryString();
         return view('school.hrm.payroll.index', compact('payrolls'));
     }
+    
 
     // Subscription / Plans
     public function currentPlan()
