@@ -42,14 +42,14 @@ class SchoolDiscountController extends Controller
     private function buildStudentQuery(array $filters): \Illuminate\Database\Eloquent\Builder
     {
         $q = AdmissionStudent::where('school_id', $filters['school_id'])
-            ->where('class', $filters['class_id'])
-            ->where('session', $filters['session_id']);
+            ->where('class_id', $filters['class_id'])
+            ->where('session_id', $filters['session_id']);
 
         if (!empty($filters['group_id'])) {
-            $q->where('group', $filters['group_id']);
+            $q->where('group_id', $filters['group_id']);
         }
         if (!empty($filters['section_id'])) {
-            $q->where('section', $filters['section_id']);
+            $q->where('section_id', $filters['section_id']);
         }
 
         return $q;
@@ -74,12 +74,23 @@ class SchoolDiscountController extends Controller
                 ->withCount('discountStudents')
                 ->where('school_id', $school->id);
 
-            // Filter by discount category
+            if ($request->filled('class_id')) {
+                $query->where('class_id', $request->class_id);
+            }
+            if ($request->filled('group_id')) {
+                $query->where('group_id', $request->group_id);
+            }
+            if ($request->filled('section_id')) {
+                $query->where('section_id', $request->section_id);
+            }
+            if ($request->filled('session_id')) {
+                $query->where('session_id', $request->session_id);
+            }
+
             if ($request->filled('discount_category')) {
                 $query->where('discount_category', $request->discount_category);
             }
 
-            // Filter by is_active status
             if ($request->has('is_active')) {
                 $query->where('is_active', $request->boolean('is_active'));
             }
