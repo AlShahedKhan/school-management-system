@@ -201,11 +201,40 @@
             examFormSession: ['examFormClass', 'examFormGroup', 'examFormSection'],
             examSessionFilter: ['examClassFilter', 'examGroupFilter', 'examSectionFilter'],
             sessionYearFilter: ['sessionClassFilter', 'sessionGroupFilter', 'sessionSectionFilter'],
+            session_name: ['class_name', 'group_name', 'section_name'],
         };
         const [classInputId, groupInputId, sectionInputId] = sourceMap[sourceDropdownId] || [];
-        const selectedClassId = document.getElementById(classInputId || '')?.value || null;
-        const selectedGroupId = document.getElementById(groupInputId || '')?.value || null;
-        const selectedSectionId = document.getElementById(sectionInputId || '')?.value || null;
+
+        let selectedClassId = null;
+        let selectedGroupId = null;
+        let selectedSectionId = null;
+
+        if (classInputId) {
+            const classInput = document.getElementById(classInputId);
+            if (classInput) {
+                selectedClassId = classInput.dataset.dropdownSelectInput !== undefined
+                    ? getSelectedDataId(classInput)
+                    : classInput.value || null;
+            }
+        }
+
+        if (groupInputId) {
+            const groupInput = document.getElementById(groupInputId);
+            if (groupInput) {
+                selectedGroupId = groupInput.dataset.dropdownSelectInput !== undefined
+                    ? getSelectedDataId(groupInput)
+                    : groupInput.value || null;
+            }
+        }
+
+        if (sectionInputId) {
+            const sectionInput = document.getElementById(sectionInputId);
+            if (sectionInput) {
+                selectedSectionId = sectionInput.dataset.dropdownSelectInput !== undefined
+                    ? getSelectedDataId(sectionInput)
+                    : sectionInput.value || null;
+            }
+        }
 
         loadSessionClassSelect(selectedClassId);
 

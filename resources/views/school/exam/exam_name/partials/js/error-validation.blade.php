@@ -20,7 +20,7 @@
         });
     }
 
-    document.getElementById('exam_name')?.addEventListener('blur', function () {
+    document.getElementById('examFormName')?.addEventListener('blur', function () {
         const errorEl = document.getElementById('exam_name_error');
         if (!this.value.trim()) {
             errorEl.textContent = 'Exam name is required.';
