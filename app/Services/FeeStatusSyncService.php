@@ -45,7 +45,7 @@ class FeeStatusSyncService
     {
         $paid = (float) SchoolPayment::where('school_student_fee_id', $fee->id)
             ->sum('type_amount');
-        $amount = (float) ($fee->payable_amount ?: $fee->amount);
+        $amount = (float) ($fee->payable_amount ?: $fee->base_amount);
         $today = Carbon::today();
         $dueDate = $fee->due_date ? Carbon::parse($fee->due_date) : null;
 

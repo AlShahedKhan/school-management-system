@@ -55,7 +55,7 @@ class ApplyDiscountsToStudentFee implements ShouldQueue
                 continue;
             }
 
-            $originalAmount = (float) $studentFee->amount;
+            $originalAmount = (float) $studentFee->base_amount;
             $discountValue = (float) $discount->discount_value;
 
             if ($discount->discount_type === 'Percentage') {

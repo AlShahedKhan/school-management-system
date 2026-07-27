@@ -6,382 +6,225 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/school/student-fees.css') }}">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <div class="main-view-container">
         <div class="max-w-full mx-auto w-full">
-            @include('school.fees.student-fees.partials.header')
-            @include('school.fees.student-fees.partials.table')
+            <div class="bg-white border border-gray-200 p-2.5 sm:p-4 mb-4" style="border-radius: 0;">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+
+                    <div class="w-full lg:w-auto">
+                        <h2 id="pageHeader" class="text-[15px] sm:text-xl text-gray-800 font-normal leading-tight"></h2>
+                        <div class="flex items-center text-slate-400 text-[12px] mt-1">
+                            <span>School</span>
+                            <i class="fas fa-chevron-right mx-1.5 text-[10px]"></i>
+                            <span id="pageTitle" class="text-slate-500"></span>
+                        </div>
+
+                        <div class="relative w-full sm:w-64 mt-3 hidden lg:block">
+                            <i class="mdi mdi-magnify absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="feeSearch" placeholder="Search Student Fees..."
+                                class="pl-8 pr-3 py-2 w-full border border-gray-200 text-xs outline-none focus:border-blue-500"
+                                style="border-radius: 0;" />
+                        </div>
+                    </div>
+
+                    <div class="flex flex-row items-center gap-1 w-full lg:w-auto">
+                        <button id="btnFilter"
+                            class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
+                            Filter
+                        </button>
+
+                        <button id="btnExport"
+                            class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
+                            Export
+                        </button>
+                    </div>
+                </div>
+
+                <div class="relative w-full mt-3 lg:hidden">
+                    <i class="mdi mdi-magnify absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="feeSearchMobile" placeholder="Search Student Fees..."
+                        class="pl-8 pr-3 py-1.5 w-full border border-gray-200 text-xs outline-none focus:border-blue-500"
+                        style="border-radius: 0;" />
+                </div>
+            </div>
+
+            <div id="filterModal"
+                class="premium-modal fixed inset-0 bg-black/50 hidden z-[9999] flex items-center justify-center p-12 sm:p-20">
+                <div class="bg-white p-4 w-full max-w-[320px] modal-content-sharp shadow-2xl" style="border-radius: 0;">
+
+                    <div>
+                        <h3 class="text-gray-800 text-[13px] font-medium leading-tight text-center capitalize tracking-normal">
+                            Student Fees Filter
+                        </h3>
+                        <div class="h-[1px] w-full bg-gray-200 mt-2.5"></div>
+                    </div>
+
+                    <div class="mt-3 mb-4 space-y-3">
+                        <div class="relative">
+                            <label class="text-[10px] text-gray-500 block mb-1">Class</label>
+                            <div class="relative">
+                                <select id="classFilter"
+                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
+                                    style="border-radius: 0; height: 32px;">
+                                    <option value="">All Classes</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                                    <i class="fas fa-chevron-down text-[9px]"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <label class="text-[10px] text-gray-500 block mb-1">Session</label>
+                            <div class="relative">
+                                <select id="sessionFilter"
+                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
+                                    style="border-radius: 0; height: 32px;">
+                                    <option value="">All Sessions</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                                    <i class="fas fa-chevron-down text-[9px]"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <label class="text-[10px] text-gray-500 block mb-1">Fee Type</label>
+                            <div class="relative">
+                                <select id="feeTypeFilter"
+                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
+                                    style="border-radius: 0; height: 32px;">
+                                    <option value="">All Fee Types</option>
+                                    <option value="Tuition">Tuition</option>
+                                    <option value="Admission">Admission</option>
+                                    <option value="Exams">Exams</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Session">Session</option>
+                                    <option value="Fine">Fine</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                                    <i class="fas fa-chevron-down text-[9px]"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <label class="text-[10px] text-gray-500 block mb-1">Status</label>
+                            <div class="relative">
+                                <select id="statusFilter"
+                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
+                                    style="border-radius: 0; height: 32px;">
+                                    <option value="">All Status</option>
+                                    @foreach (config('feestatus') as $key => $cfg)
+                                        <option value="{{ $key }}">{{ $cfg['label'] }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                                    <i class="fas fa-chevron-down text-[9px]"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button id="resetFilter"
+                            class="btn-outline-secondary border border-gray-200 w-full text-[11px] capitalize flex items-center justify-center"
+                            style="border-radius: 0; height: 32px;">Reset</button>
+                        <button id="applyFilter"
+                            class="btn-outline-premium border border-gray-200 w-full text-[11px] capitalize flex items-center justify-center"
+                            style="border-radius: 0; height: 32px;">Apply</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table class="min-w-[1100px]">
+                        <thead>
+                            <tr>
+                                <th class="text-left">Sl</th>
+                                <th>Student Name</th>
+                                <th>Student ID</th>
+                                <th>Class</th>
+                                <th>Fee Type</th>
+                                <th>Fee Name</th>
+                                <th>Amount</th>
+                                <th>Paid</th>
+                                <th>Due</th>
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="feeTableBody" class="bg-white divide-y divide-gray-100">
+                            <tr>
+                                <td colspan="11"
+                                    class="text-center py-10 text-gray-400 uppercase text-[10px] font-bold tracking-widest">
+                                    <i class="mdi mdi-loading mdi-spin mr-2"></i> Loading Student Fees...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-container">
+                    <div class="text-[10px] text-gray-500 font-bold uppercase tracking-widest" id="paginationInfo">0 of 0
+                    </div>
+                    <div class="flex items-center gap-1" id="paginationControls"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    @php
-        $statusOptions = collect(config('feestatus'))->map(function($cfg, $key) {
-            return $cfg['label'];
-        })->toArray();
-    @endphp
-
-    <x-modal.form
-        id="filterModal"
-        form-id="feeFilterForm"
-        title="Student Fees Filter"
-        close-button-id="resetFilter"
-        action="#"
-        method="GET"
-        :enctype="null"
-        class="fee-filter-modal"
-        panel-class="custom-scrollbar mx-auto my-auto w-full max-w-[288px] overflow-visible border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)] md:max-w-[480px]"
-    >
-        <x-input.dropdown-select
-            id="classFilter"
-            name="class_id"
-            placeholder="Select Class"
-            :value="request('class_id')"
-            :options="[]"
-            add-button-id="openClassFromFeeFilter"
-            add-button-label="Add class"
-            add-button-target="classModal"
-        />
-        <x-input.dropdown-select
-            id="sessionFilter"
-            name="session_id"
-            placeholder="Select Session"
-            :value="request('session_id')"
-            :options="[]"
-            add-button-id="openSessionFromFeeFilter"
-            add-button-label="Add session"
-            add-button-target="sessionModal"
-        />
-        <x-input.dropdown-select
-            id="feeTypeFilter"
-            name="fee_type_name"
-            placeholder="Select Fee Type"
-            :value="request('fee_type_name')"
-            :options="[
-                'Tuition' => 'Tuition',
-                'Admission' => 'Admission',
-                'Exams' => 'Exams',
-                'Food' => 'Food',
-                'Session' => 'Session',
-                'Fine' => 'Fine',
-                'Others' => 'Others',
-            ]"
-        />
-        <x-input.dropdown-select
-            id="statusFilter"
-            name="status"
-            placeholder="Select Status"
-            :value="request('status')"
-            :options="$statusOptions"
-        />
-
-        <x-slot:footer>
-            <div class="grid grid-cols-2 gap-3 border-slate-200 bg-white px-6 py-3">
-                <x-button.secondary id="resetFilter" type="button" class="w-full">Reset</x-button.secondary>
-                <x-button.primary id="applyFilter" type="button" class="w-full">Apply</x-button.primary>
+    {{-- Edit Fee Modal --}}
+    <div id="feeModal" class="fixed inset-0 bg-gray-900/60 flex items-center justify-center hidden z-[100] px-8 sm:px-40 py-12 backdrop-blur-sm overflow-y-auto">
+        <div class="bg-white w-full max-w-md modal-content-sharp shadow-2xl overflow-hidden flex flex-col my-auto max-h-[70vh] sm:max-h-[85vh] mx-auto border border-gray-100">
+            <div class="px-5 py-3 border-b flex justify-center items-center bg-white sticky top-0 z-10">
+                <h3 id="modalTitle" class="text-gray-800 text-[13px] font-medium leading-tight text-center capitalize tracking-normal">
+                    Edit Student Fee
+                </h3>
             </div>
-        </x-slot:footer>
-    </x-modal.form>
+            <form id="feeForm" class="flex flex-col overflow-hidden m-0">
+                @csrf
+                <input type="hidden" id="fee_id">
+                <div class="overflow-y-auto custom-scrollbar p-4 sm:p-6 flex-grow bg-gray-50/30">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
+                        <div class="col-span-1">
+                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Amount</label>
+                            <input type="number" id="amount" class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]" placeholder="0.00" style="border-radius: 0;" />
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Pay Date</label>
+                            <input type="date" id="pay_date" class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]" style="border-radius: 0;" />
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Fee Name</label>
+                            <input type="text" id="fee_name_input" class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]" placeholder="Fee name" style="border-radius: 0;" />
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Status</label>
+                            <select id="status_input" class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]" style="border-radius: 0;">
+                                @foreach (config('feestatus') as $key => $cfg)
+                                    <option value="{{ $key }}">{{ $cfg['label'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-4 sm:px-6 py-4 border-t border-gray-100 bg-white flex flex-row sm:justify-end gap-2 sticky bottom-0">
+                    <button type="button" onclick="closeFeeModal()" class="w-1/2 sm:w-auto sm:px-8 h-[32px] btn-outline-secondary border border-gray-200 text-[10px] tracking-normal capitalize transition-all hover:bg-gray-50 flex items-center justify-center whitespace-nowrap" style="border-radius: 0;">
+                        Cancel
+                    </button>
+                    <button type="submit" id="saveBtn" class="w-1/2 sm:w-auto sm:px-12 h-[32px] btn-outline-premium border border-gray-200 text-[10px] tracking-normal capitalize flex items-center justify-center whitespace-nowrap" style="border-radius: 0;">
+                        Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    @include('school.fees.student-fees.partials.student-fees-modal')
-    @include('school.academic.class.partials.class-modal')
-    @include('school.academic.session.partials.session-modal')
-    @include('school.fees.student-fees.partials.js.modal-open')
-    @include('school.academic.class.partials.js.modal-open')
-    @include('school.academic.session.partials.js.modal-open')
-    @include('school.fees.student-fees.partials.js.error-validation')
-    @include('school.academic.class.partials.js.error-validation')
-    @include('school.academic.session.partials.js.error-validation')
-    @include('school.fees.student-fees.partials.js.modal-submit')
-    @include('school.academic.class.partials.js.modal-submit')
-    @include('school.academic.session.partials.js.modal-submit')
-    @include('school.partials.export-dropdown')
-
-    <script>
-        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
-
-        let currentPage = 1;
-        let currentFilterClass = '';
-        let currentFilterSession = '';
-
-        function populateDropdown(menuId, data, valueField, labelField) {
-            const menu = document.querySelector(`#${menuId}`);
-            if (!menu) return;
-            menu.innerHTML = '';
-            data.forEach(item => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'dropdown-select-option m-0 flex min-h-6 w-full items-center border-0 bg-white px-3 py-1 text-left text-[11px] font-normal leading-tight transition-colors hover:bg-slate-100 text-slate-800';
-                btn.dataset.value = String(item[valueField]);
-                btn.textContent = item[labelField];
-                btn.setAttribute('role', 'option');
-                btn.setAttribute('aria-selected', 'false');
-                btn.setAttribute('data-dropdown-select-option', '');
-                btn.addEventListener('click', function() {
-                    const root = menu.closest('[data-dropdown-select]');
-                    const input = root.querySelector('[data-dropdown-select-input]');
-                    const label = root.querySelector('[data-dropdown-select-label]');
-                    input.value = this.dataset.value || '';
-                    label.textContent = this.textContent.trim();
-                    menu.querySelectorAll('[data-dropdown-select-option]').forEach(item => {
-                        const sel = item === this;
-                        item.classList.toggle('bg-slate-100', sel);
-                        item.classList.toggle('text-slate-900', sel);
-                        item.classList.toggle('text-slate-800', !sel);
-                        item.setAttribute('aria-selected', String(sel));
-                    });
-                    menu.classList.add('hidden');
-                    root.querySelector('[data-dropdown-select-button]')?.setAttribute('aria-expanded', 'false');
-                    const icon = root.querySelector('[data-dropdown-select-button] i');
-                    if (icon) icon.classList.remove('rotate-180');
-                    input.dispatchEvent(new Event('change', { bubbles: true }));
-                });
-                menu.appendChild(btn);
-            });
-        }
-
-        function setDropdownValue(dropdownId, value, label) {
-            const input = document.querySelector(`#${dropdownId}`);
-            if (input) input.value = value;
-            const labelEl = document.querySelector(`#${dropdownId}Button [data-dropdown-select-label]`);
-            if (labelEl) labelEl.textContent = label;
-        }
-
-        function fetchFees(page = 1) {
-            currentPage = page;
-            const search = document.getElementById('feeSearch')?.value || document.getElementById('feeSearchMobile')?.value || '';
-            axios.get('/api/student-fees', {
-                params: {
-                    page,
-                    search,
-                    class_id: currentFilterClass,
-                    session_id: currentFilterSession,
-                    fee_type_name: document.getElementById('feeTypeFilter')?.value || '',
-                    status: document.getElementById('statusFilter')?.value || '',
-                }
-            })
-            .then(res => {
-                const meta = res.data;
-                const items = res.data.data || [];
-                const tbody = document.getElementById('feeTableBody');
-                tbody.innerHTML = '';
-                if (items.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="11" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No student fees found.</td></tr>';
-                    document.getElementById('paginationInfo').innerText = '0 of 0';
-                    document.getElementById('paginationControls').innerHTML = '';
-                    return;
-                }
-                items.forEach((item, index) => {
-                    const student = item.student || {};
-                    const studentName = student.student_name || 'N/A';
-                    const studentIdNumber = student.student_id_number || 'N/A';
-                    const className = student.school_class?.class_name || student.class_name || 'N/A';
-                    let totalPaid = item.total_paid || 0;
-                    let remainingDue = item.remaining_due || parseFloat(item.amount) - totalPaid;
-                    if (remainingDue < 0) remainingDue = 0;
-                    const sl = meta.from ? meta.from + index : index + 1;
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-gray-50">
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${studentName}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${studentIdNumber}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${className}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.fee_type_name || '-'}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.fee_name || '-'}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${parseFloat(item.amount).toFixed(2)}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${totalPaid.toFixed(2)}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 ${remainingDue > 0 ? 'text-red-500 font-medium' : ''}">${remainingDue.toFixed(2)}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <span class="status-badge status-${item.status || 'pending'}">${item.status || 'pending'}</span>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
-                                <div class="flex h-6 w-full items-center justify-center -space-x-[3px]">
-                                    <button type="button" title="Edit" aria-label="Edit" onclick="editFee(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 hover:bg-gray-100 hover:text-blue-600 focus-visible:ring-blue-500">
-                                        <i class="far fa-edit text-xs" aria-hidden="true"></i>
-                                    </button>
-                                    <button type="button" title="Delete" aria-label="Delete" onclick="deleteFee(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 hover:bg-gray-100 hover:text-red-600 focus-visible:ring-red-500">
-                                        <i class="far fa-trash-alt text-xs" aria-hidden="true"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>`;
-                });
-                renderPagination(meta);
-            })
-            .catch(() => {
-                document.getElementById('feeTableBody').innerHTML = '<tr><td colspan="11" class="border border-gray-300 px-3 py-10 text-center text-red-400">Error loading data.</td></tr>';
-            });
-        }
-
-        function renderPagination(meta) {
-            const controls = document.getElementById('paginationControls');
-            document.getElementById('paginationInfo').innerText = `${meta.to || 0} of ${meta.total || 0}`;
-            controls.innerHTML = '';
-            if (!meta.total || meta.total === 0) return;
-            const prevBtn = document.createElement('button');
-            prevBtn.className = 'pagination-btn';
-            prevBtn.innerHTML = '<i class="mdi mdi-chevron-left"></i>';
-            prevBtn.disabled = meta.current_page === 1;
-            prevBtn.onclick = () => fetchFees(meta.current_page - 1);
-            controls.appendChild(prevBtn);
-            for (let i = 1; i <= meta.last_page; i++) {
-                const btn = document.createElement('button');
-                btn.className = `pagination-btn ${meta.current_page === i ? 'active' : ''}`;
-                btn.innerText = i;
-                btn.onclick = () => fetchFees(i);
-                controls.appendChild(btn);
-            }
-            const nextBtn = document.createElement('button');
-            nextBtn.className = 'pagination-btn';
-            nextBtn.innerHTML = '<i class="mdi mdi-chevron-right"></i>';
-            nextBtn.disabled = meta.current_page === meta.last_page;
-            nextBtn.onclick = () => fetchFees(meta.current_page + 1);
-            controls.appendChild(nextBtn);
-        }
-
-        function editFee(id) {
-            axios.get('/api/student-fees/' + id)
-                .then(res => {
-                    const item = res.data;
-                    document.getElementById('fee_id').value = item.id;
-                    document.getElementById('feeModalTitle').innerText = 'Edit Student Fee';
-                    document.getElementById('amount').value = item.amount || '';
-                    if (item.pay_date) {
-                        const d = new Date(item.pay_date);
-                        if (!isNaN(d.getTime())) {
-                            document.getElementById('pay_date').value = d.toISOString().split('T')[0];
-                        } else {
-                            document.getElementById('pay_date').value = item.pay_date;
-                        }
-                    }
-                    document.getElementById('fee_name_input').value = item.fee_name || '';
-                    setDropdownValue('status_input', item.status || 'pending', item.status || 'pending');
-                    document.getElementById('feeModal').classList.remove('hidden');
-                })
-                .catch(() => Swal.fire('Error', 'Failed to fetch record.', 'error'));
-        }
-
-        function deleteFee(id) {
-            Swal.fire({
-                title: 'Delete this fee record?',
-                text: 'This action cannot be undone.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                confirmButtonText: 'Yes, delete it'
-            }).then(r => {
-                if (r.isConfirmed) {
-                    axios.delete('/api/student-fees/' + id)
-                        .then(() => {
-                            Toastify({ text: 'Deleted Successfully', style: { background: '#ef4444' } }).showToast();
-                            fetchFees(currentPage);
-                        })
-                        .catch(() => Swal.fire('Error', 'Could not delete fee record.', 'error'));
-                }
-            });
-        }
-
-        function loadFilterOptions() {
-            axios.get('/api/get-school-classes').then(res => {
-                populateDropdown('classFilterMenu', res.data.data || [], 'id', 'class_name');
-            }).catch(() => {});
-        }
-
-        function loadSessionFilterByClass(classId) {
-            if (!classId) {
-                populateDropdown('sessionFilterMenu', [], 'id', 'session_year');
-                return;
-            }
-            axios.get('/api/school-sessions', { params: { class_id: classId } }).then(res => {
-                const sessions = res.data.data || [];
-                const uniqueYears = [...new Set(sessions.map(s => s.session_year).filter(Boolean))];
-                const yearItems = uniqueYears.map(y => ({ id: y, session_year: y }));
-                populateDropdown('sessionFilterMenu', yearItems, 'id', 'session_year');
-            }).catch(() => {});
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            loadFilterOptions();
-
-            document.getElementById('feeSearch')?.addEventListener('input', () => fetchFees(1));
-            document.getElementById('feeSearchMobile')?.addEventListener('input', function() {
-                document.getElementById('feeSearch').value = this.value;
-                fetchFees(1);
-            });
-
-            document.getElementById('btnFilter')?.addEventListener('click', () => {
-                document.getElementById('filterModal')?.classList.remove('hidden');
-            });
-            document.getElementById('resetFilter')?.addEventListener('click', () => {
-                setDropdownValue('classFilter', '', 'Select Class');
-                setDropdownValue('sessionFilter', '', 'Select Session');
-                populateDropdown('sessionFilterMenu', [], 'id', 'session_year');
-                setDropdownValue('feeTypeFilter', '', 'Select Fee Type');
-                setDropdownValue('statusFilter', '', 'Select Status');
-                currentFilterClass = '';
-                currentFilterSession = '';
-                currentPage = 1;
-                fetchFees(1);
-                document.getElementById('filterModal')?.classList.add('hidden');
-            });
-            document.getElementById('applyFilter')?.addEventListener('click', () => {
-                const classInput = document.getElementById('classFilter');
-                currentFilterClass = classInput ? classInput.value : '';
-                const sessionInput = document.getElementById('sessionFilter');
-                currentFilterSession = sessionInput ? sessionInput.value : '';
-                currentPage = 1;
-                fetchFees(1);
-                document.getElementById('filterModal')?.classList.add('hidden');
-            });
-            document.getElementById('btnRestoreDesktop')?.addEventListener('click', () => {
-                document.getElementById('feeSearch').value = '';
-                document.getElementById('feeSearchMobile').value = '';
-                currentFilterClass = '';
-                currentFilterSession = '';
-                currentPage = 1;
-                fetchFees(1);
-            });
-            document.getElementById('btnRestoreMobile')?.addEventListener('click', () => {
-                document.getElementById('feeSearchMobile').value = '';
-                document.getElementById('feeSearch').value = '';
-                currentFilterClass = '';
-                currentFilterSession = '';
-                currentPage = 1;
-                fetchFees(1);
-            });
-
-            document.getElementById('classFilter')?.addEventListener('change', function() {
-                setDropdownValue('sessionFilter', '', 'Select Session');
-                populateDropdown('sessionFilterMenu', [], 'id', 'session_year');
-                loadSessionFilterByClass(this.value);
-            });
-
-            const closeFeeModalBtn = document.getElementById('closeFeeModal');
-            if (closeFeeModalBtn) {
-                closeFeeModalBtn.addEventListener('click', closeFeeModal);
-            }
-
-            document.querySelectorAll('[role="dialog"]').forEach(dialog => {
-                dialog.addEventListener('click', function(e) {
-                    if (e.target === this) this.classList.add('hidden');
-                });
-            });
-
-            document.addEventListener('click', function(e) {
-                const btn = e.target.closest('[data-dropdown-add-target]');
-                if (btn) {
-                    const map = { classModal: 'Add Class', sessionModal: 'Add Session' };
-                    const title = map[btn.dataset.dropdownAddTarget];
-                    if (title) {
-                        const el = document.getElementById(btn.dataset.dropdownAddTarget + 'Title');
-                        if (el) el.innerText = title;
-                    }
-                }
-            });
-        });
-
-        fetchFees(1);
-    </script>
+    <script src="{{ asset('js/school/student-fees.js') }}"></script>
 @endsection
