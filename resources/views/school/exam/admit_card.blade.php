@@ -281,21 +281,20 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-row items-center gap-1 w-full lg:w-auto">
-                        <button onclick="toggleFilterModal()"
-                            class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
+                    <div class="grid w-full grid-cols-3 gap-2 lg:flex lg:w-auto">
+                        <x-button.secondary onclick="toggleFilterModal()" class="w-full lg:w-auto">
                             Filter
-                        </button>
+                        </x-button.secondary>
 
-                        <button onclick="document.getElementById('exportModal').classList.remove('hidden')"
-                            class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
-                            Export
-                        </button>
+                        <x-dropdown button-id="btnAdmitExport" menu-id="admitExportDropdown" label="Export">
+                            <x-dropdown.item onclick="exportData('pdf-mobile')">PDF</x-dropdown.item>
+                            <x-dropdown.item onclick="exportData('excel')">Excel</x-dropdown.item>
+                            <x-dropdown.item onclick="exportData('pdf')">Print</x-dropdown.item>
+                        </x-dropdown>
 
-                        <button onclick="openAdmitModal()"
-                            class="btn-outline-premium border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
+                        <x-button.primary onclick="openAdmitModal()" class="w-full lg:w-auto">
                             Admit Card
-                        </button>
+                        </x-button.primary>
                     </div>
                 </div>
 
@@ -309,106 +308,57 @@
             </div>
 
             {{-- Filter Modal --}}
-            <div id="filterModal"
-                class="premium-modal fixed inset-0 bg-black/50 hidden z-[9999] flex items-center justify-center p-12 sm:p-20"
-                onclick="toggleFilterModal()">
-                <div class="bg-white p-4 w-full max-w-[320px] modal-content-sharp shadow-2xl" style="border-radius: 0;"
-                    onclick="event.stopPropagation()">
-
-                    <div>
-                        <h3
-                            class="text-gray-800 text-[13px] font-medium leading-tight text-center capitalize tracking-normal">
-                            Admit Card filter
-                        </h3>
-                        <div class="h-[1px] w-full bg-gray-200 mt-2.5"></div>
-                    </div>
-
-                    <div class="mt-3 mb-4 space-y-3">
-                        {{-- Class Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Class</label>
-                            <div class="relative">
-                                <select id="filter_class_name" onchange="handleCascade(this, 'filter_group')"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Group Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Group</label>
-                            <div class="relative">
-                                <select id="filter_group_name" onchange="handleCascade(this, 'filter_section')"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Section Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Section</label>
-                            <div class="relative">
-                                <select id="filter_section_name" onchange="handleCascade(this, 'filter_session')"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Session Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Session</label>
-                            <div class="relative">
-                                <select id="filter_session_name"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Exam Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Exam Name</label>
-                            <div class="relative">
-                                <select id="filter_exam_name"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button onclick="resetFilters()"
-                            class="btn-outline-secondary border border-gray-200 w-full text-[11px] capitalize flex items-center justify-center"
-                            style="border-radius: 0; height: 32px;">Reset</button>
-                        <button onclick="applyFilters()"
-                            class="btn-outline-premium border border-gray-200 w-full text-[11px] capitalize flex items-center justify-center"
-                            style="border-radius: 0; height: 32px;">Apply</button>
-                    </div>
+            <x-modal.form
+                id="filterModal"
+                form-id="admitFilterForm"
+                title="Admit Card Filter"
+                close-button-id="closeAdmitFilterModal"
+                class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-black/50 p-4 sm:p-20"
+                panel-class="modal-content-sharp mx-auto my-auto flex max-h-[calc(100dvh-2rem)] w-full max-w-[320px] flex-col overflow-visible bg-white shadow-2xl"
+                panel-style="border-radius: 0;"
+                header-class="shrink-0 border-b border-gray-200 bg-white px-4 pb-3 pt-5"
+                title-class="m-0 text-center text-2xl font-semibold leading-tight text-gray-800"
+                form-class="m-0"
+                body-class="bg-white px-4 py-4"
+                fields-class="grid grid-cols-1 gap-3"
+                onclick="if (event.target === this) toggleFilterModal()"
+            >
+                <div>
+                    <label class="mb-1 block text-[10px] text-gray-500">Class</label>
+                    <x-input.dropdown-select id="filter_class_name" placeholder="Select Class" :options="[]" />
                 </div>
+
+                <div>
+                    <label class="mb-1 block text-[10px] text-gray-500">Group</label>
+                    <x-input.dropdown-select id="filter_group_name" placeholder="Select Group" :options="[]" />
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-[10px] text-gray-500">Section</label>
+                    <x-input.dropdown-select id="filter_section_name" placeholder="Select Section" :options="[]" />
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-[10px] text-gray-500">Session</label>
+                    <x-input.dropdown-select id="filter_session_name" placeholder="Select Session" :options="[]" />
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-[10px] text-gray-500">Exam Name</label>
+                    <x-input.dropdown-select id="filter_exam_name" placeholder="Select Exam" :options="[]" />
+                </div>
+
+                <x-slot:footer>
+                    <div class="grid grid-cols-2 gap-2 bg-white px-4 pb-5 pt-2">
+                        <x-button.secondary type="button" onclick="resetFilters()" class="w-full">
+                            Reset
+                        </x-button.secondary>
+                        <x-button.primary type="button" onclick="applyFilters()" class="w-full">
+                            Apply
+                        </x-button.primary>
+                    </div>
+                </x-slot:footer>
+            </x-modal.form>
             </div>
 
             {{-- Export Modal --}}
@@ -421,6 +371,10 @@
                         <button onclick="exportData('pdf-mobile')"
                             class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
                             PDF
+                        </button>
+                        <button onclick="exportData('excel')"
+                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
+                            EXCEL
                         </button>
                         <button onclick="exportData('pdf')"
                             class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
@@ -527,7 +481,7 @@
                             />
                         </div>
 
-                        <div class="col-span-1 sm:col-span-2">
+                        <div class="col-span-1">
                             <label
                                 class="block text-[10px] capitalize tracking-normal text-blue-600 mb-1.5 font-medium">Exam
                                 Name</label>
@@ -541,11 +495,7 @@
                             />
                         </div>
 
-                        <div id="admitPrerequisiteWarning" class="col-span-1 sm:col-span-2 hidden bg-yellow-50 border border-yellow-300 text-yellow-800 p-3 text-[10px]">
-                            Please create the Exam, Exam Routine, and Exam Fee before generating the Admit Card.
-                        </div>
-
-                        <div class="col-span-1 sm:col-span-2">
+                        <div class="col-span-1">
                             <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Generate
                                 For</label>
                             <x-input.dropdown-select
@@ -557,6 +507,14 @@
                                     ['value' => 'single', 'label' => 'Single Student'],
                                 ]"
                             />
+                        </div>
+
+                        <div id="admitPrerequisiteWarning"
+                            class="col-span-1 hidden border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] leading-4 text-amber-700 sm:col-span-2">
+                            <div class="flex items-start gap-2">
+                                <i class="fas fa-exclamation-circle mt-0.5 shrink-0 text-[10px]" aria-hidden="true"></i>
+                                <span>Please create the Exam and Exam Routine before generating the Admit Card.</span>
+                            </div>
                         </div>
 
                         <div id="single_student_container" class="col-span-1 sm:col-span-2 hidden">
@@ -580,14 +538,20 @@
 
         <x-slot:footer>
             <div class="sticky bottom-0 flex flex-row gap-2 border-t border-gray-100 bg-white px-4 py-4 sm:justify-end sm:px-6">
-                    <button id="closeAdmitModal" type="button" onclick="closeAdmitModal()"
-                        class="w-1/2 sm:w-auto sm:px-8 h-[32px] btn-outline-secondary border border-gray-200 text-[10px] tracking-normal capitalize transition-all hover:bg-gray-50 flex items-center justify-center whitespace-nowrap"
-                        style="border-radius: 0;">
+                    <x-button.secondary
+                        id="closeAdmitModal"
+                        type="button"
+                        onclick="document.getElementById('admitModal').classList.add('hidden')"
+                        class="w-1/2 sm:w-auto sm:px-8"
+                    >
                         Cancel
-                    </button>
-                    <button type="submit" id="submitBtn" disabled
-                        class="w-1/2 sm:w-auto sm:px-12 h-[32px] btn-outline-premium border border-gray-200 text-[10px] tracking-normal capitalize flex items-center justify-center whitespace-nowrap disabled:opacity-50"
-                        style="border-radius: 0;">
+                    </x-button.secondary>
+                    <x-button.primary
+                        type="submit"
+                        id="submitBtn"
+                        disabled
+                        class="w-1/2 sm:w-auto sm:px-12 disabled:opacity-50"
+                    >
                         <span id="btnSpinner" class="hidden">
                             <svg class="animate-spin h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24">
@@ -598,7 +562,7 @@
                             </svg>
                         </span>
                         <span id="btnText">Generate</span>
-                    </button>
+                    </x-button.primary>
             </div>
         </x-slot:footer>
     </x-modal.form>
@@ -795,12 +759,10 @@
 
         async function loadInitial() {
             await axios.get('/api/get-school-classes').then(res => {
-                let opts = '<option value="">Select Class</option>';
-                res.data.data.forEach(c => opts +=
-                    `<option value="${c.class_name}" data-id="${c.id}">${c.class_name}</option>`);
                 populateDropdown('class_nameMenu', res.data.data || [], 'class_name', 'class_name');
                 setDropdownValue('class_name', '', 'Select Class');
-                document.getElementById('filter_class_name').innerHTML = opts;
+                populateDropdown('filter_class_nameMenu', res.data.data || [], 'class_name', 'class_name');
+                setDropdownValue('filter_class_name', '', 'Select Class');
             });
             await fetchFilteredExams();
         }
@@ -817,11 +779,9 @@
             return axios.get('/api/get-school-exams', {
                 params
             }).then(res => {
-                let opts = '<option value="">Select Exam</option>';
-                res.data.data.forEach(e => opts +=
-                    `<option value="${e.exam_name}" data-id="${e.id}">${e.exam_name}</option>`);
                 if (isFilter) {
-                    document.getElementById('filter_exam_name').innerHTML = opts;
+                    populateDropdown('filter_exam_nameMenu', res.data.data || [], 'exam_name', 'exam_name');
+                    setDropdownValue('filter_exam_name', '', 'Select Exam');
                 } else {
                     populateDropdown('exam_nameMenu', res.data.data || [], 'exam_name', 'exam_name');
                     setDropdownValue('exam_name', '', 'Select Exam');
@@ -849,7 +809,7 @@
                     'filter_session_name' : 'session_name', 'Session', 'session_year');
             }
 
-            fetchFilteredExams(isFilter);
+            await fetchFilteredExams(isFilter);
             if (!isFilter) fetchStudentCount();
             if (callback) callback();
         }
@@ -932,7 +892,7 @@
                 if (res.data.valid) {
                     setPrerequisiteWarning(true, '');
                 } else {
-                    setPrerequisiteWarning(false, res.data.message || 'Please create the Exam, Exam Routine, and Exam Fee before generating the Admit Card.');
+                    setPrerequisiteWarning(false, res.data.message || 'Please create the Exam and Exam Routine before generating the Admit Card.');
                 }
             }).catch(err => {
                 const message = err.response?.data?.message || 'Unable to validate prerequisites at this time.';
@@ -1041,6 +1001,50 @@
                 search: document.getElementById('header_search').value,
                 export: type
             };
+
+            if (type === 'excel') {
+                axios.get('/api/school-exam-admit-cards', {
+                    params: {
+                        ...params,
+                        per_page: 500
+                    }
+                }).then(res => {
+                    const cards = res.data.data || [];
+
+                    if (!cards.length) {
+                        Swal.fire('Info', 'No admit cards found for current filters.', 'info');
+                        return;
+                    }
+
+                    const columns = [
+                        ['Class', 'class_name'],
+                        ['Group', 'group_name'],
+                        ['Section', 'section_name'],
+                        ['Session', 'session_name'],
+                        ['Exam Name', 'exam_name'],
+                        ['Student ID', 'student_id_number'],
+                        ['Student Name', 'student_name'],
+                        ['Admit Number', 'admit_card_number'],
+                    ];
+                    const csvValue = value => `"${String(value ?? '').replaceAll('"', '""')}"`;
+                    const csv = [
+                        columns.map(([label]) => csvValue(label)).join(','),
+                        ...cards.map(card => columns.map(([, key]) => csvValue(card[key] || '-')).join(',')),
+                    ].join('\n');
+                    const downloadUrl = URL.createObjectURL(new Blob([`\uFEFF${csv}`], {
+                        type: 'text/csv;charset=utf-8;'
+                    }));
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = 'admit-cards.csv';
+                    link.click();
+                    URL.revokeObjectURL(downloadUrl);
+                }).catch(() => {
+                    Swal.fire('Error', 'Failed to export admit cards. Please try again.', 'error');
+                });
+
+                return;
+            }
 
             if (type === 'pdf' || type === 'pdf-mobile') {
                 // Open window immediately to preserve user interaction context
@@ -1638,12 +1642,19 @@
         }
 
         function resetFilters() {
-            ['filter_class_name', 'filter_group_name', 'filter_section_name', 'filter_session_name', 'filter_exam_name',
-                'header_search'
-            ].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
+            const dropdowns = {
+                filter_class_name: 'Select Class',
+                filter_group_name: 'Select Group',
+                filter_section_name: 'Select Section',
+                filter_session_name: 'Select Session',
+                filter_exam_name: 'Select Exam',
+            };
+
+            Object.entries(dropdowns).forEach(([id, placeholder]) => {
+                setDropdownValue(id, '', placeholder);
             });
+
+            document.getElementById('header_search').value = '';
             fetchTable(1);
             toggleFilterModal();
         }
@@ -1671,6 +1682,23 @@
             document.getElementById('admitModal').classList.add('hidden');
         }
 
+        document.addEventListener('click', function(event) {
+            const trigger = event.target.closest('#btnAdmitExport');
+            const menu = document.getElementById('admitExportDropdown');
+
+            if (trigger && menu) {
+                event.stopPropagation();
+                menu.classList.toggle('hidden');
+                trigger.setAttribute('aria-expanded', String(!menu.classList.contains('hidden')));
+                return;
+            }
+
+            if (!event.target.closest('#admitExportDropdown') && menu) {
+                menu.classList.add('hidden');
+                document.getElementById('btnAdmitExport')?.setAttribute('aria-expanded', 'false');
+            }
+        });
+
         document.getElementById('class_name')?.addEventListener('change', function() {
             handleCascade(this, 'group');
         });
@@ -1690,8 +1718,28 @@
             updateAdmitSubmitState();
         });
         document.getElementById('student_id')?.addEventListener('change', updateAdmitSubmitState);
+        document.getElementById('filter_class_name')?.addEventListener('change', function() {
+            handleCascade(this, 'filter_group');
+        });
+        document.getElementById('filter_group_name')?.addEventListener('change', function() {
+            handleCascade(this, 'filter_section');
+        });
+        document.getElementById('filter_section_name')?.addEventListener('change', function() {
+            handleCascade(this, 'filter_session');
+        });
+        document.getElementById('filter_session_name')?.addEventListener('change', function() {
+            fetchFilteredExams(true);
+        });
 
-        loadInitial();
-        fetchTable();
+        function initializeAdmitCardPage() {
+            loadInitial();
+            fetchTable();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeAdmitCardPage);
+        } else {
+            initializeAdmitCardPage();
+        }
     </script>
 @endsection
