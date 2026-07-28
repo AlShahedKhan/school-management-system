@@ -89,7 +89,7 @@ class SchoolStudentController extends Controller
           });
         if ($request->boolean('all')) {
             $query->where('status', '!=', StudentStatus::Inactive->value);
-            $students = $query->orderBy('id', 'desc')->get();
+            $students = $query->orderBy('id', 'asc')->get();
             $studentIds = $students->pluck('id')->toArray();
             $promotedIds = StudentPromotion::whereIn('student_id', $studentIds)->pluck('student_id')->toArray();
             $readmittedIds = StudentReadmission::whereIn('student_id', $studentIds)->pluck('student_id')->toArray();
@@ -109,7 +109,7 @@ class SchoolStudentController extends Controller
             return response()->json($students);
         }
         $perPage = (int) $request->input('per_page', 30);
-        $students = $query->orderBy('id', 'desc')->paginate($perPage);
+        $students = $query->orderBy('id', 'asc')->paginate($perPage);
         $studentIds = $students->getCollection()->pluck('id')->toArray();
         $promotedIds = StudentPromotion::whereIn('student_id', $studentIds)->pluck('student_id')->toArray();
         $readmittedIds = StudentReadmission::whereIn('student_id', $studentIds)->pluck('student_id')->toArray();
