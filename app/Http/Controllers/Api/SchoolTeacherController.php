@@ -144,7 +144,7 @@ class SchoolTeacherController extends Controller
 
                 // Create TeacherAcademicRecord
                 $activeSession = \App\Models\SchoolSession::where('school_id', $school->id)
-                    ->where('is_active', true)
+                    ->active()
                     ->first() ?? \App\Models\SchoolSession::where('school_id', $school->id)->latest()->first();
 
                 if ($activeSession) {
