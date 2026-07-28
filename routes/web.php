@@ -265,6 +265,8 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
     // Teacher & Student
     Route::get('/school/teacher-registration', [DashboardController::class, 'teacherRegistration'])
         ->name('school.teacher-registration');
+    Route::get('/school/get-teachers-data', [\App\Http\Controllers\Api\SchoolTeacherController::class, 'index'])
+        ->name('school.teachers.data');
     Route::get('/school/teacher-id-card', [DashboardController::class, 'underConstruction'])
         ->name('school.teacher-id-card');
     Route::get('/school/teacher-attendance', [DashboardController::class, 'underConstruction'])

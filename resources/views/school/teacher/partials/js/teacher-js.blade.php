@@ -5,6 +5,7 @@
     const teacherMobileInput = document.querySelector('#teacherForm input[name="mobile"]');
     const teacherMobileError = document.getElementById('teacherMobileError');
     let currentPage = {{ isset($teachers) ? $teachers->currentPage() : 1 }};
+    let currentTeachersList = [];
 
     function sanitizeEnglishDigits(value) {
         return value.replace(/[^0-9]/g, '');
@@ -182,7 +183,7 @@
         const designation = document.getElementById('teacherFilterDesignation')?.value || '';
         const status = document.getElementById('teacherFilterStatus')?.value || '';
 
-        axios.get('{{ url('/api/teachers') }}', {
+        axios.get('{{ route('school.teachers.data') }}', {
                 params: {
                     search,
                     teacher_id: teacherId,
@@ -192,19 +193,21 @@
                 }
             })
             .then(res => {
-                const teachers = res.data.data || res.data;
-                const meta = res.data.meta || {
-                    current_page: 1,
-                    last_page: 1,
-                    total: teachers.length,
-                    from: 1,
-                    to: teachers.length
+                const teachers = res.data.data || (Array.isArray(res.data) ? res.data : []);
+                currentTeachersList = teachers;
+                const meta = {
+                    current_page: res.data.current_page || 1,
+                    last_page: res.data.last_page || 1,
+                    total: res.data.total !== undefined ? res.data.total : teachers.length,
+                    per_page: res.data.per_page || 10,
+                    from: res.data.from || (teachers.length ? 1 : 0),
+                    to: res.data.to || teachers.length
                 };
                 tbody.innerHTML = '';
                 teachers.forEach((t, index) => {
                     const sl = ((meta.current_page - 1) * (meta.per_page || teachers.length)) + index + 1;
                     const photoUrl = t.photo ? `/storage/${t.photo}` :
-                        'https://ui-avatars.com/api/?background=random&name=' + t.name;
+                        'https://ui-avatars.com/api/?background=random&name=' + encodeURIComponent(t.name);
                     const statusVal = t.status || 'Active';
                     const statusHtml = statusVal === 'Hold' 
                         ? `<span class="px-2 py-0.5 text-[10px] font-semibold bg-red-100 text-red-700 rounded-full">Hold</span>`
@@ -213,35 +216,68 @@
                     let startDate = t.salary_start_date || '-';
                     if (startDate.includes('T')) startDate = startDate.split('T')[0];
                     const salaryFormatted = parseFloat(t.salary_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    const safeName = (t.name || '').replace(/"/g, '&quot;');
 
                     tbody.innerHTML += `
                    <tr class="hover:bg-gray-50">
                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
-                       <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center"><img src="${photoUrl}" alt="${t.name}" class="h-6 w-6 rounded-full object-cover inline-block" /></td>
-                       <td class="h-8 border border-gray-300 px-3 font-medium">${t.name}</td>
-                       <td class="h-8 border border-gray-300 px-3 font-mono">${t.id_number || 'PENDING'}</td>
-                       <td class="h-8 border border-gray-300 px-3">${t.designation || 'N/A'}</td>
+                       <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center"><img src="${photoUrl}" alt="${safeName}" class="h-6 w-6 rounded-full object-cover inline-block" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?background=random&name=${encodeURIComponent(t.name)}';" /></td>
+                       <td class="h-8 whitespace-nowrap border border-gray-300 px-3 font-mono">${t.id_number || 'PENDING'}</td>
+                       <td class="h-8 whitespace-nowrap border border-gray-300 px-3 font-medium text-slate-800">${t.name}</td>
+                       <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${t.designation || 'N/A'}</td>
                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><a href="tel:${t.mobile}" class="inline-block text-blue-500">${t.mobile}</a></td>
                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-right font-medium">৳${salaryFormatted}</td>
                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${startDate}</td>
                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${t.pay_date || '-'}</td>
-                       <td class="h-8 border border-gray-300 px-3 text-center">${statusHtml}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center min-w-[110px]">
+                       <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${statusHtml}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
                             <div class="flex h-6 w-full items-center justify-center space-x-1">
-                                <button type="button" onclick="editTeacher(${t.id})" class="text-blue-600 hover:text-blue-800 p-1" title="Edit ${t.name}">
+                                <button type="button" onclick="editTeacher(${t.id})" class="text-blue-600 hover:text-blue-800 p-1" title="Edit ${safeName}">
                                     <i class="far fa-edit text-xs"></i>
                                 </button>
-                                <button type="button" onclick="toggleTeacherStatus(${t.id}, '${statusVal}', '${t.name.replace(/'/g, "\\'")}', '${(t.designation || '').replace(/'/g, "\\'")}', '${t.id_number}')" class="text-gray-600 hover:text-slate-800 p-1" title="Toggle Status">
+                                <button type="button" onclick="toggleTeacherStatus(${t.id})" class="text-gray-600 hover:text-slate-800 p-1" title="Toggle Status">
                                     <i class="fas fa-toggle-on text-xs"></i>
                                 </button>
-                                <button type="button" onclick="deleteTeacher(${t.id})" class="text-red-600 hover:text-red-800 p-1" title="Delete ${t.name}">
+                                <button type="button" onclick="deleteTeacher(${t.id})" class="text-red-600 hover:text-red-800 p-1" title="Delete ${safeName}">
                                     <i class="far fa-trash-alt text-xs"></i>
                                 </button>
                             </div>
                         </td>
                    </tr>`;
                 });
+                renderPagination(meta);
             }).catch(e => console.error("Load failed", e));
+    }
+
+    function renderPagination(meta) {
+        const controls = document.getElementById('paginationControls');
+        const info = document.getElementById('paginationInfo');
+        if (!info || !controls) return;
+        info.innerText = `${meta.to || 0} of ${meta.total || 0}`;
+        controls.innerHTML = '';
+
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'pagination-btn';
+        prevBtn.innerHTML = '<i class="mdi mdi-chevron-left"></i>';
+        prevBtn.disabled = meta.current_page === 1;
+        prevBtn.onclick = () => fetchTeachers(meta.current_page - 1);
+        controls.appendChild(prevBtn);
+
+        for (let i = 1; i <= meta.last_page; i++) {
+            if (i > 5 && i < meta.last_page) continue;
+            const pgBtn = document.createElement('button');
+            pgBtn.className = `pagination-btn ${meta.current_page === i ? 'active' : ''}`;
+            pgBtn.innerText = i;
+            pgBtn.onclick = () => fetchTeachers(i);
+            controls.appendChild(pgBtn);
+        }
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'pagination-btn';
+        nextBtn.innerHTML = '<i class="mdi mdi-chevron-right"></i>';
+        nextBtn.disabled = meta.current_page === meta.last_page;
+        nextBtn.onclick = () => fetchTeachers(meta.current_page + 1);
+        controls.appendChild(nextBtn);
     }
 
     let teacherSearchTimer = null;
@@ -362,7 +398,15 @@
         });
     }
 
-    function toggleTeacherStatus(id, currentStatus, name, designation, idNumber) {
+    function toggleTeacherStatus(id) {
+        const teacher = currentTeachersList.find(t => String(t.id) === String(id));
+        if (!teacher) return;
+
+        const currentStatus = teacher.status || 'Active';
+        const name = teacher.name;
+        const designation = teacher.designation || '';
+        const idNumber = teacher.id_number || '';
+
         if (currentStatus === 'Hold') {
             Swal.fire({
                 title: 'Reactivate Faculty?',
@@ -406,14 +450,56 @@
         }
     }
 
+    let allTeachersData = [];
+
+    function updateDependentFilterOptions(source) {
+        const teacherInput = document.getElementById('teacherFilter');
+        const designationInput = document.getElementById('teacherFilterDesignation');
+        const statusInput = document.getElementById('teacherFilterStatus');
+
+        const selectedTeacherId = teacherInput?.value || '';
+        const selectedDesignation = designationInput?.value || '';
+        const selectedStatus = statusInput?.value || '';
+
+        if (source === 'teacher' && selectedTeacherId) {
+            const targetTeacher = allTeachersData.find(t => String(t.id) === String(selectedTeacherId));
+            if (targetTeacher) {
+                if (targetTeacher.designation) {
+                    const desigOpts = [...new Set(allTeachersData.map(t => t.designation).filter(Boolean))].map(d => ({ value: d, label: d }));
+                    populateDropdownSelect('teacherFilterDesignation', desigOpts, targetTeacher.designation, 'Select Designation');
+                }
+                const statusVal = targetTeacher.status || 'Active';
+                const statusOpts = [
+                    { value: 'Active', label: 'Active' },
+                    { value: 'Hold', label: 'Hold' }
+                ];
+                populateDropdownSelect('teacherFilterStatus', statusOpts, statusVal, 'Select Status');
+            }
+            return;
+        }
+
+        let filteredTeachers = allTeachersData;
+        if (selectedDesignation) {
+            filteredTeachers = filteredTeachers.filter(t => t.designation === selectedDesignation);
+        }
+        if (selectedStatus) {
+            filteredTeachers = filteredTeachers.filter(t => (t.status || 'Active') === selectedStatus);
+        }
+
+        const teacherOpts = filteredTeachers.map(t => ({ value: String(t.id), label: `${t.name} (${t.id_number || ''})` }));
+        const currentValid = filteredTeachers.some(t => String(t.id) === String(selectedTeacherId));
+        populateDropdownSelect('teacherFilter', teacherOpts, currentValid ? selectedTeacherId : '', 'Select Teacher');
+    }
+
     function initFilterOptions() {
-        axios.get('{{ url('/api/teachers') }}', { params: { all: true } })
+        axios.get('{{ route('school.teachers.data') }}', { params: { all: true } })
             .then(res => {
-                const teachers = res.data.data || res.data || [];
-                const teacherOpts = teachers.map(t => ({ value: t.id, label: `${t.name} (${t.id_number || ''})` }));
+                allTeachersData = res.data.data || res.data || [];
+
+                const teacherOpts = allTeachersData.map(t => ({ value: t.id, label: `${t.name} (${t.id_number || ''})` }));
                 populateDropdownSelect('teacherFilter', teacherOpts, '', 'Select Teacher');
 
-                const designations = [...new Set(teachers.map(t => t.designation).filter(Boolean))];
+                const designations = [...new Set(allTeachersData.map(t => t.designation).filter(Boolean))];
                 const desigOpts = designations.map(d => ({ value: d, label: d }));
                 populateDropdownSelect('teacherFilterDesignation', desigOpts, '', 'Select Designation');
             })
@@ -426,12 +512,35 @@
         populateDropdownSelect('teacherFilterStatus', statusOpts, '', 'Select Status');
     }
 
+    function initTeacherPage() {
+        if (document.getElementById('teacherTableBody')) {
+            fetchTeachers();
+        }
+        initFilterOptions();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTeacherPage);
+    } else {
+        initTeacherPage();
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('closeDeactivateTeacherModal')?.addEventListener('click', () => {
             document.getElementById('deactivateTeacherModal').classList.add('hidden');
         });
 
-        initFilterOptions();
+        document.getElementById('teacherFilterDesignation')?.addEventListener('change', () => {
+            updateDependentFilterOptions('designation');
+        });
+
+        document.getElementById('teacherFilter')?.addEventListener('change', () => {
+            updateDependentFilterOptions('teacher');
+        });
+
+        document.getElementById('teacherFilterStatus')?.addEventListener('change', () => {
+            updateDependentFilterOptions('status');
+        });
 
         document.getElementById('btnFilter')?.addEventListener('click', () => {
             document.getElementById('filterModal')?.classList.remove('hidden');
