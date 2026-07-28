@@ -65,3 +65,9 @@ Schedule::command('sms:send-campaigns')
     ->everyMinute()
     ->timezone('Asia/Dhaka')
     ->withoutOverlapping();
+
+// Create missing admit cards for students before matching exams end.
+Schedule::command('school:generate-active-exam-admit-cards')
+    ->dailyAt('00:05')
+    ->timezone('Asia/Dhaka')
+    ->withoutOverlapping();

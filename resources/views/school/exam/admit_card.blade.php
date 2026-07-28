@@ -1145,6 +1145,143 @@
             return candidates;
         }
 
+        function escapeAdmitCardHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function getAdmitCardPrintData(card, school, address) {
+            const rawStudentImage = card.student_image
+                ? (String(card.student_image).startsWith('http')
+                    ? String(card.student_image)
+                    : `${window.location.origin}/storage/${card.student_image}`)
+                : '';
+
+            return {
+                logo: escapeAdmitCardHtml(school?.logo || ''),
+                schoolName: escapeAdmitCardHtml(school?.school_name || 'School Name'),
+                mobile: escapeAdmitCardHtml(school?.mobile || ''),
+                email: escapeAdmitCardHtml(school?.email || ''),
+                address: escapeAdmitCardHtml(address || ''),
+                studentImage: escapeAdmitCardHtml(rawStudentImage),
+                principalSignature: escapeAdmitCardHtml(school?.principal_signature || ''),
+                studentName: escapeAdmitCardHtml(card.student_name || '-'),
+                studentId: escapeAdmitCardHtml(card.student_id_number || '-'),
+                fatherName: escapeAdmitCardHtml(card.father_name || '-'),
+                admitCardNumber: escapeAdmitCardHtml(card.admit_card_number || '-'),
+                className: escapeAdmitCardHtml(card.class_name || '-'),
+                groupName: escapeAdmitCardHtml(card.group_name || '-'),
+                sectionName: escapeAdmitCardHtml(card.section_name || '-'),
+                sessionName: escapeAdmitCardHtml(card.session_name || '-'),
+                examName: escapeAdmitCardHtml(card.exam_name || '-'),
+            };
+        }
+
+        function getAdmitCardUtilityStyles() {
+            return `
+                .relative { position: relative; }
+                .absolute { position: absolute; }
+                .inset-0 { inset: 0; }
+                .flex { display: flex; }
+                .flex-col { flex-direction: column; }
+                .flex-grow { flex-grow: 1; min-width: 0; }
+                .flex-shrink-0 { flex-shrink: 0; }
+                .items-center { align-items: center; }
+                .items-start { align-items: flex-start; }
+                .items-end { align-items: flex-end; }
+                .items-baseline { align-items: baseline; }
+                .justify-between { justify-content: space-between; }
+                .justify-center { justify-content: center; }
+                .justify-end { justify-content: flex-end; }
+                .justify-start { justify-content: flex-start; }
+                .h-full { height: 100%; }
+                .h-9 { height: 36px; }
+                .h-14 { height: 56px; }
+                .h-16 { height: 64px; }
+                .w-full { width: 100%; }
+                .w-16 { width: 64px; }
+                .w-32 { width: 128px; }
+                .w-64 { width: 256px; }
+                .w-\\[48\\%\\] { width: 48%; }
+                .max-h-9 { max-height: 36px; }
+                .max-w-\\[95px\\] { max-width: 95px; }
+                .gap-1 { gap: 4px; }
+                .gap-4 { gap: 16px; }
+                .space-y-1 > * + * { margin-top: 4px; }
+                .p-1 { padding: 4px; }
+                .p-1\\.5 { padding: 6px; }
+                .p-5 { padding: 20px; }
+                .px-2 { padding-left: 8px; padding-right: 8px; }
+                .px-4 { padding-left: 16px; padding-right: 16px; }
+                .py-0\\.5 { padding-top: 2px; padding-bottom: 2px; }
+                .pb-2 { padding-bottom: 8px; }
+                .pt-0\\.5 { padding-top: 2px; }
+                .mb-0\\.5 { margin-bottom: 2px; }
+                .mb-3 { margin-bottom: 12px; }
+                .mt-0\\.5 { margin-top: 2px; }
+                .mt-2 { margin-top: 8px; }
+                .mt-4 { margin-top: 16px; }
+                .text-center { text-align: center; }
+                .text-left { text-align: left; }
+                .text-xl { font-size: 20px; }
+                .text-xs { font-size: 12px; }
+                .text-gray-900 { color: #111827; }
+                .text-gray-800 { color: #1f2937; }
+                .text-gray-650 { color: #475569; }
+                .text-gray-600 { color: #4b5563; }
+                .text-gray-500 { color: #6b7280; }
+                .text-gray-400 { color: #9ca3af; }
+                .text-slate-800 { color: #1e293b; }
+                .text-slate-700 { color: #334155; }
+                .text-slate-500 { color: #64748b; }
+                .text-blue-900 { color: #1e3a8a; }
+                .font-bold { font-weight: 700; }
+                .font-semibold { font-weight: 600; }
+                .font-medium { font-weight: 500; }
+                .font-mono { font-family: Consolas, 'Courier New', monospace; }
+                .uppercase { text-transform: uppercase; }
+                .capitalize { text-transform: capitalize; }
+                .tracking-wide { letter-spacing: .025em; }
+                .tracking-wider { letter-spacing: .05em; }
+                .leading-tight { line-height: 1.25; }
+                .leading-relaxed { line-height: 1.625; }
+                .whitespace-nowrap { white-space: nowrap; }
+                .overflow-hidden { overflow: hidden; }
+                .pointer-events-none { pointer-events: none; }
+                .z-0 { z-index: 0; }
+                .z-10 { z-index: 10; }
+                .opacity-\\[0\\.06\\] { opacity: .06; }
+                .object-cover { object-fit: cover; }
+                .object-contain { object-fit: contain; }
+                .border { border: 1px solid #d1d5db; }
+                .border-b { border-bottom-width: 1px; border-bottom-style: solid; }
+                .border-t { border-top-width: 1px; border-top-style: solid; }
+                .border-gray-800 { border-color: #1f2937; }
+                .border-gray-400 { border-color: #9ca3af; }
+                .border-gray-300 { border-color: #d1d5db; }
+                .border-slate-800 { border-color: #1e293b; }
+                .border-dashed { border-style: dashed; }
+                .bg-gray-100 { background-color: #f3f4f6; }
+                .bg-gray-50 { background-color: #f9fafb; }
+                .shrink-0 { flex-shrink: 0; }
+                .routine-table { width: 100%; table-layout: fixed; border-collapse: collapse; }
+                .routine-table th, .routine-table td { border: 1px solid #1e293b; padding: 6px; }
+                .routine-table th { background: #f3f4f6; font-weight: 700; white-space: nowrap; }
+                .routine-table .routine-date { width: 22%; text-align: center; white-space: nowrap; }
+                .routine-table .routine-time { width: 28%; text-align: center; white-space: nowrap; }
+                .routine-table .routine-subject { width: 50%; text-align: left; overflow-wrap: anywhere; word-break: break-word; }
+                .flex.items-baseline > span:last-child { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+                [class~="text-[9px]"] { font-size: 9px; }
+                [class~="text-[9.5px]"] { font-size: 9.5px; }
+                [class~="text-[10px]"] { font-size: 10px; }
+                [class~="text-[11px]"] { font-size: 11px; }
+            `;
+        }
+
         function buildRoutineTableRows(cardRoutines) {
             let rowsHtml = '';
             const formatDate = (dateStr) => {
@@ -1156,35 +1293,41 @@
                 const year = d.getFullYear().toString().substring(2);
                 return `${day}-${month}-${year}`;
             };
+            const formatTime = (timeStr) => {
+                if (!timeStr) return '-';
+
+                const rawTime = String(timeStr).trim();
+                if (/\b(?:AM|PM)\b/i.test(rawTime)) return rawTime;
+
+                const [rawHour, rawMinute] = rawTime.split(':');
+                const hour = Number(rawHour);
+                const minute = Number(rawMinute);
+                if (!Number.isInteger(hour) || !Number.isInteger(minute)) return rawTime;
+
+                const period = hour >= 12 ? 'PM' : 'AM';
+                const displayHour = hour % 12 || 12;
+                return `${displayHour}:${String(minute).padStart(2, '0')} ${period}`;
+            };
 
             if (!cardRoutines || cardRoutines.length === 0) {
                 return `
                                                                                                                 <tr>
                                                                                                                     <td class="border border-slate-800 p-1.5 font-mono text-center">-</td>
-                                                                                                                    <td class="border border-slate-800 p-1.5 text-left px-2 font-semibold">-</td>
                                                                                                                     <td class="border border-slate-800 p-1.5 font-mono text-center">-</td>
                                                                                                                     <td class="border border-slate-800 p-1.5 text-left px-2 font-semibold">-</td>
                                                                                                                 </tr>
                                                                                                             `;
             }
 
-            // Pair routines up for 2-column display to reduce vertical space
-            for (let i = 0; i < cardRoutines.length; i += 2) {
-                const item1 = cardRoutines[i];
-                const item2 = cardRoutines[i + 1] || null;
-
-                const date1 = formatDate(item1.exam_date);
-                const subj1 = item1.subject_name;
-
-                const date2 = item2 ? formatDate(item2.exam_date) : '';
-                const subj2 = item2 ? item2.subject_name : '';
-
+            for (const item of cardRoutines) {
+                const date = escapeAdmitCardHtml(formatDate(item.exam_date));
+                const time = escapeAdmitCardHtml(`${formatTime(item.start_time)} - ${formatTime(item.end_time)}`);
+                const subject = escapeAdmitCardHtml(item.subject_name || '-');
                 rowsHtml += `
                     <tr>
-                        <td class="border border-slate-800 p-1.5 font-mono text-center">${date1}</td>
-                        <td class="border border-slate-800 p-1.5 text-left px-2 font-semibold">${subj1}</td>
-                        <td class="border border-slate-800 p-1.5 font-mono text-center">${date2}</td>
-                        <td class="border border-slate-800 p-1.5 text-left px-2 font-semibold">${subj2}</td>
+                        <td class="routine-date font-mono">${date}</td>
+                        <td class="routine-time font-mono">${time}</td>
+                        <td class="routine-subject font-semibold">${subject}</td>
                     </tr>
                 `;
             }
@@ -1205,11 +1348,10 @@
             const currentDate = `${dd}-${mm}-${yyyy}`;
 
             let html = `<!DOCTYPE html><html><head><title>Admit Card PDF</title>
-                <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"><\/script>
-                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+                <style>${getAdmitCardUtilityStyles()}</style>
                 <style>
                     @page { size: A4 portrait; margin: 0; }
-                    * { border-radius: 0 !important; font-family: 'Inter', sans-serif; box-sizing: border-box; }
+                    * { border-radius: 0 !important; font-family: Arial, Helvetica, sans-serif; box-sizing: border-box; }
                     body { margin: 0; padding: 0; background: #f3f4f6; }
                     .card-page {
                         width: 100vw;
@@ -1242,14 +1384,15 @@
             admitCards.forEach(card => {
                 const cardRoutines = getRoutinesForCard(card, routines);
                 const routineRowsHtml = buildRoutineTableRows(cardRoutines);
+                const printData = getAdmitCardPrintData(card, school, address);
 
                 html += `
                                                                                                                 <div class="card-page">
                                                                                                                     <div class="card-inner">
                                                                                                                         <!-- Watermark -->
-                                                                                                                        ${school?.logo ? `
-                                                                                                                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.06] z-0">
-                                                                                                                                <img src="${school.logo}" class="w-64 h-64 object-contain">
+                                                                                                                        ${printData.logo ? `
+                                                                                                                           <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.06] z-0">
+                                                                                                                                <img src="${printData.logo}" class="w-64 h-64 object-contain" alt="">
                                                                                                                             </div>
                                                                                                                         ` : ''}
 
@@ -1259,24 +1402,24 @@
                                                                                                                                 <div class="flex justify-between items-center gap-4">
                                                                                                                                     <!-- Left: School logo -->
                                                                                                                                     <div class="w-16 h-16 flex-shrink-0 flex items-center justify-start">
-                                                                                                                                        ${school?.logo ? `<img src="${school.logo}" class="h-16 w-16 object-cover border border-gray-300" style="border-radius: 50% !important;">` : `
+                                                                                                                                        ${printData.logo ? `<img src="${printData.logo}" class="h-16 w-16 object-cover border border-gray-300" alt="School logo" style="border-radius: 50% !important;">` : `
                                                                                                                                             <div class="h-16 w-16 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400" style="border-radius: 50% !important;">Logo</div>
                                                                                                                                         `}
                                                                                                                                     </div>
 
                                                                                                                                     <!-- Middle: School details -->
                                                                                                                                     <div class="text-center flex-grow px-2">
-                                                                                                                                        <h1 class="text-xl font-bold text-gray-900 tracking-wide uppercase leading-tight">${school?.school_name || 'School Name'}</h1>
+                                                                                                                                        <h1 class="text-xl font-bold text-gray-900 tracking-wide uppercase leading-tight">${printData.schoolName}</h1>
                                                                                                                                         <p class="text-xs text-gray-650 font-bold mt-0.5">
-                                                                                                                                            ${school?.mobile ? school.mobile : ''} ${school?.mobile && school?.email ? ' | ' : ''} ${school?.email ? school.email : ''}
+                                                                                                                                            ${printData.mobile} ${printData.mobile && printData.email ? ' | ' : ''} ${printData.email}
                                                                                                                                         </p>
-                                                                                                                                        <p class="text-xs text-gray-500 font-semibold leading-tight">${address}</p>
+                                                                                                                                        <p class="text-xs text-gray-500 font-semibold leading-tight">${printData.address}</p>
                                                                                                                                     </div>
 
                                                                                                                                     <!-- Right: Student Photo -->
                                                                                                                                     <div class="w-16 h-16 flex-shrink-0 flex items-center justify-end">
-                                                                                                                                        ${card.student_image ? `
-                                                                                                                                            <img src="${card.student_image.startsWith('http') ? card.student_image : window.location.origin + '/storage/' + card.student_image}" class="w-16 h-16 border border-slate-800 object-cover" style="border-radius: 50% !important;">
+                                                                                                                                        ${printData.studentImage ? `
+                                                                                                                                            <img src="${printData.studentImage}" class="w-16 h-16 border border-slate-800 object-cover" alt="Student photo" style="border-radius: 50% !important;">
                                                                                                                                         ` : `
                                                                                                                                             <div class="w-16 h-16 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400 bg-gray-50" style="border-radius: 50% !important;">Photo</div>
                                                                                                                                         `}
@@ -1290,29 +1433,28 @@
                                                                                                                             <!-- Student Info -->
                                                                                                                             <div class="flex justify-between items-start text-[11px] text-gray-900 mb-3 leading-relaxed">
                                                                                                                                 <div class="w-[48%] space-y-1 text-left">
-                                                                                                                                    <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Student Name</span><span>:</span><span class="font-bold capitalize">${card.student_name}</span></div>
-                                                                                                                                    <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Student ID</span><span>:</span><span class="font-mono font-bold">${card.student_id_number}</span></div>
-                                                                                                                                    <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Father's Name</span><span>:</span><span class="capitalize">${card.father_name || '-'}</span></div>
-                                                                                                                                    <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Admit Card No</span><span>:</span><span class="font-mono">${card.admit_card_number}</span></div>
+                                                                                                                                     <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Student Name</span><span>:</span><span class="font-bold capitalize">${printData.studentName}</span></div>
+                                                                                                                                     <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Student ID</span><span>:</span><span class="font-mono font-bold">${printData.studentId}</span></div>
+                                                                                                                                     <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Father's Name</span><span>:</span><span class="capitalize">${printData.fatherName}</span></div>
+                                                                                                                                     <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Admit Card No</span><span>:</span><span class="font-mono">${printData.admitCardNumber}</span></div>
                                                                                                                                 </div>
                                                                                                                                 <div class="w-[48%] space-y-1 text-right">
-                                                                                                                                    <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Class</span><span>:</span><span class="font-bold capitalize text-left flex-grow">${card.class_name}</span></div>
-                                                                                                                                    <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Group</span><span>:</span><span class="font-semibold text-slate-800 capitalize text-left flex-grow">${card.group_name || '-'}</span></div>
-                                                                                                                                    <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Section</span><span>:</span><span class="font-semibold text-slate-800 capitalize text-left flex-grow">${card.section_name || '-'}</span></div>
-                                                                                                                                    <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Session</span><span>:</span><span class="font-mono text-left flex-grow">${card.session_name}</span></div>
-                                                                                                                                    <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Exam Name</span><span>:</span><span class="font-bold text-blue-900 capitalize text-left flex-grow">${card.exam_name}</span></div>
+                                                                                                                                     <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Class</span><span>:</span><span class="font-bold capitalize text-left flex-grow">${printData.className}</span></div>
+                                                                                                                                     <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Group</span><span>:</span><span class="font-semibold text-slate-800 capitalize text-left flex-grow">${printData.groupName}</span></div>
+                                                                                                                                     <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Section</span><span>:</span><span class="font-semibold text-slate-800 capitalize text-left flex-grow">${printData.sectionName}</span></div>
+                                                                                                                                     <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Session</span><span>:</span><span class="font-mono text-left flex-grow">${printData.sessionName}</span></div>
+                                                                                                                                     <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Exam Name</span><span>:</span><span class="font-bold text-blue-900 capitalize text-left flex-grow">${printData.examName}</span></div>
                                                                                                                                 </div>
                                                                                                                             </div>
 
                                                                                                                             <!-- Routine Table -->
                                                                                                                             <div class="overflow-hidden">
-                                                                                                                                <table class="w-full text-center border-collapse border border-slate-800 text-[9.5px]">
+                                                                                                                                <table class="routine-table text-center border border-slate-800 text-[9.5px]">
                                                                                                                                     <thead>
                                                                                                                                         <tr class="bg-gray-100 font-bold text-gray-800 whitespace-nowrap">
-                                                                                                                                            <th class="border border-gray-800 p-1">Date</th>
-                                                                                                                                            <th class="border border-gray-800 p-1 text-left px-2">Subject</th>
-                                                                                                                                            <th class="border border-gray-800 p-1">Date</th>
-                                                                                                                                            <th class="border border-gray-800 p-1 text-left px-2">Subject</th>
+                                                                                                                                            <th class="routine-date">Date</th>
+                                                                                                                                            <th class="routine-time">Time</th>
+                                                                                                                                            <th class="routine-subject">Subject</th>
                                                                                                                                         </tr>
                                                                                                                                     </thead>
                                                                                                                                     <tbody class="font-medium text-gray-900 whitespace-nowrap">
@@ -1328,8 +1470,8 @@
                                                                                                                                     <p class="border-t border-slate-800 pt-0.5 w-full text-[9px] text-slate-500 font-bold">Issue Date</p>
                                                                                                                                 </div>
                                                                                                                                 <div class="text-center w-32 flex flex-col items-center justify-end h-14">
-                                                                                                                                    ${school?.principal_signature ? `
-                                                                                                                                        <img src="${school.principal_signature}" class="max-h-9 max-w-[95px] object-contain mb-0.5">
+                                                                                                                                        ${printData.principalSignature ? `
+                                                                                                                                            <img src="${printData.principalSignature}" class="max-h-9 max-w-[95px] object-contain mb-0.5" alt="Principal signature">
                                                                                                                                     ` : `<div class="h-9"></div>`}
                                                                                                                                     <p class="border-t border-slate-800 pt-0.5 w-full text-[9px] text-slate-500 font-bold">Principal</p>
                                                                                                                                 </div>
@@ -1362,11 +1504,10 @@
             const currentDate = `${dd}-${mm}-${yyyy}`;
 
             let html = `<html><head><title>Print Admit Cards</title>
-                                                                                                                <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"><\/script>
-                                                                                                                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+                                                                                                                <style>${getAdmitCardUtilityStyles()}</style>
                                                                                                                 <style>
                                                                                                                     @page { size: A4; margin: 0; }
-                                                                                                                    * { border-radius: 0 !important; font-family: 'Inter', sans-serif; box-sizing: border-box; }
+                                                                                                                    * { border-radius: 0 !important; font-family: Arial, Helvetica, sans-serif; box-sizing: border-box; }
                                                                                                                     body { margin: 0; padding: 0; background: #fff; }
                                                                                                                     .print-page {
                                                                                                                         width: 210mm;
@@ -1396,13 +1537,14 @@
 
                 const cardRoutines = getRoutinesForCard(card, routines);
                 const routineRowsHtml = buildRoutineTableRows(cardRoutines);
+                const printData = getAdmitCardPrintData(card, school, address);
 
                 html += `
                                                                                                                 <div class="relative flex flex-col justify-between overflow-hidden p-5" style="height: 133mm; border: 1px solid #1f2937; box-sizing: border-box;">
                                                                                                                     <!-- Watermark -->
-                                                                                                                    ${school?.logo ? `
+                                                                                                                     ${printData.logo ? `
                                                                                                                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.06] z-0">
-                                                                                                                            <img src="${school.logo}" class="w-64 h-64 object-contain">
+                                                                                                                             <img src="${printData.logo}" class="w-64 h-64 object-contain" alt="">
                                                                                                                         </div>
                                                                                                                     ` : ''}
 
@@ -1412,24 +1554,24 @@
                                                                                                                             <div class="flex justify-between items-center gap-4">
                                                                                                                                 <!-- Left: School logo -->
                                                                                                                                 <div class="w-16 h-16 flex-shrink-0 flex items-center justify-start">
-                                                                                                                                    ${school?.logo ? `<img src="${school.logo}" class="h-16 w-16 object-cover border border-gray-300" style="border-radius: 50% !important;">` : `
+                                                                                                                                     ${printData.logo ? `<img src="${printData.logo}" class="h-16 w-16 object-cover border border-gray-300" alt="School logo" style="border-radius: 50% !important;">` : `
                                                                                                                                         <div class="h-16 w-16 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400" style="border-radius: 50% !important;">Logo</div>
                                                                                                                                     `}
                                                                                                                                 </div>
 
                                                                                                                                 <!-- Middle: Center School details & Badge -->
                                                                                                                                 <div class="text-center flex-grow px-2">
-                                                                                                                                    <h1 class="text-xl font-bold text-gray-900 tracking-wide uppercase leading-tight">${school?.school_name || 'School Name'}</h1>
+                                                                                                                                     <h1 class="text-xl font-bold text-gray-900 tracking-wide uppercase leading-tight">${printData.schoolName}</h1>
                                                                                                                                     <p class="text-xs text-gray-650 font-bold mt-0.5">
-                                                                                                                                        ${school?.mobile ? school.mobile : ''} ${school?.mobile && school?.email ? ' | ' : ''} ${school?.email ? school.email : ''}
+                                                                                                                                         ${printData.mobile} ${printData.mobile && printData.email ? ' | ' : ''} ${printData.email}
                                                                                                                                     </p>
-                                                                                                                                    <p class="text-xs text-gray-500 font-semibold leading-tight">${address}</p>
+                                                                                                                                     <p class="text-xs text-gray-500 font-semibold leading-tight">${printData.address}</p>
                                                                                                                                 </div>
 
                                                                                                                                 <!-- Right: Student Photo (Upper Right) -->
                                                                                                                                 <div class="w-16 h-16 flex-shrink-0 flex items-center justify-end">
-                                                                                                                                    ${card.student_image ? `
-                                                                                                                                        <img src="${card.student_image.startsWith('http') ? card.student_image : window.location.origin + '/storage/' + card.student_image}" class="w-16 h-16 border border-slate-800 object-cover" style="border-radius: 50% !important;">
+                                                                                                                                     ${printData.studentImage ? `
+                                                                                                                                         <img src="${printData.studentImage}" class="w-16 h-16 border border-slate-800 object-cover" alt="Student photo" style="border-radius: 50% !important;">
                                                                                                                                     ` : `
                                                                                                                                         <div class="w-16 h-16 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400 bg-gray-50" style="border-radius: 50% !important;">
                                                                                                                                             Photo
@@ -1448,31 +1590,30 @@
                                                                                                                         <div class="flex justify-between items-start text-[11px] text-gray-900 mb-3 leading-relaxed">
                                                                                                                             <!-- Left Info (48%) -->
                                                                                                                             <div class="w-[48%] space-y-1 text-left">
-                                                                                                                                <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Student Name</span><span>:</span><span class="font-bold capitalize">${card.student_name}</span></div>
-                                                                                                                                <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Student ID</span><span>:</span><span class="font-mono font-bold">${card.student_id_number}</span></div>
-                                                                                                                                <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Father's Name</span><span>:</span><span class="capitalize">${card.father_name || '-'}</span></div>
-                                                                                                                                <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Admit Card No</span><span>:</span><span class="font-mono">${card.admit_card_number}</span></div>
+                                                                                                                                 <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Student Name</span><span>:</span><span class="font-bold capitalize">${printData.studentName}</span></div>
+                                                                                                                                 <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Student ID</span><span>:</span><span class="font-mono font-bold">${printData.studentId}</span></div>
+                                                                                                                                 <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Father's Name</span><span>:</span><span class="capitalize">${printData.fatherName}</span></div>
+                                                                                                                                 <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Admit Card No</span><span>:</span><span class="font-mono">${printData.admitCardNumber}</span></div>
                                                                                                                             </div>
 
                                                                                                                             <!-- Right Info (48%) -->
                                                                                                                             <div class="w-[48%] space-y-1 text-right">
-                                                                                                                                <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Class</span><span>:</span><span class="font-bold capitalize text-left flex-grow">${card.class_name}</span></div>
-                                                                                                                                <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Group</span><span>:</span><span class="font-semibold text-slate-800 capitalize text-left flex-grow">${card.group_name || '-'}</span></div>
-                                                                                                                                <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Section</span><span>:</span><span class="font-semibold text-slate-800 capitalize text-left flex-grow">${card.section_name || '-'}</span></div>
-                                                                                                                                <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Session</span><span>:</span><span class="font-mono text-left flex-grow">${card.session_name}</span></div>
-                                                                                                                                <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Exam Name</span><span>:</span><span class="font-bold text-blue-900 capitalize text-left flex-grow">${card.exam_name}</span></div>
+                                                                                                                                 <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Class</span><span>:</span><span class="font-bold capitalize text-left flex-grow">${printData.className}</span></div>
+                                                                                                                                 <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Group</span><span>:</span><span class="font-semibold text-slate-800 capitalize text-left flex-grow">${printData.groupName}</span></div>
+                                                                                                                                 <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Section</span><span>:</span><span class="font-semibold text-slate-800 capitalize text-left flex-grow">${printData.sectionName}</span></div>
+                                                                                                                                 <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Session</span><span>:</span><span class="font-mono text-left flex-grow">${printData.sessionName}</span></div>
+                                                                                                                                 <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Exam Name</span><span>:</span><span class="font-bold text-blue-900 capitalize text-left flex-grow">${printData.examName}</span></div>
                                                                                                                             </div>
                                                                                                                         </div>
 
                                                                                                                         <!-- Routine Table -->
                                                                                                                         <div class="overflow-hidden">
-                                                                                                                            <table class="w-full text-center border-collapse border border-slate-800 text-[9.5px]">
+                                                                                                                                <table class="routine-table text-center border border-slate-800 text-[9.5px]">
                                                                                                                                 <thead>
                                                                                                                                     <tr class="bg-gray-100 font-bold  text-gray-800 whitespace-nowrap">
-                                                                                                                                        <th class="border border-gray-800 p-1">Date</th>
-                                                                                                                                        <th class="border border-gray-800 p-1 text-left px-2">Subject</th>
-                                                                                                                                        <th class="border border-gray-800 p-1">Date</th>
-                                                                                                                                        <th class="border border-gray-800 p-1 text-left px-2">Subject</th>
+                                                                                                                                        <th class="routine-date">Date</th>
+                                                                                                                                        <th class="routine-time">Time</th>
+                                                                                                                                        <th class="routine-subject">Subject</th>
                                                                                                                                     </tr>
                                                                                                                                 </thead>
                                                                                                                                 <tbody class="font-medium text-gray-900 whitespace-nowrap">
@@ -1488,8 +1629,8 @@
                                                                                                                                 <p class="border-t border-slate-800 pt-0.5 w-full text-[9px] text-slate-500 font-bold">Issue Date</p>
                                                                                                                             </div>
                                                                                                                             <div class="text-center w-32 flex flex-col items-center justify-end h-14">
-                                                                                                                                ${school?.principal_signature ? `
-                                                                                                                                    <img src="${school.principal_signature}" class="max-h-9 max-w-[95px] object-contain mb-0.5">
+                                                                                                                                 ${printData.principalSignature ? `
+                                                                                                                                     <img src="${printData.principalSignature}" class="max-h-9 max-w-[95px] object-contain mb-0.5" alt="Principal signature">
                                                                                                                                 ` : `
                                                                                                                                     <div class="h-9"></div>
                                                                                                                                 `}
