@@ -7,9 +7,10 @@
         <x-dropdown.item id="exportExcel">Excel</x-dropdown.item>
         <x-dropdown.item id="exportPrint">Print</x-dropdown.item>
     </x-dropdown>
-    <x-dropdown button-id="btnStudent1" menu-id="studentDropdown" label="Student" align="right" variant="primary">
+    <x-dropdown button-id="btnStudent1" menu-id="studentDropdown" label="Student" align="full" variant="primary">
         <x-dropdown.item onclick="window.location.href='{{ route('school.student-admission') }}'">Admission</x-dropdown.item>
         <x-dropdown.item onclick="window.location.href='{{ route('school.student-bulk-upload') }}'">Bulk Upload</x-dropdown.item>
         <x-dropdown.item onclick="window.location.href='{{ route('school.student-re-admission') }}'">Re-Admission</x-dropdown.item>
+        <x-dropdown.item onclick="window.location.href='{{ route('school.student-promote') }}'">Promote</x-dropdown.item>
     </x-dropdown>
 </div>
