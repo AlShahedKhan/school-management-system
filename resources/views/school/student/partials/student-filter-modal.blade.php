@@ -49,6 +49,14 @@
         add-button-label="Add Session"
     />
 
+    <x-input.dropdown-select
+        id="studentTypeFilter"
+        name="student_type"
+        placeholder="Select Student Type"
+        :value="request('student_type')"
+        :options="[]"
+    />
+
     <x-slot:footer>
         <div class="grid grid-cols-2 gap-3 border-slate-200 bg-white px-6 py-3">
             <x-button.secondary id="resetFilter" type="button" class="w-full">

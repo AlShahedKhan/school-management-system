@@ -66,7 +66,27 @@ class SchoolStudentController extends Controller
         })->when($request->filled('class'), fn($q) => $q->where('class_id', $request->class))
           ->when($request->filled('group'), fn($q) => $q->where('group_id', $request->group))
           ->when($request->filled('section'), fn($q) => $q->where('section_id', $request->section))
-          ->when($request->filled('session'), fn($q) => $q->where('session_id', $request->session));
+          ->when($request->filled('session'), fn($q) => $q->where('session_id', $request->session))
+          ->when($request->filled('student_type'), function ($q) use ($request) {
+              $type = strtolower(trim($request->student_type));
+              if ($type === 'promote') {
+                  $promotedStudentIds = StudentPromotion::pluck('student_id')->toArray();
+                  $q->whereIn('id', $promotedStudentIds);
+              } elseif ($type === 're-admission' || $type === 'readmission') {
+                  $readmittedStudentIds = StudentReadmission::pluck('student_id')->toArray();
+                  $q->whereIn('id', $readmittedStudentIds);
+              } elseif ($type === 'admission') {
+                  $promotedStudentIds = StudentPromotion::pluck('student_id')->toArray();
+                  $readmittedStudentIds = StudentReadmission::pluck('student_id')->toArray();
+                  $excludedIds = array_unique(array_merge($promotedStudentIds, $readmittedStudentIds));
+                  $q->whereNotIn('id', $excludedIds)
+                    ->where(function ($subQ) {
+                        $subQ->whereNull('admission_fee')->orWhere('admission_fee', '!=', 'N/A');
+                    });
+              } elseif ($type === 'bulk upload') {
+                  $q->where('admission_fee', 'N/A');
+              }
+          });
         if ($request->boolean('all')) {
             $query->where('status', '!=', StudentStatus::Inactive->value);
             $students = $query->orderBy('id', 'desc')->get();

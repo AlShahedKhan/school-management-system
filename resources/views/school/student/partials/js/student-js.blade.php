@@ -130,6 +130,7 @@
         const groupVal = document.getElementById('groupFilter')?.value || '';
         const sectionVal = document.getElementById('sectionFilter')?.value || '';
         const sessionVal = document.getElementById('sessionFilter')?.value || '';
+        const studentTypeVal = document.getElementById('studentTypeFilter')?.value || '';
 
         axios.get('{{ url('/api/school/students') }}', {
                 params: {
@@ -138,6 +139,7 @@
                     group: groupVal,
                     section: sectionVal,
                     session: sessionVal,
+                    student_type: studentTypeVal,
                     page
                 }
             })
@@ -588,6 +590,14 @@
             populateDropdownSelect('groupFilter', [], '', 'Select Group');
             populateDropdownSelect('sectionFilter', [], '', 'Select Section');
             populateDropdownSelect('sessionFilter', [], '', 'Select Session');
+
+            const studentTypeOpts = [
+                { value: 'Admission', label: 'Admission' },
+                { value: 'Re-Admission', label: 'Re-Admission' },
+                { value: 'Promote', label: 'Promote' },
+                { value: 'Bulk Upload', label: 'Bulk Upload' }
+            ];
+            populateDropdownSelect('studentTypeFilter', studentTypeOpts, '', 'Select Student Type');
         } catch (e) {
             console.error('Filter options load error', e);
         }
@@ -712,7 +722,7 @@
         });
 
         document.getElementById('resetFilter')?.addEventListener('click', () => {
-            ['classFilter', 'groupFilter', 'sectionFilter', 'sessionFilter'].forEach(id => {
+            ['classFilter', 'groupFilter', 'sectionFilter', 'sessionFilter', 'studentTypeFilter'].forEach(id => {
                 const inp = document.getElementById(id);
                 if (inp) inp.value = '';
                 const btn = document.getElementById(id + 'Button');
