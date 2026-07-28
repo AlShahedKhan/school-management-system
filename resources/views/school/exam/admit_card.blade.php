@@ -281,21 +281,20 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-row items-center gap-1 w-full lg:w-auto">
-                        <button onclick="toggleFilterModal()"
-                            class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
+                    <div class="grid w-full grid-cols-3 gap-2 lg:flex lg:w-auto">
+                        <x-button.secondary onclick="toggleFilterModal()" class="w-full lg:w-auto">
                             Filter
-                        </button>
+                        </x-button.secondary>
 
-                        <button onclick="document.getElementById('exportModal').classList.remove('hidden')"
-                            class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
-                            Export
-                        </button>
+                        <x-dropdown button-id="btnAdmitExport" menu-id="admitExportDropdown" label="Export">
+                            <x-dropdown.item onclick="exportData('pdf-mobile')">PDF</x-dropdown.item>
+                            <x-dropdown.item onclick="exportData('excel')">Excel</x-dropdown.item>
+                            <x-dropdown.item onclick="exportData('pdf')">Print</x-dropdown.item>
+                        </x-dropdown>
 
-                        <button onclick="openAdmitModal()"
-                            class="btn-outline-premium border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
+                        <x-button.primary onclick="openAdmitModal()" class="w-full lg:w-auto">
                             Admit Card
-                        </button>
+                        </x-button.primary>
                     </div>
                 </div>
 
@@ -422,6 +421,10 @@
                             class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
                             PDF
                         </button>
+                        <button onclick="exportData('excel')"
+                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
+                            EXCEL
+                        </button>
                         <button onclick="exportData('pdf')"
                             class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
                             PRINT
@@ -527,7 +530,7 @@
                             />
                         </div>
 
-                        <div class="col-span-1 sm:col-span-2">
+                        <div class="col-span-1">
                             <label
                                 class="block text-[10px] capitalize tracking-normal text-blue-600 mb-1.5 font-medium">Exam
                                 Name</label>
@@ -541,11 +544,7 @@
                             />
                         </div>
 
-                        <div id="admitPrerequisiteWarning" class="col-span-1 sm:col-span-2 hidden bg-yellow-50 border border-yellow-300 text-yellow-800 p-3 text-[10px]">
-                            Please create the Exam, Exam Routine, and Exam Fee before generating the Admit Card.
-                        </div>
-
-                        <div class="col-span-1 sm:col-span-2">
+                        <div class="col-span-1">
                             <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Generate
                                 For</label>
                             <x-input.dropdown-select
@@ -557,6 +556,14 @@
                                     ['value' => 'single', 'label' => 'Single Student'],
                                 ]"
                             />
+                        </div>
+
+                        <div id="admitPrerequisiteWarning"
+                            class="col-span-1 hidden border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] leading-4 text-amber-700 sm:col-span-2">
+                            <div class="flex items-start gap-2">
+                                <i class="fas fa-exclamation-circle mt-0.5 shrink-0 text-[10px]" aria-hidden="true"></i>
+                                <span>Please create the Exam and Exam Routine before generating the Admit Card.</span>
+                            </div>
                         </div>
 
                         <div id="single_student_container" class="col-span-1 sm:col-span-2 hidden">
@@ -580,14 +587,20 @@
 
         <x-slot:footer>
             <div class="sticky bottom-0 flex flex-row gap-2 border-t border-gray-100 bg-white px-4 py-4 sm:justify-end sm:px-6">
-                    <button id="closeAdmitModal" type="button" onclick="closeAdmitModal()"
-                        class="w-1/2 sm:w-auto sm:px-8 h-[32px] btn-outline-secondary border border-gray-200 text-[10px] tracking-normal capitalize transition-all hover:bg-gray-50 flex items-center justify-center whitespace-nowrap"
-                        style="border-radius: 0;">
+                    <x-button.secondary
+                        id="closeAdmitModal"
+                        type="button"
+                        onclick="document.getElementById('admitModal').classList.add('hidden')"
+                        class="w-1/2 sm:w-auto sm:px-8"
+                    >
                         Cancel
-                    </button>
-                    <button type="submit" id="submitBtn" disabled
-                        class="w-1/2 sm:w-auto sm:px-12 h-[32px] btn-outline-premium border border-gray-200 text-[10px] tracking-normal capitalize flex items-center justify-center whitespace-nowrap disabled:opacity-50"
-                        style="border-radius: 0;">
+                    </x-button.secondary>
+                    <x-button.primary
+                        type="submit"
+                        id="submitBtn"
+                        disabled
+                        class="w-1/2 sm:w-auto sm:px-12 disabled:opacity-50"
+                    >
                         <span id="btnSpinner" class="hidden">
                             <svg class="animate-spin h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24">
@@ -598,7 +611,7 @@
                             </svg>
                         </span>
                         <span id="btnText">Generate</span>
-                    </button>
+                    </x-button.primary>
             </div>
         </x-slot:footer>
     </x-modal.form>
@@ -932,7 +945,7 @@
                 if (res.data.valid) {
                     setPrerequisiteWarning(true, '');
                 } else {
-                    setPrerequisiteWarning(false, res.data.message || 'Please create the Exam, Exam Routine, and Exam Fee before generating the Admit Card.');
+                    setPrerequisiteWarning(false, res.data.message || 'Please create the Exam and Exam Routine before generating the Admit Card.');
                 }
             }).catch(err => {
                 const message = err.response?.data?.message || 'Unable to validate prerequisites at this time.';
@@ -1041,6 +1054,50 @@
                 search: document.getElementById('header_search').value,
                 export: type
             };
+
+            if (type === 'excel') {
+                axios.get('/api/school-exam-admit-cards', {
+                    params: {
+                        ...params,
+                        per_page: 500
+                    }
+                }).then(res => {
+                    const cards = res.data.data || [];
+
+                    if (!cards.length) {
+                        Swal.fire('Info', 'No admit cards found for current filters.', 'info');
+                        return;
+                    }
+
+                    const columns = [
+                        ['Class', 'class_name'],
+                        ['Group', 'group_name'],
+                        ['Section', 'section_name'],
+                        ['Session', 'session_name'],
+                        ['Exam Name', 'exam_name'],
+                        ['Student ID', 'student_id_number'],
+                        ['Student Name', 'student_name'],
+                        ['Admit Number', 'admit_card_number'],
+                    ];
+                    const csvValue = value => `"${String(value ?? '').replaceAll('"', '""')}"`;
+                    const csv = [
+                        columns.map(([label]) => csvValue(label)).join(','),
+                        ...cards.map(card => columns.map(([, key]) => csvValue(card[key] || '-')).join(',')),
+                    ].join('\n');
+                    const downloadUrl = URL.createObjectURL(new Blob([`\uFEFF${csv}`], {
+                        type: 'text/csv;charset=utf-8;'
+                    }));
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = 'admit-cards.csv';
+                    link.click();
+                    URL.revokeObjectURL(downloadUrl);
+                }).catch(() => {
+                    Swal.fire('Error', 'Failed to export admit cards. Please try again.', 'error');
+                });
+
+                return;
+            }
 
             if (type === 'pdf' || type === 'pdf-mobile') {
                 // Open window immediately to preserve user interaction context
@@ -1670,6 +1727,23 @@
         function closeAdmitModal() {
             document.getElementById('admitModal').classList.add('hidden');
         }
+
+        document.addEventListener('click', function(event) {
+            const trigger = event.target.closest('#btnAdmitExport');
+            const menu = document.getElementById('admitExportDropdown');
+
+            if (trigger && menu) {
+                event.stopPropagation();
+                menu.classList.toggle('hidden');
+                trigger.setAttribute('aria-expanded', String(!menu.classList.contains('hidden')));
+                return;
+            }
+
+            if (!event.target.closest('#admitExportDropdown') && menu) {
+                menu.classList.add('hidden');
+                document.getElementById('btnAdmitExport')?.setAttribute('aria-expanded', 'false');
+            }
+        });
 
         document.getElementById('class_name')?.addEventListener('change', function() {
             handleCascade(this, 'group');
