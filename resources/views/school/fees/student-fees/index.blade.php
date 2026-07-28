@@ -107,10 +107,6 @@
         </x-slot:footer>
     </x-modal.form>
 
-    @include('school.fees.student-fees.partials.student-fees-modal')
-    @include('school.fees.student-fees.partials.js.modal-open')
-    @include('school.fees.student-fees.partials.js.error-validation')
-    @include('school.fees.student-fees.partials.js.modal-submit')
     @include('school.academic.class.partials.class-modal')
     @include('school.academic.group.partials.group-modal')
     @include('school.academic.section.partials.section-modal')
@@ -276,7 +272,7 @@
                 const tbody = document.getElementById('feeTableBody');
                 tbody.innerHTML = '';
                 if (items.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="11" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No student fees found.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="10" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No student fees found.</td></tr>`;
                     document.getElementById('paginationInfo').innerText = '0 of 0';
                     document.getElementById('paginationControls').innerHTML = '';
                     return;
@@ -314,16 +310,6 @@
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
                                 <span class="status-badge ${statusClass}">${item.status || 'pending'}</span>
                             </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
-                                <div class="flex h-6 w-full items-center justify-center -space-x-[3px]">
-                                    <button type="button" title="Edit" aria-label="Edit" onclick="editStudentFee(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 hover:bg-gray-100 hover:text-blue-600 focus-visible:ring-blue-500">
-                                        <i class="far fa-edit text-xs" aria-hidden="true"></i>
-                                    </button>
-                                    <button type="button" title="Delete" aria-label="Delete" onclick="deleteStudentFee(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 hover:bg-gray-100 hover:text-red-600 focus-visible:ring-red-500">
-                                        <i class="far fa-trash-alt text-xs" aria-hidden="true"></i>
-                                    </button>
-                                </div>
-                            </td>
                         </tr>`;
                 });
                 renderPagination(meta);
@@ -354,48 +340,6 @@
             nextBtn.disabled = meta.current_page === meta.last_page;
             nextBtn.onclick = () => fetchStudentFees(meta.current_page + 1);
             controls.appendChild(nextBtn);
-        }
-
-        function editStudentFee(id) {
-            axios.get('/api/student-fees/' + id)
-                .then(res => {
-                    const item = res.data;
-                    document.getElementById('record_id').value = item.id;
-                    document.getElementById('feeModalTitle').innerText = 'Edit Student Fee';
-                    document.getElementById('amount').value = item.base_amount || item.amount || '';
-                    if (item.pay_date) {
-                        const d = new Date(item.pay_date);
-                        if (!isNaN(d.getTime())) {
-                            document.getElementById('pay_date').value = d.toISOString().split('T')[0];
-                        } else {
-                            document.getElementById('pay_date').value = item.pay_date;
-                        }
-                    }
-                    document.getElementById('fee_name_input').value = item.fee_name || '';
-                    setDropdownValueFromMenu('status_input', item.status || 'pending');
-                    document.getElementById('feeModal').classList.remove('hidden');
-                })
-                .catch(() => Swal.fire('Error', 'Failed to load student fee data.', 'error'));
-        }
-
-        function deleteStudentFee(id) {
-            Swal.fire({
-                title: 'Delete Student Fee?',
-                text: 'This action cannot be undone.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                confirmButtonText: 'Yes, delete it'
-            }).then(r => {
-                if (r.isConfirmed) {
-                    axios.delete('/api/student-fees/' + id)
-                        .then(() => {
-                            Toastify({ text: 'Student Fee Deleted', style: { background: '#ef4444' } }).showToast();
-                            fetchStudentFees(currentPage);
-                        })
-                        .catch(() => Swal.fire('Error', 'Could not delete student fee.', 'error'));
-                }
-            });
         }
 
         function showEl(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }

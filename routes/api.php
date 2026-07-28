@@ -261,9 +261,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     // Fees (New: Templates + Student Fees)
+    Route::get('student-fees/by-student', [SchoolStudentFeeController::class, 'getStudentFees']);
     Route::apiResource('fee-templates', SchoolFeeTemplateController::class);
     Route::apiResource('student-fees', SchoolStudentFeeController::class);
-    Route::get('student-fees/by-student', [SchoolStudentFeeController::class, 'getStudentFees']);
     Route::post('fee-templates/{id}/generate-fees', [SchoolFeeTemplateController::class, 'generateStudentFees']);
 
     // Discounts (New system)

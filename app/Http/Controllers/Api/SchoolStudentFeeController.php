@@ -60,10 +60,6 @@ class SchoolStudentFeeController extends Controller
                 $query->where('fee_type_name', $request->fee_type_name);
             }
 
-            if ($request->filled('status')) {
-                $query->where('status', $request->status);
-            }
-
             if ($request->filled('search')) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
@@ -150,6 +146,16 @@ class SchoolStudentFeeController extends Controller
 
                 return $fee;
             });
+
+            if ($request->filled('status')) {
+                $statusFilter = $request->status;
+                if ($request->boolean('all')) {
+                    $results = $results->where('status', $statusFilter)->values();
+                } else {
+                    $filtered = $results->getCollection()->where('status', $statusFilter)->values();
+                    $results->setCollection($filtered);
+                }
+            }
 
             return response()->json($results);
         } catch (\Exception $e) {
