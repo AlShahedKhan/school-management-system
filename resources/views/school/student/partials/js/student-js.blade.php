@@ -186,7 +186,7 @@
                         ${statusText}
                     </span>
                 </td>
-                <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center min-w-[110px]">
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-1 text-center min-w-[130px]">
                     <div class="flex h-7 w-full items-center justify-center space-x-1">
                         <button type="button" onclick="viewAdmissionForm(${s.id}, ${sl})" title="View" aria-label="View" class="flex h-7 w-6 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-emerald-500">
                             <i class="far fa-eye text-[15px]" aria-hidden="true"></i>

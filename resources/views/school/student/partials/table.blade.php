@@ -18,7 +18,7 @@
             <col style="width: 6%;">
             <col style="width: 8%;">
             <col style="width: 6%;">
-            <col style="width: 110px;">
+            <col style="width: 130px;">
         </colgroup>
     </x-slot:columns>
 
@@ -35,7 +35,7 @@
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Session</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Student Type</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Status</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold min-w-[110px]">Action</x-table.th>
+        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-1 text-center font-semibold min-w-[130px]">Action</x-table.th>
     </x-slot:head>
 
     <tbody id="studentTableBody"></tbody>
