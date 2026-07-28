@@ -161,7 +161,7 @@ class SchoolFeeTemplateController extends Controller
                 $created = 0;
 
                 // Promote fees are generated only during student promotion, not on template creation
-                $generateFees = (in_array($validated['frequency'], ['one_time', 'per_exam']) || $validated['fee_type_name'] === 'Food')
+                $generateFees = (in_array($validated['frequency'], ['one_time', 'per_exam', 'monthly']) || $validated['fee_type_name'] === 'Food')
                     && $validated['fee_type_name'] !== 'Promote';
 
                 if ($generateFees) {
