@@ -470,15 +470,28 @@
         }
 
         try {
+            const theoryVal = parseInt(theoryMarks) || 0;
+            const practicalVal = parseInt(practicalMarks) || 0;
+            const totalVal = theoryVal + practicalVal;
+
             const res = await axios.post('/api/school-subjects', {
                 class_id: classId,
                 group_id: groupId || null,
                 section_id: sectionId,
                 subject_name: subjectName,
                 subject_code: subjectCode || null,
+                tutorial_mark: 0,
+                mcq_mark: 0,
+                writing_mark: theoryVal,
+                practical_mark: practicalVal,
+                total_mark: totalVal,
+                fail_mark: 0,
                 marks: {
-                    theory_marks: theoryMarks || null,
-                    practical_marks: practicalMarks || null
+                    tutorial_mark: 0,
+                    mcq_mark: 0,
+                    writing_mark: theoryVal,
+                    practical_mark: practicalVal,
+                    total_mark: totalVal,
                 }
             });
             const newSub = res.data;
