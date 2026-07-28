@@ -166,18 +166,10 @@
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
                     <img src="${photoUrl}" class="h-6 w-6 rounded-full object-cover inline-block" />
                 </td>
-                <td class="h-8 border border-gray-300 px-3 font-mono">
-                    <div class="school-data-table-cell-scroll" title="${s.student_id_number}">${s.student_id_number}</div>
-                </td>
-                <td class="h-8 border border-gray-300 px-3">
-                    <div class="school-data-table-cell-scroll" title="${s.student_name}">${s.student_name}</div>
-                </td>
-                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                    <div class="school-data-table-cell-scroll" title="${s.mobile || '-'}">${s.mobile || '-'}</div>
-                </td>
-                <td class="h-8 border border-gray-300 px-3">
-                    <div class="school-data-table-cell-scroll" title="${s.father_name || '-'}">${s.father_name || '-'}</div>
-                </td>
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-3 font-mono">${s.student_id_number}</td>
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-3 font-semibold text-slate-800">${s.student_name}</td>
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.mobile || '-'}</td>
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.father_name || '-'}</td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.class_name || '-'}</td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.group_name || '-'}</td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.section_name || '-'}</td>
