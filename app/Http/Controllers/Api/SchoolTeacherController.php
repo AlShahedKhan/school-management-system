@@ -73,7 +73,8 @@ class SchoolTeacherController extends Controller
             return response()->json(['data' => $teachers]);
         }
 
-        $teachers = $query->orderBy('created_at', 'asc')->paginate(10);
+        $perPage = (int) $request->input('per_page', 30);
+        $teachers = $query->orderBy('created_at', 'asc')->paginate($perPage);
         return response()->json($teachers);
     }
 

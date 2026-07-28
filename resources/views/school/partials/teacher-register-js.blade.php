@@ -148,6 +148,7 @@
                   params: {
                       search,
                       teacher_id: teacherId,
+                      per_page: 30,
                       page
                   }
               })
