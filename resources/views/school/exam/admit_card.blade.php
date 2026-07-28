@@ -1171,6 +1171,7 @@
                 principalSignature: escapeAdmitCardHtml(school?.principal_signature || ''),
                 studentName: escapeAdmitCardHtml(card.student_name || '-'),
                 studentId: escapeAdmitCardHtml(card.student_id_number || '-'),
+                seatNumber: escapeAdmitCardHtml(card.seat_number || '-'),
                 fatherName: escapeAdmitCardHtml(card.father_name || '-'),
                 admitCardNumber: escapeAdmitCardHtml(card.admit_card_number || '-'),
                 className: escapeAdmitCardHtml(card.class_name || '-'),
@@ -1271,9 +1272,10 @@
                 .routine-table { width: 100%; table-layout: fixed; border-collapse: collapse; }
                 .routine-table th, .routine-table td { border: 1px solid #1e293b; padding: 6px; }
                 .routine-table th { background: #f3f4f6; font-weight: 700; white-space: nowrap; }
-                .routine-table .routine-date { width: 22%; text-align: center; white-space: nowrap; }
-                .routine-table .routine-time { width: 28%; text-align: center; white-space: nowrap; }
-                .routine-table .routine-subject { width: 50%; text-align: left; overflow-wrap: anywhere; word-break: break-word; }
+                .routine-table .routine-date { width: 18%; text-align: center; white-space: nowrap; }
+                .routine-table .routine-time { width: 27%; text-align: center; white-space: nowrap; }
+                .routine-table .routine-duration { width: 20%; text-align: center; white-space: nowrap; }
+                .routine-table .routine-subject { width: 35%; text-align: left; overflow-wrap: anywhere; word-break: break-word; }
                 .flex.items-baseline > span:last-child { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
                 [class~="text-[9px]"] { font-size: 9px; }
                 [class~="text-[9.5px]"] { font-size: 9.5px; }
@@ -1314,6 +1316,7 @@
                                                                                                                 <tr>
                                                                                                                     <td class="border border-slate-800 p-1.5 font-mono text-center">-</td>
                                                                                                                     <td class="border border-slate-800 p-1.5 font-mono text-center">-</td>
+                                                                                                                     <td class="border border-slate-800 p-1.5 font-mono text-center">-</td>
                                                                                                                     <td class="border border-slate-800 p-1.5 text-left px-2 font-semibold">-</td>
                                                                                                                 </tr>
                                                                                                             `;
@@ -1322,11 +1325,13 @@
             for (const item of cardRoutines) {
                 const date = escapeAdmitCardHtml(formatDate(item.exam_date));
                 const time = escapeAdmitCardHtml(`${formatTime(item.start_time)} - ${formatTime(item.end_time)}`);
+                const duration = escapeAdmitCardHtml(item.total_hours || '-');
                 const subject = escapeAdmitCardHtml(item.subject_name || '-');
                 rowsHtml += `
                     <tr>
                         <td class="routine-date font-mono">${date}</td>
                         <td class="routine-time font-mono">${time}</td>
+                        <td class="routine-duration font-mono">${duration}</td>
                         <td class="routine-subject font-semibold">${subject}</td>
                     </tr>
                 `;
@@ -1339,7 +1344,9 @@
 
         function generateMobilePreview(admitCards, school, routines, previewWindow) {
             if (!previewWindow) previewWindow = window.open('', '_blank');
-            const address = school?.village || '';
+            const address = school?.full_address || [school?.village, school?.upazila, school?.district, school?.division]
+                .filter(Boolean)
+                .join(', ');
 
             const today = new Date();
             const dd = String(today.getDate()).padStart(2, '0');
@@ -1435,6 +1442,7 @@
                                                                                                                                 <div class="w-[48%] space-y-1 text-left">
                                                                                                                                      <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Student Name</span><span>:</span><span class="font-bold capitalize">${printData.studentName}</span></div>
                                                                                                                                      <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Student ID</span><span>:</span><span class="font-mono font-bold">${printData.studentId}</span></div>
+                                                                                                                                     <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Seat No</span><span>:</span><span class="font-mono">${printData.seatNumber}</span></div>
                                                                                                                                      <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Father's Name</span><span>:</span><span class="capitalize">${printData.fatherName}</span></div>
                                                                                                                                      <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Admit Card No</span><span>:</span><span class="font-mono">${printData.admitCardNumber}</span></div>
                                                                                                                                 </div>
@@ -1454,6 +1462,7 @@
                                                                                                                                         <tr class="bg-gray-100 font-bold text-gray-800 whitespace-nowrap">
                                                                                                                                             <th class="routine-date">Date</th>
                                                                                                                                             <th class="routine-time">Time</th>
+                                                                                                                                            <th class="routine-duration">Duration</th>
                                                                                                                                             <th class="routine-subject">Subject</th>
                                                                                                                                         </tr>
                                                                                                                                     </thead>
@@ -1495,7 +1504,9 @@
 
         function generatePrintLayout(admitCards, school, routines, printWindow) {
             if (!printWindow) printWindow = window.open('', '_blank');
-            const address = school?.village || '';
+            const address = school?.full_address || [school?.village, school?.upazila, school?.district, school?.division]
+                .filter(Boolean)
+                .join(', ');
 
             const today = new Date();
             const dd = String(today.getDate()).padStart(2, '0');
@@ -1592,6 +1603,7 @@
                                                                                                                             <div class="w-[48%] space-y-1 text-left">
                                                                                                                                  <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Student Name</span><span>:</span><span class="font-bold capitalize">${printData.studentName}</span></div>
                                                                                                                                  <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Student ID</span><span>:</span><span class="font-mono font-bold">${printData.studentId}</span></div>
+                                                                                                                                 <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Seat No</span><span>:</span><span class="font-mono">${printData.seatNumber}</span></div>
                                                                                                                                  <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Father's Name</span><span>:</span><span class="capitalize">${printData.fatherName}</span></div>
                                                                                                                                  <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Admit Card No</span><span>:</span><span class="font-mono">${printData.admitCardNumber}</span></div>
                                                                                                                             </div>
@@ -1613,6 +1625,7 @@
                                                                                                                                     <tr class="bg-gray-100 font-bold  text-gray-800 whitespace-nowrap">
                                                                                                                                         <th class="routine-date">Date</th>
                                                                                                                                         <th class="routine-time">Time</th>
+                                                                                                                                        <th class="routine-duration">Duration</th>
                                                                                                                                         <th class="routine-subject">Subject</th>
                                                                                                                                     </tr>
                                                                                                                                 </thead>
@@ -1665,7 +1678,8 @@
 
         async function editAdmit(item) {
             openAdmitModal();
-            document.getElementById('admitModalTitle').innerText = 'Edit Individual Admit Card';
+            const modalTitle = document.getElementById('admitModalTitle');
+            if (modalTitle) modalTitle.innerText = 'Edit Individual Admit Card';
             document.getElementById('admit_edit_id').value = item.id;
             document.getElementById('submitBtn').innerText = 'Update Admit Card';
             document.getElementById('submitBtn').disabled = false;
@@ -1803,7 +1817,8 @@
         function openAdmitModal() {
             document.getElementById('admitForm').reset();
             document.getElementById('admit_edit_id').value = '';
-            document.getElementById('admitModalTitle').innerText = 'Bulk Admit Card Generator';
+            const modalTitle = document.getElementById('admitModalTitle');
+            if (modalTitle) modalTitle.innerText = 'Bulk Admit Card Generator';
             document.getElementById('studentStatusBox').classList.remove('hidden');
             document.getElementById('studentCountDisplay').innerText = '0 Students Identified';
             document.getElementById('btnText').innerText = 'Generate All Cards';

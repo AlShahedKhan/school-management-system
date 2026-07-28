@@ -9,6 +9,7 @@ use App\Models\School;
 use App\Models\SchoolExamAdmitCard;
 use App\Models\SchoolExamName;
 use App\Models\SchoolExamRoutine;
+use App\Models\SchoolExamSeatPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -86,6 +87,57 @@ class SchoolExamAdmitCardController extends Controller
 
         $response = $paginatedData->toArray();
 
+        // Seat plans use the same displayed class/group/section/session/exam values
+        // as admit cards, so attach the matching seat without changing the card schema.
+        if ($schoolId && !empty($response['data'])) {
+            $seatKey = static function (array $values): string {
+                return implode('|', array_map(
+                    static fn ($value) => strtolower(trim((string) ($value ?? ''))),
+                    $values
+                ));
+            };
+
+            $studentIds = collect($response['data'])
+                ->pluck('student_id_number')
+                ->filter()
+                ->values();
+
+            $seatPlans = SchoolExamSeatPlan::query()
+                ->where('school_id', $schoolId)
+                ->whereIn('student_id_number', $studentIds)
+                ->get([
+                    'student_id_number',
+                    'class_name',
+                    'group_name',
+                    'section_name',
+                    'session_name',
+                    'exam_name',
+                    'seat_number',
+                ])
+                ->keyBy(fn ($seat) => $seatKey([
+                    $seat->student_id_number,
+                    $seat->class_name,
+                    $seat->group_name,
+                    $seat->section_name,
+                    $seat->session_name,
+                    $seat->exam_name,
+                ]));
+
+            foreach ($response['data'] as &$card) {
+                $seat = $seatPlans->get($seatKey([
+                    $card['student_id_number'],
+                    $card['class_name'],
+                    $card['group_name'],
+                    $card['section_name'],
+                    $card['session_name'],
+                    $card['exam_name'],
+                ]));
+
+                $card['seat_number'] = $seat?->seat_number;
+            }
+            unset($card);
+        }
+
         // Fetch routines
         $routines = collect();
 
@@ -149,6 +201,12 @@ class SchoolExamAdmitCardController extends Controller
                 'upazila' => $school->upazila,
                 'district' => $school->district,
                 'division' => $school->division,
+                'full_address' => collect([
+                    $school->village,
+                    $school->upazila,
+                    $school->district,
+                    $school->division,
+                ])->filter()->implode(', '),
                 'mobile' => $school->mobile,
                 'email' => $school->email,
                 'logo' => $school->logo
