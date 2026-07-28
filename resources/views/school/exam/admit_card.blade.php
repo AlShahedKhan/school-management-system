@@ -308,106 +308,57 @@
             </div>
 
             {{-- Filter Modal --}}
-            <div id="filterModal"
-                class="premium-modal fixed inset-0 bg-black/50 hidden z-[9999] flex items-center justify-center p-12 sm:p-20"
-                onclick="toggleFilterModal()">
-                <div class="bg-white p-4 w-full max-w-[320px] modal-content-sharp shadow-2xl" style="border-radius: 0;"
-                    onclick="event.stopPropagation()">
-
-                    <div>
-                        <h3
-                            class="text-gray-800 text-[13px] font-medium leading-tight text-center capitalize tracking-normal">
-                            Admit Card filter
-                        </h3>
-                        <div class="h-[1px] w-full bg-gray-200 mt-2.5"></div>
-                    </div>
-
-                    <div class="mt-3 mb-4 space-y-3">
-                        {{-- Class Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Class</label>
-                            <div class="relative">
-                                <select id="filter_class_name" onchange="handleCascade(this, 'filter_group')"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Group Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Group</label>
-                            <div class="relative">
-                                <select id="filter_group_name" onchange="handleCascade(this, 'filter_section')"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Section Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Section</label>
-                            <div class="relative">
-                                <select id="filter_section_name" onchange="handleCascade(this, 'filter_session')"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Session Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Session</label>
-                            <div class="relative">
-                                <select id="filter_session_name"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Exam Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Exam Name</label>
-                            <div class="relative">
-                                <select id="filter_exam_name"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button onclick="resetFilters()"
-                            class="btn-outline-secondary border border-gray-200 w-full text-[11px] capitalize flex items-center justify-center"
-                            style="border-radius: 0; height: 32px;">Reset</button>
-                        <button onclick="applyFilters()"
-                            class="btn-outline-premium border border-gray-200 w-full text-[11px] capitalize flex items-center justify-center"
-                            style="border-radius: 0; height: 32px;">Apply</button>
-                    </div>
+            <x-modal.form
+                id="filterModal"
+                form-id="admitFilterForm"
+                title="Admit Card Filter"
+                close-button-id="closeAdmitFilterModal"
+                class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-black/50 p-4 sm:p-20"
+                panel-class="modal-content-sharp mx-auto my-auto flex max-h-[calc(100dvh-2rem)] w-full max-w-[320px] flex-col overflow-visible bg-white shadow-2xl"
+                panel-style="border-radius: 0;"
+                header-class="shrink-0 border-b border-gray-200 bg-white px-4 pb-3 pt-5"
+                title-class="m-0 text-center text-2xl font-semibold leading-tight text-gray-800"
+                form-class="m-0"
+                body-class="bg-white px-4 py-4"
+                fields-class="grid grid-cols-1 gap-3"
+                onclick="if (event.target === this) toggleFilterModal()"
+            >
+                <div>
+                    <label class="mb-1 block text-[10px] text-gray-500">Class</label>
+                    <x-input.dropdown-select id="filter_class_name" placeholder="Select Class" :options="[]" />
                 </div>
+
+                <div>
+                    <label class="mb-1 block text-[10px] text-gray-500">Group</label>
+                    <x-input.dropdown-select id="filter_group_name" placeholder="Select Group" :options="[]" />
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-[10px] text-gray-500">Section</label>
+                    <x-input.dropdown-select id="filter_section_name" placeholder="Select Section" :options="[]" />
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-[10px] text-gray-500">Session</label>
+                    <x-input.dropdown-select id="filter_session_name" placeholder="Select Session" :options="[]" />
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-[10px] text-gray-500">Exam Name</label>
+                    <x-input.dropdown-select id="filter_exam_name" placeholder="Select Exam" :options="[]" />
+                </div>
+
+                <x-slot:footer>
+                    <div class="grid grid-cols-2 gap-2 bg-white px-4 pb-5 pt-2">
+                        <x-button.secondary type="button" onclick="resetFilters()" class="w-full">
+                            Reset
+                        </x-button.secondary>
+                        <x-button.primary type="button" onclick="applyFilters()" class="w-full">
+                            Apply
+                        </x-button.primary>
+                    </div>
+                </x-slot:footer>
+            </x-modal.form>
             </div>
 
             {{-- Export Modal --}}
@@ -808,12 +759,10 @@
 
         async function loadInitial() {
             await axios.get('/api/get-school-classes').then(res => {
-                let opts = '<option value="">Select Class</option>';
-                res.data.data.forEach(c => opts +=
-                    `<option value="${c.class_name}" data-id="${c.id}">${c.class_name}</option>`);
                 populateDropdown('class_nameMenu', res.data.data || [], 'class_name', 'class_name');
                 setDropdownValue('class_name', '', 'Select Class');
-                document.getElementById('filter_class_name').innerHTML = opts;
+                populateDropdown('filter_class_nameMenu', res.data.data || [], 'class_name', 'class_name');
+                setDropdownValue('filter_class_name', '', 'Select Class');
             });
             await fetchFilteredExams();
         }
@@ -830,11 +779,9 @@
             return axios.get('/api/get-school-exams', {
                 params
             }).then(res => {
-                let opts = '<option value="">Select Exam</option>';
-                res.data.data.forEach(e => opts +=
-                    `<option value="${e.exam_name}" data-id="${e.id}">${e.exam_name}</option>`);
                 if (isFilter) {
-                    document.getElementById('filter_exam_name').innerHTML = opts;
+                    populateDropdown('filter_exam_nameMenu', res.data.data || [], 'exam_name', 'exam_name');
+                    setDropdownValue('filter_exam_name', '', 'Select Exam');
                 } else {
                     populateDropdown('exam_nameMenu', res.data.data || [], 'exam_name', 'exam_name');
                     setDropdownValue('exam_name', '', 'Select Exam');
@@ -862,7 +809,7 @@
                     'filter_session_name' : 'session_name', 'Session', 'session_year');
             }
 
-            fetchFilteredExams(isFilter);
+            await fetchFilteredExams(isFilter);
             if (!isFilter) fetchStudentCount();
             if (callback) callback();
         }
@@ -1695,12 +1642,19 @@
         }
 
         function resetFilters() {
-            ['filter_class_name', 'filter_group_name', 'filter_section_name', 'filter_session_name', 'filter_exam_name',
-                'header_search'
-            ].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
+            const dropdowns = {
+                filter_class_name: 'Select Class',
+                filter_group_name: 'Select Group',
+                filter_section_name: 'Select Section',
+                filter_session_name: 'Select Session',
+                filter_exam_name: 'Select Exam',
+            };
+
+            Object.entries(dropdowns).forEach(([id, placeholder]) => {
+                setDropdownValue(id, '', placeholder);
             });
+
+            document.getElementById('header_search').value = '';
             fetchTable(1);
             toggleFilterModal();
         }
@@ -1764,8 +1718,28 @@
             updateAdmitSubmitState();
         });
         document.getElementById('student_id')?.addEventListener('change', updateAdmitSubmitState);
+        document.getElementById('filter_class_name')?.addEventListener('change', function() {
+            handleCascade(this, 'filter_group');
+        });
+        document.getElementById('filter_group_name')?.addEventListener('change', function() {
+            handleCascade(this, 'filter_section');
+        });
+        document.getElementById('filter_section_name')?.addEventListener('change', function() {
+            handleCascade(this, 'filter_session');
+        });
+        document.getElementById('filter_session_name')?.addEventListener('change', function() {
+            fetchFilteredExams(true);
+        });
 
-        loadInitial();
-        fetchTable();
+        function initializeAdmitCardPage() {
+            loadInitial();
+            fetchTable();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeAdmitCardPage);
+        } else {
+            initializeAdmitCardPage();
+        }
     </script>
 @endsection
