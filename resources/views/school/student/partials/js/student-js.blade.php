@@ -170,9 +170,9 @@
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3 font-semibold text-slate-800">${s.student_name}</td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.mobile || '-'}</td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.father_name || '-'}</td>
-                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.class_name || '-'}</td>
-                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.group_name || '-'}</td>
-                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.section_name || '-'}</td>
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-3" title="${s.class_name || ''}">${s.class_name || '-'}</td>
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-3" title="${s.group_name || ''}">${s.group_name || '-'}</td>
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-3" title="${s.section_name || ''}">${s.section_name || '-'}</td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.session_year || '-'}</td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.student_type || 'Admission'}</td>
                 <td class="h-8 border border-gray-300 px-3 text-center">
