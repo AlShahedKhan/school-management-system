@@ -11,6 +11,8 @@
     'panelClass' => 'custom-scrollbar mx-auto my-auto w-full max-w-[288px] overflow-y-auto border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)] md:max-w-[480px]',
     'panelStyle' => 'border-radius:4px; max-height:min(360px, calc(100dvh - 2.5rem));',
     'titleClass' => 'm-0 text-center font-semibold leading-tight text-slate-800',
+    'headerClass' => 'flex shrink-0 items-center justify-center bg-white px-4 pb-2 pt-8 sm:px-6 md:pt-8 lg:pt-8',
+    'formClass' => 'm-0',
     'bodyClass' => 'bg-white px-6 pb-0 pt-2',
     'fieldsClass' => 'grid grid-cols-1 gap-3 md:grid-cols-2',
 ])
@@ -34,7 +36,7 @@
     ]) }}
 >
     @if(!empty($title))
-    <div class="flex shrink-0 items-center justify-center bg-white px-4 pb-2 pt-8 sm:px-6 md:pt-8 lg:pt-8">
+    <div class="{{ $headerClass }}">
         <h4 id="{{ $titleId }}" class="{{ $titleClass }}">
             {{ $title }}
         </h4>
@@ -43,7 +45,7 @@
 
     <form
         id="{{ $formId }}"
-        class="m-0"
+        class="{{ $formClass }}"
         method="{{ strtolower($htmlMethod) }}"
         @if ($action) action="{{ $action }}" @endif
         @if ($enctype) enctype="{{ $enctype }}" @endif
