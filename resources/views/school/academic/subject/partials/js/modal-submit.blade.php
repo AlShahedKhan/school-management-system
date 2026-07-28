@@ -5,6 +5,12 @@
         const recordId = document.getElementById('record_id').value;
         const subjectModalElement = document.getElementById('subjectModal');
         const formData = new FormData(this);
+        ['tutorial_mark', 'mcq_mark', 'writing_mark', 'practical_mark', 'total_mark', 'fail_mark'].forEach(id => {
+            if (!formData.has(id) || formData.get(id) === null || formData.get(id) === '') {
+                const el = document.getElementById(id);
+                formData.set(id, el ? (el.value || 0) : 0);
+            }
+        });
         if (recordId) {
             formData.append('_method', 'PUT');
         }

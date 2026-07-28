@@ -3,22 +3,22 @@
     :empty-colspan="13"
     empty-message="No students found."
     show-footer="true"
-    minWidth="1250px"
+    minWidth="1350px"
 >
     <x-slot:columns>
         <colgroup>
-            <col style="min-width: 45px; width: 4%;">
-            <col style="min-width: 55px; width: 5%;">
-            <col style="min-width: 120px; width: 11%;">
-            <col style="min-width: 140px; width: 13%;">
-            <col style="min-width: 125px; width: 11%;">
-            <col style="min-width: 130px; width: 12%;">
+            <col style="min-width: 45px; width: 3%;">
+            <col style="min-width: 55px; width: 4%;">
+            <col style="min-width: 120px; width: 10%;">
+            <col style="min-width: 140px; width: 12%;">
+            <col style="min-width: 125px; width: 10%;">
+            <col style="min-width: 130px; width: 11%;">
             <col style="min-width: 75px; width: 6%;">
             <col style="min-width: 75px; width: 6%;">
-            <col style="min-width: 105px; width: 8%;">
+            <col style="min-width: 150px; width: 11%;">
             <col style="min-width: 90px; width: 7%;">
             <col style="min-width: 105px; width: 8%;">
-            <col style="min-width: 75px; width: 6%;">
+            <col style="min-width: 75px; width: 5%;">
             <col style="min-width: 130px; width: 130px;">
         </colgroup>
     </x-slot:columns>

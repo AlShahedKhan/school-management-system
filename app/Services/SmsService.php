@@ -150,15 +150,34 @@ class SmsService
                 ];
             }
 
-            $templateBody = match (true) {
-                !empty($activation->admin_sms_template_id) => (function() use ($activation) {
-                    $customTemplate = AdminSmsTemplate::find($activation->admin_sms_template_id);
-                    return $customTemplate ? $customTemplate->template_body : null;
-                })(),
-                default => AdminSmsTemplate::where('sms_type', $resolvedType)
-                    ->where('is_default', true)
-                    ->value('template_body')
-            } ?? $defaultTemplateBody;
+            // 1. Check School-specific SMS Setting first
+            $schoolSetting = \App\Models\SchoolSmsSetting::where('school_id', $schoolInternalId)
+                ->where('sms_type', $resolvedType)
+                ->first();
+
+            if ($schoolSetting) {
+                if ($schoolSetting->status === 'Inactive') {
+                    return [
+                        'success' => false,
+                        'message' => 'SMS sending disabled for this event by school settings.'
+                    ];
+                }
+                if (!empty($schoolSetting->template_body)) {
+                    $templateBody = $schoolSetting->template_body;
+                }
+            }
+
+            if (empty($templateBody)) {
+                $templateBody = match (true) {
+                    !empty($activation->admin_sms_template_id) => (function() use ($activation) {
+                        $customTemplate = AdminSmsTemplate::find($activation->admin_sms_template_id);
+                        return $customTemplate ? $customTemplate->template_body : null;
+                    })(),
+                    default => AdminSmsTemplate::where('sms_type', $resolvedType)
+                        ->where('is_default', true)
+                        ->value('template_body')
+                } ?? $defaultTemplateBody;
+            }
 
             foreach ($placeholders as $placeholder => $value) {
                 $templateBody = str_replace($placeholder, $value ?? '', $templateBody);

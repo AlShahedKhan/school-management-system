@@ -722,6 +722,11 @@ class DashboardController extends Controller
         return view('school.student-re-admission');
     }
 
+    public function smsSettings()
+    {
+        return view('school.sms-settings');
+    }
+
     // Academic Pages
     public function classes()
     {

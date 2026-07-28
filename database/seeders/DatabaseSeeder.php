@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             DonateCollectionSeeder::class,
             EmployeeSeeder::class,
             EmployeePayrollSeeder::class,
+            AdminSmsTemplateSeeder::class,
         ]);
     }
 }

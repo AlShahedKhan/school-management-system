@@ -170,9 +170,9 @@
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3 font-semibold text-slate-800">${s.student_name}</td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.mobile || '-'}</td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.father_name || '-'}</td>
-                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.class_name || '-'}</td>
-                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.group_name || '-'}</td>
-                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.section_name || '-'}</td>
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-3" title="${s.class_name || ''}">${s.class_name || '-'}</td>
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-3" title="${s.group_name || ''}">${s.group_name || '-'}</td>
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-3" title="${s.section_name || ''}">${s.section_name || '-'}</td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.session_year || '-'}</td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.student_type || 'Admission'}</td>
                 <td class="h-8 border border-gray-300 px-3 text-center">
@@ -399,9 +399,11 @@
                 'edit_father_name': s.father_name || '',
                 'edit_mother_name': s.mother_name || '',
                 'edit_mobile': s.mobile || '',
-                'edit_g_name': s.g_name || s.guardian_name || s.father_name || '',
-                'edit_g_relation': s.g_relation || s.relation || 'Father',
-                'edit_g_mobile': s.g_mobile || s.guardian_mobile || s.mobile || '',
+                'edit_dob': s.dob || '',
+                'edit_nid_birth_certificate': s.nid_birth_certificate || '',
+                'edit_g_name': s.g_name || s.guardian?.name || s.guardian_name || '',
+                'edit_g_relation': s.g_relation || s.guardian?.relation || s.relation || 'Father',
+                'edit_g_mobile': s.g_mobile || s.guardian?.mobile || s.guardian_mobile || '',
                 'edit_current_village': s.current_village || s.village || '',
                 'edit_permanent_village': s.permanent_village || s.village || ''
             };
@@ -422,6 +424,12 @@
             populateDropdownSelect('edit_group', groupOpts, s.group_id || s.group, 'Select Group');
             populateDropdownSelect('edit_section', sectionOpts, s.section_id || s.section, 'Select Section');
             populateDropdownSelect('edit_session', sessionOpts, s.session_id || s.session, 'Select Session');
+            populateDropdownSelect('edit_blood_group', [
+                { value: 'A+', label: 'A+' }, { value: 'A-', label: 'A-' },
+                { value: 'B+', label: 'B+' }, { value: 'B-', label: 'B-' },
+                { value: 'O+', label: 'O+' }, { value: 'O-', label: 'O-' },
+                { value: 'AB+', label: 'AB+' }, { value: 'AB-', label: 'AB-' }
+            ], s.blood_group || '', 'Select Blood Group');
 
             // Photo Preview
             const imgPreview = document.getElementById('imagePreview');
@@ -757,7 +765,8 @@
                 })
                 .catch(err => {
                     console.error('Update student error:', err);
-                    alert(err.response?.data?.message || 'Failed to update student');
+                    const msg = err.response?.data?.message || (err.response?.data?.errors ? Object.values(err.response.data.errors)[0]?.[0] : null) || 'Failed to update student';
+                    alert(msg);
                 });
         });
 

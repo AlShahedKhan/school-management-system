@@ -65,6 +65,18 @@
         <x-input.control id="edit_mobile" name="mobile" class="peer placeholder:text-transparent" placeholder=" " required />
         <x-input.floating-label for="edit_mobile">Student Mobile</x-input.floating-label>
     </div>
+    <div class="relative">
+        <x-input.control id="edit_dob" name="dob" class="peer" type="date" placeholder=" " />
+        <x-input.floating-label for="edit_dob" :floating="false">Date of Birth</x-input.floating-label>
+    </div>
+    <div class="relative">
+        <x-input.control id="edit_nid_birth_certificate" name="nid_birth_certificate" class="peer placeholder:text-transparent" placeholder=" " />
+        <x-input.floating-label for="edit_nid_birth_certificate">NID / Birth Certificate</x-input.floating-label>
+    </div>
+    <div class="relative">
+        <x-input.dropdown-select id="edit_blood_group" name="blood_group" placeholder="Select Blood Group" :options="['A+' => 'A+', 'A-' => 'A-', 'B+' => 'B+', 'B-' => 'B-', 'O+' => 'O+', 'O-' => 'O-', 'AB+' => 'AB+', 'AB-' => 'AB-']" />
+        <x-input.floating-label for="edit_blood_group" :floating="false">Blood Group</x-input.floating-label>
+    </div>
     <div class="col-span-1 md:col-span-2 flex items-center gap-2 mt-4 mb-2 pb-1 border-b border-slate-100">
         <div style="width: 4px; height: 14px; background-color: #2563eb; border-radius: 9999px;" class="flex-shrink-0"></div>
         <span class="text-xs font-bold text-slate-700">Guardian Information</span>

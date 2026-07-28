@@ -189,6 +189,7 @@
                     teacher_id: teacherId,
                     designation,
                     status,
+                    per_page: 30,
                     page
                 }
             })

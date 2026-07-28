@@ -82,6 +82,18 @@ class StudentTemplateDataSheet implements FromArray, WithHeadings, WithTitle, Wi
 
             'mobile',
 
+            'dob',
+
+            'nid_birth_certificate',
+
+            'blood_group',
+
+            'guardian_name',
+
+            'guardian_relation',
+
+            'guardian_mobile',
+
             'current_country',
 
             'current_division',
@@ -101,12 +113,6 @@ class StudentTemplateDataSheet implements FromArray, WithHeadings, WithTitle, Wi
             'permanent_upazila',
 
             'permanent_village',
-
-            'guardian_name',
-
-            'guardian_relation',
-
-            'guardian_mobile',
         ];
     }
 
@@ -122,31 +128,37 @@ class StudentTemplateDataSheet implements FromArray, WithHeadings, WithTitle, Wi
 
                 '01712345678',
 
-                'Bangladesh',
+                '2010-05-15',
 
-                'Dhaka',
+                '1990123456789',
 
-                'Gazipur',
-
-                'Gazipur Sadar',
-
-                'Rowshon Market',
-
-                'Bangladesh',
-
-                'Dhaka',
-
-                'Gazipur',
-
-                'Gazipur Sadar',
-
-                'Rowshon Market',
+                'B+',
 
                 'Mohammad Ali',
 
                 'Father',
 
                 '01712345679',
+
+                'Bangladesh',
+
+                'Dhaka',
+
+                'Gazipur',
+
+                'Gazipur Sadar',
+
+                'Rowshon Market',
+
+                'Bangladesh',
+
+                'Dhaka',
+
+                'Gazipur',
+
+                'Gazipur Sadar',
+
+                'Rowshon Market',
             ],
         ];
     }
@@ -156,7 +168,11 @@ class StudentTemplateDataSheet implements FromArray, WithHeadings, WithTitle, Wi
         return [
             'D' => NumberFormat::FORMAT_TEXT,
 
-            'Q' => NumberFormat::FORMAT_TEXT,
+            'E' => NumberFormat::FORMAT_TEXT,
+
+            'F' => NumberFormat::FORMAT_TEXT,
+
+            'J' => NumberFormat::FORMAT_TEXT,
         ];
     }
 }

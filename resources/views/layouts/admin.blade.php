@@ -352,12 +352,15 @@
 
                 <div class="sidebar-group">
                     <div class="sidebar-group-toggle">
-                        <span><i class="fas fa-sms w-4"></i> SMS Settings</span>
+                        <span><i class="fas fa-sms w-4"></i> SMS Management</span>
                         <i class="fas fa-chevron-right text-xs"></i>
                     </div>
                     <div class="sidebar-group-content">
+                        <a href="{{ route('admin.sms-credentials') }}" data-title="SMS Credentials" data-link class="sidebar-subitem">
+                            <i class="fas fa-key"></i> SMS Credentials
+                        </a>
                         <a href="{{ route('admin.sms-templates') }}" data-title="SMS Templates" data-link class="sidebar-subitem">
-                            <i class="fas fa-file-alt"></i> SMS Template
+                            <i class="fas fa-file-alt"></i> SMS Templates
                         </a>
                         <a href="{{ route('admin.sms-activations') }}" data-title="SMS Activations" data-link class="sidebar-subitem">
                             <i class="fas fa-toggle-on"></i> Activation List
