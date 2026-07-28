@@ -48,12 +48,12 @@
         <h4 class="text-[11px] font-medium text-blue-600 capitalize">Grade Distribution</h4>
     </div>
 
-    <div class="grid grid-cols-9 gap-2 mb-2 px-1 hidden sm:grid">
-        <div class="col-span-2 text-[9px] capitalize text-gray-400 font-normal">Minimum mark</div>
-        <div class="col-span-2 text-[9px] capitalize text-gray-400 font-normal">Maximum mark</div>
-        <div class="col-span-2 text-[9px] capitalize text-gray-400 font-normal">Letter name</div>
-        <div class="col-span-2 text-[9px] capitalize text-gray-400 font-normal">Point no</div>
-        <div class="col-span-1"></div>
+    <div class="hidden grid-cols-1 gap-2 px-3 mb-2 sm:grid sm:grid-cols-[2fr_2fr_2fr_2fr_1fr]">
+        <div class="min-w-0 text-[9px] capitalize text-gray-400 font-normal">Minimum mark</div>
+        <div class="min-w-0 text-[9px] capitalize text-gray-400 font-normal">Maximum mark</div>
+        <div class="min-w-0 text-[9px] capitalize text-gray-400 font-normal">Letter name</div>
+        <div class="min-w-0 text-[9px] capitalize text-gray-400 font-normal">Point no</div>
+        <div></div>
     </div>
 
     <div id="gradeRowsContainer" class="space-y-3"></div>

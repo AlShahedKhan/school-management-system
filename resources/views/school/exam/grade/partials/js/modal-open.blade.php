@@ -102,29 +102,29 @@
         const container = document.getElementById('gradeRowsContainer');
         const rowId = Date.now() + Math.random();
         const rowHtml = `
-        <div class="grid grid-cols-1 sm:grid-cols-9 gap-2 items-center bg-white p-3 border border-gray-100 shadow-sm grade-row" id="row_${rowId}">
-            <div class="col-span-2">
+        <div class="grid grid-cols-1 sm:grid-cols-[2fr_2fr_2fr_2fr_1fr] gap-2 items-center bg-white p-3 border border-gray-100 shadow-sm grade-row" id="row_${rowId}">
+            <div class="min-w-0">
                 <label class="sm:hidden text-[9px] text-gray-400">Minimum mark</label>
                 <input type="number" step="0.01" name="mark_from" value="${data?.mark_from || ''}" class="w-full border border-gray-200 py-1 px-2 text-[11px] h-[30px]" style="border-radius: 0;" placeholder="80">
                 <div class="mt-1 hidden text-[10px] text-red-500 grade-field-error"></div>
             </div>
-            <div class="col-span-2">
+            <div class="min-w-0">
                 <label class="sm:hidden text-[9px] text-gray-400">Maximum mark</label>
                 <input type="number" step="0.01" name="mark_to" value="${data?.mark_to || ''}" class="w-full border border-gray-200 py-1 px-2 text-[11px] h-[30px]" style="border-radius: 0;" placeholder="100">
                 <div class="mt-1 hidden text-[10px] text-red-500 grade-field-error"></div>
             </div>
-            <div class="col-span-2">
+            <div class="min-w-0">
                 <label class="sm:hidden text-[9px] text-gray-400">Letter name</label>
                 <input type="text" name="grade_name" value="${data?.grade_name || ''}" class="w-full border border-gray-200 py-1 px-2 text-[11px] h-[30px]" style="border-radius: 0;" placeholder="e.g. A+">
                 <div class="mt-1 hidden text-[10px] text-red-500 grade-field-error"></div>
             </div>
-            <div class="col-span-2">
+            <div class="min-w-0">
                 <label class="sm:hidden text-[9px] text-gray-400">Point no</label>
                 <input type="number" step="0.01" name="grade_point" value="${data?.grade_point || ''}" class="w-full border border-gray-200 py-1 px-2 text-[11px] h-[30px]" style="border-radius: 0;" placeholder="5.00">
                 <div class="mt-1 hidden text-[10px] text-red-500 grade-field-error"></div>
             </div>
-            <div class="col-span-1 flex justify-end">
-                <button type="button" onclick="document.getElementById('row_${rowId}').remove()" class="text-red-400 hover:text-red-600 transition-colors">
+            <div class="flex h-[30px] self-end items-center justify-center">
+                <button type="button" onclick="document.getElementById('row_${rowId}').remove()" class="inline-flex h-full w-full items-center justify-center leading-none text-red-400 hover:text-red-600 transition-colors">
                     <i class="far fa-trash-alt"></i>
                 </button>
             </div>
