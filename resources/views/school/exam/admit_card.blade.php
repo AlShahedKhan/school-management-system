@@ -281,21 +281,20 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-row items-center gap-1 w-full lg:w-auto">
-                        <button onclick="toggleFilterModal()"
-                            class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
+                    <div class="grid w-full grid-cols-3 gap-2 lg:flex lg:w-auto">
+                        <x-button.secondary onclick="toggleFilterModal()" class="w-full lg:w-auto">
                             Filter
-                        </button>
+                        </x-button.secondary>
 
-                        <button onclick="document.getElementById('exportModal').classList.remove('hidden')"
-                            class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
-                            Export
-                        </button>
+                        <x-dropdown button-id="btnAdmitExport" menu-id="admitExportDropdown" label="Export">
+                            <x-dropdown.item onclick="exportData('pdf-mobile')">PDF</x-dropdown.item>
+                            <x-dropdown.item onclick="exportData('excel')">Excel</x-dropdown.item>
+                            <x-dropdown.item onclick="exportData('pdf')">Print</x-dropdown.item>
+                        </x-dropdown>
 
-                        <button onclick="openAdmitModal()"
-                            class="btn-outline-premium border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
+                        <x-button.primary onclick="openAdmitModal()" class="w-full lg:w-auto">
                             Admit Card
-                        </button>
+                        </x-button.primary>
                     </div>
                 </div>
 
@@ -422,6 +421,10 @@
                             class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
                             PDF
                         </button>
+                        <button onclick="exportData('excel')"
+                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
+                            EXCEL
+                        </button>
                         <button onclick="exportData('pdf')"
                             class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
                             PRINT
@@ -463,83 +466,110 @@
     </div>
 
     {{-- Admit Card Modal --}}
-    <div id="admitModal"
-        class="fixed inset-0 bg-gray-900/60 flex items-center justify-center hidden z-[100] px-8 sm:px-40 py-12 backdrop-blur-sm overflow-y-auto">
-
-        <div
-            class="bg-white w-full max-w-2xl modal-content-sharp shadow-2xl overflow-hidden flex flex-col my-auto max-h-[70vh] sm:max-h-[85vh] mx-auto border border-gray-100">
-
-            <div class="px-5 py-3 border-b flex justify-center items-center bg-white sticky top-0 z-10">
-                <h3 id="modalTitle"
-                    class="text-gray-800 text-[13px] font-medium leading-tight text-center capitalize tracking-normal">
-                    Bulk Admit Card Generator
-                </h3>
-            </div>
-
-            <form id="admitForm" class="flex flex-col overflow-hidden m-0">
-                <input type="hidden" id="edit_id">
-
-                <div class="overflow-y-auto custom-scrollbar p-4 sm:p-6 flex-grow bg-gray-50/30">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
+    <x-modal.form
+        id="admitModal"
+        form-id="admitForm"
+        title="Bulk Admit Card Generator"
+        close-button-id="closeAdmitModal"
+        class="fixed inset-0 z-[100] hidden flex items-center justify-center overflow-y-auto bg-gray-900/60 px-8 py-12 backdrop-blur-sm sm:px-40"
+        panel-class="modal-content-sharp mx-auto my-auto flex w-full max-w-2xl flex-col overflow-hidden border border-gray-100 bg-white shadow-2xl max-h-[70vh] sm:max-h-[85vh]"
+        panel-style="border-radius: 0;"
+        header-class="sticky top-0 z-10 flex shrink-0 items-center justify-center border-b bg-white px-5 py-3"
+        title-class="text-center text-[13px] font-medium capitalize leading-tight tracking-normal text-gray-800"
+        form-class="m-0 flex min-h-0 flex-1 flex-col overflow-hidden"
+        body-class="min-h-0 flex-1 overflow-y-auto custom-scrollbar bg-gray-50/30 p-4 sm:p-6"
+        fields-class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2"
+    >
+        <input type="hidden" id="admit_edit_id">
 
                         <div class="col-span-1">
                             <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Class</label>
-                            <select id="class_name" onchange="handleCascade(this, 'group')"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]" required
-                                style="border-radius: 0;"></select>
+                            <x-input.dropdown-select
+                                id="class_name"
+                                placeholder="Select Class"
+                                :options="[]"
+                                add-button-id="openClassFromAdmitForm"
+                                add-button-label="Add class"
+                                add-button-target="classModal"
+                            />
                         </div>
 
                         <div class="col-span-1">
                             <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Group</label>
-                            <select id="group_name" onchange="handleCascade(this, 'section')"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                style="border-radius: 0;"></select>
+                            <x-input.dropdown-select
+                                id="group_name"
+                                placeholder="Select Group"
+                                :options="[]"
+                                add-button-id="openGroupFromAdmitForm"
+                                add-button-label="Add group"
+                                add-button-target="groupModal"
+                            />
                         </div>
 
                         <div class="col-span-1">
                             <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Section</label>
-                            <select id="section_name" onchange="handleCascade(this, 'session')"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                style="border-radius: 0;"></select>
+                            <x-input.dropdown-select
+                                id="section_name"
+                                placeholder="Select Section"
+                                :options="[]"
+                                add-button-id="openSectionFromAdmitForm"
+                                add-button-label="Add section"
+                                add-button-target="sectionModal"
+                            />
                         </div>
 
                         <div class="col-span-1">
                             <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Session</label>
-                            <select id="session_name" onchange="fetchStudentCount(); checkPrerequisiteStatus()"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]" required
-                                style="border-radius: 0;"></select>
+                            <x-input.dropdown-select
+                                id="session_name"
+                                placeholder="Select Session"
+                                :options="[]"
+                                add-button-id="openSessionFromAdmitForm"
+                                add-button-label="Add session"
+                                add-button-target="sessionModal"
+                            />
                         </div>
 
-                        <div class="col-span-1 sm:col-span-2">
+                        <div class="col-span-1">
                             <label
                                 class="block text-[10px] capitalize tracking-normal text-blue-600 mb-1.5 font-medium">Exam
                                 Name</label>
-                            <select id="exam_name" onchange="checkPrerequisiteStatus()"
-                                class="form-input-fixed w-full border border-blue-200 py-1.5 px-3 text-xs h-[32px]" required
-                                style="border-radius: 0;"></select>
+                            <x-input.dropdown-select
+                                id="exam_name"
+                                placeholder="Select Exam"
+                                :options="[]"
+                                add-button-id="openExamFromAdmitForm"
+                                add-button-label="Add exam"
+                                add-button-target="examModal"
+                            />
                         </div>
 
-                        <div id="admitPrerequisiteWarning" class="col-span-1 sm:col-span-2 hidden bg-yellow-50 border border-yellow-300 text-yellow-800 p-3 text-[10px]">
-                            Please create the Exam, Exam Routine, and Exam Fee before generating the Admit Card.
-                        </div>
-
-                        <div class="col-span-1 sm:col-span-2">
+                        <div class="col-span-1">
                             <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Generate
                                 For</label>
-                            <select id="generate_type" onchange="toggleStudentSelect(); updateAdmitSubmitState()"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]" required
-                                style="border-radius: 0;">
-                                <option value="all">All Students</option>
-                                <option value="single">Single Student</option>
-                            </select>
+                            <x-input.dropdown-select
+                                id="generate_type"
+                                placeholder="Select generation type"
+                                value="all"
+                                :options="[
+                                    ['value' => 'all', 'label' => 'All Students'],
+                                    ['value' => 'single', 'label' => 'Single Student'],
+                                ]"
+                            />
+                        </div>
+
+                        <div id="admitPrerequisiteWarning"
+                            class="col-span-1 hidden border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] leading-4 text-amber-700 sm:col-span-2">
+                            <div class="flex items-start gap-2">
+                                <i class="fas fa-exclamation-circle mt-0.5 shrink-0 text-[10px]" aria-hidden="true"></i>
+                                <span>Please create the Exam and Exam Routine before generating the Admit Card.</span>
+                            </div>
                         </div>
 
                         <div id="single_student_container" class="col-span-1 sm:col-span-2 hidden">
                             <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Select
                                 Student</label>
-                            <select id="student_id" onchange="updateAdmitSubmitState()"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                style="border-radius: 0;"></select>
+                            <x-input.dropdown-select id="student_id" placeholder="Select Student" :options="[]" />
                         </div>
 
                         <div id="studentStatusBox"
@@ -555,19 +585,22 @@
                             </div>
                         </div>
 
-                    </div>
-                </div>
-
-                <div
-                    class="px-4 sm:px-6 py-4 border-t border-gray-100 bg-white flex flex-row sm:justify-end gap-2 sticky bottom-0">
-                    <button type="button" onclick="closeAdmitModal()"
-                        class="w-1/2 sm:w-auto sm:px-8 h-[32px] btn-outline-secondary border border-gray-200 text-[10px] tracking-normal capitalize transition-all hover:bg-gray-50 flex items-center justify-center whitespace-nowrap"
-                        style="border-radius: 0;">
+        <x-slot:footer>
+            <div class="sticky bottom-0 flex flex-row gap-2 border-t border-gray-100 bg-white px-4 py-4 sm:justify-end sm:px-6">
+                    <x-button.secondary
+                        id="closeAdmitModal"
+                        type="button"
+                        onclick="document.getElementById('admitModal').classList.add('hidden')"
+                        class="w-1/2 sm:w-auto sm:px-8"
+                    >
                         Cancel
-                    </button>
-                    <button type="submit" id="submitBtn" disabled
-                        class="w-1/2 sm:w-auto sm:px-12 h-[32px] btn-outline-premium border border-gray-200 text-[10px] tracking-normal capitalize flex items-center justify-center whitespace-nowrap disabled:opacity-50"
-                        style="border-radius: 0;">
+                    </x-button.secondary>
+                    <x-button.primary
+                        type="submit"
+                        id="submitBtn"
+                        disabled
+                        class="w-1/2 sm:w-auto sm:px-12 disabled:opacity-50"
+                    >
                         <span id="btnSpinner" class="hidden">
                             <svg class="animate-spin h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24">
@@ -578,11 +611,33 @@
                             </svg>
                         </span>
                         <span id="btnText">Generate</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+                    </x-button.primary>
+            </div>
+        </x-slot:footer>
+    </x-modal.form>
+
+    {{-- Quick-create modals shared with the Exam Routine form. --}}
+    @include('school.academic.class.partials.class-modal')
+    @include('school.academic.group.partials.group-modal')
+    @include('school.academic.section.partials.section-modal')
+    @include('school.academic.session.partials.session-modal')
+    @include('school.exam.exam_name.partials.exam-modal')
+
+    @include('school.academic.class.partials.js.modal-open')
+    @include('school.academic.group.partials.js.modal-open')
+    @include('school.academic.section.partials.js.modal-open')
+    @include('school.academic.session.partials.js.modal-open')
+    @include('school.exam.exam_name.partials.js.modal-open')
+    @include('school.academic.class.partials.js.modal-submit')
+    @include('school.academic.group.partials.js.modal-submit')
+    @include('school.academic.section.partials.js.modal-submit')
+    @include('school.academic.session.partials.js.modal-submit')
+    @include('school.exam.exam_name.partials.js.modal-submit')
+    @include('school.academic.class.partials.js.error-validation')
+    @include('school.academic.group.partials.js.error-validation')
+    @include('school.academic.section.partials.js.error-validation')
+    @include('school.academic.session.partials.js.error-validation')
+    @include('school.exam.exam_name.partials.js.error-validation')
 
 
     <script>
@@ -590,15 +645,177 @@
         axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
         let studentsList = [];
 
-        function loadInitial() {
-            axios.get('/api/get-school-classes').then(res => {
+        function populateDropdown(menuId, data, valueField, labelField) {
+            const menu = document.getElementById(menuId);
+            if (!menu) return;
+
+            menu.innerHTML = '';
+            data.forEach(item => {
+                const option = document.createElement('button');
+                option.type = 'button';
+                option.className = 'dropdown-select-option m-0 flex min-h-6 w-full items-center border-0 bg-white px-3 py-1 text-left text-[11px] font-normal leading-tight transition-colors hover:bg-slate-100 text-slate-800';
+                option.dataset.value = String(item[valueField] ?? '');
+                option.dataset.optionId = String(item.id ?? '');
+                option.textContent = item[labelField] ?? '';
+                option.setAttribute('role', 'option');
+                option.setAttribute('aria-selected', 'false');
+                option.setAttribute('data-dropdown-select-option', '');
+
+                option.addEventListener('click', function() {
+                    const root = menu.closest('[data-dropdown-select]');
+                    const input = root?.querySelector('[data-dropdown-select-input]');
+                    const label = root?.querySelector('[data-dropdown-select-label]');
+                    if (!root || !input || !label) return;
+
+                    input.value = this.dataset.value || '';
+                    label.textContent = this.textContent.trim();
+                    menu.querySelectorAll('[data-dropdown-select-option]').forEach(item => {
+                        const selected = item === this;
+                        item.classList.toggle('bg-slate-100', selected);
+                        item.classList.toggle('text-slate-900', selected);
+                        item.classList.toggle('text-slate-800', !selected);
+                        item.setAttribute('aria-selected', String(selected));
+                    });
+                    menu.classList.add('hidden');
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+
+                menu.appendChild(option);
+            });
+        }
+
+        function setDropdownValue(dropdownId, value, label) {
+            const input = document.getElementById(dropdownId);
+            const labelElement = document.querySelector(`#${dropdownId}Button [data-dropdown-select-label]`);
+            const menu = document.getElementById(`${dropdownId}Menu`);
+
+            if (input) input.value = value || '';
+            if (labelElement) labelElement.textContent = label || labelElement.dataset.placeholder || 'Select...';
+
+            menu?.querySelectorAll('[data-dropdown-select-option]').forEach(option => {
+                const selected = String(option.dataset.value || '') === String(value || '');
+                option.classList.toggle('bg-slate-100', selected);
+                option.classList.toggle('text-slate-900', selected);
+                option.classList.toggle('text-slate-800', !selected);
+                option.setAttribute('aria-selected', String(selected));
+            });
+        }
+
+        function getSelectedDataId(elementOrId) {
+            const input = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
+            if (!input) return '';
+
+            if (input.matches?.('[data-dropdown-select-input]')) {
+                const menu = document.getElementById(`${input.id}Menu`);
+                const selected = menu?.querySelector(`[data-value="${CSS.escape(input.value)}"]`);
+                return selected?.dataset.optionId || '';
+            }
+
+            return input.options?.[input.selectedIndex]?.getAttribute('data-id') || '';
+        }
+
+        function selectAdmitOption(id, recordId) {
+            const menu = document.getElementById(`${id}Menu`);
+            if (!menu || !recordId) return false;
+
+            const option = Array.from(menu.querySelectorAll('[data-dropdown-select-option]'))
+                .find(item => String(item.dataset.optionId) === String(recordId));
+            if (!option) return false;
+
+            setDropdownValue(id, option.dataset.value, option.textContent.trim());
+            return true;
+        }
+
+        function getDropdownSelectSelectedLabel(id) {
+            const input = document.getElementById(id);
+            const menu = document.getElementById(`${id}Menu`);
+            const selected = menu?.querySelector(`[data-value="${CSS.escape(input?.value || '')}"]`);
+            return selected?.textContent?.trim() || '';
+        }
+
+        async function restoreAdmitSelection({ classId = null, groupId = null, sectionId = null, sessionId = null } = {}) {
+            await loadInitial();
+
+            if (classId && selectAdmitOption('class_name', classId)) {
+                await handleCascade(document.getElementById('class_name'), 'group');
+            }
+            if (groupId && selectAdmitOption('group_name', groupId)) {
+                await handleCascade(document.getElementById('group_name'), 'section');
+            }
+            if (sectionId && selectAdmitOption('section_name', sectionId)) {
+                await handleCascade(document.getElementById('section_name'), 'session');
+            }
+            if (sessionId && selectAdmitOption('session_name', sessionId)) {
+                await fetchFilteredExams();
+                fetchStudentCount();
+            }
+        }
+
+        document.addEventListener('school:class-saved', async event => {
+            const { classItem, returnModalId, isNew } = event.detail || {};
+            if (returnModalId !== 'admitModal' || !isNew || !classItem?.id) return;
+
+            event.preventDefault();
+            await restoreAdmitSelection({ classId: classItem.id });
+            document.getElementById('admitModal')?.classList.remove('hidden');
+        });
+
+        document.addEventListener('school:group-saved', async event => {
+            const { groupItem, returnModalId, isNew } = event.detail || {};
+            if (returnModalId !== 'admitModal' || !isNew || !groupItem?.id) return;
+
+            event.preventDefault();
+            await restoreAdmitSelection({ classId: groupItem.class_id, groupId: groupItem.id });
+            document.getElementById('admitModal')?.classList.remove('hidden');
+        });
+
+        document.addEventListener('school:section-saved', async event => {
+            const { sectionItem, returnModalId, isNew } = event.detail || {};
+            if (returnModalId !== 'admitModal' || !isNew || !sectionItem?.id) return;
+
+            event.preventDefault();
+            await restoreAdmitSelection({
+                classId: sectionItem.class_id,
+                groupId: sectionItem.group_id,
+                sectionId: sectionItem.id,
+            });
+            document.getElementById('admitModal')?.classList.remove('hidden');
+        });
+
+        document.addEventListener('school:session-saved', async event => {
+            const { sessionItem, returnModalId, isNew } = event.detail || {};
+            if (returnModalId !== 'admitModal' || !isNew || !sessionItem?.id) return;
+
+            event.preventDefault();
+            await restoreAdmitSelection({
+                classId: sessionItem.class_id,
+                groupId: sessionItem.group_id,
+                sectionId: sessionItem.section_id,
+                sessionId: sessionItem.id,
+            });
+            document.getElementById('admitModal')?.classList.remove('hidden');
+        });
+
+        document.addEventListener('school:exam-saved', async event => {
+            const { examItem, returnModalId, isNew } = event.detail || {};
+            if (returnModalId !== 'admitModal' || !isNew || !examItem?.id) return;
+
+            await fetchFilteredExams();
+            selectAdmitOption('exam_name', examItem.id);
+            checkPrerequisiteStatus();
+            document.getElementById('admitModal')?.classList.remove('hidden');
+        });
+
+        async function loadInitial() {
+            await axios.get('/api/get-school-classes').then(res => {
                 let opts = '<option value="">Select Class</option>';
                 res.data.data.forEach(c => opts +=
                     `<option value="${c.class_name}" data-id="${c.id}">${c.class_name}</option>`);
-                document.getElementById('class_name').innerHTML = opts;
+                populateDropdown('class_nameMenu', res.data.data || [], 'class_name', 'class_name');
+                setDropdownValue('class_name', '', 'Select Class');
                 document.getElementById('filter_class_name').innerHTML = opts;
             });
-            fetchFilteredExams();
+            await fetchFilteredExams();
         }
 
         function fetchFilteredExams(isFilter = false) {
@@ -610,13 +827,18 @@
                 session_name: document.getElementById(`${prefix}session_name`).value,
             };
 
-            axios.get('/api/get-school-exams', {
+            return axios.get('/api/get-school-exams', {
                 params
             }).then(res => {
                 let opts = '<option value="">Select Exam</option>';
                 res.data.data.forEach(e => opts +=
                     `<option value="${e.exam_name}" data-id="${e.id}">${e.exam_name}</option>`);
-                document.getElementById(`${prefix}exam_name`).innerHTML = opts;
+                if (isFilter) {
+                    document.getElementById('filter_exam_name').innerHTML = opts;
+                } else {
+                    populateDropdown('exam_nameMenu', res.data.data || [], 'exam_name', 'exam_name');
+                    setDropdownValue('exam_name', '', 'Select Exam');
+                }
                 if (!isFilter) {
                     checkPrerequisiteStatus();
                 }
@@ -624,7 +846,7 @@
         }
 
         async function handleCascade(el, next, callback = null) {
-            const id = el.options[el.selectedIndex]?.getAttribute('data-id');
+            const id = getSelectedDataId(el);
             const isFilter = el.id.startsWith('filter_');
             if (!id) return;
 
@@ -635,9 +857,7 @@
                 await fetchFill(`/api/get-school-sections?group_id=${id}`, isFilter ? 'filter_section_name' :
                     'section_name', 'Section', 'section_name');
             } else if (next.includes('session')) {
-                const classId = document.getElementById(isFilter ? 'filter_class_name' : 'class_name').options[document
-                    .getElementById(isFilter ? 'filter_class_name' : 'class_name').selectedIndex]?.getAttribute(
-                        'data-id');
+                const classId = getSelectedDataId(isFilter ? 'filter_class_name' : 'class_name');
                 await fetchFill(`/api/get-school-sessions?section_id=${id}&class_id=${classId}`, isFilter ?
                     'filter_session_name' : 'session_name', 'Session', 'session_year');
             }
@@ -649,9 +869,16 @@
 
         function fetchFill(url, tid, lbl, fld) {
             return axios.get(url).then(res => {
+                const target = document.getElementById(tid);
+                if (target?.matches?.('[data-dropdown-select-input]')) {
+                    populateDropdown(`${tid}Menu`, res.data.data || [], fld, fld);
+                    setDropdownValue(tid, '', `Select ${lbl}`);
+                    return;
+                }
+
                 let o = `<option value="">Select ${lbl}</option>`;
                 res.data.data.forEach(i => o += `<option value="${i[fld]}" data-id="${i.id}">${i[fld]}</option>`);
-                document.getElementById(tid).innerHTML = o;
+                target.innerHTML = o;
             });
         }
 
@@ -718,7 +945,7 @@
                 if (res.data.valid) {
                     setPrerequisiteWarning(true, '');
                 } else {
-                    setPrerequisiteWarning(false, res.data.message || 'Please create the Exam, Exam Routine, and Exam Fee before generating the Admit Card.');
+                    setPrerequisiteWarning(false, res.data.message || 'Please create the Exam and Exam Routine before generating the Admit Card.');
                 }
             }).catch(err => {
                 const message = err.response?.data?.message || 'Unable to validate prerequisites at this time.';
@@ -727,13 +954,11 @@
         }
 
         function fetchStudentCount() {
-            const getVal = (id) => document.getElementById(id).options[document.getElementById(id).selectedIndex]
-                ?.getAttribute('data-id') || '';
             const params = {
-                class_id: getVal('class_name'),
-                group_id: getVal('group_name'),
-                section_id: getVal('section_name'),
-                session_id: getVal('session_name')
+                class_id: getSelectedDataId('class_name'),
+                group_id: getSelectedDataId('group_name'),
+                section_id: getSelectedDataId('section_name'),
+                session_id: getSelectedDataId('session_name')
             };
 
             if (!params.class_id || !params.session_id) {
@@ -769,11 +994,13 @@
         }
 
         function populateStudentDropdown() {
-            let opts = '<option value="">Select Student</option>';
-            studentsList.forEach(s => {
-                opts += `<option value="${s.student_id_number}">${s.student_name} (${s.student_id_number})</option>`;
-            });
-            document.getElementById('student_id').innerHTML = opts;
+            const students = studentsList.map(student => ({
+                id: student.student_id_number,
+                student_id_number: student.student_id_number,
+                student_label: `${student.student_name} (${student.student_id_number})`,
+            }));
+            populateDropdown('student_idMenu', students, 'student_id_number', 'student_label');
+            setDropdownValue('student_id', '', 'Select Student');
             updateAdmitSubmitState();
         }
 
@@ -827,6 +1054,50 @@
                 search: document.getElementById('header_search').value,
                 export: type
             };
+
+            if (type === 'excel') {
+                axios.get('/api/school-exam-admit-cards', {
+                    params: {
+                        ...params,
+                        per_page: 500
+                    }
+                }).then(res => {
+                    const cards = res.data.data || [];
+
+                    if (!cards.length) {
+                        Swal.fire('Info', 'No admit cards found for current filters.', 'info');
+                        return;
+                    }
+
+                    const columns = [
+                        ['Class', 'class_name'],
+                        ['Group', 'group_name'],
+                        ['Section', 'section_name'],
+                        ['Session', 'session_name'],
+                        ['Exam Name', 'exam_name'],
+                        ['Student ID', 'student_id_number'],
+                        ['Student Name', 'student_name'],
+                        ['Admit Number', 'admit_card_number'],
+                    ];
+                    const csvValue = value => `"${String(value ?? '').replaceAll('"', '""')}"`;
+                    const csv = [
+                        columns.map(([label]) => csvValue(label)).join(','),
+                        ...cards.map(card => columns.map(([, key]) => csvValue(card[key] || '-')).join(',')),
+                    ].join('\n');
+                    const downloadUrl = URL.createObjectURL(new Blob([`\uFEFF${csv}`], {
+                        type: 'text/csv;charset=utf-8;'
+                    }));
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = 'admit-cards.csv';
+                    link.click();
+                    URL.revokeObjectURL(downloadUrl);
+                }).catch(() => {
+                    Swal.fire('Error', 'Failed to export admit cards. Please try again.', 'error');
+                });
+
+                return;
+            }
 
             if (type === 'pdf' || type === 'pdf-mobile') {
                 // Open window immediately to preserve user interaction context
@@ -1306,25 +1577,26 @@
 
         async function editAdmit(item) {
             openAdmitModal();
-            document.getElementById('modalTitle').innerText = 'Edit Individual Admit Card';
-            document.getElementById('edit_id').value = item.id;
+            document.getElementById('admitModalTitle').innerText = 'Edit Individual Admit Card';
+            document.getElementById('admit_edit_id').value = item.id;
             document.getElementById('submitBtn').innerText = 'Update Admit Card';
             document.getElementById('submitBtn').disabled = false;
             document.getElementById('studentStatusBox').classList.add('hidden');
 
+            await loadInitial();
             const classEl = document.getElementById('class_name');
-            classEl.value = item.class_name;
+            setDropdownValue('class_name', item.class_name, item.class_name);
             await handleCascade(classEl, 'group');
             const groupEl = document.getElementById('group_name');
-            groupEl.value = item.group_name || '';
+            setDropdownValue('group_name', item.group_name || '', item.group_name || 'Select Group');
             await handleCascade(groupEl, 'section');
             const secEl = document.getElementById('section_name');
-            secEl.value = item.section_name || '';
+            setDropdownValue('section_name', item.section_name || '', item.section_name || 'Select Section');
             await handleCascade(secEl, 'session');
-            document.getElementById('session_name').value = item.session_name;
+            setDropdownValue('session_name', item.session_name, item.session_name);
 
-            fetchFilteredExams(false);
-            document.getElementById('exam_name').value = item.exam_name;
+            await fetchFilteredExams(false);
+            setDropdownValue('exam_name', item.exam_name, item.exam_name);
         }
 
         function renderPagination(meta) {
@@ -1348,7 +1620,7 @@
 
         document.getElementById('admitForm').onsubmit = function (e) {
             e.preventDefault();
-            const editId = document.getElementById('edit_id').value;
+            const editId = document.getElementById('admit_edit_id').value;
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
             document.getElementById('btnSpinner').classList.remove('hidden');
@@ -1435,12 +1707,18 @@
 
         function openAdmitModal() {
             document.getElementById('admitForm').reset();
-            document.getElementById('edit_id').value = '';
-            document.getElementById('modalTitle').innerText = 'Bulk Admit Card Generator';
+            document.getElementById('admit_edit_id').value = '';
+            document.getElementById('admitModalTitle').innerText = 'Bulk Admit Card Generator';
             document.getElementById('studentStatusBox').classList.remove('hidden');
             document.getElementById('studentCountDisplay').innerText = '0 Students Identified';
             document.getElementById('btnText').innerText = 'Generate All Cards';
-            document.getElementById('generate_type').value = 'all';
+            setDropdownValue('class_name', '', 'Select Class');
+            setDropdownValue('group_name', '', 'Select Group');
+            setDropdownValue('section_name', '', 'Select Section');
+            setDropdownValue('session_name', '', 'Select Session');
+            setDropdownValue('exam_name', '', 'Select Exam');
+            setDropdownValue('student_id', '', 'Select Student');
+            setDropdownValue('generate_type', 'all', 'All Students');
             document.getElementById('single_student_container').classList.add('hidden');
             document.getElementById('studentStatusBox').classList.remove('hidden');
             document.getElementById('admitModal').classList.remove('hidden');
@@ -1449,6 +1727,43 @@
         function closeAdmitModal() {
             document.getElementById('admitModal').classList.add('hidden');
         }
+
+        document.addEventListener('click', function(event) {
+            const trigger = event.target.closest('#btnAdmitExport');
+            const menu = document.getElementById('admitExportDropdown');
+
+            if (trigger && menu) {
+                event.stopPropagation();
+                menu.classList.toggle('hidden');
+                trigger.setAttribute('aria-expanded', String(!menu.classList.contains('hidden')));
+                return;
+            }
+
+            if (!event.target.closest('#admitExportDropdown') && menu) {
+                menu.classList.add('hidden');
+                document.getElementById('btnAdmitExport')?.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        document.getElementById('class_name')?.addEventListener('change', function() {
+            handleCascade(this, 'group');
+        });
+        document.getElementById('group_name')?.addEventListener('change', function() {
+            handleCascade(this, 'section');
+        });
+        document.getElementById('section_name')?.addEventListener('change', function() {
+            handleCascade(this, 'session');
+        });
+        document.getElementById('session_name')?.addEventListener('change', function() {
+            fetchStudentCount();
+            checkPrerequisiteStatus();
+        });
+        document.getElementById('exam_name')?.addEventListener('change', checkPrerequisiteStatus);
+        document.getElementById('generate_type')?.addEventListener('change', function() {
+            toggleStudentSelect();
+            updateAdmitSubmitState();
+        });
+        document.getElementById('student_id')?.addEventListener('change', updateAdmitSubmitState);
 
         loadInitial();
         fetchTable();

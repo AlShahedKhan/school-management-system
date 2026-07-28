@@ -9,7 +9,6 @@ use App\Models\School;
 use App\Models\SchoolExamAdmitCard;
 use App\Models\SchoolExamName;
 use App\Models\SchoolExamRoutine;
-use App\Models\SchoolFeeTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -108,22 +107,33 @@ class SchoolExamAdmitCardController extends Controller
                 ];
             }
 
-            $routineQuery = SchoolExamRoutine::where('school_id', $schoolId);
-
-            $routineQuery->where(function ($q) use ($combinations) {
-                foreach ($combinations as $comb) {
-                    $q->orWhere(function ($subQ) use ($comb) {
-                        $subQ->where('class_name', $comb['class_name'])
-                            ->where('session_name', $comb['session_name'])
-                            ->where('exam_name', $comb['exam_name']);
-                    });
-                }
-            });
-
-            $routines = $routineQuery
+            // Routines now store foreign keys. Flatten their relationships because the
+            // admit-card preview still groups routines by their displayed names.
+            $routines = SchoolExamRoutine::with([
+                'schoolClass', 'schoolGroup', 'schoolSection', 'schoolSession', 'schoolExam', 'schoolSubject',
+            ])
+                ->where('school_id', $schoolId)
                 ->orderBy('exam_date')
                 ->orderBy('start_time')
-                ->get();
+                ->get()
+                ->map(function (SchoolExamRoutine $routine) {
+                    $routine->class_name = $routine->schoolClass?->class_name;
+                    $routine->group_name = $routine->schoolGroup?->group_name;
+                    $routine->section_name = $routine->schoolSection?->section_name;
+                    $routine->session_name = $routine->schoolSession?->session_year;
+                    $routine->exam_name = $routine->schoolExam?->exam_name;
+                    $routine->subject_name = $routine->schoolSubject?->subject_name;
+
+                    return $routine;
+                })
+                ->filter(function (SchoolExamRoutine $routine) use ($combinations) {
+                    return isset($combinations[implode('|', [
+                        $routine->class_name,
+                        $routine->session_name,
+                        $routine->exam_name,
+                    ])]);
+                })
+                ->values();
         }
 
         $response['routines'] = $routines;
@@ -160,6 +170,13 @@ class SchoolExamAdmitCardController extends Controller
         $group = $groupName ? \App\Models\SchoolGroup::where('school_id', $school_id)->where('group_name', $groupName)->first() : null;
         $section = $sectionName ? \App\Models\SchoolSection::where('school_id', $school_id)->where('section_name', $sectionName)->first() : null;
 
+        if (!$class || !$session || ($groupName && !$group) || ($sectionName && !$section)) {
+            return [
+                'valid' => false,
+                'message' => 'Please select valid class, group, section, and session details.'
+            ];
+        }
+
         $examQuery = SchoolExamName::where('school_id', $school_id)
             ->where('class_id', $class?->id)
             ->where('session_id', $session?->id)
@@ -177,42 +194,30 @@ class SchoolExamAdmitCardController extends Controller
         if (!$examRecord) {
             return [
                 'valid' => false,
-                'message' => 'Please create the Exam, Exam Routine, and Exam Fee before generating the Admit Card.'
+                'message' => 'Please create the Exam and Exam Routine before generating the Admit Card.'
             ];
         }
 
         $routineFound = SchoolExamRoutine::where('school_id', $school_id)
-            ->where('class_name', $className)
-            ->where('session_name', $sessionName)
-            ->where('exam_name', $examName)
-            ->when(!empty($groupName), fn ($q) => $q->where('group_name', $groupName))
-            ->when(!empty($sectionName), fn ($q) => $q->where('section_name', $sectionName))
+            ->where('class_id', $class->id)
+            ->where('session_id', $session->id)
+            ->where('exam_id', $examRecord->id)
+            ->when($group, fn ($q) => $q->where('group_id', $group->id))
+            ->when($section, fn ($q) => $q->where('section_id', $section->id))
             ->exists();
 
         if (!$routineFound) {
             $routineFound = SchoolExamRoutine::where('school_id', $school_id)
-                ->where('class_name', $className)
-                ->where('session_name', $sessionName)
-                ->where('exam_name', $examName)
+                ->where('class_id', $class->id)
+                ->where('session_id', $session->id)
+                ->where('exam_id', $examRecord->id)
                 ->exists();
         }
 
         if (!$routineFound) {
             return [
                 'valid' => false,
-                'message' => 'Please create the Exam, Exam Routine, and Exam Fee before generating the Admit Card.'
-            ];
-        }
-
-        $feeFound = SchoolFeeTemplate::where('school_id', $school_id)
-            ->where('exam_id', $examRecord->id)
-            ->where('fee_type_name', 'Exams')
-            ->exists();
-
-        if (!$feeFound) {
-            return [
-                'valid' => false,
-                'message' => 'Please create the Exam, Exam Routine, and Exam Fee before generating the Admit Card.'
+                'message' => 'Please create the Exam and Exam Routine before generating the Admit Card.'
             ];
         }
 
