@@ -401,9 +401,9 @@
                 'edit_mobile': s.mobile || '',
                 'edit_dob': s.dob || '',
                 'edit_nid_birth_certificate': s.nid_birth_certificate || '',
-                'edit_g_name': s.g_name || s.guardian_name || s.father_name || '',
-                'edit_g_relation': s.g_relation || s.relation || 'Father',
-                'edit_g_mobile': s.g_mobile || s.guardian_mobile || s.mobile || '',
+                'edit_g_name': s.g_name || s.guardian?.name || s.guardian_name || '',
+                'edit_g_relation': s.g_relation || s.guardian?.relation || s.relation || 'Father',
+                'edit_g_mobile': s.g_mobile || s.guardian?.mobile || s.guardian_mobile || '',
                 'edit_current_village': s.current_village || s.village || '',
                 'edit_permanent_village': s.permanent_village || s.village || ''
             };
@@ -765,7 +765,8 @@
                 })
                 .catch(err => {
                     console.error('Update student error:', err);
-                    alert(err.response?.data?.message || 'Failed to update student');
+                    const msg = err.response?.data?.message || (err.response?.data?.errors ? Object.values(err.response.data.errors)[0]?.[0] : null) || 'Failed to update student';
+                    alert(msg);
                 });
         });
 

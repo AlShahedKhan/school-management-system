@@ -179,12 +179,18 @@ class SchoolStudentController extends Controller
             'schoolClass',
             'schoolSection',
             'schoolGroup',
-            'schoolSession'
+            'schoolSession',
+            'guardian'
         ])->where('school_id', $schoolId)->findOrFail($id);
         $student->class_name = $student->schoolClass->class_name ?? $student->class;
         $student->section_name = $student->schoolSection->section_name ?? $student->section;
         $student->group_name = $student->schoolGroup->group_name ?? $student->group;
         $student->session_year = $student->schoolSession->session_year ?? $student->session;
+        if ($student->guardian) {
+            $student->g_name = $student->guardian->name;
+            $student->g_relation = $student->guardian->relation;
+            $student->g_mobile = $student->guardian->mobile;
+        }
         return response()->json($student);
     }
     public function showDetails($id)
@@ -223,10 +229,14 @@ class SchoolStudentController extends Controller
     }
     public function update(Request $request, $id)
     {
-        $schoolName = Auth::user()->school_name;
-        $schoolId = Auth::id();
+        $user = Auth::user();
+        $schoolId = match ($user->role) {
+            'teacher' => (Teacher::where('id_number', $user->id_number)->first()?->school_id),
+            default => $user->id,
+        };
+        $schoolName = $user->school_name;
         $student = AdmissionStudent::where(function ($q) use ($schoolName, $schoolId) {
-            $q->where('school', $schoolName)->orWhere('school_id', $schoolId);
+            $q->where('school_id', $schoolId)->orWhere('school', $schoolName);
         })->findOrFail($id);
 
         $validator = Validator::make($request->all(), [
@@ -260,7 +270,10 @@ class SchoolStudentController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return response()->json([
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         $student->student_name = $request->student_name;
@@ -324,6 +337,17 @@ class SchoolStudentController extends Controller
             $student->image = 'students/' . $filename;
         }
         $student->save();
+
+        if (!empty($student->student_id_number)) {
+            User::where('school_name', $schoolName)
+                ->where('id_number', $student->student_id_number)
+                ->where('role', 'student')
+                ->update([
+                    'name' => $student->student_name,
+                    'mobile' => $student->mobile,
+                ]);
+        }
+
         return response()->json(['message' => 'Student updated successfully']);
     }
     public function destroy($id)
