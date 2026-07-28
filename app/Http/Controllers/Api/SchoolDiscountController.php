@@ -13,7 +13,6 @@ use App\Models\SchoolFeeTemplate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class SchoolDiscountController extends Controller
 {
@@ -117,7 +116,6 @@ class SchoolDiscountController extends Controller
 
             return response()->json($result);
         } catch (\Exception $e) {
-            Log::error('Discount index error: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to fetch discounts.',
@@ -200,7 +198,6 @@ class SchoolDiscountController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
-            Log::error('Discount store error: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to create discount.',
@@ -236,7 +233,6 @@ class SchoolDiscountController extends Controller
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['status' => 'error', 'message' => 'Discount not found.'], 404);
         } catch (\Exception $e) {
-            Log::error('Discount show error: ' . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => 'Failed to fetch discount.'], 500);
         }
     }
@@ -316,7 +312,6 @@ class SchoolDiscountController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Discount update error: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to update discount.',
@@ -347,7 +342,6 @@ class SchoolDiscountController extends Controller
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['status' => 'error', 'message' => 'Discount not found.'], 404);
         } catch (\Exception $e) {
-            Log::error('Discount destroy error: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to delete discount.',
