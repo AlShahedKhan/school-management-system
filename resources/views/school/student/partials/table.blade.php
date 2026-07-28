@@ -3,22 +3,23 @@
     :empty-colspan="13"
     empty-message="No students found."
     show-footer="true"
+    minWidth="1250px"
 >
     <x-slot:columns>
         <colgroup>
-            <col style="width: 4%;">
-            <col style="width: 6%;">
-            <col style="width: 10%;">
-            <col style="width: 12%;">
-            <col style="width: 10%;">
-            <col style="width: 11%;">
-            <col style="width: 6%;">
-            <col style="width: 6%;">
-            <col style="width: 6%;">
-            <col style="width: 6%;">
-            <col style="width: 8%;">
-            <col style="width: 6%;">
-            <col style="width: 110px;">
+            <col style="min-width: 45px; width: 4%;">
+            <col style="min-width: 55px; width: 5%;">
+            <col style="min-width: 120px; width: 11%;">
+            <col style="min-width: 140px; width: 13%;">
+            <col style="min-width: 125px; width: 11%;">
+            <col style="min-width: 130px; width: 12%;">
+            <col style="min-width: 75px; width: 6%;">
+            <col style="min-width: 75px; width: 6%;">
+            <col style="min-width: 105px; width: 8%;">
+            <col style="min-width: 90px; width: 7%;">
+            <col style="min-width: 105px; width: 8%;">
+            <col style="min-width: 75px; width: 6%;">
+            <col style="min-width: 130px; width: 130px;">
         </colgroup>
     </x-slot:columns>
 
@@ -35,7 +36,7 @@
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Session</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Student Type</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Status</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold min-w-[110px]">Action</x-table.th>
+        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-1 text-center font-semibold min-w-[130px]">Action</x-table.th>
     </x-slot:head>
 
     <tbody id="studentTableBody"></tbody>

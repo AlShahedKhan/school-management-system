@@ -130,6 +130,7 @@
         const groupVal = document.getElementById('groupFilter')?.value || '';
         const sectionVal = document.getElementById('sectionFilter')?.value || '';
         const sessionVal = document.getElementById('sessionFilter')?.value || '';
+        const studentTypeVal = document.getElementById('studentTypeFilter')?.value || '';
 
         axios.get('{{ url('/api/school/students') }}', {
                 params: {
@@ -138,6 +139,7 @@
                     group: groupVal,
                     section: sectionVal,
                     session: sessionVal,
+                    student_type: studentTypeVal,
                     page
                 }
             })
@@ -164,18 +166,10 @@
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
                     <img src="${photoUrl}" class="h-6 w-6 rounded-full object-cover inline-block" />
                 </td>
-                <td class="h-8 border border-gray-300 px-3 font-mono">
-                    <div class="school-data-table-cell-scroll" title="${s.student_id_number}">${s.student_id_number}</div>
-                </td>
-                <td class="h-8 border border-gray-300 px-3">
-                    <div class="school-data-table-cell-scroll" title="${s.student_name}">${s.student_name}</div>
-                </td>
-                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                    <div class="school-data-table-cell-scroll" title="${s.mobile || '-'}">${s.mobile || '-'}</div>
-                </td>
-                <td class="h-8 border border-gray-300 px-3">
-                    <div class="school-data-table-cell-scroll" title="${s.father_name || '-'}">${s.father_name || '-'}</div>
-                </td>
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-3 font-mono">${s.student_id_number}</td>
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-3 font-semibold text-slate-800">${s.student_name}</td>
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.mobile || '-'}</td>
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.father_name || '-'}</td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.class_name || '-'}</td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.group_name || '-'}</td>
                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${s.section_name || '-'}</td>
@@ -186,7 +180,7 @@
                         ${statusText}
                     </span>
                 </td>
-                <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center min-w-[110px]">
+                <td class="h-8 whitespace-nowrap border border-gray-300 px-1 text-center min-w-[130px]">
                     <div class="flex h-7 w-full items-center justify-center space-x-1">
                         <button type="button" onclick="viewAdmissionForm(${s.id}, ${sl})" title="View" aria-label="View" class="flex h-7 w-6 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-emerald-500">
                             <i class="far fa-eye text-[15px]" aria-hidden="true"></i>
@@ -581,31 +575,21 @@
 
     async function loadFilterOptions() {
         try {
-            const [classRes, groupRes, sectionRes, sessionRes] = await Promise.all([
-                axios.get('/api/get-school-classes'),
-                axios.get('/api/get-school-groups'),
-                axios.get('/api/get-school-sections'),
-                axios.get('/api/get-school-sessions')
-            ]);
-
+            const classRes = await axios.get('/api/get-school-classes');
             const classOpts = (classRes.data.data || classRes.data || []).map(c => ({ value: c.id, label: c.class_name }));
-            const groupOpts = (groupRes.data.data || groupRes.data || []).map(g => ({ value: g.id, label: g.group_name }));
-            const sectionOpts = (sectionRes.data.data || sectionRes.data || []).map(s => ({ value: s.id, label: s.section_name }));
-            
-            const rawSessions = sessionRes.data.data || sessionRes.data || [];
-            const sessionMap = new Map();
-            rawSessions.forEach(s => {
-                const label = s.session_year || s.year || 'N/A';
-                if (!sessionMap.has(s.id)) {
-                    sessionMap.set(s.id, { value: s.id, label: label });
-                }
-            });
-            const sessionOpts = Array.from(sessionMap.values());
 
             populateDropdownSelect('classFilter', classOpts, '', 'Select Class');
-            populateDropdownSelect('groupFilter', groupOpts, '', 'Select Group');
-            populateDropdownSelect('sectionFilter', sectionOpts, '', 'Select Section');
-            populateDropdownSelect('sessionFilter', sessionOpts, '', 'Select Session');
+            populateDropdownSelect('groupFilter', [], '', 'Select Group');
+            populateDropdownSelect('sectionFilter', [], '', 'Select Section');
+            populateDropdownSelect('sessionFilter', [], '', 'Select Session');
+
+            const studentTypeOpts = [
+                { value: 'Admission', label: 'Admission' },
+                { value: 'Re-Admission', label: 'Re-Admission' },
+                { value: 'Promote', label: 'Promote' },
+                { value: 'Bulk Upload', label: 'Bulk Upload' }
+            ];
+            populateDropdownSelect('studentTypeFilter', studentTypeOpts, '', 'Select Student Type');
         } catch (e) {
             console.error('Filter options load error', e);
         }
@@ -616,6 +600,104 @@
             fetchStudents();
             loadFilterOptions();
         }
+
+        document.getElementById('classFilter')?.addEventListener('change', async function() {
+            const classId = this.value;
+            populateDropdownSelect('groupFilter', [], '', 'Select Group');
+            populateDropdownSelect('sectionFilter', [], '', 'Select Section');
+            populateDropdownSelect('sessionFilter', [], '', 'Select Session');
+
+            if (!classId) return;
+
+            try {
+                const [groupRes, sectionRes, sessionRes] = await Promise.all([
+                    axios.get('/api/get-school-groups', { params: { class_id: classId } }),
+                    axios.get('/api/get-school-sections', { params: { class_id: classId } }),
+                    axios.get('/api/get-school-sessions', { params: { class_id: classId } })
+                ]);
+
+                const groupOpts = (groupRes.data.data || groupRes.data || []).map(g => ({ value: g.id, label: g.group_name }));
+                const sectionOpts = (sectionRes.data.data || sectionRes.data || []).map(s => ({ value: s.id, label: s.section_name }));
+
+                const rawSessions = sessionRes.data.data || sessionRes.data || [];
+                const sessionMap = new Map();
+                rawSessions.forEach(s => {
+                    const label = s.session_year || s.year || 'N/A';
+                    if (!sessionMap.has(s.id)) {
+                        sessionMap.set(s.id, { value: s.id, label: label });
+                    }
+                });
+                const sessionOpts = Array.from(sessionMap.values());
+
+                populateDropdownSelect('groupFilter', groupOpts, '', 'Select Group');
+                populateDropdownSelect('sectionFilter', sectionOpts, '', 'Select Section');
+                populateDropdownSelect('sessionFilter', sessionOpts, '', 'Select Session');
+            } catch (err) {
+                console.error('Class filter change error', err);
+            }
+        });
+
+        document.getElementById('groupFilter')?.addEventListener('change', async function() {
+            const classId = document.getElementById('classFilter')?.value || '';
+            const groupId = this.value;
+            populateDropdownSelect('sectionFilter', [], '', 'Select Section');
+            populateDropdownSelect('sessionFilter', [], '', 'Select Session');
+
+            if (!classId) return;
+
+            try {
+                const [sectionRes, sessionRes] = await Promise.all([
+                    axios.get('/api/get-school-sections', { params: { class_id: classId, group_id: groupId || '' } }),
+                    axios.get('/api/get-school-sessions', { params: { class_id: classId, group_id: groupId || '' } })
+                ]);
+
+                const sectionOpts = (sectionRes.data.data || sectionRes.data || []).map(s => ({ value: s.id, label: s.section_name }));
+
+                const rawSessions = sessionRes.data.data || sessionRes.data || [];
+                const sessionMap = new Map();
+                rawSessions.forEach(s => {
+                    const label = s.session_year || s.year || 'N/A';
+                    if (!sessionMap.has(s.id)) {
+                        sessionMap.set(s.id, { value: s.id, label: label });
+                    }
+                });
+                const sessionOpts = Array.from(sessionMap.values());
+
+                populateDropdownSelect('sectionFilter', sectionOpts, '', 'Select Section');
+                populateDropdownSelect('sessionFilter', sessionOpts, '', 'Select Session');
+            } catch (err) {
+                console.error('Group filter change error', err);
+            }
+        });
+
+        document.getElementById('sectionFilter')?.addEventListener('change', async function() {
+            const classId = document.getElementById('classFilter')?.value || '';
+            const groupId = document.getElementById('groupFilter')?.value || '';
+            const sectionId = this.value;
+            populateDropdownSelect('sessionFilter', [], '', 'Select Session');
+
+            if (!classId) return;
+
+            try {
+                const sessionRes = await axios.get('/api/get-school-sessions', {
+                    params: { class_id: classId, group_id: groupId || '', section_id: sectionId || '' }
+                });
+
+                const rawSessions = sessionRes.data.data || sessionRes.data || [];
+                const sessionMap = new Map();
+                rawSessions.forEach(s => {
+                    const label = s.session_year || s.year || 'N/A';
+                    if (!sessionMap.has(s.id)) {
+                        sessionMap.set(s.id, { value: s.id, label: label });
+                    }
+                });
+                const sessionOpts = Array.from(sessionMap.values());
+
+                populateDropdownSelect('sessionFilter', sessionOpts, '', 'Select Session');
+            } catch (err) {
+                console.error('Section filter change error', err);
+            }
+        });
 
         const btnFilter = document.getElementById('btnFilter');
         const filterModal = document.getElementById('filterModal');
@@ -632,13 +714,16 @@
         });
 
         document.getElementById('resetFilter')?.addEventListener('click', () => {
-            ['classFilter', 'groupFilter', 'sectionFilter', 'sessionFilter'].forEach(id => {
+            ['classFilter', 'groupFilter', 'sectionFilter', 'sessionFilter', 'studentTypeFilter'].forEach(id => {
                 const inp = document.getElementById(id);
                 if (inp) inp.value = '';
                 const btn = document.getElementById(id + 'Button');
                 const label = btn ? btn.querySelector('[data-dropdown-select-label]') : null;
                 if (label) label.textContent = 'Select...';
             });
+            populateDropdownSelect('groupFilter', [], '', 'Select Group');
+            populateDropdownSelect('sectionFilter', [], '', 'Select Section');
+            populateDropdownSelect('sessionFilter', [], '', 'Select Session');
             fetchStudents(1);
             filterModal?.classList.add('hidden');
         });

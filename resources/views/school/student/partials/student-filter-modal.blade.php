@@ -15,6 +15,8 @@
         placeholder="Select Class"
         :value="request('class')"
         :options="[]"
+        add-button-target="quickClassModal"
+        add-button-label="Add Class"
     />
 
     <x-input.dropdown-select
@@ -23,6 +25,8 @@
         placeholder="Select Group"
         :value="request('group')"
         :options="[]"
+        add-button-target="quickGroupModal"
+        add-button-label="Add Group"
     />
 
     <x-input.dropdown-select
@@ -31,6 +35,8 @@
         placeholder="Select Section"
         :value="request('section')"
         :options="[]"
+        add-button-target="quickSectionModal"
+        add-button-label="Add Section"
     />
 
     <x-input.dropdown-select
@@ -38,6 +44,16 @@
         name="session"
         placeholder="Select Session"
         :value="request('session')"
+        :options="[]"
+        add-button-target="quickSessionModal"
+        add-button-label="Add Session"
+    />
+
+    <x-input.dropdown-select
+        id="studentTypeFilter"
+        name="student_type"
+        placeholder="Select Student Type"
+        :value="request('student_type')"
         :options="[]"
     />
 

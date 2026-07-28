@@ -30,13 +30,18 @@ class SchoolTeacherController extends Controller
     // List teachers with Pagination
     public function index(Request $request)
     {
-        $school = School::where('user_id', $request->user()->id)->first();
-        if (!$school) {
-            return response()->json(['message' => 'Invalid user school profile'], 400);
+        $user = Auth::user() ?? Auth::guard('web')->user() ?? $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
         }
-        $schoolId = $school->id;
 
-        $query = Teacher::where('school_id', $schoolId);
+        $school = School::where('user_id', $user->id)->first();
+        $schoolId = $school ? $school->id : $user->id;
+
+        $query = Teacher::where(function ($q) use ($schoolId, $user) {
+            $q->where('school_id', $schoolId)
+              ->orWhere('school_id', $user->id);
+        });
 
         // Added on 2026-07-11: Filter by status if provided (e.g. for active status dropdowns)
         if ($request->filled('status')) {
@@ -144,7 +149,7 @@ class SchoolTeacherController extends Controller
 
                 // Create TeacherAcademicRecord
                 $activeSession = \App\Models\SchoolSession::where('school_id', $school->id)
-                    ->where('is_active', true)
+                    ->active()
                     ->first() ?? \App\Models\SchoolSession::where('school_id', $school->id)->latest()->first();
 
                 if ($activeSession) {

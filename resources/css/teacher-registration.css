@@ -169,14 +169,14 @@ td:last-child {
         display: none;
     }
 
-    #teacherTableBody {
+    .teacher-table #teacherTableBody {
         display: grid;
         grid-template-columns: 1fr;
         gap: 0.9rem;
         background: transparent;
     }
 
-    #teacherTableBody .teacher-row {
+    .teacher-table #teacherTableBody .teacher-row {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0;
@@ -187,7 +187,7 @@ td:last-child {
         box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
     }
 
-    #teacherTableBody .teacher-cell {
+    .teacher-table #teacherTableBody .teacher-cell {
         position: relative;
         display: flex;
         align-items: center;
@@ -201,7 +201,7 @@ td:last-child {
         word-break: break-word;
     }
 
-    #teacherTableBody .teacher-cell::before {
+    .teacher-table #teacherTableBody .teacher-cell::before {
         content: attr(data-label);
         display: inline-block;
         min-width: 88px;
@@ -213,17 +213,17 @@ td:last-child {
         line-height: 1.2;
     }
 
-    #teacherTableBody .teacher-cell img {
+    .teacher-table #teacherTableBody .teacher-cell img {
         margin-left: auto;
         margin-right: 0;
     }
 
-    #teacherTableBody .teacher-cell:last-child {
+    .teacher-table #teacherTableBody .teacher-cell:last-child {
         grid-column: 1 / -1;
         justify-content: space-between;
     }
 
-    #teacherTableBody .teacher-cell:last-child > div {
+    .teacher-table #teacherTableBody .teacher-cell:last-child > div {
         margin-left: auto;
     }
 }
@@ -233,12 +233,12 @@ td:last-child {
         padding: 10px;
     }
 
-    #teacherTableBody .teacher-row {
+    .teacher-table #teacherTableBody .teacher-row {
         grid-template-columns: 1fr;
     }
 
-    #teacherTableBody .teacher-cell,
-    #teacherTableBody .teacher-cell:last-child {
+    .teacher-table #teacherTableBody .teacher-cell,
+    .teacher-table #teacherTableBody .teacher-cell:last-child {
         grid-column: auto;
     }
 }

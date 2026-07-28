@@ -58,11 +58,11 @@
         @media (min-width: 1024px) {
             .school-data-table {
                 width: 100%;
-                min-width: 0;
+                min-width: var(--school-data-table-min-width, 1068px);
             }
 
             .school-data-table-scroll {
-                overflow-x: hidden;
+                overflow-x: auto;
             }
         }
 

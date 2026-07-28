@@ -1,4 +1,4 @@
-<form method="GET" action="{{ route('school.teacher-registration') }}" class="hidden lg:flex items-center gap-2">
+<div class="hidden lg:flex items-center gap-2">
     <x-input.search
         id="teacherSearch"
         name="search"
@@ -6,7 +6,7 @@
         placeholder="Search Faculty..."
         class="hidden w-full lg:block lg:w-72"
     />
-    <x-button.secondary id="btnRestoreDesktop" onclick="window.location.href='{{ route('school.teacher-registration') }}'">
+    <x-button.secondary id="btnRestoreDesktop" onclick="document.getElementById('teacherSearch').value = ''; document.getElementById('teacherSearch').dispatchEvent(new Event('input'));">
         Restore
     </x-button.secondary>
-</form>
+</div>
