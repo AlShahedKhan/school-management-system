@@ -581,31 +581,13 @@
 
     async function loadFilterOptions() {
         try {
-            const [classRes, groupRes, sectionRes, sessionRes] = await Promise.all([
-                axios.get('/api/get-school-classes'),
-                axios.get('/api/get-school-groups'),
-                axios.get('/api/get-school-sections'),
-                axios.get('/api/get-school-sessions')
-            ]);
-
+            const classRes = await axios.get('/api/get-school-classes');
             const classOpts = (classRes.data.data || classRes.data || []).map(c => ({ value: c.id, label: c.class_name }));
-            const groupOpts = (groupRes.data.data || groupRes.data || []).map(g => ({ value: g.id, label: g.group_name }));
-            const sectionOpts = (sectionRes.data.data || sectionRes.data || []).map(s => ({ value: s.id, label: s.section_name }));
-            
-            const rawSessions = sessionRes.data.data || sessionRes.data || [];
-            const sessionMap = new Map();
-            rawSessions.forEach(s => {
-                const label = s.session_year || s.year || 'N/A';
-                if (!sessionMap.has(s.id)) {
-                    sessionMap.set(s.id, { value: s.id, label: label });
-                }
-            });
-            const sessionOpts = Array.from(sessionMap.values());
 
             populateDropdownSelect('classFilter', classOpts, '', 'Select Class');
-            populateDropdownSelect('groupFilter', groupOpts, '', 'Select Group');
-            populateDropdownSelect('sectionFilter', sectionOpts, '', 'Select Section');
-            populateDropdownSelect('sessionFilter', sessionOpts, '', 'Select Session');
+            populateDropdownSelect('groupFilter', [], '', 'Select Group');
+            populateDropdownSelect('sectionFilter', [], '', 'Select Section');
+            populateDropdownSelect('sessionFilter', [], '', 'Select Session');
         } catch (e) {
             console.error('Filter options load error', e);
         }
@@ -616,6 +598,104 @@
             fetchStudents();
             loadFilterOptions();
         }
+
+        document.getElementById('classFilter')?.addEventListener('change', async function() {
+            const classId = this.value;
+            populateDropdownSelect('groupFilter', [], '', 'Select Group');
+            populateDropdownSelect('sectionFilter', [], '', 'Select Section');
+            populateDropdownSelect('sessionFilter', [], '', 'Select Session');
+
+            if (!classId) return;
+
+            try {
+                const [groupRes, sectionRes, sessionRes] = await Promise.all([
+                    axios.get('/api/get-school-groups', { params: { class_id: classId } }),
+                    axios.get('/api/get-school-sections', { params: { class_id: classId } }),
+                    axios.get('/api/get-school-sessions', { params: { class_id: classId } })
+                ]);
+
+                const groupOpts = (groupRes.data.data || groupRes.data || []).map(g => ({ value: g.id, label: g.group_name }));
+                const sectionOpts = (sectionRes.data.data || sectionRes.data || []).map(s => ({ value: s.id, label: s.section_name }));
+
+                const rawSessions = sessionRes.data.data || sessionRes.data || [];
+                const sessionMap = new Map();
+                rawSessions.forEach(s => {
+                    const label = s.session_year || s.year || 'N/A';
+                    if (!sessionMap.has(s.id)) {
+                        sessionMap.set(s.id, { value: s.id, label: label });
+                    }
+                });
+                const sessionOpts = Array.from(sessionMap.values());
+
+                populateDropdownSelect('groupFilter', groupOpts, '', 'Select Group');
+                populateDropdownSelect('sectionFilter', sectionOpts, '', 'Select Section');
+                populateDropdownSelect('sessionFilter', sessionOpts, '', 'Select Session');
+            } catch (err) {
+                console.error('Class filter change error', err);
+            }
+        });
+
+        document.getElementById('groupFilter')?.addEventListener('change', async function() {
+            const classId = document.getElementById('classFilter')?.value || '';
+            const groupId = this.value;
+            populateDropdownSelect('sectionFilter', [], '', 'Select Section');
+            populateDropdownSelect('sessionFilter', [], '', 'Select Session');
+
+            if (!classId) return;
+
+            try {
+                const [sectionRes, sessionRes] = await Promise.all([
+                    axios.get('/api/get-school-sections', { params: { class_id: classId, group_id: groupId || '' } }),
+                    axios.get('/api/get-school-sessions', { params: { class_id: classId, group_id: groupId || '' } })
+                ]);
+
+                const sectionOpts = (sectionRes.data.data || sectionRes.data || []).map(s => ({ value: s.id, label: s.section_name }));
+
+                const rawSessions = sessionRes.data.data || sessionRes.data || [];
+                const sessionMap = new Map();
+                rawSessions.forEach(s => {
+                    const label = s.session_year || s.year || 'N/A';
+                    if (!sessionMap.has(s.id)) {
+                        sessionMap.set(s.id, { value: s.id, label: label });
+                    }
+                });
+                const sessionOpts = Array.from(sessionMap.values());
+
+                populateDropdownSelect('sectionFilter', sectionOpts, '', 'Select Section');
+                populateDropdownSelect('sessionFilter', sessionOpts, '', 'Select Session');
+            } catch (err) {
+                console.error('Group filter change error', err);
+            }
+        });
+
+        document.getElementById('sectionFilter')?.addEventListener('change', async function() {
+            const classId = document.getElementById('classFilter')?.value || '';
+            const groupId = document.getElementById('groupFilter')?.value || '';
+            const sectionId = this.value;
+            populateDropdownSelect('sessionFilter', [], '', 'Select Session');
+
+            if (!classId) return;
+
+            try {
+                const sessionRes = await axios.get('/api/get-school-sessions', {
+                    params: { class_id: classId, group_id: groupId || '', section_id: sectionId || '' }
+                });
+
+                const rawSessions = sessionRes.data.data || sessionRes.data || [];
+                const sessionMap = new Map();
+                rawSessions.forEach(s => {
+                    const label = s.session_year || s.year || 'N/A';
+                    if (!sessionMap.has(s.id)) {
+                        sessionMap.set(s.id, { value: s.id, label: label });
+                    }
+                });
+                const sessionOpts = Array.from(sessionMap.values());
+
+                populateDropdownSelect('sessionFilter', sessionOpts, '', 'Select Session');
+            } catch (err) {
+                console.error('Section filter change error', err);
+            }
+        });
 
         const btnFilter = document.getElementById('btnFilter');
         const filterModal = document.getElementById('filterModal');
@@ -639,6 +719,9 @@
                 const label = btn ? btn.querySelector('[data-dropdown-select-label]') : null;
                 if (label) label.textContent = 'Select...';
             });
+            populateDropdownSelect('groupFilter', [], '', 'Select Group');
+            populateDropdownSelect('sectionFilter', [], '', 'Select Section');
+            populateDropdownSelect('sessionFilter', [], '', 'Select Session');
             fetchStudents(1);
             filterModal?.classList.add('hidden');
         });
