@@ -399,6 +399,8 @@
                 'edit_father_name': s.father_name || '',
                 'edit_mother_name': s.mother_name || '',
                 'edit_mobile': s.mobile || '',
+                'edit_dob': s.dob || '',
+                'edit_nid_birth_certificate': s.nid_birth_certificate || '',
                 'edit_g_name': s.g_name || s.guardian_name || s.father_name || '',
                 'edit_g_relation': s.g_relation || s.relation || 'Father',
                 'edit_g_mobile': s.g_mobile || s.guardian_mobile || s.mobile || '',
@@ -422,6 +424,12 @@
             populateDropdownSelect('edit_group', groupOpts, s.group_id || s.group, 'Select Group');
             populateDropdownSelect('edit_section', sectionOpts, s.section_id || s.section, 'Select Section');
             populateDropdownSelect('edit_session', sessionOpts, s.session_id || s.session, 'Select Session');
+            populateDropdownSelect('edit_blood_group', [
+                { value: 'A+', label: 'A+' }, { value: 'A-', label: 'A-' },
+                { value: 'B+', label: 'B+' }, { value: 'B-', label: 'B-' },
+                { value: 'O+', label: 'O+' }, { value: 'O-', label: 'O-' },
+                { value: 'AB+', label: 'AB+' }, { value: 'AB-', label: 'AB-' }
+            ], s.blood_group || '', 'Select Blood Group');
 
             // Photo Preview
             const imgPreview = document.getElementById('imagePreview');

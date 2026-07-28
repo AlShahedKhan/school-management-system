@@ -234,6 +234,9 @@ class SchoolStudentController extends Controller
             'father_name' => 'required|string|max:255',
             'mother_name' => 'required|string|max:255',
             'mobile' => 'required|string|max:20',
+            'dob' => 'nullable|date',
+            'nid_birth_certificate' => 'nullable|string|max:100',
+            'blood_group' => 'nullable|string|max:10',
             'class_id' => 'nullable|exists:school_classes,id',
             'section_id' => 'nullable|exists:school_sections,id',
             'session_id' => 'nullable|exists:school_sessions,id',
@@ -264,6 +267,9 @@ class SchoolStudentController extends Controller
         $student->father_name = $request->father_name;
         $student->mother_name = $request->mother_name;
         $student->mobile = $request->mobile;
+        if ($request->has('dob')) $student->dob = $request->dob;
+        if ($request->has('nid_birth_certificate')) $student->nid_birth_certificate = $request->nid_birth_certificate;
+        if ($request->has('blood_group')) $student->blood_group = $request->blood_group;
 
         $classId = $request->input('class_id') ?? $request->input('class');
         $sessionId = $request->input('session_id') ?? $request->input('session');
