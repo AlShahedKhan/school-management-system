@@ -24,107 +24,6 @@
             }
         }
 
-        .table-card {
-            border: 1px solid #e2e8f0;
-            background: #ffffff;
-            border-radius: 0;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-            width: 100%;
-            overflow: hidden;
-            border-left: none;
-            border-right: none;
-        }
-
-        /* ================= Table Container ================= */
-        .table-responsive {
-            width: 100% !important;
-            overflow-x: auto !important;
-            display: block !important;
-            background: white !important;
-            padding: 15px !important;
-        }
-
-        /* ================= Custom Scrollbar ================= */
-        .table-responsive::-webkit-scrollbar {
-            height: 6px !important;
-        }
-
-        .table-responsive::-webkit-scrollbar-track {
-            background: #f8fafc !important;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb {
-            background: #cbd5e1 !important;
-            border-radius: 0px !important;
-        }
-
-        /* ================= Table Core ================= */
-        table {
-            width: 100% !important;
-            border-collapse: collapse !important;
-            table-layout: auto !important;
-            border: 1px solid #d1d5db !important;
-            font-size: 11px !important;
-        }
-
-        /* ================= Table Header ================= */
-        th {
-            padding: 0 12px !important;
-            height: 34px !important;
-            line-height: 34px !important;
-            white-space: nowrap !important;
-            background: #f8fafc !important;
-            border-bottom: 1px solid #d1d5db !important;
-            border-right: 1px solid #d1d5db !important;
-            color: #374151 !important;
-            font-weight: 800 !important;
-            vertical-align: middle !important;
-            text-align: left !important;
-            /* Only first letter capitalized */
-            text-transform: capitalize !important;
-            letter-spacing: 0.01em !important;
-        }
-
-        th:last-child {
-            border-right: none !important;
-        }
-
-        /* ================= Table Body ================= */
-        tr {
-            height: 32px !important;
-        }
-
-        td {
-            padding: 0 12px !important;
-            vertical-align: middle !important;
-            border-bottom: 1px solid #d1d5db !important;
-            border-right: 1px solid #d1d5db !important;
-            font-size: 11px !important;
-            color: #4b5563 !important;
-            white-space: nowrap !important;
-            overflow: hidden !important;
-        }
-
-        td:last-child {
-            border-right: none !important;
-        }
-
-        tbody tr:hover {
-            background: #f9fafb !important;
-        }
-
-        /* ================= Pagination Bar (Balanced Height) ================= */
-        .pagination-bar {
-            padding: 0.6rem 1rem !important;
-            border: 1px solid #d1d5db !important;
-            border-top: none !important;
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            background: #ffffff !important;
-            min-height: 44px !important;
-        }
-
         .pagination-btn {
             height: 26px !important;
             min-width: 26px !important;
@@ -139,7 +38,6 @@
             font-weight: 900 !important;
             color: #64748b !important;
             border-radius: 0 !important;
-            /* Sharp Brutalism Corners */
             text-transform: uppercase !important;
             transition: all 0.1s ease !important;
         }
@@ -169,76 +67,11 @@
             letter-spacing: 0.05em !important;
         }
 
-        /* ================= Mobile Adjustments ================= */
         @media (max-width: 768px) {
-
-            th,
-            td {
-                padding: 0 8px !important;
-                height: 30px !important;
-            }
-
-            .pagination-bar {
-                min-height: 38px !important;
-                padding: 0.4rem 0.75rem !important;
-            }
-
             .pagination-btn {
                 height: 24px !important;
                 min-width: 24px !important;
             }
-        }
-
-        .form-input-fixed {
-            width: 100%;
-            border: 1px solid #cbd5e1 !important;
-            padding: .5rem .7rem;
-            border-radius: 0;
-            font-size: .85rem;
-            background: #fff;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .form-input-fixed:focus {
-            border-color: #2563eb !important;
-        }
-
-        .btn-outline-premium {
-            border: 1.5px solid #2563eb;
-            font-weight: 600;
-            transition: all .2s ease;
-            border-radius: 0;
-        }
-
-        .btn-outline-premium:hover {
-            background: #2563eb;
-            color: #fff;
-        }
-
-
-
-        .action-icon {
-            font-size: 1.25rem;
-        }
-
-        /* Fixed Search Padding */
-        .search-wrapper {
-            position: relative;
-            width: 16rem;
-        }
-
-        .search-wrapper i {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            pointer-events: none;
-        }
-
-        .search-wrapper input {
-            padding-left: 36px !important;
         }
 
         .mode-tab-btn {
@@ -281,249 +114,322 @@
         .multi-option-item input {
             accent-color: #2563eb;
         }
-
-        /* Increased margin for clarity */
     </style>
 
     <div class="main-view-container">
         <div class="max-w-full mx-auto w-full">
-            <div class="bg-white border border-gray-200 p-2.5 sm:p-4 mb-4" style="border-radius: 0;">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-
-                    <div class="w-full lg:w-auto">
-                        <h2 id="pageHeader" class="text-[15px] sm:text-xl text-gray-800 font-normal leading-tight"></h2>
-                        <div class="flex items-center text-slate-400 text-[12px] mt-1">
-                            <span>School</span>
-                            <i class="fas fa-chevron-right mx-1.5 text-[10px]"></i>
-                            <span id="pageTitle" class="text-slate-500"></span>
-                        </div>
-
-                        <div class="relative w-full sm:w-64 mt-3 hidden lg:block">
-                            <i class="mdi mdi-magnify absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" id="header_search" placeholder="Search ID or Name..."
-                                onkeyup="if(event.key === 'Enter') fetchTable(1)"
-                                class="pl-8 pr-3 py-2 w-full border border-gray-200 text-xs outline-none focus:border-blue-500"
-                                style="border-radius: 0;" />
-                        </div>
-                    </div>
-
-                    <div class="grid w-full grid-cols-3 gap-2 lg:flex lg:w-auto">
-                        <x-button.secondary onclick="toggleFilterModal()" class="w-full lg:w-auto">
-                            Filter
+            <x-school.list-header title="Seat Plan" breadcrumb-current="Seat Plan" keep-title>
+                <x-slot:search>
+                    <form class="flex items-center gap-2" onsubmit="event.preventDefault(); fetchTable(1);">
+                        <x-input.search
+                            id="header_search"
+                            placeholder="Search ID or Name..."
+                            class="w-72"
+                            oninput="document.getElementById('header_search_mobile').value = this.value"
+                        />
+                        <x-button.secondary type="button" onclick="restoreSeatPlanSearch()">
+                            Restore
                         </x-button.secondary>
+                    </form>
+                </x-slot:search>
 
-                        <x-dropdown button-id="btnSeatPlanExport" menu-id="seatPlanExportDropdown" label="Export">
-                            <x-dropdown.item onclick="exportSeatPlans('pdf')">PDF</x-dropdown.item>
-                            <x-dropdown.item onclick="exportSeatPlans('excel')">Excel</x-dropdown.item>
-                            <x-dropdown.item onclick="exportSeatPlans('print')">Print</x-dropdown.item>
-                        </x-dropdown>
+                <x-slot:actions>
+                    <x-button.secondary type="button" onclick="toggleFilterModal()" class="w-full">
+                        Filter
+                    </x-button.secondary>
 
-                        <x-button.primary onclick="openSeatModal()" class="w-full lg:w-auto">
-                            Seat Number
-                        </x-button.primary>
-                    </div>
-                </div>
+                    <x-dropdown
+                        button-id="btnSeatPlanExport"
+                        menu-id="seatPlanExportDropdown"
+                        label="Export"
+                        align="full"
+                    >
+                        <x-dropdown.item onclick="exportSeatPlans('pdf')">PDF</x-dropdown.item>
+                        <x-dropdown.item onclick="exportSeatPlans('excel')">Excel</x-dropdown.item>
+                        <x-dropdown.item onclick="exportSeatPlans('print')">Print</x-dropdown.item>
+                    </x-dropdown>
 
-                <div class="relative w-full mt-3 lg:hidden">
-                    <i class="mdi mdi-magnify absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="header_search_mobile" placeholder="Search ID or Name..."
-                        onkeyup="if(event.key === 'Enter') { document.getElementById('header_search').value = this.value; fetchTable(1); }"
-                        class="pl-8 pr-3 py-1.5 w-full border border-gray-200 text-xs outline-none focus:border-blue-500"
-                        style="border-radius: 0;" />
-                </div>
-            </div>
+                    <x-button.primary type="button" onclick="openSeatModal()" class="w-full">
+                        Seat Number
+                    </x-button.primary>
+                </x-slot:actions>
+
+                <x-slot:mobile-search>
+                    <form class="col-span-3 grid grid-cols-3 gap-2" onsubmit="event.preventDefault(); fetchTable(1);">
+                        <x-input.search
+                            id="header_search_mobile"
+                            placeholder="Search ID or Name..."
+                            class="col-span-2 min-w-0"
+                            oninput="document.getElementById('header_search').value = this.value"
+                        />
+                        <x-button.secondary type="button" onclick="restoreSeatPlanSearch()" class="w-full">
+                            Restore
+                        </x-button.secondary>
+                    </form>
+                </x-slot:mobile-search>
+            </x-school.list-header>
 
             {{-- Filter Modal --}}
             <x-modal.form
                 id="filterModal"
                 form-id="seatPlanFilterForm"
-                title="Search Filters"
+                title="Seat Plan Filter"
                 close-button-id="closeSeatPlanFilterModal"
-                class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-black/50 p-4 sm:p-20"
-                panel-class="modal-content-sharp w-full max-w-[320px] overflow-hidden bg-white shadow-2xl"
-                panel-style="border-radius:0;"
-                header-class="border-b border-gray-200 bg-white px-4 py-3"
-                title-class="m-0 text-center text-[13px] font-medium capitalize leading-tight tracking-normal text-gray-800"
-                form-class="m-0"
-                body-class="bg-white px-4 py-3"
-                fields-class="space-y-3"
-                onclick="if (event.target === this) this.classList.add('hidden')"
+                title-class="teacher-register-modal-title m-0 text-center font-semibold leading-tight text-slate-800"
                 onsubmit="event.preventDefault(); applyFilters();"
             >
-                <div>
-                    <label class="mb-1 block text-[10px] font-bold uppercase text-gray-500">Class</label>
+                <div class="relative">
                     <x-input.dropdown-select id="filter_class_name" placeholder="Select Class" :options="[]" />
+                    <x-input.floating-label for="filter_class_name" :floating="false">Class</x-input.floating-label>
                 </div>
 
-                <div>
-                    <label class="mb-1 block text-[10px] font-bold uppercase text-gray-500">Group</label>
+                <div class="relative">
                     <x-input.dropdown-select id="filter_group_name" placeholder="Select Group" :options="[]" />
+                    <x-input.floating-label for="filter_group_name" :floating="false">Group</x-input.floating-label>
                 </div>
 
-                <div>
-                    <label class="mb-1 block text-[10px] font-bold uppercase text-gray-500">Section</label>
+                <div class="relative">
                     <x-input.dropdown-select id="filter_section_name" placeholder="Select Section" :options="[]" />
+                    <x-input.floating-label for="filter_section_name" :floating="false">Section</x-input.floating-label>
                 </div>
 
-                <div>
-                    <label class="mb-1 block text-[10px] font-bold uppercase text-gray-500">Session</label>
+                <div class="relative">
                     <x-input.dropdown-select id="filter_session_name" placeholder="Select Session" :options="[]" />
+                    <x-input.floating-label for="filter_session_name" :floating="false">Session</x-input.floating-label>
                 </div>
 
-                <div>
-                    <label class="mb-1 block text-[10px] font-bold uppercase text-gray-500">Exam Name</label>
+                <div class="relative md:col-span-2">
                     <x-input.dropdown-select id="filter_exam_name" placeholder="Select Exam" :options="[]" />
+                    <x-input.floating-label for="filter_exam_name" :floating="false">Exam Name</x-input.floating-label>
                 </div>
 
                 <x-slot:footer>
-                    <div class="grid grid-cols-2 gap-2 bg-white px-4 pb-4">
+                    <div class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
                         <x-button.secondary type="button" onclick="resetFilters()" class="w-full">Reset</x-button.secondary>
                         <x-button.primary type="submit" class="w-full">Apply</x-button.primary>
                     </div>
                 </x-slot:footer>
             </x-modal.form>
 
-            <div class="table-card">
-                <div class="table-responsive">
-                    <table class="min-w-[1000px]">
-                        <thead>
-                            <tr>
-                                <th width="50">SL</th>
-                                <th>Class</th>
-                                <th>Group</th>
-                                <th>Section</th>
-                                <th>Session</th>
-                                <th>Exam Name</th>
-                                <th>Student Id</th>
-                                <th>Student Name</th>
-                                <th>Seat Number</th>
-                                <th width="100" class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="seatTableBody"></tbody>
-                    </table>
-                </div>
-                <div class="flex items-center justify-between p-4 bg-white border-t border-gray-100">
-                    <div class="text-[10px] text-gray-500 font-bold uppercase" id="paginationInfo"></div>
-                    <div class="flex items-center gap-1" id="paginationControls"></div>
-                </div>
-            </div>
+            <x-school.data-table
+                :empty="false"
+                :empty-colspan="10"
+                empty-message="No seat plans found."
+                show-footer="true"
+                min-width="1100px"
+                tbody-id="seatTableBody"
+            >
+                <x-slot:columns>
+                    <colgroup>
+                        <col style="width:45px;">
+                        <col style="width:105px;">
+                        <col style="width:95px;">
+                        <col style="width:95px;">
+                        <col style="width:95px;">
+                        <col style="width:125px;">
+                        <col style="width:140px;">
+                        <col style="width:170px;">
+                        <col style="width:115px;">
+                        <col style="width:110px;">
+                    </colgroup>
+                </x-slot:columns>
+
+                <x-slot:head>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">SL</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Class</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Group</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Section</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Session</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Exam Name</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Student ID</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Student Name</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Seat Number</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">Action</x-table.th>
+                </x-slot:head>
+
+                <x-slot:footer>
+                    <div class="flex w-full items-center justify-between px-2">
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-gray-500" id="paginationInfo"></div>
+                        <div class="flex items-center gap-1" id="paginationControls"></div>
+                    </div>
+                </x-slot:footer>
+            </x-school.data-table>
         </div>
     </div>
 
     {{-- Seat Number Modal --}}
-    <div id="seatModal" role="dialog" aria-modal="true" aria-labelledby="seatModalTitle"
-        class="fixed inset-0 bg-gray-900/60 flex items-center justify-center hidden z-[100] px-8 sm:px-40 py-12 backdrop-blur-sm overflow-y-auto">
+    <x-modal.form
+        id="seatModal"
+        form-id="seatForm"
+        title="Bulk Seat Plan Generator"
+        close-button-id="closeSeatModalButton"
+        title-class="teacher-register-modal-title m-0 text-center font-semibold leading-tight text-slate-800"
+        fields-class="space-y-4"
+    >
+        <div class="grid grid-cols-2 gap-2">
+            <x-button.secondary
+                type="button"
+                onclick="switchGenerationMode('single')"
+                id="singleModeTab"
+                class="mode-tab-btn active w-full"
+            >
+                Single Class
+            </x-button.secondary>
+            <x-button.secondary
+                type="button"
+                onclick="switchGenerationMode('multi')"
+                id="multiModeTab"
+                class="mode-tab-btn w-full"
+            >
+                Multi Class
+            </x-button.secondary>
+        </div>
 
-        <div
-            class="bg-white w-full max-w-2xl modal-content-sharp shadow-2xl overflow-hidden flex flex-col my-auto max-h-[70vh] sm:max-h-[85vh] mx-auto border border-gray-100">
-
-            {{-- Modal Header --}}
-            <div class="px-5 py-3 border-b flex justify-center items-center bg-white sticky top-0 z-10">
-                <h3 id="seatModalTitle" class="text-gray-800 text-[13px] font-medium leading-tight text-center capitalize tracking-normal">
-                    Bulk Seat Plan Generator
-                </h3>
+        <div id="singleModePanel" class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div class="relative">
+                <x-input.dropdown-select
+                    id="class_name"
+                    name="class_name"
+                    placeholder="Select Class"
+                    :options="[]"
+                    add-button-id="openClassFromSeatForm"
+                    add-button-label="Add class"
+                    add-button-target="classModal"
+                />
+                <x-input.floating-label for="class_name" :floating="false">Class</x-input.floating-label>
             </div>
 
-            <form id="seatForm" class="flex flex-col overflow-hidden m-0">
-                @csrf
-                <div class="overflow-y-auto custom-scrollbar p-4 sm:p-6 flex-grow bg-gray-50/30">
-                    <div class="flex gap-2 mb-4">
-                        <button type="button" onclick="switchGenerationMode('single')" id="singleModeTab" class="mode-tab-btn active">Single Class</button>
-                        <button type="button" onclick="switchGenerationMode('multi')" id="multiModeTab" class="mode-tab-btn">Multi Class</button>
-                    </div>
+            <div class="relative">
+                <x-input.dropdown-select
+                    id="group_name"
+                    name="group_name"
+                    placeholder="Select Group"
+                    :options="[]"
+                    add-button-id="openGroupFromSeatForm"
+                    add-button-label="Add group"
+                    add-button-target="groupModal"
+                />
+                <x-input.floating-label for="group_name" :floating="false">Group</x-input.floating-label>
+            </div>
 
-                    <div id="singleModePanel" class="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Class</label>
-                            <x-input.dropdown-select id="class_name" name="class_name" placeholder="Select Class" :options="[]" required
-                                add-button-id="openClassFromSeatForm" add-button-label="Add class" add-button-target="classModal" />
-                        </div>
+            <div class="relative">
+                <x-input.dropdown-select
+                    id="section_name"
+                    name="section_name"
+                    placeholder="Select Section"
+                    :options="[]"
+                    add-button-id="openSectionFromSeatForm"
+                    add-button-label="Add section"
+                    add-button-target="sectionModal"
+                />
+                <x-input.floating-label for="section_name" :floating="false">Section</x-input.floating-label>
+            </div>
 
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Group</label>
-                            <x-input.dropdown-select id="group_name" name="group_name" placeholder="Select Group" :options="[]"
-                                add-button-id="openGroupFromSeatForm" add-button-label="Add group" add-button-target="groupModal" />
-                        </div>
-
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Section</label>
-                            <x-input.dropdown-select id="section_name" name="section_name" placeholder="Select Section" :options="[]"
-                                add-button-id="openSectionFromSeatForm" add-button-label="Add section" add-button-target="sectionModal" />
-                        </div>
-
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Session</label>
-                            <x-input.dropdown-select id="session_name" name="session_name" placeholder="Select Session" :options="[]" required
-                                add-button-id="openSessionFromSeatForm" add-button-label="Add session" add-button-target="sessionModal" />
-                        </div>
-                    </div>
-
-                    <div id="multiModePanel" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Class (Multiple)</label>
-                            <div id="multi_class_options" class="multi-option-list" onchange="handleMultiSelectionChange(event)"></div>
-                        </div>
-
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Group (Multiple)</label>
-                            <div id="multi_group_options" class="multi-option-list" onchange="handleMultiSelectionChange(event)"></div>
-                        </div>
-
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Section (Multiple)</label>
-                            <div id="multi_section_options" class="multi-option-list" onchange="handleMultiSelectionChange(event)"></div>
-                        </div>
-
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Session (Multiple)</label>
-                            <div id="multi_session_options" class="multi-option-list" onchange="handleMultiSelectionChange(event)"></div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4 mt-4">
-                        <div class="col-span-1 sm:col-span-2">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Exam Name</label>
-                            <x-input.dropdown-select id="exam_name" name="exam_name" placeholder="Select Exam" :options="[]" required
-                                add-button-id="openExamFromSeatForm" add-button-label="Add exam" add-button-target="examModal" />
-                        </div>
-
-                        <div class="col-span-1 sm:col-span-2 bg-blue-50/30 p-3 border border-dashed border-blue-200 mt-2">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-400 mb-1">Students Identified</label>
-                            <div id="studentCountDisplay"
-                                class="text-[11px] font-mono font-bold text-blue-600 tracking-tighter">0 Students Identified</div>
-                        </div>
-
-                        <div class="col-span-1 mt-2">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Seat Number Start</label>
-                            <input type="number" id="seat_number_start" name="seat_number_start" oninput="calculateEnd()" onkeyup="calculateEnd()"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px] font-mono"
-                                placeholder="e.g. 101" required style="border-radius: 0;" />
-                        </div>
-
-                        <div class="col-span-1 mt-2">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Seat Number End
-                                (Auto)</label>
-                            <input type="text" id="seat_number_end" name="seat_number_end" readonly
-                                class="form-input-fixed w-full border border-gray-100 bg-gray-50 py-1.5 px-3 text-xs h-[32px] font-mono text-gray-400"
-                                style="border-radius: 0;" />
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Footer Actions --}}
-                <div
-                    class="px-4 sm:px-6 py-4 border-t border-gray-100 bg-white flex flex-row sm:justify-end gap-2 sticky bottom-0">
-                    <x-button.secondary type="button" onclick="closeSeatModal()" class="w-1/2 sm:w-auto sm:px-8">
-                        Cancel
-                    </x-button.secondary>
-                    <x-button.primary type="submit" id="submitBtn" disabled class="w-1/2 sm:w-auto sm:px-12 disabled:opacity-50">
-                        Generate
-                    </x-button.primary>
-                </div>
-            </form>
+            <div class="relative">
+                <x-input.dropdown-select
+                    id="session_name"
+                    name="session_name"
+                    placeholder="Select Session"
+                    :options="[]"
+                    add-button-id="openSessionFromSeatForm"
+                    add-button-label="Add session"
+                    add-button-target="sessionModal"
+                />
+                <x-input.floating-label for="session_name" :floating="false">Session</x-input.floating-label>
+            </div>
         </div>
-    </div>
+
+        <div id="multiModePanel" class="hidden grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+                <label class="mb-1 block text-[10px] text-slate-500">Class (Multiple)</label>
+                <div id="multi_class_options" class="multi-option-list" onchange="handleMultiSelectionChange(event)"></div>
+            </div>
+
+            <div>
+                <label class="mb-1 block text-[10px] text-slate-500">Group (Multiple)</label>
+                <div id="multi_group_options" class="multi-option-list" onchange="handleMultiSelectionChange(event)"></div>
+            </div>
+
+            <div>
+                <label class="mb-1 block text-[10px] text-slate-500">Section (Multiple)</label>
+                <div id="multi_section_options" class="multi-option-list" onchange="handleMultiSelectionChange(event)"></div>
+            </div>
+
+            <div>
+                <label class="mb-1 block text-[10px] text-slate-500">Session (Multiple)</label>
+                <div id="multi_session_options" class="multi-option-list" onchange="handleMultiSelectionChange(event)"></div>
+            </div>
+        </div>
+
+        <div class="relative">
+            <x-input.dropdown-select
+                id="exam_name"
+                name="exam_name"
+                placeholder="Select Exam"
+                :options="[]"
+                add-button-id="openExamFromSeatForm"
+                add-button-label="Add exam"
+                add-button-target="examModal"
+            />
+            <x-input.floating-label for="exam_name" :floating="false">Exam Name</x-input.floating-label>
+        </div>
+
+        <div class="border border-dashed border-slate-300 bg-white px-3 py-2">
+            <label class="block text-[9px] leading-3 text-gray-400">Students Identified</label>
+            <div id="studentCountDisplay" class="font-mono text-[10px] font-bold leading-4 tracking-tighter text-blue-600">
+                0 Students Identified
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div class="relative">
+                <x-input.control
+                    type="number"
+                    id="seat_number_start"
+                    name="seat_number_start"
+                    class="peer font-mono placeholder:text-transparent"
+                    placeholder=" "
+                    oninput="calculateEnd()"
+                    required
+                />
+                <x-input.floating-label for="seat_number_start">Seat Number Start</x-input.floating-label>
+            </div>
+
+            <div class="relative">
+                <x-input.control
+                    id="seat_number_end"
+                    name="seat_number_end"
+                    class="peer bg-slate-50 font-mono text-slate-500 placeholder:text-transparent"
+                    placeholder=" "
+                    readonly
+                />
+                <x-input.floating-label for="seat_number_end" :floating="false">
+                    Seat Number End (Auto)
+                </x-input.floating-label>
+            </div>
+        </div>
+
+        <x-slot:footer>
+            <div class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
+                <x-button.secondary
+                    id="closeSeatModalButton"
+                    type="button"
+                    onclick="closeSeatModal()"
+                    class="w-full"
+                >
+                    Cancel
+                </x-button.secondary>
+                <x-button.primary
+                    type="submit"
+                    id="submitBtn"
+                    disabled
+                    class="w-full disabled:opacity-50"
+                >
+                    Generate
+                </x-button.primary>
+            </div>
+        </x-slot:footer>
+    </x-modal.form>
 
     {{-- Quick-create modals shared with the Exam Routine and Admit Card forms. --}}
     @include('school.academic.class.partials.class-modal')
@@ -1026,6 +932,25 @@
             }
         }
 
+        function escapeSeatPlanHtml(value) {
+            return String(value ?? '-').replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            })[character]);
+        }
+
+        function seatPlanTableCell(value, alignment = 'text-left', extraClass = '') {
+            const content = escapeSeatPlanHtml(value);
+
+            return `
+                <td class="h-8 border border-gray-300 px-3 ${alignment}">
+                    <div class="school-data-table-cell-scroll ${extraClass}" title="${content}">${content}</div>
+                </td>`;
+        }
+
         function fetchTable(page = 1) {
             const params = {
                 page,
@@ -1043,24 +968,39 @@
                 const meta = res.data;
                 const body = document.getElementById('seatTableBody');
                 body.innerHTML = '';
+
+                if (!meta.data || meta.data.length === 0) {
+                    body.innerHTML =
+                        '<tr><td colspan="10" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No seat plans found.</td></tr>';
+                    document.getElementById('paginationInfo').innerText = '0 of 0';
+                    document.getElementById('paginationControls').innerHTML = '';
+                    return;
+                }
+
                 meta.data.forEach((item, i) => {
-                    body.innerHTML += `<tr>
-                                                                        <td>${meta.from + i}</td>
-                                                                        <td>${item.class_name}</td>
-                                                                        <td>${item.group_name || '-'}</td>
-                                                                        <td>${item.section_name || '-'}</td>
-                                                                        <td>${item.session_name}</td>
-                                                                        <td>${item.exam_name}</td>
-                                                                        <td class="font-mono">${item.student_id_number}</td>
-                                                                        <td class="text-gray-700">${item.student_name}</td>
-                                                                        <td>${item.seat_number}</td>
-                                                                        <td class="text-center">
-                                                                            <div class="flex justify-center gap-3">
-                                                                                <button onclick='editSingleSeat(${JSON.stringify(item)})' class="action-icon-btn text-blue-500"><i class="far fa-edit" style="font-size: 15px;"></i></button>
-                                                                                <button onclick="deleteSeat(${item.id})" class="action-icon-btn text-red-400"><i class="far fa-trash-alt" style="font-size: 15px;"></i></button>
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>`;
+                    const itemJson = JSON.stringify(item).replaceAll("'", '&#39;');
+
+                    body.innerHTML += `<tr class="hover:bg-gray-50">
+                        ${seatPlanTableCell(meta.from + i, 'text-center')}
+                        ${seatPlanTableCell(item.class_name)}
+                        ${seatPlanTableCell(item.group_name)}
+                        ${seatPlanTableCell(item.section_name)}
+                        ${seatPlanTableCell(item.session_name)}
+                        ${seatPlanTableCell(item.exam_name)}
+                        ${seatPlanTableCell(item.student_id_number, 'text-left', 'font-mono')}
+                        ${seatPlanTableCell(item.student_name)}
+                        ${seatPlanTableCell(item.seat_number)}
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
+                            <div class="mx-auto flex h-8 items-center justify-center space-x-1">
+                                <button type="button" title="Edit seat plan" aria-label="Edit seat plan" onclick='editSingleSeat(${itemJson})' class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1">
+                                    <i class="far fa-edit text-sm" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" title="Delete seat plan" aria-label="Delete seat plan" onclick="deleteSeat(${item.id})" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1">
+                                    <i class="far fa-trash-alt text-sm" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
                 });
                 renderPagination(meta);
             });
@@ -1188,6 +1128,16 @@
             toggleFilterModal();
         }
 
+        function restoreSeatPlanSearch() {
+            const desktopSearch = document.getElementById('header_search');
+            const mobileSearch = document.getElementById('header_search_mobile');
+
+            if (desktopSearch) desktopSearch.value = '';
+            if (mobileSearch) mobileSearch.value = '';
+
+            fetchTable(1);
+        }
+
         function resetFilters() {
             const dropdowns = {
                 filter_class_name: 'Select Class',
@@ -1201,9 +1151,7 @@
                 setDropdownValue(id, '', placeholder);
             });
 
-            const headerSearch = document.getElementById('header_search');
-            if (headerSearch) headerSearch.value = '';
-            fetchTable(1);
+            restoreSeatPlanSearch();
             toggleFilterModal();
         }
 

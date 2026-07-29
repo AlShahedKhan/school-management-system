@@ -17,115 +17,6 @@
             box-sizing: border-box;
         }
 
-        @media (max-width: 768px) {
-            .main-view-container {
-                padding-left: 0 !important;
-                padding-right: 0 !important;
-            }
-        }
-
-
-        .table-card {
-            border: 1px solid #e2e8f0;
-            background: #ffffff;
-            border-radius: 0;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-            width: 100%;
-            overflow: hidden;
-            border-left: none;
-            border-right: none;
-        }
-
-        /* ================= Table Container ================= */
-        .table-responsive {
-            width: 100% !important;
-            overflow-x: auto !important;
-            display: block !important;
-            background: white !important;
-            padding: 15px !important;
-        }
-
-        /* ================= Custom Scrollbar ================= */
-        .table-responsive::-webkit-scrollbar {
-            height: 6px !important;
-        }
-
-        .table-responsive::-webkit-scrollbar-track {
-            background: #f8fafc !important;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb {
-            background: #cbd5e1 !important;
-            border-radius: 0px !important;
-        }
-
-        /* ================= Table Core ================= */
-        table {
-            width: 100% !important;
-            border-collapse: collapse !important;
-            table-layout: auto !important;
-            border: 1px solid #d1d5db !important;
-            font-size: 11px !important;
-        }
-
-        /* ================= Table Header ================= */
-        th {
-            padding: 0 12px !important;
-            height: 34px !important;
-            line-height: 34px !important;
-            white-space: nowrap !important;
-            background: #f8fafc !important;
-            border-bottom: 1px solid #d1d5db !important;
-            border-right: 1px solid #d1d5db !important;
-            color: #374151 !important;
-            font-weight: 800 !important;
-            vertical-align: middle !important;
-            text-align: left !important;
-            /* Only first letter capitalized */
-            text-transform: capitalize !important;
-            letter-spacing: 0.01em !important;
-        }
-
-        th:last-child {
-            border-right: none !important;
-        }
-
-        /* ================= Table Body ================= */
-        tr {
-            height: 32px !important;
-        }
-
-        td {
-            padding: 0 12px !important;
-            vertical-align: middle !important;
-            border-bottom: 1px solid #d1d5db !important;
-            border-right: 1px solid #d1d5db !important;
-            font-size: 11px !important;
-            color: #4b5563 !important;
-            white-space: nowrap !important;
-            overflow: hidden !important;
-        }
-
-        td:last-child {
-            border-right: none !important;
-        }
-
-        tbody tr:hover {
-            background: #f9fafb !important;
-        }
-
-        /* ================= Pagination Bar (Balanced Height) ================= */
-        .pagination-bar {
-            padding: 0.6rem 1rem !important;
-            border: 1px solid #d1d5db !important;
-            border-top: none !important;
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            background: #ffffff !important;
-            min-height: 44px !important;
-        }
-
         .pagination-btn {
             height: 26px !important;
             min-width: 26px !important;
@@ -140,7 +31,6 @@
             font-weight: 900 !important;
             color: #64748b !important;
             border-radius: 0 !important;
-            /* Sharp Brutalism Corners */
             text-transform: uppercase !important;
             transition: all 0.1s ease !important;
         }
@@ -170,251 +60,113 @@
             letter-spacing: 0.05em !important;
         }
 
-        /* ================= Mobile Adjustments ================= */
         @media (max-width: 768px) {
-
-            th,
-            td {
-                padding: 0 8px !important;
-                height: 30px !important;
-            }
-
-            .pagination-bar {
-                min-height: 38px !important;
-                padding: 0.4rem 0.75rem !important;
-            }
-
             .pagination-btn {
                 height: 24px !important;
                 min-width: 24px !important;
             }
         }
-
-        .form-input-fixed {
-            width: 100%;
-            border: 1px solid #cbd5e1 !important;
-            padding: .5rem .7rem;
-            border-radius: 0;
-            font-size: .85rem;
-            background: #fff;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .form-input-fixed:focus {
-            border-color: #2563eb !important;
-        }
-
-        .btn-outline-premium {
-            border: 1.5px solid #2563eb;
-            font-weight: 600;
-            transition: all .2s ease;
-            border-radius: 0;
-        }
-
-        .btn-outline-premium:hover {
-            background: #2563eb;
-            color: #fff;
-        }
-
-        .pagination-btn {
-            padding: 5px 10px;
-            border: 1px solid #e2e8f0;
-            font-size: 11px;
-            font-weight: bold;
-            transition: all 0.2s;
-            cursor: pointer;
-            background: white;
-        }
-
-        .pagination-btn.active {
-            background: #2563eb;
-            color: white;
-            border-color: #2563eb;
-        }
-
-        .pagination-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .action-icon {
-            font-size: 1.25rem;
-        }
-
-        .search-container {
-            position: relative;
-            width: 250px;
-        }
-
-        .search-container i {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-        }
-
-        .search-container input {
-            padding-left: 32px !important;
-        }
     </style>
 
     <div class="main-view-container">
         <div class="max-w-full mx-auto w-full">
-            <div class="bg-white border border-gray-200 p-2.5 sm:p-4 mb-4" style="border-radius: 0;">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-
-                    <div class="w-full lg:w-auto">
-                        <h2 id="pageHeader" class="text-[15px] sm:text-xl text-gray-800 font-normal leading-tight"></h2>
-                        <div class="flex items-center text-slate-400 text-[12px] mt-1">
-                            <span>School</span>
-                            <i class="fas fa-chevron-right mx-1.5 text-[10px]"></i>
-                            <span id="pageTitle" class="text-slate-500"></span>
-                        </div>
-
-                        <div class="relative w-full sm:w-64 mt-3 hidden lg:block">
-                            <i class="mdi mdi-magnify absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" id="header_search" placeholder="Search ID or Name..."
-                                class="pl-8 pr-3 py-2 w-full border border-gray-200 text-xs outline-none focus:border-blue-500"
-                                style="border-radius: 0;" onkeyup="if(event.key === 'Enter') fetchTable(1)" />
-                        </div>
-                    </div>
-
-                    <div class="grid w-full grid-cols-3 gap-2 lg:flex lg:w-auto">
-                        <x-button.secondary onclick="toggleFilterModal()" class="w-full lg:w-auto">
-                            Filter
+            <x-school.list-header title="Admit Card" breadcrumb-current="Admit Card" keep-title>
+                <x-slot:search>
+                    <form class="flex items-center gap-2" onsubmit="event.preventDefault(); fetchTable(1);">
+                        <x-input.search
+                            id="header_search"
+                            name="search"
+                            placeholder="Search ID or Name..."
+                            class="w-full lg:w-72"
+                            oninput="document.getElementById('header_search_mobile').value = this.value"
+                            onkeydown="if(event.key === 'Enter') fetchTable(1);"
+                        />
+                        <x-button.secondary id="btnRestoreDesktop" type="button" onclick="restoreAdmitSearch()">
+                            Restore
                         </x-button.secondary>
+                    </form>
+                </x-slot:search>
 
-                        <x-dropdown button-id="btnAdmitExport" menu-id="admitExportDropdown" label="Export">
-                            <x-dropdown.item onclick="exportData('pdf-mobile')">PDF</x-dropdown.item>
-                            <x-dropdown.item onclick="exportData('excel')">Excel</x-dropdown.item>
-                            <x-dropdown.item onclick="exportData('pdf')">Print</x-dropdown.item>
-                        </x-dropdown>
+                <x-slot:actions>
+                    <x-button.secondary type="button" onclick="toggleFilterModal()" class="w-full">
+                        Filter
+                    </x-button.secondary>
 
-                        <x-button.primary onclick="openAdmitModal()" class="w-full lg:w-auto">
-                            Admit Card
-                        </x-button.primary>
-                    </div>
-                </div>
+                    <x-dropdown button-id="btnAdmitExport" menu-id="admitExportDropdown" label="Export" align="full">
+                        <x-dropdown.item onclick="exportData('pdf-mobile')">PDF</x-dropdown.item>
+                        <x-dropdown.item onclick="exportData('excel')">Excel</x-dropdown.item>
+                        <x-dropdown.item onclick="exportData('pdf')">Print</x-dropdown.item>
+                    </x-dropdown>
 
-                <div class="relative w-full mt-3 lg:hidden">
-                    <i class="mdi mdi-magnify absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="header_search_mobile" placeholder="Search ID or Name..."
-                        class="pl-8 pr-3 py-1.5 w-full border border-gray-200 text-xs outline-none focus:border-blue-500"
-                        style="border-radius: 0;"
-                        onkeyup="if(event.key === 'Enter') { document.getElementById('header_search').value = this.value; fetchTable(1); }" />
-                </div>
-            </div>
+                    <x-button.primary type="button" onclick="openAdmitModal()" class="w-full">
+                        Admit Card
+                    </x-button.primary>
+                </x-slot:actions>
 
-            {{-- Filter Modal --}}
-            <x-modal.form
-                id="filterModal"
-                form-id="admitFilterForm"
-                title="Admit Card Filter"
-                close-button-id="closeAdmitFilterModal"
-                class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-black/50 p-4 sm:p-20"
-                panel-class="modal-content-sharp mx-auto my-auto flex max-h-[calc(100dvh-2rem)] w-full max-w-[320px] flex-col overflow-visible bg-white shadow-2xl"
-                panel-style="border-radius: 0;"
-                header-class="shrink-0 border-b border-gray-200 bg-white px-4 pb-3 pt-5"
-                title-class="m-0 text-center text-2xl font-semibold leading-tight text-gray-800"
-                form-class="m-0"
-                body-class="bg-white px-4 py-4"
-                fields-class="grid grid-cols-1 gap-3"
-                onclick="if (event.target === this) toggleFilterModal()"
+                <x-slot:mobile-search>
+                    <form class="col-span-3 grid grid-cols-3 gap-2" onsubmit="event.preventDefault(); fetchTable(1);">
+                        <x-input.search
+                            id="header_search_mobile"
+                            name="search"
+                            placeholder="Search ID or Name..."
+                            class="col-span-2 min-w-0"
+                            oninput="document.getElementById('header_search').value = this.value"
+                            onkeydown="if(event.key === 'Enter') { document.getElementById('header_search').value = this.value; fetchTable(1); }"
+                        />
+                        <x-button.secondary id="btnRestoreMobile" type="button" onclick="restoreAdmitSearch()" class="w-full">
+                            Restore
+                        </x-button.secondary>
+                    </form>
+                </x-slot:mobile-search>
+            </x-school.list-header>
+
+            <x-school.data-table
+                :empty="false"
+                :empty-colspan="10"
+                empty-message="No admit cards found."
+                show-footer="true"
+                min-width="1100px"
+                tbody-id="admitTableBody"
             >
-                <div>
-                    <label class="mb-1 block text-[10px] text-gray-500">Class</label>
-                    <x-input.dropdown-select id="filter_class_name" placeholder="Select Class" :options="[]" />
-                </div>
+                <x-slot:columns>
+                    <colgroup>
+                        <col style="width:45px;">
+                        <col style="width:105px;">
+                        <col style="width:95px;">
+                        <col style="width:95px;">
+                        <col style="width:95px;">
+                        <col style="width:125px;">
+                        <col style="width:140px;">
+                        <col style="width:170px;">
+                        <col style="width:125px;">
+                        <col style="width:110px;">
+                    </colgroup>
+                </x-slot:columns>
 
-                <div>
-                    <label class="mb-1 block text-[10px] text-gray-500">Group</label>
-                    <x-input.dropdown-select id="filter_group_name" placeholder="Select Group" :options="[]" />
-                </div>
-
-                <div>
-                    <label class="mb-1 block text-[10px] text-gray-500">Section</label>
-                    <x-input.dropdown-select id="filter_section_name" placeholder="Select Section" :options="[]" />
-                </div>
-
-                <div>
-                    <label class="mb-1 block text-[10px] text-gray-500">Session</label>
-                    <x-input.dropdown-select id="filter_session_name" placeholder="Select Session" :options="[]" />
-                </div>
-
-                <div>
-                    <label class="mb-1 block text-[10px] text-gray-500">Exam Name</label>
-                    <x-input.dropdown-select id="filter_exam_name" placeholder="Select Exam" :options="[]" />
-                </div>
+                <x-slot:head>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">SL</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Class</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Group</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Section</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Session</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Exam Name</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Student ID</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Student Name</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Admit Number</x-table.th>
+                    <x-table.th unstyled class="h-8 min-w-[110px] whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">Action</x-table.th>
+                </x-slot:head>
 
                 <x-slot:footer>
-                    <div class="grid grid-cols-2 gap-2 bg-white px-4 pb-5 pt-2">
-                        <x-button.secondary type="button" onclick="resetFilters()" class="w-full">
-                            Reset
-                        </x-button.secondary>
-                        <x-button.primary type="button" onclick="applyFilters()" class="w-full">
-                            Apply
-                        </x-button.primary>
+                    <div class="pagination-container flex w-full items-center justify-between px-2">
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-gray-500" id="paginationInfo"></div>
+                        <div class="flex items-center gap-1" id="paginationControls"></div>
                     </div>
                 </x-slot:footer>
-            </x-modal.form>
-            </div>
-
-            {{-- Export Modal --}}
-            <div id="exportModal"
-                class="premium-modal fixed inset-0 bg-black/50 hidden z-[9999] flex items-center justify-center p-12 sm:p-20"
-                onclick="this.classList.add('hidden')">
-                <div class="bg-white p-4 w-auto min-w-[140px] modal-content-sharp shadow-2xl"
-                    onclick="event.stopPropagation()">
-                    <div class="flex flex-col gap-1.5">
-                        <button onclick="exportData('pdf-mobile')"
-                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                            PDF
-                        </button>
-                        <button onclick="exportData('excel')"
-                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                            EXCEL
-                        </button>
-                        <button onclick="exportData('pdf')"
-                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                            PRINT
-                        </button>
-                        <button onclick="document.getElementById('exportModal').classList.add('hidden')"
-                            class="mt-1 py-1.5 text-[10px] text-gray-400 hover:text-gray-600 w-full text-center border border-gray-200 transition-all">
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="table-card">
-                <div class="table-responsive">
-                    <table class="min-w-[1000px]">
-                        <thead>
-                            <tr>
-                                <th width="50">Sl</th>
-                                <th>Class</th>
-                                <th>Group</th>
-                                <th>Section</th>
-                                <th>Session</th>
-                                <th>Exam Name</th>
-                                <th>Student Id</th>
-                                <th>Student Name</th>
-                                <th>Admit Number</th>
-                                <th width="100" class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admitTableBody"></tbody>
-                    </table>
-                </div>
-                <div class="flex items-center justify-between p-4 bg-white border-t border-gray-100">
-                    <div class="text-[10px] text-gray-500 font-bold uppercase" id="paginationInfo"></div>
-                    <div class="flex items-center gap-1" id="paginationControls"></div>
-                </div>
-            </div>
+            </x-school.data-table>
         </div>
     </div>
+
+    @include('school.exam.partials.admit-filter-modal')
 
     {{-- Admit Card Modal --}}
     <x-modal.form
@@ -422,147 +174,133 @@
         form-id="admitForm"
         title="Bulk Admit Card Generator"
         close-button-id="closeAdmitModal"
-        class="fixed inset-0 z-[100] hidden flex items-center justify-center overflow-y-auto bg-gray-900/60 px-8 py-12 backdrop-blur-sm sm:px-40"
-        panel-class="modal-content-sharp mx-auto my-auto flex w-full max-w-2xl flex-col overflow-hidden border border-gray-100 bg-white shadow-2xl max-h-[70vh] sm:max-h-[85vh]"
-        panel-style="border-radius: 0;"
-        header-class="sticky top-0 z-10 flex shrink-0 items-center justify-center border-b bg-white px-5 py-3"
-        title-class="text-center text-[13px] font-medium capitalize leading-tight tracking-normal text-gray-800"
-        form-class="m-0 flex min-h-0 flex-1 flex-col overflow-hidden"
-        body-class="min-h-0 flex-1 overflow-y-auto custom-scrollbar bg-gray-50/30 p-4 sm:p-6"
-        fields-class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2"
+        title-class="teacher-register-modal-title m-0 text-center font-semibold leading-tight text-slate-800"
     >
         <input type="hidden" id="admit_edit_id">
 
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Class</label>
-                            <x-input.dropdown-select
-                                id="class_name"
-                                placeholder="Select Class"
-                                :options="[]"
-                                add-button-id="openClassFromAdmitForm"
-                                add-button-label="Add class"
-                                add-button-target="classModal"
-                            />
-                        </div>
+        <div class="relative">
+            <x-input.dropdown-select
+                id="class_name"
+                placeholder="Select Class"
+                :options="[]"
+                add-button-id="openClassFromAdmitForm"
+                add-button-label="Add class"
+                add-button-target="classModal"
+            />
+            <x-input.floating-label for="class_name" :floating="false">Class</x-input.floating-label>
+        </div>
 
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Group</label>
-                            <x-input.dropdown-select
-                                id="group_name"
-                                placeholder="Select Group"
-                                :options="[]"
-                                add-button-id="openGroupFromAdmitForm"
-                                add-button-label="Add group"
-                                add-button-target="groupModal"
-                            />
-                        </div>
+        <div class="relative">
+            <x-input.dropdown-select
+                id="group_name"
+                placeholder="Select Group"
+                :options="[]"
+                add-button-id="openGroupFromAdmitForm"
+                add-button-label="Add group"
+                add-button-target="groupModal"
+            />
+            <x-input.floating-label for="group_name" :floating="false">Group</x-input.floating-label>
+        </div>
 
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Section</label>
-                            <x-input.dropdown-select
-                                id="section_name"
-                                placeholder="Select Section"
-                                :options="[]"
-                                add-button-id="openSectionFromAdmitForm"
-                                add-button-label="Add section"
-                                add-button-target="sectionModal"
-                            />
-                        </div>
+        <div class="relative">
+            <x-input.dropdown-select
+                id="section_name"
+                placeholder="Select Section"
+                :options="[]"
+                add-button-id="openSectionFromAdmitForm"
+                add-button-label="Add section"
+                add-button-target="sectionModal"
+            />
+            <x-input.floating-label for="section_name" :floating="false">Section</x-input.floating-label>
+        </div>
 
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Session</label>
-                            <x-input.dropdown-select
-                                id="session_name"
-                                placeholder="Select Session"
-                                :options="[]"
-                                add-button-id="openSessionFromAdmitForm"
-                                add-button-label="Add session"
-                                add-button-target="sessionModal"
-                            />
-                        </div>
+        <div class="relative">
+            <x-input.dropdown-select
+                id="session_name"
+                placeholder="Select Session"
+                :options="[]"
+                add-button-id="openSessionFromAdmitForm"
+                add-button-label="Add session"
+                add-button-target="sessionModal"
+            />
+            <x-input.floating-label for="session_name" :floating="false">Session</x-input.floating-label>
+        </div>
 
-                        <div class="col-span-1">
-                            <label
-                                class="block text-[10px] capitalize tracking-normal text-blue-600 mb-1.5 font-medium">Exam
-                                Name</label>
-                            <x-input.dropdown-select
-                                id="exam_name"
-                                placeholder="Select Exam"
-                                :options="[]"
-                                add-button-id="openExamFromAdmitForm"
-                                add-button-label="Add exam"
-                                add-button-target="examModal"
-                            />
-                        </div>
+        <div class="relative">
+            <x-input.dropdown-select
+                id="exam_name"
+                placeholder="Select Exam"
+                :options="[]"
+                add-button-id="openExamFromAdmitForm"
+                add-button-label="Add exam"
+                add-button-target="examModal"
+            />
+            <x-input.floating-label for="exam_name" :floating="false">Exam Name</x-input.floating-label>
+        </div>
 
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Generate
-                                For</label>
-                            <x-input.dropdown-select
-                                id="generate_type"
-                                placeholder="Select generation type"
-                                value="all"
-                                :options="[
-                                    ['value' => 'all', 'label' => 'All Students'],
-                                    ['value' => 'single', 'label' => 'Single Student'],
-                                ]"
-                            />
-                        </div>
+        <div class="relative">
+            <x-input.control
+                id="generate_type_display"
+                value="All Students"
+                readonly
+                aria-readonly="true"
+                class="cursor-default bg-white text-slate-800"
+            />
+            <x-input.floating-label for="generate_type_display" :floating="false">Generate For</x-input.floating-label>
+        </div>
 
-                        <div id="admitPrerequisiteWarning"
-                            class="col-span-1 hidden border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] leading-4 text-amber-700 sm:col-span-2">
-                            <div class="flex items-start gap-2">
-                                <i class="fas fa-exclamation-circle mt-0.5 shrink-0 text-[10px]" aria-hidden="true"></i>
-                                <span>Please create the Exam and Exam Routine before generating the Admit Card.</span>
-                            </div>
-                        </div>
+        <div
+            id="admitPrerequisiteWarning"
+            class="hidden border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] leading-4 text-amber-700 md:col-span-2"
+        >
+            <div class="flex items-start gap-2">
+                <i class="fas fa-exclamation-circle mt-0.5 shrink-0 text-[10px]" aria-hidden="true"></i>
+                <span>Please create the Exam and Exam Routine before generating the Admit Card.</span>
+            </div>
+        </div>
 
-                        <div id="single_student_container" class="col-span-1 sm:col-span-2 hidden">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Select
-                                Student</label>
-                            <x-input.dropdown-select id="student_id" placeholder="Select Student" :options="[]" />
-                        </div>
-
-                        <div id="studentStatusBox"
-                            class="col-span-1 sm:col-span-2 bg-white p-3 border border-dashed border-slate-300 my-2">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-400 mb-1">Student
-                                Status</label>
-                            <div id="studentCountDisplay"
-                                class="text-[11px] font-mono font-bold text-blue-600 tracking-tighter">
-                                0 Students Identified
-                            </div>
-                            <div class="text-[9px] text-gray-400 mt-1">
-                                Admit card number will be auto-generated sequentially.
-                            </div>
-                        </div>
+        <div
+            id="studentStatusBox"
+            class="border border-dashed border-slate-300 bg-white px-3 py-2 md:col-span-2"
+        >
+            <label class="block text-[9px] leading-3 text-gray-400">
+                Student Status
+            </label>
+            <div id="studentCountDisplay" class="font-mono text-[10px] font-bold leading-4 tracking-tighter text-blue-600">
+                0 Students Identified
+            </div>
+            <div class="text-[8px] leading-3 text-gray-400">
+                Admit card number will be auto-generated sequentially.
+            </div>
+        </div>
 
         <x-slot:footer>
-            <div class="sticky bottom-0 flex flex-row gap-2 border-t border-gray-100 bg-white px-4 py-4 sm:justify-end sm:px-6">
-                    <x-button.secondary
-                        id="closeAdmitModal"
-                        type="button"
-                        onclick="document.getElementById('admitModal').classList.add('hidden')"
-                        class="w-1/2 sm:w-auto sm:px-8"
-                    >
-                        Cancel
-                    </x-button.secondary>
-                    <x-button.primary
-                        type="submit"
-                        id="submitBtn"
-                        disabled
-                        class="w-1/2 sm:w-auto sm:px-12 disabled:opacity-50"
-                    >
-                        <span id="btnSpinner" class="hidden">
-                            <svg class="animate-spin h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                                </circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                            </svg>
-                        </span>
-                        <span id="btnText">Generate</span>
-                    </x-button.primary>
+            <div class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
+                <x-button.secondary
+                    id="closeAdmitModal"
+                    type="button"
+                    onclick="document.getElementById('admitModal').classList.add('hidden')"
+                    class="w-full"
+                >
+                    Cancel
+                </x-button.secondary>
+                <x-button.primary
+                    type="submit"
+                    id="submitBtn"
+                    disabled
+                    class="w-full disabled:opacity-50"
+                >
+                    <span id="btnSpinner" class="hidden">
+                        <svg class="mr-1.5 h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                    </span>
+                    <span id="btnText">Generate</span>
+                </x-button.primary>
             </div>
         </x-slot:footer>
     </x-modal.form>
@@ -833,21 +571,16 @@
 
         function updateAdmitSubmitState() {
             const btn = document.getElementById('submitBtn');
-            const generateType = document.getElementById('generate_type').value;
-            const selectedStudent = document.getElementById('student_id').value;
             const hasStudents = studentsList.length > 0;
             const classSelected = document.getElementById('class_name').value;
             const sessionSelected = document.getElementById('session_name').value;
             const examSelected = document.getElementById('exam_name').value;
 
-            let enable = admitPrerequisitesValid && classSelected && sessionSelected && examSelected;
-            if (enable) {
-                if (generateType === 'single') {
-                    enable = selectedStudent && selectedStudent !== '';
-                } else {
-                    enable = hasStudents;
-                }
-            }
+            const enable = admitPrerequisitesValid &&
+                classSelected &&
+                sessionSelected &&
+                examSelected &&
+                hasStudents;
 
             btn.disabled = !enable;
         }
@@ -921,34 +654,8 @@
                 studentsList = res.data.data;
                 document.getElementById('studentCountDisplay').innerText =
                     `${studentsList.length} Students Identified`;
-                populateStudentDropdown();
                 updateAdmitSubmitState();
             });
-        }
-
-        function toggleStudentSelect() {
-            const type = document.getElementById('generate_type').value;
-            const container = document.getElementById('single_student_container');
-            const statusBox = document.getElementById('studentStatusBox');
-            if (type === 'single') {
-                container.classList.remove('hidden');
-                statusBox.classList.add('hidden');
-            } else {
-                container.classList.add('hidden');
-                statusBox.classList.remove('hidden');
-            }
-            updateAdmitSubmitState();
-        }
-
-        function populateStudentDropdown() {
-            const students = studentsList.map(student => ({
-                id: student.student_id_number,
-                student_id_number: student.student_id_number,
-                student_label: `${student.student_name} (${student.student_id_number})`,
-            }));
-            populateDropdown('student_idMenu', students, 'student_id_number', 'student_label');
-            setDropdownValue('student_id', '', 'Select Student');
-            updateAdmitSubmitState();
         }
 
         function fetchTable(page = 1) {
@@ -969,23 +676,26 @@
                 const body = document.getElementById('admitTableBody');
                 body.innerHTML = '';
                 meta.data.forEach((item, i) => {
-                body.innerHTML += `<tr>
-                    <td>${meta.from + i}</td>
-                    <td>${item.class_name}</td>
-                    <td>${item.group_name || '-'}</td>
-                    <td>${item.section_name || '-'}</td>
-                    <td>${item.session_name}</td>
-                    <td>${item.exam_name}</td>
-                    <td class="font-mono">${item.student_id_number}</td>
-                    <td class="capitalize">${item.student_name}</td>
-                    <td>${item.admit_card_number}</td>
-                    <td class="text-center">
-                        <div class="flex justify-center gap-3">
-                            <button onclick='editAdmit(${JSON.stringify(item)})' class="action-icon-btn text-blue-500"><i class="far fa-edit" style="font-size: 15px;"></i></button>
-                            <button onclick="deleteAdmit(${item.id})" class="action-icon-btn text-red-400"><i class="far fa-trash-alt" style="font-size: 15px;"></i></button>
-                        </div>
-                    </td>
-                </tr>`;
+                    const itemJson = JSON.stringify(item).replaceAll("'", '&#39;');
+                    const cell = value => escapeAdmitCardHtml(value ?? '-');
+
+                    body.innerHTML += `<tr class="transition-colors hover:bg-gray-50">
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${meta.from + i}</td>
+                        <td class="h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll" title="${cell(item.class_name)}">${cell(item.class_name)}</div></td>
+                        <td class="h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll" title="${cell(item.group_name)}">${cell(item.group_name)}</div></td>
+                        <td class="h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll" title="${cell(item.section_name)}">${cell(item.section_name)}</div></td>
+                        <td class="h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll" title="${cell(item.session_name)}">${cell(item.session_name)}</div></td>
+                        <td class="h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll" title="${cell(item.exam_name)}">${cell(item.exam_name)}</div></td>
+                        <td class="h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll font-mono" title="${cell(item.student_id_number)}">${cell(item.student_id_number)}</div></td>
+                        <td class="h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll capitalize" title="${cell(item.student_name)}">${cell(item.student_name)}</div></td>
+                        <td class="h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll" title="${cell(item.admit_card_number)}">${cell(item.admit_card_number)}</div></td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
+                            <div class="flex h-8 items-center justify-center space-x-1 mx-auto">
+                                <button type="button" title="Edit admit card" aria-label="Edit admit card" onclick='editAdmit(${itemJson})' class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"><i class="far fa-edit text-sm" aria-hidden="true"></i></button>
+                                <button type="button" title="Delete admit card" aria-label="Delete admit card" onclick="deleteAdmit(${item.id})" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1"><i class="far fa-trash-alt text-sm" aria-hidden="true"></i></button>
+                            </div>
+                        </td>
+                    </tr>`;
                 });
                 renderPagination(meta);
             });
@@ -1728,28 +1438,13 @@
             document.getElementById('btnSpinner').classList.remove('hidden');
             document.getElementById('btnText').textContent = 'Processing...';
 
-            const generateType = document.getElementById('generate_type').value;
-            let finalStudents = studentsList;
-
-            if (generateType === 'single') {
-                const selectedId = document.getElementById('student_id').value;
-                if (!selectedId) {
-                    Swal.fire('Warning', 'Please select a student', 'warning');
-                    btn.disabled = false;
-                    document.getElementById('btnSpinner').classList.add('hidden');
-                    document.getElementById('btnText').textContent = 'Generate';
-                    return;
-                }
-                finalStudents = studentsList.filter(s => s.student_id_number === selectedId);
-            }
-
             const payload = {
                 class_name: document.getElementById('class_name').value,
                 group_name: document.getElementById('group_name').value,
                 section_name: document.getElementById('section_name').value,
                 session_name: document.getElementById('session_name').value,
                 exam_name: document.getElementById('exam_name').value,
-                students: finalStudents
+                students: studentsList
             };
 
             const request = editId ? axios.put(`/api/school-exam-admit-cards/${editId}`, payload) : axios.post(
@@ -1796,6 +1491,16 @@
             toggleFilterModal();
         }
 
+        function restoreAdmitSearch() {
+            const desktopSearch = document.getElementById('header_search');
+            const mobileSearch = document.getElementById('header_search_mobile');
+
+            if (desktopSearch) desktopSearch.value = '';
+            if (mobileSearch) mobileSearch.value = '';
+
+            fetchTable(1);
+        }
+
         function resetFilters() {
             const dropdowns = {
                 filter_class_name: 'Select Class',
@@ -1809,8 +1514,7 @@
                 setDropdownValue(id, '', placeholder);
             });
 
-            document.getElementById('header_search').value = '';
-            fetchTable(1);
+            restoreAdmitSearch();
             toggleFilterModal();
         }
 
@@ -1827,9 +1531,6 @@
             setDropdownValue('section_name', '', 'Select Section');
             setDropdownValue('session_name', '', 'Select Session');
             setDropdownValue('exam_name', '', 'Select Exam');
-            setDropdownValue('student_id', '', 'Select Student');
-            setDropdownValue('generate_type', 'all', 'All Students');
-            document.getElementById('single_student_container').classList.add('hidden');
             document.getElementById('studentStatusBox').classList.remove('hidden');
             document.getElementById('admitModal').classList.remove('hidden');
         }
@@ -1869,11 +1570,6 @@
             checkPrerequisiteStatus();
         });
         document.getElementById('exam_name')?.addEventListener('change', checkPrerequisiteStatus);
-        document.getElementById('generate_type')?.addEventListener('change', function() {
-            toggleStudentSelect();
-            updateAdmitSubmitState();
-        });
-        document.getElementById('student_id')?.addEventListener('change', updateAdmitSubmitState);
         document.getElementById('filter_class_name')?.addEventListener('change', function() {
             handleCascade(this, 'filter_group');
         });

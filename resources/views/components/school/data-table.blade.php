@@ -5,6 +5,7 @@
     'frameClass' => 'school-data-table-frame border border-gray-200 bg-white p-2.5 shadow-md sm:p-4',
     'minWidth' => '1068px',
     'showFooter' => false,
+    'tbodyId' => null,
 ])
 
 @once
@@ -87,6 +88,7 @@
     table-class="school-data-table border-collapse border border-gray-300 text-xs"
     head-class="bg-gray-100"
     tbody-class=""
+    :tbody-id="$tbodyId"
     {{ $attributes->class($frameClass) }}
     style="--school-data-table-min-width: {{ $minWidth }}; border-radius:0;"
 >
