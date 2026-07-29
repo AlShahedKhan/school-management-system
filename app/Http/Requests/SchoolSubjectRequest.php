@@ -51,7 +51,7 @@ class SchoolSubjectRequest extends FormRequest
             'marks.mcq_mark'            => ['required', 'integer', 'min:0'],
             'marks.writing_mark'        => ['required', 'integer', 'min:0'],
             'marks.practical_mark'      => ['required', 'integer', 'min:0'],
-            'marks.total_mark'          => ['required', 'integer', 'min:1'],
+            'marks.total_mark'          => ['required', 'integer', 'min:0'],
             'fail_mark'                 => ['required', 'integer', 'min:0'],
         ];
     }
@@ -126,7 +126,7 @@ class SchoolSubjectRequest extends FormRequest
             'marks.practical_mark.min'          => 'Practical Mark minimum value is 0.',
             'marks.total_mark.required'         => 'Total Mark is required.',
             'marks.total_mark.integer'          => 'Total Mark must be an integer.',
-            'marks.total_mark.min'              => 'Total Mark must be greater than 0.',
+            'marks.total_mark.min'              => 'Total Mark minimum value is 0.',
             'fail_mark.required'                => 'Fail Mark is required.',
             'fail_mark.integer'                 => 'Fail Mark must be an integer.',
             'fail_mark.min'                     => 'Fail Mark minimum value is 0.',
@@ -135,16 +135,37 @@ class SchoolSubjectRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        $marks = [];
-        foreach (['tutorial_mark', 'mcq_mark', 'writing_mark', 'practical_mark', 'total_mark'] as $field) {
-            $value = $this->input($field);
-            if ($value !== null && $value !== '') {
-                $marks[$field] = (int) $value;
-            }
+        $inputMarks = $this->input('marks', []);
+        if (!is_array($inputMarks)) {
+            $inputMarks = [];
         }
 
-        if (!empty($marks)) {
-            $this->merge(['marks' => $marks]);
+        $marks = [];
+        foreach (['tutorial_mark', 'mcq_mark', 'writing_mark', 'practical_mark'] as $field) {
+            $val = $this->input($field) ?? ($inputMarks[$field] ?? null);
+            if ($field === 'writing_mark' && ($val === null || $val === '')) {
+                $val = $this->input('theory_marks') ?? ($inputMarks['theory_marks'] ?? null);
+            }
+            if ($field === 'practical_mark' && ($val === null || $val === '')) {
+                $val = $this->input('practical_marks') ?? ($inputMarks['practical_marks'] ?? null);
+            }
+            $marks[$field] = ($val !== null && $val !== '') ? (int) $val : 0;
         }
+
+        $totalVal = $this->input('total_mark') ?? ($inputMarks['total_mark'] ?? null);
+        $calculatedSum = $marks['tutorial_mark'] + $marks['mcq_mark'] + $marks['writing_mark'] + $marks['practical_mark'];
+        if ($totalVal !== null && $totalVal !== '' && (int) $totalVal > 0) {
+            $marks['total_mark'] = (int) $totalVal;
+        } else {
+            $marks['total_mark'] = $calculatedSum;
+        }
+
+        $failVal = $this->input('fail_mark');
+        $failMark = ($failVal !== null && $failVal !== '') ? (int) $failVal : 0;
+
+        $this->merge([
+            'marks' => $marks,
+            'fail_mark' => $failMark,
+        ]);
     }
 }

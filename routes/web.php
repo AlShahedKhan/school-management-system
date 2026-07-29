@@ -215,6 +215,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         ->names('admin.showcases');
 
     // Admin SMS Settings and Activations
+    Route::get('/admin/sms-credentials', [\App\Http\Controllers\Admin\AdminSmsCredentialController::class, 'index'])->name('admin.sms-credentials');
+    Route::post('/admin/sms-credentials', [\App\Http\Controllers\Admin\AdminSmsCredentialController::class, 'update'])->name('admin.sms-credentials.update');
     Route::get('/admin/sms-templates', [AdminSmsCampaignController::class, 'templatesIndex'])->name('admin.sms-templates');
     Route::post('/admin/sms-templates', [AdminSmsCampaignController::class, 'saveTemplate'])->name('admin.sms-templates.save');
     Route::delete('/admin/sms-templates/{id}', [AdminSmsCampaignController::class, 'destroyTemplate'])->name('admin.sms-templates.destroy');
@@ -265,6 +267,8 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
     // Teacher & Student
     Route::get('/school/teacher-registration', [DashboardController::class, 'teacherRegistration'])
         ->name('school.teacher-registration');
+    Route::get('/school/get-teachers-data', [\App\Http\Controllers\Api\SchoolTeacherController::class, 'index'])
+        ->name('school.teachers.data');
     Route::get('/school/teacher-id-card', [DashboardController::class, 'underConstruction'])
         ->name('school.teacher-id-card');
     Route::get('/school/teacher-attendance', [DashboardController::class, 'underConstruction'])
@@ -472,7 +476,10 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
     Route::get('/school/design-id-card', [DashboardController::class, 'underConstruction'])
         ->name('school.design-id-card');
 
-    Route::get('/school/design-sms', [DashboardController::class, 'underConstruction'])
+    Route::get('/school/sms-settings', [DashboardController::class, 'smsSettings'])
+        ->name('school.sms-settings');
+
+    Route::get('/school/design-sms', [DashboardController::class, 'smsSettings'])
         ->name('school.design-sms');
 
     Route::get('/school/ai-call-registration', [DashboardController::class, 'underConstruction'])

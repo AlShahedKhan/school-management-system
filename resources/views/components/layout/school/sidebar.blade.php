@@ -493,6 +493,11 @@
         </div>
     </div>
 
+    <a href="{{ route('school.sms-settings') }}" data-title="SMS Settings" data-link class="sidebar-item">
+        <i class="hgi hgi-stroke hgi-rounded hgi-message-01 w-4"></i>
+        SMS Settings
+    </a>
+
     {{-- <div class="sidebar-group">
 <div class="sidebar-group-toggle">
     <span>
@@ -641,4 +646,6 @@
         </div>
     </div>
 </x-layout.sidebar>
+
+@include('school.partials.sms-settings-modal')
 

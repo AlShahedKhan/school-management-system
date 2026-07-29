@@ -140,11 +140,11 @@
                     await initData();
                 }
                 setSelectedValue('class_id', newClass.id);
-            } else if (window.lastActiveModalId === 'quickSubjectModal') {
+            } else if (window.lastActiveModalId === 'filterModal') {
                 const classRes = await axios.get('{{ url('/api/get-school-classes') }}');
                 const classesOptions = classRes.data.data.map(c => ({ value: c.id, label: c.class_name }));
-                populateDropdownSelect('quick_subject_class', classesOptions, '', 'Select Class');
-                setSelectedValue('quick_subject_class', newClass.id);
+                populateDropdownSelect('classFilter', classesOptions, '', 'Select Class');
+                setSelectedValue('classFilter', newClass.id);
             }
 
             closeQuickModal('quickClassModal');
@@ -212,13 +212,13 @@
                     filterDependents();
                     setSelectedValue('group_id', newGroup.id);
                 }
-            } else if (window.lastActiveModalId === 'quickSubjectModal') {
-                const currentClassId = document.getElementById('quick_subject_class').value;
+            } else if (window.lastActiveModalId === 'filterModal') {
+                const currentClassId = document.getElementById('classFilter').value;
                 if (currentClassId == classId) {
                     const r = await axios.get('{{ url('/api/get-school-groups') }}', { params: { class_id: classId } });
                     const groupsOptions = r.data.data.map(g => ({ value: g.id, label: g.group_name }));
-                    populateDropdownSelect('quick_subject_group', groupsOptions, '', 'Select Group');
-                    setSelectedValue('quick_subject_group', newGroup.id);
+                    populateDropdownSelect('groupFilter', groupsOptions, '', 'Select Group');
+                    setSelectedValue('groupFilter', newGroup.id);
                 }
             }
 
@@ -292,14 +292,14 @@
                     filterDependents();
                     setSelectedValue('section_id', newSec.id);
                 }
-            } else if (window.lastActiveModalId === 'quickSubjectModal') {
-                const currentClassId = document.getElementById('quick_subject_class').value;
-                const currentGroupId = document.getElementById('quick_subject_group').value;
-                if (currentClassId == classId && currentGroupId == groupId) {
-                    const r = await axios.get('{{ url('/api/get-school-sections') }}', { params: { group_id: groupId } });
+            } else if (window.lastActiveModalId === 'filterModal') {
+                const currentClassId = document.getElementById('classFilter').value;
+                const currentGroupId = document.getElementById('groupFilter').value;
+                if (currentClassId == classId && (!groupId || currentGroupId == groupId)) {
+                    const r = await axios.get('{{ url('/api/get-school-sections') }}', { params: { class_id: classId, group_id: groupId || '' } });
                     const sectionsOptions = r.data.data.map(sec => ({ value: sec.id, label: sec.section_name }));
-                    populateDropdownSelect('quick_subject_section', sectionsOptions, '', 'Select Section');
-                    setSelectedValue('quick_subject_section', newSec.id);
+                    populateDropdownSelect('sectionFilter', sectionsOptions, '', 'Select Section');
+                    setSelectedValue('sectionFilter', newSec.id);
                 }
             }
 
@@ -413,6 +413,14 @@
                     }
                     setSelectedValue('bulkSession', newSession.id);
                 }
+            } else if (window.lastActiveModalId === 'filterModal') {
+                const filterClassId = document.getElementById('classFilter').value;
+                if (!filterClassId || filterClassId == classId) {
+                    const r = await axios.get('{{ url('/api/get-school-sessions') }}', { params: { class_id: classId } });
+                    const sessionsOptions = r.data.data.map(s => ({ value: s.id, label: s.session_year }));
+                    populateDropdownSelect('sessionFilter', sessionsOptions, '', 'Select Session');
+                    setSelectedValue('sessionFilter', newSession.id);
+                }
             } else {
                 if (typeof loadDestSessions === 'function') {
                     await loadDestSessions();
@@ -462,15 +470,28 @@
         }
 
         try {
+            const theoryVal = parseInt(theoryMarks) || 0;
+            const practicalVal = parseInt(practicalMarks) || 0;
+            const totalVal = theoryVal + practicalVal;
+
             const res = await axios.post('/api/school-subjects', {
                 class_id: classId,
                 group_id: groupId || null,
                 section_id: sectionId,
                 subject_name: subjectName,
                 subject_code: subjectCode || null,
+                tutorial_mark: 0,
+                mcq_mark: 0,
+                writing_mark: theoryVal,
+                practical_mark: practicalVal,
+                total_mark: totalVal,
+                fail_mark: 0,
                 marks: {
-                    theory_marks: theoryMarks || null,
-                    practical_marks: practicalMarks || null
+                    tutorial_mark: 0,
+                    mcq_mark: 0,
+                    writing_mark: theoryVal,
+                    practical_mark: practicalVal,
+                    total_mark: totalVal,
                 }
             });
             const newSub = res.data;

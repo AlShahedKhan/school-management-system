@@ -25,10 +25,10 @@
 
 <x-modal
     :id="$id"
-    :panel-class="$panelClass"
+    :panel-class="$panelClass . ' pointer-events-auto'"
     :panel-style="$panelStyle"
     {{ $attributes->class([
-        'fixed inset-0 z-[100] hidden flex items-center justify-center overflow-y-auto bg-slate-950/30 px-4 py-5 sm:px-6',
+        'fixed inset-0 z-[100] hidden pointer-events-none flex items-center justify-center overflow-y-auto px-4 py-5 sm:px-6',
     ])->merge([
         'role' => 'dialog',
         'aria-modal' => 'true',

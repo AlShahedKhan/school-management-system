@@ -1,11 +1,17 @@
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('discountForm');
-    if (!form) return;
-    const inputs = form.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-        input.addEventListener('invalid', function() { this.classList.add('border-red-500'); });
-        input.addEventListener('input', function() { this.classList.remove('border-red-500'); });
-    });
-});
+    function clearDiscountErrors() {
+        document.querySelectorAll('#discountForm [id$="_error"]').forEach(function(el) {
+            el.textContent = '';
+            el.classList.add('hidden');
+        });
+    }
+    function showDiscountErrors(errors) {
+        Object.keys(errors).forEach(function(field) {
+            const element = document.getElementById(field + '_error');
+            if (element) {
+                element.textContent = errors[field][0];
+                element.classList.remove('hidden');
+            }
+        });
+    }
 </script>

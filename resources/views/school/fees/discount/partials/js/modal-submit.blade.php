@@ -2,6 +2,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('discountForm').addEventListener('submit', async function(e) {
         e.preventDefault();
+        clearDiscountErrors();
         const id = document.getElementById('edit_id').value;
         const method = id ? 'PUT' : 'POST';
         const url = id ? `/api/fee-discounts/${id}` : '/api/fee-discounts';
@@ -43,12 +44,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 200);
             }, 200);
         } catch (err) {
-            const msg = err.response?.data?.message || 'Something went wrong';
-            let errorHtml = '';
-            if (err.response?.data?.errors) {
-                errorHtml = Object.values(err.response.data.errors).flat().map(e => `<li>${e}</li>`).join('');
+            if (err.response?.status === 422 && err.response?.data?.errors) {
+                showDiscountErrors(err.response.data.errors);
+                return;
             }
-            Swal.fire({ icon: 'error', title: 'Error', html: errorHtml || msg });
+            Swal.fire({ icon: 'error', title: 'Error', text: err.response?.data?.message || 'Something went wrong' });
         }
     });
 });

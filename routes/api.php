@@ -203,6 +203,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/school/student-import/template', [SchoolBulkUploadController::class, 'downloadTemplate']);
     Route::post('/school/student-import/upload',  [SchoolBulkUploadController::class, 'upload']);
 
+    // School SMS Settings
+    Route::get('/school/sms-settings', [\App\Http\Controllers\Api\SchoolSmsSettingController::class, 'index']);
+    Route::post('/school/sms-settings', [\App\Http\Controllers\Api\SchoolSmsSettingController::class, 'store']);
+
     // Modified on 2026-07-07: Student Promotion API routes (added promote history)
     Route::get('/school/promote/students', [\App\Http\Controllers\Api\SchoolPromoteController::class, 'getStudents']);
     Route::get('/school/promote/history', [\App\Http\Controllers\Api\SchoolPromoteController::class, 'getPromotionHistory']);
@@ -261,9 +265,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     // Fees (New: Templates + Student Fees)
+    Route::get('student-fees/by-student', [SchoolStudentFeeController::class, 'getStudentFees']);
     Route::apiResource('fee-templates', SchoolFeeTemplateController::class);
     Route::apiResource('student-fees', SchoolStudentFeeController::class);
-    Route::get('student-fees/by-student', [SchoolStudentFeeController::class, 'getStudentFees']);
     Route::post('fee-templates/{id}/generate-fees', [SchoolFeeTemplateController::class, 'generateStudentFees']);
 
     // Discounts (New system)

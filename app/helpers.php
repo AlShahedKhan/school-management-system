@@ -34,14 +34,12 @@ if (! function_exists('bn_number')) {
     }
 }
 
-if (! function_exists('generate_school_common_id_number')) {
+if (! function_exists('generate_school_common_next_serial')) {
     /**
-     * Generate common sequential 11-digit ID for students and teachers.
-     * Added on 2026-07-11
+     * Get the next integer serial number for a school's ID generation.
      */
-    function generate_school_common_id_number($schoolId): string
+    function generate_school_common_next_serial($schoolId): int
     {
-        // Resolve school record (accepts school user ID or school table ID)
         $school = \App\Models\School::find($schoolId) ?? \App\Models\School::where('user_id', $schoolId)->first();
         if (!$school) {
             throw new \Exception("School profile not found for school_id: {$schoolId}");
@@ -50,28 +48,43 @@ if (! function_exists('generate_school_common_id_number')) {
         $schoolUser = \App\Models\User::find($school->user_id);
         $schoolPrefix = $schoolUser?->id_number ? substr($schoolUser->id_number, -5) : '00000';
 
-        // 1. Fetch max suffix from AdmissionStudent table (using school user ID)
         $lastStudent = \App\Models\AdmissionStudent::where('school_id', $school->user_id)
             ->where('student_id_number', 'LIKE', $schoolPrefix . '%')
-            ->orderBy('student_id_number', 'desc')
+            ->orderByRaw('CAST(RIGHT(student_id_number, 6) AS UNSIGNED) DESC')
             ->first();
         $lastStudentSerial = $lastStudent?->student_id_number ? (int) substr($lastStudent->student_id_number, -6) : 0;
 
-        // 2. Fetch max suffix from Teacher table (using school table ID)
         $lastTeacher = \App\Models\Teacher::where('school_id', $school->id)
             ->where('id_number', 'LIKE', $schoolPrefix . '%')
-            ->orderBy('id_number', 'desc')
+            ->orderByRaw('CAST(RIGHT(id_number, 6) AS UNSIGNED) DESC')
             ->first();
         $lastTeacherSerial = $lastTeacher?->id_number ? (int) substr($lastTeacher->id_number, -6) : 0;
 
-        // 3. Fetch max suffix from User table (using school prefix)
         $lastUser = \App\Models\User::where('id_number', 'LIKE', $schoolPrefix . '%')
-            ->orderBy('id_number', 'desc')
+            ->orderByRaw('CAST(RIGHT(id_number, 6) AS UNSIGNED) DESC')
             ->first();
         $lastUserSerial = $lastUser?->id_number ? (int) substr($lastUser->id_number, -6) : 0;
 
-        // 4. Increment the highest active sequence serial
-        $nextSerial = max($lastStudentSerial, $lastTeacherSerial, $lastUserSerial) + 1;
+        return max($lastStudentSerial, $lastTeacherSerial, $lastUserSerial) + 1;
+    }
+}
+
+if (! function_exists('generate_school_common_id_number')) {
+    /**
+     * Generate common sequential 11-digit ID for students and teachers.
+     * Added on 2026-07-11
+     */
+    function generate_school_common_id_number($schoolId): string
+    {
+        $school = \App\Models\School::find($schoolId) ?? \App\Models\School::where('user_id', $schoolId)->first();
+        if (!$school) {
+            throw new \Exception("School profile not found for school_id: {$schoolId}");
+        }
+
+        $schoolUser = \App\Models\User::find($school->user_id);
+        $schoolPrefix = $schoolUser?->id_number ? substr($schoolUser->id_number, -5) : '00000';
+
+        $nextSerial = generate_school_common_next_serial($schoolId);
 
         return $schoolPrefix . str_pad($nextSerial, 6, '0', STR_PAD_LEFT);
     }

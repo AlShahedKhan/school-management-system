@@ -387,6 +387,9 @@
                 id="teacherFilter"
                 name="teacher_id"
                 placeholder="Select Teacher..."
+                add-button-id="add_filter_teacher_btn"
+                add-button-label="Add Teacher"
+                add-button-target="teacherModal"
             />
             <x-input.floating-label for="teacherFilter" :floating="false">Teacher</x-input.floating-label>
         </div>

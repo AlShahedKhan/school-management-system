@@ -208,10 +208,14 @@ class ProcessStudentImportJob implements ShouldQueue
 
             // ── PROCESSING PASS (chunks of 500) ─────────────────────────────
             $processed = 0;
+            $schoolPrefix = $schoolUser->id_number ? substr($schoolUser->id_number, -5) : '00000';
+            $nextSerial = generate_school_common_next_serial($schoolUser->id);
 
             foreach (array_chunk($dataRows, 500) as $chunk) {
-                DB::transaction(function () use ($chunk, $classMap, $sectionMap, $sessionMap, $groupMap, $schoolUser) {
+                DB::transaction(function () use ($chunk, $classMap, $sectionMap, $sessionMap, $groupMap, $schoolUser, $schoolPrefix, &$nextSerial) {
                     foreach ($chunk as $row) {
+                        $studentIdNumber = $schoolPrefix . str_pad($nextSerial++, 6, '0', STR_PAD_LEFT);
+
                         $guardian = Guardian::create([
                             'name'     => !empty($row['guardian_name'])     ? $row['guardian_name']     : 'N/A',
                             'relation' => !empty($row['guardian_relation']) ? $row['guardian_relation'] : 'N/A',
@@ -260,14 +264,14 @@ class ProcessStudentImportJob implements ShouldQueue
                             'permanent_village'  => $row['permanent_village'],
                             // Modified on 2026-07-07: Use Active status by default for admitted students
                             'status'             => 'Active',
-                        ]); // AdmissionStudent booted() auto-generates student_id_number
+                        ]);
 
                         User::create([
                             'role'        => 'student',
                             'name'        => $row['student_name'],
                             'school_name' => $schoolUser->school_name,
                             'mobile'      => $row['mobile'],
-                            'id_number'   => $admission->student_id_number ?? '',
+                            'id_number'   => $studentIdNumber,
                             // Modified on 2026-07-06: set default password to '00000000'
                             'password'    => Hash::make('00000000'),
                         ]);

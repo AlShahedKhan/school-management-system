@@ -4,10 +4,15 @@
     'label' => 'Options',
     'align' => 'left',
     'variant' => 'secondary',
+    'menuClass' => '',
 ])
 
 @php
-    $alignmentClass = $align === 'right' ? 'right-0 left-auto' : 'left-0 right-auto';
+    $alignmentClass = match($align) {
+        'right' => 'right-0 left-auto min-w-full w-max',
+        'full'  => 'left-0 right-0 w-full',
+        default => 'left-0 right-auto min-w-full w-max',
+    };
 @endphp
 
 <div {{ $attributes->class(['relative w-full lg:w-auto']) }}>
@@ -38,7 +43,7 @@
     <div
         id="{{ $menuId }}"
         role="menu"
-        class="absolute {{ $alignmentClass }} z-50 mt-1 hidden max-h-[180px] min-w-full w-max max-w-[calc(100vw-2rem)] overflow-y-auto border border-slate-200 bg-white shadow-lg"
+        class="absolute {{ $alignmentClass }} z-50 mt-1 hidden max-h-[220px] max-w-[calc(100vw-2rem)] overflow-y-auto border border-slate-200 bg-white shadow-lg {{ $menuClass }}"
     >
         {{ $slot }}
     </div>

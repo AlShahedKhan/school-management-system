@@ -259,6 +259,12 @@ class SchoolBulkUploadController extends Controller
 
             'mobile'             => 'required|string',
 
+            'dob'                => 'nullable|string',
+
+            'nid_birth_certificate' => 'nullable|string',
+
+            'blood_group'        => 'nullable|string',
+
             'current_country'    => 'nullable|string',
 
             'current_division'   => 'required|string',
@@ -378,6 +384,12 @@ class SchoolBulkUploadController extends Controller
                         'mother_name'        => $row['mother_name'],
 
                         'mobile'             => $row['mobile'],
+
+                        'dob'                => !empty($row['dob']) ? $row['dob'] : null,
+
+                        'nid_birth_certificate' => !empty($row['nid_birth_certificate']) ? $row['nid_birth_certificate'] : null,
+
+                        'blood_group'        => !empty($row['blood_group']) ? $row['blood_group'] : null,
 
                         'password'           => Hash::make('00000000'),
 

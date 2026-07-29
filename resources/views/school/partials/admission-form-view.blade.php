@@ -378,31 +378,31 @@
                             display: none !important;
                             visibility: hidden !important;
                         }
-                        /* Compact for single A4 page */
-                        .adm-header { padding: 6px 12px 6px 70px !important; }
-                        .adm-header h1 { font-size: 17px !important; }
-                        .adm-header-logo { width: 50px !important; height: 50px !important; }
-                        .adm-contact-info { font-size: 10px !important; margin-top: 4px !important; }
-                        .adm-address-info { font-size: 9.5px !important; margin-top: 3px !important; }
-                        .adm-form-body { padding: 6px 14px !important; }
-                        .adm-form-title { font-size: 15px !important; padding: 2px 16px !important; }
-                        .adm-title-area { margin-bottom: 5px !important; }
-                        .adm-date-section { font-size: 11px !important; }
-                        .adm-date-box { font-size: 10px !important; padding: 1px 5px !important; }
-                        .adm-top-meta { margin-bottom: 6px !important; gap: 10px !important; }
-                        .adm-photo-box { width: 75px !important; height: 90px !important; }
-                        .adm-meta-label { font-size: 10px !important; padding: 2px 5px !important; }
-                        .adm-meta-value { font-size: 11px !important; height: 20px !important; }
-                        .adm-section-header { font-size: 12px !important; padding: 1px 8px !important; margin: 5px 0 4px !important; }
-                        .adm-form-row, .adm-guardian-row { margin-bottom: 4px !important; font-size: 11.5px !important; }
-                        .adm-label-text { font-size: 11.5px !important; width: 105px !important; }
-                        .adm-input-line { font-size: 11.5px !important; min-height: 15px !important; }
-                        .adm-dropdown-grid { margin-top: 4px !important; margin-bottom: 4px !important; gap: 5px !important; }
-                        .adm-dropdown-label { font-size: 9.5px !important; padding: 0 4px !important; }
-                        .adm-dropdown-value { font-size: 10px !important; padding: 0 4px !important; }
-                        .adm-footer-section { margin-top: 15px !important; }
-                        .adm-signature-area { font-size: 11.5px !important; width: 180px !important; margin-top: 10px !important; }
-                        .adm-guardian-relation-label { font-size: 11.5px !important; }
+                        /* Proportionate for full A4 page height */
+                        .adm-header { padding: 12px 15px 12px 85px !important; }
+                        .adm-header h1 { font-size: 22px !important; }
+                        .adm-header-logo { width: 62px !important; height: 62px !important; }
+                        .adm-contact-info { font-size: 11.5px !important; margin-top: 5px !important; }
+                        .adm-address-info { font-size: 11px !important; margin-top: 4px !important; }
+                        .adm-form-body { padding: 14px 20px !important; }
+                        .adm-form-title { font-size: 16px !important; padding: 3px 20px !important; }
+                        .adm-title-area { margin-bottom: 12px !important; }
+                        .adm-date-section { font-size: 13px !important; }
+                        .adm-date-box { font-size: 12px !important; padding: 2px 8px !important; }
+                        .adm-top-meta { margin-bottom: 12px !important; gap: 14px !important; }
+                        .adm-photo-box { width: 90px !important; height: 108px !important; }
+                        .adm-meta-label { font-size: 12px !important; padding: 3px 8px !important; }
+                        .adm-meta-value { font-size: 13px !important; height: 26px !important; }
+                        .adm-section-header { font-size: 13.5px !important; padding: 3px 12px !important; margin: 10px 0 8px !important; }
+                        .adm-form-row, .adm-guardian-row { margin-bottom: 8.5px !important; font-size: 13px !important; }
+                        .adm-label-text { font-size: 13px !important; width: 120px !important; }
+                        .adm-input-line { font-size: 13px !important; min-height: 20px !important; }
+                        .adm-dropdown-grid { margin-top: 8px !important; margin-bottom: 8px !important; gap: 8px !important; }
+                        .adm-dropdown-label { font-size: 11.5px !important; padding: 0 8px !important; }
+                        .adm-dropdown-value { font-size: 11.5px !important; padding: 0 8px !important; }
+                        .adm-footer-section { margin-top: 35px !important; }
+                        .adm-signature-area { font-size: 13px !important; width: 220px !important; margin-top: 20px !important; }
+                        .adm-guardian-relation-label { font-size: 13px !important; }
                     }
                 </style>
 

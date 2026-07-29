@@ -8,9 +8,11 @@
 @endpush
 
 @section('content')
-    <div class="teacher-registration-page">
-        @include('school.teacher.partials.header')
-        @include('school.teacher.partials.table')
+    <div class="main-view-container">
+        <div class="max-w-full mx-auto w-full">
+            @include('school.teacher.partials.header')
+            @include('school.teacher.partials.table')
+        </div>
     </div>
 
     @include('school.teacher.partials.teacher-modal')

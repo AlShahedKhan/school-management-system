@@ -306,7 +306,7 @@
                 const res = await axios.get('/api/student-fees/by-student', { params: { student_id: studentId, all: true } });
                 const allFees = res.data.data || [];
                 const fees = allFees.filter(f => f.status !== 'paid');
-                const items = fees.map(f => ({ id: f.fee_template_id, fee_name: f.fee_type_name + ' - ' + (f.fee_name || '') + ' (' + f.amount + ')', amount: f.amount, name: f.fee_name }));
+                const items = fees.map(f => ({ id: f.fee_template_id, fee_name: f.fee_type_name + ' - ' + (f.fee_name || '') + ' (' + f.base_amount + ')', amount: f.base_amount, name: f.fee_name }));
                 populateDropdown('discountFeeTypeMenu', items, 'id', 'fee_name');
 
                 items.forEach(f => {

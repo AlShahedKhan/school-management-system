@@ -21,4 +21,5 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     @include('school.student.partials.js.student-js')
+    @include('school.partials.quick-add-js')
 @endpush

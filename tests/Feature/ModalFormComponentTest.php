@@ -88,11 +88,10 @@ class ModalFormComponentTest extends TestCase
             'teacherMobile',
             'teacherMobileError',
             'teacherEmail',
-            'passInput',
-            'confirmPassInput',
-            'teacherDob',
+            'teacherSalary',
+            'teacherSalaryStartDate',
+            'teacherPayDate',
             'photoInput',
-            'imagePreview',
             'closeTeacherModal',
         ];
 

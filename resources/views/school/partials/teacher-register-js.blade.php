@@ -148,6 +148,7 @@
                   params: {
                       search,
                       teacher_id: teacherId,
+                      per_page: 30,
                       page
                   }
               })
@@ -303,23 +304,32 @@
                   }).showToast();
                   teacherModal.classList.add('hidden');
                   
-                  if (typeof fetchTeachers === 'function') {
+                  if (document.getElementById('teacherTableBody')) {
                       fetchTeachers(currentPage);
                   } else {
-                      const newTeacher = res.data && res.data.data ? res.data.data : null;
-                      if (newTeacher && typeof initData === 'function') {
-                          initData().then(() => {
-                              if (window.lastActiveModalId) {
-                                  document.getElementById(window.lastActiveModalId)?.classList.remove('hidden');
-                                  if (window.lastActiveModalId === 'permModal') {
+                      const resData = res.data && res.data.data ? res.data.data : (res.data || null);
+                      const newTeacher = resData && resData.teacher ? resData.teacher : resData;
+                      const handleModalRestore = () => {
+                          if (window.lastActiveModalId) {
+                              document.getElementById(window.lastActiveModalId)?.classList.remove('hidden');
+                              if (window.lastActiveModalId === 'permModal' && newTeacher && newTeacher.id) {
+                                  if (typeof setSelectedValue === 'function') {
                                       setSelectedValue('teacher_id', newTeacher.id);
                                   }
-                                  window.lastActiveModalId = null;
                               }
-                          });
-                      } else if (window.lastActiveModalId) {
-                          document.getElementById(window.lastActiveModalId)?.classList.remove('hidden');
-                          window.lastActiveModalId = null;
+                              window.lastActiveModalId = null;
+                          }
+                      };
+
+                      if (typeof initData === 'function') {
+                          const resInit = initData();
+                          if (resInit && typeof resInit.then === 'function') {
+                              resInit.then(handleModalRestore);
+                          } else {
+                              handleModalRestore();
+                          }
+                      } else {
+                          handleModalRestore();
                       }
                   }
               }).catch(err => {

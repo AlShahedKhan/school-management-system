@@ -36,7 +36,7 @@
 >
     <x-slot:columns>
         <colgroup>
-            <col style="width: 3%;"><col style="width: 12%;"><col style="width: 10%;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 10%;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 7%;">
+            <col style="width: 3%;"><col style="width: 12%;"><col style="width: 10%;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 10%;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 8%;">
         </colgroup>
     </x-slot:columns>
     <x-slot:head>
@@ -50,7 +50,6 @@
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Paid</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Due</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Status</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">Action</x-table.th>
     </x-slot:head>
     <x-slot:footer>
         <div class="flex items-center justify-between px-4 py-2">

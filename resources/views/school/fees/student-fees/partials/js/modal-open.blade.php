@@ -8,4 +8,8 @@
     function closeFeeModal() {
         document.getElementById('feeModal').classList.add('hidden');
     }
+    document.addEventListener('DOMContentLoaded', function() {
+        const closeBtn = document.getElementById('closeFeeModal');
+        if (closeBtn) closeBtn.addEventListener('click', closeFeeModal);
+    });
 </script>
