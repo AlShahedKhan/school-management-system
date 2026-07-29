@@ -975,12 +975,12 @@ class DashboardController extends Controller
 
     public function payment()
     {
-        return view('school.payment');
+        return view('school.fees.collection.index');
     }
 
     public function dueList()
     {
-        return view('school.due-list');
+        return view('school.fees.due-collection.index');
     }
 
     public function studentFees()
