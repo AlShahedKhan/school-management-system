@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\DB;
 
 class AdmissionStudent extends Model
@@ -206,5 +207,13 @@ class AdmissionStudent extends Model
     public function isActive()
     {
         return $this->status === 'Active' || strtolower($this->status) === 'active';
+    }
+
+    /**
+     * Get all of the student's attendances.
+     */
+    public function attendances(): MorphMany
+    {
+        return $this->morphMany(Attendance::class, 'attendable');
     }
 }
