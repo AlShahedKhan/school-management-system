@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\AdmissionStudent;
 use App\Models\SchoolExamName;
+use App\Observers\AdmissionStudentObserver;
 use App\Observers\SchoolExamNameObserver;
 use App\Support\BrandAssetResolver;
 use App\Support\HomePageContentResolver;
@@ -28,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         SchoolExamName::observe(SchoolExamNameObserver::class);
+        AdmissionStudent::observe(AdmissionStudentObserver::class);
 
         View::composer(['layouts.public', 'auth.landing'], function ($view) {
             $view->with('brandAssets', app(BrandAssetResolver::class)->resolve());
