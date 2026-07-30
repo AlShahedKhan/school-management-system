@@ -21,15 +21,30 @@
         });
 
         try {
+            let response;
             if (id) {
-                await axios.put(`/api/school-exam-grades/${id}`, { ...grades[0], full_mark });
+                response = await axios.put(`/api/school-exam-grades/${id}`, { ...grades[0], full_mark });
             } else {
-                await axios.post('/api/school-exam-grades', { full_mark, grades });
+                response = await axios.post('/api/school-exam-grades', { full_mark, grades });
             }
 
+            const gradeModal = document.getElementById('gradeModal');
+            const returnModalId = gradeModal?.dataset.returnModalId || null;
+            const gradeSavedEvent = new CustomEvent('school:grade-saved', {
+                cancelable: true,
+                detail: {
+                    fullMark: full_mark,
+                    response: response?.data || null,
+                    returnModalId,
+                    isNew: !id,
+                },
+            });
+            document.dispatchEvent(gradeSavedEvent);
             closeGradeModal();
             Toastify({ text: 'Grade saved successfully!', style: { background: '#10b981' }, duration: 3000 }).showToast();
-            fetchGrades(currentPage);
+            if (!gradeSavedEvent.defaultPrevented && typeof fetchGrades === 'function') {
+                fetchGrades(typeof currentPage === 'undefined' ? 1 : currentPage);
+            }
         } catch (err) {
             if (err.response?.status === 422) {
                 const errors = err.response.data.errors;

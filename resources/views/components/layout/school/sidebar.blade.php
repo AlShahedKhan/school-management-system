@@ -244,8 +244,8 @@
                 Set Number
             </a>
 
-            <!-- Mark Submit -->
-            <a href="{{ route('school.mark-submit') }}" data-title="Mark Submit" data-link
+            <!-- Mark Entry -->
+            <a href="{{ route('school.mark-submit') }}" data-title="Mark Entry" data-link
                 class="sidebar-subitem">
                 <i class="hgi hgi-stroke hgi-rounded hgi-edit-01"></i>
                 Subject Mark
@@ -648,4 +648,3 @@
 </x-layout.sidebar>
 
 @include('school.partials.sms-settings-modal')
-

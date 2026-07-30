@@ -234,6 +234,7 @@ class ProcessStudentImportJob implements ShouldQueue
                         $admission = AdmissionStudent::create([
                             'school_id'          => $schoolUser->id,
                             'school'             => $schoolUser->school_name,
+                            'student_id_number'  => $studentIdNumber,
                             'class_id'           => $classMap[mb_strtolower(trim($row['class']))]->id,
                             'section_id'         => $sectionMap[mb_strtolower(trim($row['section']))]->id,
                             'session_id'         => $sessionMap[mb_strtolower(trim($row['session']))]->id,

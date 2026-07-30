@@ -5,12 +5,65 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\SchoolExamMark;
 use App\Models\School;
+use App\Models\SchoolExamGrade;
+use App\Models\SchoolSubject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SchoolExamMarkSubmitController extends Controller
 {
+    private function calculateGrade(int $schoolId, Request $request, float $mark): array
+    {
+        $subjectQuery = SchoolSubject::where('school_id', $schoolId)
+            ->where('subject_name', $request->subject_name);
+
+        if ($request->filled('class_name')) {
+            $subjectQuery->whereHas('school_class', fn ($query) =>
+                $query->where('class_name', $request->class_name));
+        }
+        if ($request->filled('group_name')) {
+            $subjectQuery->whereHas('school_group', fn ($query) =>
+                $query->where('group_name', $request->group_name));
+        }
+        if ($request->filled('section_name')) {
+            $subjectQuery->whereHas('school_section', fn ($query) =>
+                $query->where('section_name', $request->section_name));
+        }
+
+        $subject = $subjectQuery->first()
+            ?? SchoolSubject::where('school_id', $schoolId)
+                ->where('subject_name', $request->subject_name)
+                ->first();
+
+        $gradeReference = $subject?->grade_id
+            ? SchoolExamGrade::where('school_id', $schoolId)->find($subject->grade_id)
+            : null;
+
+        $rules = SchoolExamGrade::where('school_id', $schoolId)
+            ->when($gradeReference, fn ($query) => $query->where('full_mark', $gradeReference->full_mark))
+            ->get();
+
+        $minimumPassingMark = (float) ($subject?->fail_mark ?? 0);
+        if ($minimumPassingMark <= 0) {
+            $minimumPassingMark = (float) ($rules
+                ->filter(fn ($rule) => (float) $rule->grade_point > 0
+                    && !in_array(strtolower(trim((string) $rule->grade_name)), ['f', 'fail', 'failed'], true))
+                ->min('mark_from') ?? 0);
+        }
+
+        if ($mark < $minimumPassingMark) {
+            return ['letter_name' => 'F', 'point' => 0];
+        }
+
+        $matchedRule = $rules->first(fn ($rule) =>
+            $mark >= (float) $rule->mark_from && $mark <= (float) $rule->mark_to);
+
+        return $matchedRule
+            ? ['letter_name' => $matchedRule->grade_name, 'point' => $matchedRule->grade_point]
+            : ['letter_name' => 'F', 'point' => 0];
+    }
+
     public function index(Request $request)
     {
         $school = School::where('user_id', Auth::id())->first();
@@ -36,6 +89,8 @@ class SchoolExamMarkSubmitController extends Controller
 
         return DB::transaction(function () use ($request, $school) {
             foreach ($request->marks_data as $data) {
+                $mark = (float) ($data['mark'] ?? 0);
+                $grade = $this->calculateGrade($school->id, $request, $mark);
                 // Check if entry already exists for this student in this specific exam/subject
                 $exists = SchoolExamMark::where([
                     'school_id' => $school->id,
@@ -73,11 +128,11 @@ class SchoolExamMarkSubmitController extends Controller
                     'student_id_number' => $data['student_id_number'],
                     'student_name' => $data['student_name'],
                     'roll_no' => $data['roll_no'] ?? null,
-                    'mark' => $data['mark'] ?? 0,
+                    'mark' => $mark,
                     'theory_mark' => $data['theory_mark'] ?? 0,
                     'practical_mark' => $data['practical_mark'] ?? 0,
-                    'letter_name' => $data['letter_name'] ?? 'F',
-                    'point' => $data['point'] ?? 0,
+                    'letter_name' => $grade['letter_name'],
+                    'point' => $grade['point'],
                     'status' => $request->status ?? 'published'
                 ]);
             }
@@ -100,6 +155,8 @@ class SchoolExamMarkSubmitController extends Controller
 
         // Update with the first item in marks_data (since update handles 1 record)
         $data = $request->marks_data[0];
+        $markValue = (float) ($data['mark'] ?? 0);
+        $grade = $this->calculateGrade($school->id, $request, $markValue);
 
         $mark->update([
             'class_name' => $request->class_name,
@@ -108,11 +165,11 @@ class SchoolExamMarkSubmitController extends Controller
             'session_name' => $request->session_name,
             'exam_name' => $request->exam_name,
             'subject_name' => $request->subject_name,
-            'mark' => $data['mark'],
+            'mark' => $markValue,
             'theory_mark' => $data['theory_mark'] ?? 0,
             'practical_mark' => $data['practical_mark'] ?? 0,
-            'letter_name' => $data['letter_name'],
-            'point' => $data['point'],
+            'letter_name' => $grade['letter_name'],
+            'point' => $grade['point'],
             'status' => $request->status ?? $mark->status
         ]);
 

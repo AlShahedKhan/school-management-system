@@ -9,129 +9,12 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <style>
-    html,
-    body {
-        max-width: 100vw;
-        overflow-x: hidden;
-        margin: 0;
-        padding: 0;
-    }
-
     .main-view-container {
         display: grid;
         grid-template-columns: minmax(0, 1fr);
         width: 100%;
         padding: .75rem;
         box-sizing: border-box;
-    }
-
-    @media (max-width: 768px) {
-        .main-view-container {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-        }
-    }
-
-
-    .table-card {
-        border: 1px solid #e2e8f0;
-        background: #ffffff;
-        border-radius: 0;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-        width: 100%;
-        overflow: hidden;
-        border-left: none;
-        border-right: none;
-    }
-
-    /* ================= Table Container ================= */
-    .table-responsive {
-        width: 100% !important;
-        overflow-x: auto !important;
-        display: block !important;
-        background: white !important;
-        padding: 15px !important;
-    }
-
-    /* ================= Custom Scrollbar ================= */
-    .table-responsive::-webkit-scrollbar {
-        height: 6px !important;
-    }
-
-    .table-responsive::-webkit-scrollbar-track {
-        background: #f8fafc !important;
-    }
-
-    .table-responsive::-webkit-scrollbar-thumb {
-        background: #cbd5e1 !important;
-        border-radius: 0px !important;
-    }
-
-    /* ================= Table Core ================= */
-    table {
-        width: 100% !important;
-        border-collapse: collapse !important;
-        table-layout: auto !important;
-        border: 1px solid #d1d5db !important;
-        font-size: 11px !important;
-    }
-
-    /* ================= Table Header ================= */
-    th {
-        padding: 0 12px !important;
-        height: 34px !important;
-        line-height: 34px !important;
-        white-space: nowrap !important;
-        background: #f8fafc !important;
-        border-bottom: 1px solid #d1d5db !important;
-        border-right: 1px solid #d1d5db !important;
-        color: #374151 !important;
-        font-weight: 800 !important;
-        vertical-align: middle !important;
-        text-align: left !important;
-        /* Only first letter capitalized */
-        text-transform: capitalize !important;
-        letter-spacing: 0.01em !important;
-    }
-
-    th:last-child {
-        border-right: none !important;
-    }
-
-    /* ================= Table Body ================= */
-    tr {
-        height: 32px !important;
-    }
-
-    td {
-        padding: 0 12px !important;
-        vertical-align: middle !important;
-        border-bottom: 1px solid #d1d5db !important;
-        border-right: 1px solid #d1d5db !important;
-        font-size: 11px !important;
-        color: #4b5563 !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-    }
-
-    td:last-child {
-        border-right: none !important;
-    }
-
-    tbody tr:hover {
-        background: #f9fafb !important;
-    }
-
-    /* ================= Pagination Bar (Balanced Height) ================= */
-    .pagination-bar {
-        padding: 0.6rem 1rem !important;
-        border: 1px solid #d1d5db !important;
-        border-top: none !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        background: #ffffff !important;
-        min-height: 44px !important;
     }
 
     .pagination-btn {
@@ -148,7 +31,6 @@
         font-weight: 900 !important;
         color: #64748b !important;
         border-radius: 0 !important;
-        /* Sharp Brutalism Corners */
         text-transform: uppercase !important;
         transition: all 0.1s ease !important;
     }
@@ -178,434 +60,282 @@
         letter-spacing: 0.05em !important;
     }
 
-    /* ================= Mobile Adjustments ================= */
-    @media (max-width: 768px) {
-
-        th,
-        td {
-            padding: 0 8px !important;
-            height: 30px !important;
-        }
-
-        .pagination-bar {
-            min-height: 38px !important;
-            padding: 0.4rem 0.75rem !important;
-        }
-
-        .pagination-btn {
-            height: 24px !important;
-            min-width: 24px !important;
-        }
-    }
-
-    .form-input-fixed {
-        width: 100%;
-        border: 1px solid #cbd5e1 !important;
-        padding: .5rem .7rem;
-        border-radius: 0;
-        font-size: .85rem;
-        outline: none;
-        background: #fff;
-    }
-
-    .form-input-fixed:focus {
-        border-color: #2563eb !important;
-    }
-
-    .btn-outline-premium {
-        background: transparent;
-        border: 1.5px solid #2563eb;
-        color: #2563eb;
-        font-weight: 600;
-        transition: all .2s ease;
-        border-radius: 0;
-        cursor: pointer;
-    }
-
-    .btn-outline-premium:hover {
-        background: #2563eb;
-        color: #fff;
-    }
-
-    .search-wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-    }
-
-    .search-icon {
-        position: absolute;
-        left: 12px;
-        color: #94a3b8;
-        font-size: 16px;
-        z-index: 10;
-    }
-
-    .search-input-premium {
-        padding-left: 38px !important;
-        border: 1px solid #e2e8f0 !important;
-        background: #fcfcfc;
-        width: 250px;
-        transition: all 0.3s ease;
-    }
-
-    .search-input-premium:focus {
-        width: 300px;
-        border-color: #2563eb !important;
-        background: #fff;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    }
-
     .step-hidden {
         display: none;
     }
 
-    .action-icon {
-        font-size: 18px;
-        cursor: pointer;
-        transition: color 0.2s;
+    .mark-entry-table th,
+    .mark-entry-table td {
+        height: 32px;
+        border: 1px solid #d1d5db;
+        padding: 0 12px;
+        white-space: nowrap;
+        text-align: left;
+        vertical-align: middle;
     }
 
-    .action-icon:hover {
-        color: #2563eb;
+    .mark-entry-table th {
+        background: #f8fafc;
+        color: #475569;
+        font-size: 10px;
+        font-weight: 600;
     }
 
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 5px;
-        /* Vertical width */
-        height: 5px;
-        /* Horizontal height - Must be same */
+    .mark-entry-table td {
+        color: #4b5563;
+        font-size: 11px;
     }
 
-    .custom-scrollbar::-webkit-scrollbar-track {
-        background: #f1f1f1;
+    .mark-entry-input {
+        height: 28px;
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        background: #fff;
+        padding: 0 8px;
+        font-size: 11px;
+        outline: none;
     }
 
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #d1d5db;
-        /* gray-300 */
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #9ca3af;
-        /* gray-400 */
+    .mark-entry-input:focus {
+        border-color: #2563eb;
     }
 </style>
 
 <div class="main-view-container">
     <div class="max-w-full mx-auto w-full">
-        <div class="bg-white border border-gray-200 p-2.5 sm:p-4 mb-4" style="border-radius: 0;">
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <x-school.list-header title="Mark Entry" breadcrumb-current="Mark Entry" keep-title>
+            <x-slot:search>
+                <form class="flex items-center gap-2" onsubmit="event.preventDefault(); fetchTable(1);">
+                    <x-input.search
+                        id="header_search"
+                        placeholder="Student ID/Name..."
+                        class="w-72"
+                        oninput="document.getElementById('header_search_mobile').value = this.value"
+                    />
+                    <x-button.secondary type="button" onclick="restoreMarkSearch()">
+                        Restore
+                    </x-button.secondary>
+                </form>
+            </x-slot:search>
 
-                <div class="w-full lg:w-auto">
-                    <h2 id="pageHeader" class="text-[15px] sm:text-xl text-gray-800 font-normal leading-tight"></h2>
-                    <div class="flex items-center text-slate-400 text-[12px] mt-1">
-                        <span>School</span>
-                        <i class="fas fa-chevron-right mx-1.5 text-[10px]"></i>
-                        <span id="pageTitle" class="text-slate-500"></span>
-                    </div>
+            <x-slot:actions>
+                <x-button.secondary type="button" onclick="toggleFilterModal()" class="w-full">
+                    Filter
+                </x-button.secondary>
 
-                    <div class="relative w-full sm:w-64 mt-3 hidden lg:block">
-                        <i class="mdi mdi-magnify absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="header_search" placeholder="Student ID/Name..."
-                            onkeyup="if(event.key === 'Enter') fetchTable(1)"
-                            class="pl-8 pr-3 py-2 w-full border border-gray-200 text-xs outline-none focus:border-blue-500"
-                            style="border-radius: 0;" />
-                    </div>
-                </div>
+                <x-dropdown button-id="btnMarkExport" menu-id="markExportDropdown" label="Export" align="full">
+                    <x-dropdown.item onclick="exportData('pdf')">PDF</x-dropdown.item>
+                    <x-dropdown.item onclick="exportData('excel')">Excel</x-dropdown.item>
+                    <x-dropdown.item onclick="window.print()">Print</x-dropdown.item>
+                </x-dropdown>
 
-                <div class="flex flex-row items-center gap-1 w-full lg:w-auto">
-                    <button onclick="document.getElementById('filterModal').classList.remove('hidden')"
-                        class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
-                        Filter
-                    </button>
+                <x-button.primary type="button" onclick="openMarkModal()" class="w-full">
+                    Add Mark
+                </x-button.primary>
+            </x-slot:actions>
 
-                    <button onclick="document.getElementById('exportModal').classList.remove('hidden')"
-                        class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
-                        Export
-                    </button>
-
-                    <button onclick="openMarkModal()"
-                        class="btn-outline-premium border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
-                        Add Mark
-                    </button>
-                </div>
-            </div>
-
-            <div class="relative w-full mt-3 lg:hidden">
-                <i class="mdi mdi-magnify absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="header_search_mobile" placeholder="Student ID/Name..."
-                    onkeyup="if(event.key === 'Enter') { document.getElementById('header_search').value = this.value; fetchTable(1); }"
-                    class="pl-8 pr-3 py-1.5 w-full border border-gray-200 text-xs outline-none focus:border-blue-500"
-                    style="border-radius: 0;" />
-            </div>
-        </div>
+            <x-slot:mobile-search>
+                <form class="col-span-3 grid grid-cols-3 gap-2" onsubmit="event.preventDefault(); fetchTable(1);">
+                    <x-input.search
+                        id="header_search_mobile"
+                        placeholder="Student ID/Name..."
+                        class="col-span-2 min-w-0"
+                        oninput="document.getElementById('header_search').value = this.value"
+                    />
+                    <x-button.secondary type="button" onclick="restoreMarkSearch()" class="w-full">
+                        Restore
+                    </x-button.secondary>
+                </form>
+            </x-slot:mobile-search>
+        </x-school.list-header>
 
         {{-- Filter Modal --}}
-        <div id="filterModal"
-            class="premium-modal fixed inset-0 bg-black/50 hidden z-[9999] flex items-center justify-center p-12 sm:p-20"
-            onclick="this.classList.add('hidden')">
-            <div class="bg-white p-4 w-full max-w-[320px] modal-content-sharp shadow-2xl" style="border-radius: 0;"
-                onclick="event.stopPropagation()">
-
-                <div>
-                    <h3
-                        class="text-gray-800 text-[13px] font-medium leading-tight text-center capitalize tracking-normal">
-                        Mark filter
-                    </h3>
-                    <div class="h-[1px] w-full bg-gray-200 mt-2.5"></div>
-                </div>
-
-                <div class="mt-3 mb-4 space-y-3">
-                    {{-- Class Filter --}}
-                    <div class="relative">
-                        <label class="text-[10px] text-gray-500 block mb-1">Class</label>
-                        <div class="relative">
-                            <select id="f_class" onchange="handleCascade(this, 'f_group')"
-                                class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                style="border-radius: 0; height: 32px;">
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                <i class="fas fa-chevron-down text-[9px]"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Exam Filter --}}
-                    <div class="relative">
-                        <label class="text-[10px] text-gray-500 block mb-1">Exam</label>
-                        <div class="relative">
-                            <select id="f_exam"
-                                class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                style="border-radius: 0; height: 32px;">
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                <i class="fas fa-chevron-down text-[9px]"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Subject Filter --}}
-                    <div class="relative">
-                        <label class="text-[10px] text-gray-500 block mb-1">Subject</label>
-                        <div class="relative">
-                            <select id="f_subject"
-                                class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                style="border-radius: 0; height: 32px;">
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                <i class="fas fa-chevron-down text-[9px]"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex gap-2">
-                    <button onclick="resetFilters()"
-                        class="btn-outline-secondary border border-gray-200 w-full text-[11px] capitalize flex items-center justify-center"
-                        style="border-radius: 0; height: 32px;">Reset</button>
-                    <button onclick="applyFilters(); document.getElementById('filterModal').classList.add('hidden');"
-                        class="btn-outline-premium border border-gray-200 w-full text-[11px] capitalize flex items-center justify-center"
-                        style="border-radius: 0; height: 32px;">Apply</button>
-                </div>
-            </div>
-        </div>
-
-        {{-- Export Modal --}}
-        <div id="exportModal"
-            class="premium-modal fixed inset-0 bg-black/50 hidden z-[9999] flex items-center justify-center p-12 sm:p-20"
-            onclick="this.classList.add('hidden')">
-            <div class="bg-white p-4 w-auto min-w-[140px] modal-content-sharp shadow-2xl"
-                onclick="event.stopPropagation()">
-                <div class="flex flex-col gap-1.5">
-                    <button onclick="exportData('pdf')"
-                        class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                        PDF
-                    </button>
-                    <button onclick="exportData('excel')"
-                        class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                        EXCEL
-                    </button>
-                    <button onclick="window.print()"
-                        class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                        PRINT
-                    </button>
-                    <button onclick="document.getElementById('exportModal').classList.add('hidden')"
-                        class="mt-1 py-1.5 text-[10px] text-gray-400 hover:text-gray-600 w-full text-center border border-gray-200 transition-all">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="table-card">
-            <div class="table-responsive">
-                <table class="min-w-[1000px]">
-                    <thead>
-                        <tr>
-                            <th width="50">Sl</th>
-                            <th>Class</th>
-                            <th>Subject</th>
-                            <th>Exam</th>
-                            <th>Student ID</th>
-                            <th>Name</th>
-                            <th>Mark</th>
-                            <th>Grade</th>
-                            <th>Point</th>
-                            <th width="100" class="text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="markTableBody" class="bg-white divide-y divide-gray-100">
-                        <tr>
-                            <td colspan="10" class="text-center py-8 text-gray-400">Loading data...</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <x-modal.form
+            id="filterModal"
+            form-id="markFilterForm"
+            title="Mark Filter"
+            close-button-id="closeMarkFilterModal"
+            title-class="teacher-register-modal-title m-0 text-center font-semibold leading-tight text-slate-800"
+            onsubmit="event.preventDefault(); applyFilters();"
+        >
+            <div class="relative">
+                <x-input.dropdown-select id="f_class" placeholder="Select Class" :options="[]" />
+                <x-input.floating-label for="f_class" :floating="false">Class</x-input.floating-label>
             </div>
 
-            <div class="flex items-center justify-between p-4 bg-white border-t border-gray-100" id="paginationArea">
-                <div class="text-[10px] text-gray-500 font-bold uppercase tracking-widest" id="paginationInfo">
-                    0 of 0
-                </div>
-                <div class="flex items-center gap-1" id="paginationControls">
-                </div>
+            <div class="relative">
+                <x-input.dropdown-select id="f_exam" placeholder="Select Exam" :options="[]" />
+                <x-input.floating-label for="f_exam" :floating="false">Exam</x-input.floating-label>
             </div>
-        </div>
+
+            <div class="relative md:col-span-2">
+                <x-input.dropdown-select id="f_subject" placeholder="Select Subject" :options="[]" />
+                <x-input.floating-label for="f_subject" :floating="false">Subject</x-input.floating-label>
+            </div>
+
+            <x-slot:footer>
+                <div class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
+                    <x-button.secondary type="button" onclick="resetFilters()" class="w-full">Reset</x-button.secondary>
+                    <x-button.primary type="submit" class="w-full">Apply</x-button.primary>
+                </div>
+            </x-slot:footer>
+        </x-modal.form>
+
+        <x-school.data-table
+            :empty="false"
+            :empty-colspan="10"
+            empty-message="No marks found."
+            show-footer="true"
+            min-width="1068px"
+            tbody-id="markTableBody"
+        >
+            <x-slot:columns>
+                <colgroup>
+                    <col style="width:45px;">
+                    <col style="width:90px;">
+                    <col style="width:130px;">
+                    <col style="width:125px;">
+                    <col style="width:145px;">
+                    <col style="width:170px;">
+                    <col style="width:85px;">
+                    <col style="width:80px;">
+                    <col style="width:70px;">
+                    <col style="width:100px;">
+                </colgroup>
+            </x-slot:columns>
+
+            <x-slot:head>
+                <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">Sl</x-table.th>
+                <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Class</x-table.th>
+                <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Subject</x-table.th>
+                <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Exam</x-table.th>
+                <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Student ID</x-table.th>
+                <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Name</x-table.th>
+                <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Mark</x-table.th>
+                <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Grade</x-table.th>
+                <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Point</x-table.th>
+                <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">Action</x-table.th>
+            </x-slot:head>
+
+            <x-slot:footer>
+                <div class="flex items-center justify-between px-3" id="paginationArea">
+                    <div class="text-[10px] font-bold uppercase tracking-widest text-gray-500" id="paginationInfo">0 of 0</div>
+                    <div class="flex items-center gap-1" id="paginationControls"></div>
+                </div>
+            </x-slot:footer>
+        </x-school.data-table>
     </div>
 </div>
 
 {{-- Mark Submit Modal --}}
-<div id="markModal"
-    class="fixed inset-0 bg-gray-900/60 flex items-center justify-center hidden z-[100] px-8 sm:px-40 py-12 backdrop-blur-sm overflow-y-auto">
+<x-modal.form
+    id="markModal"
+    form-id="markForm"
+    title="Exam Configuration"
+    close-button-id="closeMarkModalButton"
+    panel-class="custom-scrollbar mx-auto my-auto w-full max-w-[720px] overflow-y-auto border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)]"
+    panel-style="border-radius:4px; max-height:min(620px, calc(100dvh - 2.5rem));"
+    title-class="teacher-register-modal-title m-0 text-center font-semibold leading-tight text-slate-800"
+    fields-class="block"
+    onsubmit="event.preventDefault();"
+>
+    <input type="hidden" id="mark_edit_id">
+    <input type="hidden" id="action_type" value="exam configure" name="action_type">
 
-    <div
-        class="bg-white w-full max-w-4xl modal-content-sharp shadow-2xl overflow-hidden flex flex-col my-auto max-h-[70vh] sm:max-h-[85vh] mx-auto border border-gray-100">
-
-        {{-- Header --}}
-        <div class="px-5 py-3 border-b flex justify-center items-center bg-white sticky top-0 z-10">
-            <h3 id="modalTitle"
-                class="text-gray-800 text-[13px] font-medium leading-tight text-center capitalize tracking-normal">
-                Step 1: Exam Configuration
-            </h3>
-        </div>
-
-        {{-- Step 1 Content --}}
-        <div id="step1" class="flex flex-col overflow-hidden m-0">
-            <div class="overflow-y-auto custom-scrollbar p-4 sm:p-6 flex-grow bg-gray-50/30">
-                <input type="hidden" id="edit_id">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-5 gap-y-4">
-                    <div>
-                        <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Class</label>
-                        <select id="m_class" onchange="handleCascade(this, 'm_group')"
-                            class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                            style="border-radius: 0;"></select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Group</label>
-                        <select id="m_group" onchange="handleCascade(this, 'm_section')"
-                            class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                            style="border-radius: 0;"></select>
-                    </div>
-                    <div>
-                        <label
-                            class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Section</label>
-                        <select id="m_section" onchange="handleCascade(this, 'm_session')"
-                            class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                            style="border-radius: 0;"></select>
-                    </div>
-                    <div>
-                        <label
-                            class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Session</label>
-                        <select id="m_session"
-                            class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                            style="border-radius: 0;"></select>
-                        <input type="hidden" id="action_type" value="exam configure" name="action_type">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Exam
-                            Name</label>
-                        <select id="m_exam"
-                            class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                            style="border-radius: 0;"></select>
-                    </div>
-                    <div>
-                        <label
-                            class="block text-[10px] capitalize tracking-normal text-blue-600 mb-1.5 font-medium">Subject</label>
-                        <select id="m_subject"
-                            class="form-input-fixed w-full border border-blue-200 py-1.5 px-3 text-xs text-gray-700 h-[32px]"
-                            style="border-radius: 0;"></select>
-                    </div>
-                </div>
+    <div id="markStep1">
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <div class="relative">
+                <x-input.dropdown-select id="m_class" placeholder="Select Class" :options="[]" add-button-label="Add Class" add-button-target="classModal" />
+                <x-input.floating-label for="m_class" :floating="false">Class</x-input.floating-label>
             </div>
 
-            {{-- Step 1 Footer --}}
-            <div
-                class="px-4 sm:px-6 py-4 border-t border-gray-100 bg-white flex flex-row sm:justify-end gap-2 sticky bottom-0 z-10">
-                <button type="button" onclick="closeMarkModal()"
-                    class="w-1/2 sm:w-auto sm:px-8 h-[32px] btn-outline-secondary border border-gray-200 text-[10px] tracking-normal capitalize transition-all hover:bg-gray-50 flex items-center justify-center whitespace-nowrap"
-                    style="border-radius: 0;">
-                    Cancel
-                </button>
-                <button type="button" id="nextBtn" onclick="goToStep2()"
-                    class="w-1/2 sm:w-auto sm:px-12 h-[32px] btn-outline-premium border border-gray-200 text-[10px] tracking-normal capitalize flex items-center justify-center whitespace-nowrap"
-                    style="border-radius: 0;">
-                    Next
-                </button>
+            <div class="relative">
+                <x-input.dropdown-select id="m_group" placeholder="Select Group" :options="[]" add-button-label="Add Group" add-button-target="groupModal" />
+                <x-input.floating-label for="m_group" :floating="false">Group</x-input.floating-label>
             </div>
-        </div>
 
-        {{-- Step 2 Content --}}
-        <div id="step2" class="step-hidden flex flex-col overflow-hidden m-0">
-            {{-- py-4 ensures equal top and bottom space inside the gray area --}}
-            <div class="px-4 sm:px-6 py-4 flex-grow bg-gray-50/30 flex flex-col overflow-hidden">
-                {{-- Table container: overflow-auto + custom-scrollbar handles both axes with identical design --}}
-                <div class="border border-gray-200 bg-white overflow-auto custom-scrollbar max-h-[400px]"
-                    style="border-radius: 0;">
-                    <table class="w-full text-left border-collapse min-w-[600px]">
-                        <thead class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200">
-                            <tr>
-                                <th class="px-4 py-2 text-[10px] font-bold uppercase text-gray-500">ID</th>
-                                <th class="px-4 py-2 text-[10px] font-bold uppercase text-gray-500">Name</th>
-                                <th width="120" class="px-4 py-2 text-[10px] font-bold uppercase text-gray-500">
-                                    Mark</th>
-                                <th class="px-4 py-2 text-[10px] font-bold uppercase text-gray-500">Grade</th>
-                                <th class="px-4 py-2 text-[10px] font-bold uppercase text-gray-500">Point</th>
-                            </tr>
-                        </thead>
-                        <tbody id="studentMarkList" class="divide-y divide-gray-100"></tbody>
-                    </table>
-                </div>
+            <div class="relative">
+                <x-input.dropdown-select id="m_section" placeholder="Select Section" :options="[]" add-button-label="Add Section" add-button-target="sectionModal" />
+                <x-input.floating-label for="m_section" :floating="false">Section</x-input.floating-label>
             </div>
-            {{-- Step 2 Footer --}}
-            <div
-                class="px-4 sm:px-6 py-4 border-t border-gray-100 bg-white flex flex-row justify-between items-center gap-2 sticky bottom-0 z-20">
-                {{-- This stays on the left --}}
-                <button type="button" id="backBtn" onclick="goToStep1()"
-                    class="w-1/3 sm:w-auto sm:px-8 h-[32px] btn-outline-secondary border border-gray-200 text-[10px] tracking-normal capitalize transition-all hover:bg-gray-50 flex items-center justify-center whitespace-nowrap"
-                    style="border-radius: 0;">
-                    Back
-                </button>
 
-                {{-- This group moves to the right end --}}
-                <div class="flex flex-row gap-2 flex-grow sm:flex-grow-0 justify-end">
-                    <button type="button" onclick="submitMarks('draft')"
-                        class="flex-1 sm:w-auto sm:px-6 h-[32px] border border-blue-600 text-blue-600 text-[10px] tracking-normal capitalize transition-all hover:bg-blue-50 flex items-center justify-center whitespace-nowrap"
-                        style="border-radius: 0;">
-                        Draft
-                    </button>
-                    <button type="button" onclick="submitMarks('published')"
-                        class="flex-1 sm:w-auto sm:px-10 h-[32px] bg-blue-600 text-white text-[10px] tracking-normal capitalize hover:bg-blue-700 transition-all flex items-center justify-center whitespace-nowrap"
-                        style="border-radius: 0;">
-                        Submit
-                    </button>
-                </div>
+            <div class="relative">
+                <x-input.dropdown-select id="m_session" placeholder="Select Session" :options="[]" add-button-label="Add Session" add-button-target="sessionModal" />
+                <x-input.floating-label for="m_session" :floating="false">Session</x-input.floating-label>
+            </div>
+
+            <div class="relative">
+                <x-input.dropdown-select id="m_exam" placeholder="Select Exam" :options="[]" add-button-label="Add Exam" add-button-target="examModal" />
+                <x-input.floating-label for="m_exam" :floating="false">Exam Name</x-input.floating-label>
+            </div>
+
+            <div class="relative">
+                <x-input.dropdown-select id="m_subject" placeholder="Select Subject" :options="[]" add-button-id="addMarkSubjectButton" add-button-label="Add Subject" add-button-target="subjectModal" />
+                <x-input.floating-label for="m_subject" :floating="false">Subject</x-input.floating-label>
             </div>
         </div>
     </div>
-</div>
+
+    <div id="markStep2" class="step-hidden">
+        <div class="max-h-[360px] overflow-auto border border-gray-200 bg-white">
+            <table class="mark-entry-table w-full min-w-[600px] border-collapse text-left">
+                <thead class="sticky top-0 z-10">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th style="width:120px;">Mark</th>
+                        <th>Grade</th>
+                        <th>Point</th>
+                    </tr>
+                </thead>
+                <tbody id="studentMarkList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <x-slot:footer>
+        <div id="markStep1Actions" class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
+            <x-button.secondary type="button" onclick="closeMarkModal()" class="w-full">Cancel</x-button.secondary>
+            <x-button.primary type="button" id="markNextBtn" onclick="goToStep2()" class="w-full">Next</x-button.primary>
+        </div>
+
+        <div id="markStep2Actions" class="hidden grid grid-cols-3 gap-3 bg-white px-6 pb-4 pt-3">
+            <x-button.secondary type="button" id="markBackBtn" onclick="goToStep1()" class="w-full">Back</x-button.secondary>
+            <x-button.secondary type="button" onclick="submitMarks('draft')" class="w-full text-blue-600">Draft</x-button.secondary>
+            <x-button.primary type="button" onclick="submitMarks('published')" class="w-full">Submit</x-button.primary>
+        </div>
+    </x-slot:footer>
+    </x-modal.form>
+
+    @include('school.academic.class.partials.class-modal')
+    @include('school.academic.group.partials.group-modal')
+    @include('school.academic.section.partials.section-modal')
+    @include('school.academic.session.partials.session-modal')
+    @include('school.academic.subject.partials.subject-modal', ['showGradeAddButton' => true])
+    @include('school.exam.exam_name.partials.exam-modal')
+    @include('school.exam.grade.partials.grade-modal')
+
+    @include('school.academic.class.partials.js.modal-open')
+    @include('school.academic.group.partials.js.modal-open')
+    @include('school.academic.section.partials.js.modal-open')
+    @include('school.academic.session.partials.js.modal-open')
+    @include('school.academic.subject.partials.js.modal-open')
+    @include('school.exam.exam_name.partials.js.modal-open')
+    @include('school.exam.grade.partials.js.modal-open')
+    @include('school.academic.class.partials.js.modal-submit')
+    @include('school.academic.group.partials.js.modal-submit')
+    @include('school.academic.section.partials.js.modal-submit')
+    @include('school.academic.session.partials.js.modal-submit')
+    @include('school.academic.subject.partials.js.modal-submit')
+    @include('school.exam.exam_name.partials.js.modal-submit')
+    @include('school.exam.grade.partials.js.modal-submit')
+    @include('school.academic.class.partials.js.error-validation')
+    @include('school.academic.group.partials.js.error-validation')
+    @include('school.academic.section.partials.js.error-validation')
+    @include('school.academic.session.partials.js.error-validation')
+    @include('school.academic.subject.partials.js.error-validation')
+    @include('school.exam.exam_name.partials.js.error-validation')
+    @include('school.exam.grade.partials.js.error-validation')
 
 <script>
     let gradingSystem = [];
@@ -614,18 +344,332 @@
     let currentPage = 1;
     let selectedSubjectType = 1;
 
-    window.onload = function() {
+    function populateDropdown(menuId, data, valueField, labelField) {
+        const menu = document.getElementById(menuId);
+        if (!menu) return;
+
+        menu.innerHTML = '';
+        (data || []).forEach(item => {
+            const option = document.createElement('button');
+            option.type = 'button';
+            option.className = 'dropdown-select-option m-0 flex min-h-6 w-full items-center border-0 bg-white px-3 py-1 text-left text-[11px] font-normal leading-tight text-slate-800 transition-colors hover:bg-slate-100';
+            option.dataset.value = String(item[valueField] ?? '');
+            option.dataset.optionId = String(item.id ?? '');
+            option.textContent = item[labelField] ?? '';
+            option.setAttribute('role', 'option');
+            option.setAttribute('aria-selected', 'false');
+            option.setAttribute('data-dropdown-select-option', '');
+
+            option.addEventListener('click', function () {
+                const root = menu.closest('[data-dropdown-select]');
+                const input = root?.querySelector('[data-dropdown-select-input]');
+                const label = root?.querySelector('[data-dropdown-select-label]');
+                if (!input || !label) return;
+
+                input.value = this.dataset.value || '';
+                label.textContent = this.textContent.trim();
+                menu.querySelectorAll('[data-dropdown-select-option]').forEach(item => {
+                    const selected = item === this;
+                    item.classList.toggle('bg-slate-100', selected);
+                    item.classList.toggle('text-slate-900', selected);
+                    item.classList.toggle('text-slate-800', !selected);
+                    item.setAttribute('aria-selected', String(selected));
+                });
+                menu.classList.add('hidden');
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+
+            menu.appendChild(option);
+        });
+    }
+
+    function setDropdownValue(dropdownId, value, label) {
+        const input = document.getElementById(dropdownId);
+        const labelElement = document.querySelector(`#${dropdownId}Button [data-dropdown-select-label]`);
+        const menu = document.getElementById(`${dropdownId}Menu`);
+
+        if (input) input.value = value || '';
+        if (labelElement) {
+            labelElement.textContent = label || labelElement.dataset.placeholder || 'Select...';
+        }
+
+        menu?.querySelectorAll('[data-dropdown-select-option]').forEach(option => {
+            const selected = String(option.dataset.value || '') === String(value || '');
+            option.classList.toggle('bg-slate-100', selected);
+            option.classList.toggle('text-slate-900', selected);
+            option.classList.toggle('text-slate-800', !selected);
+            option.setAttribute('aria-selected', String(selected));
+        });
+    }
+
+    function getSelectedDataId(elementOrId) {
+        const input = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
+        if (!input) return '';
+
+        if (input.matches?.('[data-dropdown-select-input]')) {
+            const menu = document.getElementById(`${input.id}Menu`);
+            const selected = Array.from(menu?.querySelectorAll('[data-dropdown-select-option]') || [])
+                .find(option => String(option.dataset.value || '') === String(input.value || ''));
+            return selected?.dataset.optionId || input.value || '';
+        }
+
+        return input.options?.[input.selectedIndex]?.getAttribute('data-id') || input.value || '';
+    }
+
+    window.addEventListener('load', () => {
+        initializeMarkDropdownEvents();
         loadInitialDropdowns();
         fetchGradingRules();
         fetchTable();
+    });
+
+    function markDropdownParts(id) {
+        const input = document.getElementById(id);
+        const root = input?.closest('[data-dropdown-select]');
+
+        return {
+            input,
+            root,
+            label: root?.querySelector('[data-dropdown-select-label]'),
+            menu: root?.querySelector('[data-dropdown-select-menu]'),
+        };
+    }
+
+    function selectedMarkDropdownOption(id) {
+        const { input, menu } = markDropdownParts(id);
+
+        return Array.from(menu?.querySelectorAll('[data-dropdown-select-option]') || [])
+            .find(option => String(option.dataset.value || '') === String(input?.value || ''));
+    }
+
+    function selectedMarkDropdownId(id) {
+        return selectedMarkDropdownOption(id)?.dataset.optionId || '';
+    }
+
+    function setMarkDropdownValue(id, value = '', label = null, shouldNotify = false) {
+        const parts = markDropdownParts(id);
+        if (!parts.input) return;
+
+        const selected = Array.from(parts.menu?.querySelectorAll('[data-dropdown-select-option]') || [])
+            .find(option => String(option.dataset.value || '') === String(value || ''));
+        const placeholder = parts.label?.dataset.placeholder || 'Select...';
+
+        parts.input.value = value || '';
+        if (parts.label) {
+            parts.label.textContent = label ?? selected?.textContent.trim() ?? placeholder;
+        }
+
+        parts.menu?.querySelectorAll('[data-dropdown-select-option]').forEach(option => {
+            const isSelected = option === selected;
+            option.classList.toggle('bg-slate-100', isSelected);
+            option.classList.toggle('text-slate-900', isSelected);
+            option.classList.toggle('text-slate-800', !isSelected);
+            option.setAttribute('aria-selected', String(isSelected));
+        });
+
+        if (shouldNotify) {
+            parts.input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+
+    function markDropdownPlaceholder(id, field) {
+        const configured = markDropdownParts(id).label?.dataset.placeholder;
+        return configured || `Select ${field.split('_')[0]}`;
+    }
+
+    function fillOptions(id, data, field, filterId = null) {
+        const parts = markDropdownParts(id);
+        if (!parts.menu) return;
+
+        parts.menu.innerHTML = '';
+
+        (data || []).forEach(item => {
+            const option = document.createElement('button');
+            option.type = 'button';
+            option.className =
+                'dropdown-select-option m-0 flex min-h-6 w-full items-center border-0 bg-white px-3 py-1 text-left text-[11px] font-normal leading-tight text-slate-800 transition-colors hover:bg-slate-100';
+            option.dataset.value = String(item[field] ?? '');
+            option.dataset.optionId = String(item.id ?? '');
+            option.setAttribute('data-dropdown-select-option', '');
+            option.setAttribute('role', 'option');
+            option.setAttribute('aria-selected', 'false');
+            option.textContent = item[field] ?? '';
+
+            if (item.subject_type) option.dataset.type = String(item.subject_type);
+            if (item.grade_id) option.dataset.gradeId = String(item.grade_id);
+            if (item.fail_mark !== undefined && item.fail_mark !== null) {
+                option.dataset.failMark = String(item.fail_mark);
+            }
+            if (item.marks) {
+                option.dataset.marks = typeof item.marks === 'object'
+                    ? JSON.stringify(item.marks)
+                    : String(item.marks);
+            }
+
+            option.addEventListener('click', () => {
+                setMarkDropdownValue(id, option.dataset.value, option.textContent.trim());
+                parts.menu.classList.add('hidden');
+                parts.root?.querySelector('[data-dropdown-select-button]')?.setAttribute('aria-expanded', 'false');
+                parts.input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+
+            parts.menu.appendChild(option);
+        });
+
+        setMarkDropdownValue(id, '', markDropdownPlaceholder(id, field));
+
+        if (filterId) {
+            fillOptions(filterId, data, field);
+        }
+    }
+
+    window.prepareMarkSubjectModal = async function () {
+        const classId = selectedMarkDropdownId('m_class');
+        const groupId = selectedMarkDropdownId('m_group');
+        const sectionId = selectedMarkDropdownId('m_section');
+
+        document.getElementById('subjectForm')?.reset();
+        const recordId = document.getElementById('record_id');
+        if (recordId) recordId.value = '';
+        document.getElementById('subjectModalTitle').innerText = 'Add Subject';
+        setDropdownValue('subjectFormClass', '', 'Select Class');
+        setDropdownValue('subjectFormGroup', '', 'Select Group');
+        setDropdownValue('subjectFormSection', '', 'Select Section');
+        populateDropdown('subjectFormGroupMenu', [], 'id', 'group_name');
+        populateDropdown('subjectFormSectionMenu', [], 'id', 'section_name');
+
+        if (classId) {
+            await loadSubjectClassSelect(classId);
+        }
+        if (classId && groupId) {
+            await loadSubjectGroupSelect(groupId);
+        }
+        if (classId && groupId && sectionId) {
+            await loadSubjectSectionSelect(sectionId);
+        }
+
+        document.getElementById('subjectModal')?.classList.remove('hidden');
     };
 
+    // The Mark Submit dropdowns store display names with their IDs on options, so
+    // capture the Subject quick-add directly before the shared dropdown handler runs.
+    document.addEventListener('click', async event => {
+        const addButton = event.target.closest('#addMarkSubjectButton');
+        if (!addButton) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        const subjectModal = document.getElementById('subjectModal');
+        if (subjectModal) {
+            subjectModal.dataset.returnModalId = 'markModal';
+        }
+
+        try {
+            await window.prepareMarkSubjectModal();
+            document.getElementById('markModal')?.classList.add('hidden');
+        } catch (error) {
+            console.error('Failed to open Add Subject with the selected values:', error);
+            Swal.fire('Error', 'Could not open Add Subject. Please try again.', 'error');
+        }
+    }, true);
+
+    async function refreshMarkDropdownAfterQuickCreate(type, item) {
+        if (!item) return;
+
+        const classId = selectedMarkDropdownId('m_class');
+        const groupId = selectedMarkDropdownId('m_group');
+        const sectionId = selectedMarkDropdownId('m_section');
+
+        if (type === 'class') {
+            const response = await axios.get('/api/get-school-classes');
+            fillOptions('m_class', response.data.data || [], 'class_name');
+            setMarkDropdownValue('m_class', item.class_name, item.class_name, true);
+        } else if (type === 'group') {
+            const response = await axios.get('/api/get-school-groups', { params: { class_id: classId } });
+            fillOptions('m_group', response.data.data || [], 'group_name');
+            setMarkDropdownValue('m_group', item.group_name, item.group_name, true);
+        } else if (type === 'section') {
+            const response = await axios.get('/api/get-school-sections', {
+                params: { class_id: classId, group_id: groupId },
+            });
+            fillOptions('m_section', response.data.data || [], 'section_name');
+            setMarkDropdownValue('m_section', item.section_name, item.section_name, true);
+        } else if (type === 'session') {
+            const response = await axios.get('/api/get-school-sessions', {
+                params: { class_id: classId, group_id: groupId, section_id: sectionId },
+            });
+            fillOptions('m_session', response.data.data || [], 'session_year');
+            setMarkDropdownValue('m_session', item.session_year, item.session_year, true);
+        } else if (type === 'exam') {
+            const response = await axios.get('/api/get-school-exams', {
+                params: {
+                    class_ids: classId ? [classId] : [],
+                    group_ids: groupId ? [groupId] : [],
+                    section_ids: sectionId ? [sectionId] : [],
+                    session_ids: selectedMarkDropdownId('m_session') ? [selectedMarkDropdownId('m_session')] : [],
+                },
+            });
+            fillOptions('m_exam', response.data.data || [], 'exam_name');
+            setMarkDropdownValue('m_exam', item.exam_name, item.exam_name, true);
+        } else if (type === 'subject') {
+            const response = await axios.get('/api/get-school-subjects', {
+                params: { class_id: classId, group_id: groupId, section_id: sectionId },
+            });
+            fillOptions('m_subject', response.data.data || [], 'subject_name');
+            setMarkDropdownValue('m_subject', item.subject_name, item.subject_name, true);
+        }
+
+        document.getElementById('markModal')?.classList.remove('hidden');
+    }
+
+    [
+        ['school:class-saved', 'classItem', 'class'],
+        ['school:group-saved', 'groupItem', 'group'],
+        ['school:section-saved', 'sectionItem', 'section'],
+        ['school:session-saved', 'sessionItem', 'session'],
+        ['school:exam-saved', 'examItem', 'exam'],
+        ['school:subject-saved', 'subjectItem', 'subject'],
+    ].forEach(([eventName, itemKey, type]) => {
+        document.addEventListener(eventName, async event => {
+            const { returnModalId, isNew, [itemKey]: item } = event.detail || {};
+            if (returnModalId !== 'markModal' || !isNew || !item) return;
+
+            event.preventDefault();
+            try {
+                await refreshMarkDropdownAfterQuickCreate(type, item);
+            } catch (error) {
+                console.error(`Failed to refresh ${type} dropdown:`, error);
+                document.getElementById('markModal')?.classList.remove('hidden');
+            }
+        });
+    });
+
+    function initializeMarkDropdownEvents() {
+        const cascades = {
+            m_class: 'm_group',
+            m_group: 'm_section',
+            m_section: 'm_session',
+        };
+
+        Object.entries(cascades).forEach(([id, next]) => {
+            document.getElementById(id)?.addEventListener('change', event => {
+                handleCascade(event.currentTarget, next);
+            });
+        });
+
+        document.getElementById('f_class')?.addEventListener('change', event => {
+            const classId = selectedMarkDropdownId('f_class');
+            refreshSubjects(classId);
+            refreshExams(event.currentTarget.value);
+        });
+    }
+
     function loadInitialDropdowns() {
-        // Load Classes for both Filter and Modal
         axios.get('/api/get-school-classes').then(res => {
             fillOptions('m_class', res.data.data, 'class_name', 'f_class');
         });
-        // Initial load for Subjects/Exams (though they will refresh on cascade)
         axios.get('/api/get-school-exams').then(res => fillOptions('m_exam', res.data.data, 'exam_name', 'f_exam'));
         axios.get('/api/get-school-subjects').then(res => fillOptions('m_subject', res.data.data, 'subject_name',
             'f_subject'));
@@ -641,30 +685,9 @@
         });
     }
 
-    function fillOptions(id, data, field, filterId = null) {
-        let html = `<option value="">Select ${field.split('_')[0]}</option>`;
-        data.forEach(i => {
-            let extraAttrs = '';
-            if (i.subject_type) extraAttrs += ` data-type="${i.subject_type}"`;
-            if (i.grade_id) extraAttrs += ` data-grade-id="${i.grade_id}"`;
-            if (i.marks) {
-                const marksStr = typeof i.marks === 'object' ? JSON.stringify(i.marks) : i.marks;
-                extraAttrs += ` data-marks='${marksStr}'`;
-            }
-            html += `<option value="${i[field]}" data-id="${i.id}"${extraAttrs}>${i[field]}</option>`;
-        });
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = html;
-        if (filterId) {
-            const fEl = document.getElementById(filterId);
-            if (fEl) fEl.innerHTML = html;
-        }
-    }
-
     async function handleCascade(el, next) {
-        const selectedOption = el.options[el.selectedIndex];
-        const id = selectedOption?.getAttribute('data-id');
-        const val = selectedOption?.value;
+        const id = selectedMarkDropdownId(el.id);
+        const val = el.value;
 
         if (!id && !val) return;
 
@@ -681,8 +704,10 @@
             fld = 'group_name';
 
             // Also refresh Subjects and Exams for this Class immediately
-            refreshSubjects(id);
-            refreshExams(val);
+            await Promise.all([
+                refreshSubjects(id),
+                refreshExams(val),
+            ]);
 
         } else if (next.includes('section')) {
             url = `/api/get-school-sections`;
@@ -692,16 +717,13 @@
             fld = 'section_name';
 
             // Refresh Subjects for this Group
-            const classId = document.getElementById('m_class').options[document.getElementById('m_class')
-                .selectedIndex]?.getAttribute('data-id');
-            refreshSubjects(classId, id);
+            const classId = selectedMarkDropdownId('m_class');
+            await refreshSubjects(classId, id);
 
         } else if (next.includes('session')) {
             const isModal = next.startsWith('m_');
-            const classEl = document.getElementById(isModal ? 'm_class' : 'f_class');
-            const groupEl = document.getElementById(isModal ? 'm_group' : 'f_group');
-            const classId = classEl.options[classEl.selectedIndex]?.getAttribute('data-id');
-            const groupId = groupEl.options[groupEl.selectedIndex]?.getAttribute('data-id');
+            const classId = selectedMarkDropdownId(isModal ? 'm_class' : 'f_class');
+            const groupId = selectedMarkDropdownId(isModal ? 'm_group' : 'f_group');
 
             url = `/api/get-school-sessions`;
             params = {
@@ -715,14 +737,14 @@
         const res = await axios.get(url, {
             params
         });
-        let tid = next.startsWith('m_') ? next : 'f_' + next.split('_')[1];
+        const tid = next.startsWith('m_') ? next : 'f_' + next.split('_')[1];
         fillOptions(tid, res.data.data, fld);
         return res.data.data;
     }
 
     // New specific refreshers for Subject and Exam based on selection
     function refreshSubjects(classId, groupId = null, sectionId = null) {
-        axios.get('/api/get-school-subjects', {
+        return axios.get('/api/get-school-subjects', {
             params: {
                 class_id: classId,
                 group_id: groupId,
@@ -732,12 +754,31 @@
     }
 
     function refreshExams(className, sessionName = null) {
-        axios.get('/api/get-school-exams', {
+        return axios.get('/api/get-school-exams', {
             params: {
                 class_name: className,
                 session_name: sessionName
             }
         }).then(res => fillOptions('m_exam', res.data.data, 'exam_name', 'f_exam'));
+    }
+
+    function escapeMarkHtml(value) {
+        return String(value ?? '-').replace(/[&<>"']/g, character => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        })[character]);
+    }
+
+    function markTableCell(value, alignment = 'text-left', extraClass = '') {
+        const content = escapeMarkHtml(value);
+
+        return `
+            <td class="h-8 border border-gray-300 px-3 ${alignment}">
+                <div class="school-data-table-cell-scroll ${extraClass}" title="${content}">${content}</div>
+            </td>`;
     }
 
     function fetchTable(page = 1) {
@@ -755,26 +796,31 @@
             const body = document.getElementById('markTableBody');
             body.innerHTML = '';
             if (!res.data.data || res.data.data.length === 0) {
-                body.innerHTML = '<tr><td colspan="10" class="text-center py-8">No records found</td></tr>';
+                body.innerHTML =
+                    '<tr><td colspan="10" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No marks found.</td></tr>';
                 renderPagination(res.data);
                 return;
             }
             res.data.data.forEach((item, i) => {
-                body.innerHTML += `
-                <tr>
-                    <td>${res.data.from + i}</td>
-                    <td>${item.class_name}</td>
-                    <td>${item.subject_name}</td>
-                    <td>${item.exam_name}</td>
-                    <td class="font-mono">${item.student_id_number}</td>
-                    <td>${item.student_name}</td>
-                    <td>${item.mark}</td>
-                    <td>${item.letter_name}</td>
-                    <td>${item.point}</td>
-                    <td class="text-center">
-                        <div class="flex justify-center gap-3">
-                            <button onclick="editMark(${item.id})" class="action-icon-btn text-blue-500"><i class="far fa-edit" style="font-size: 15px;"></i></button>
-                            <button onclick="deleteMark(${item.id})" class="action-icon-btn text-red-400"><i class="far fa-trash-alt" style="font-size: 15px;"></i></button>
+                const failed = ['f', 'fail', 'failed'].includes(String(item.letter_name || '').trim().toLowerCase());
+                body.innerHTML += `<tr class="hover:bg-gray-50 ${failed ? 'bg-red-50/60 text-red-600' : ''}">
+                    ${markTableCell(res.data.from + i, 'text-center')}
+                    ${markTableCell(item.class_name)}
+                    ${markTableCell(item.subject_name)}
+                    ${markTableCell(item.exam_name)}
+                    ${markTableCell(item.student_id_number, 'text-left', 'font-mono')}
+                    ${markTableCell(item.student_name)}
+                    ${markTableCell(item.mark)}
+                    ${markTableCell(item.letter_name)}
+                    ${markTableCell(item.point)}
+                    <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
+                        <div class="mx-auto flex h-8 items-center justify-center space-x-1">
+                            <button type="button" title="Edit mark" aria-label="Edit mark" onclick="editMark(${item.id})" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1">
+                                <i class="far fa-edit text-sm" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" title="Delete mark" aria-label="Delete mark" onclick="deleteMark(${item.id})" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1">
+                                <i class="far fa-trash-alt text-sm" aria-hidden="true"></i>
+                            </button>
                         </div>
                     </td>
                 </tr>`;
@@ -817,15 +863,15 @@
         const sessionEl = document.getElementById('m_session');
         const actionType = document.getElementById('action_type').value;
 
-        const classId = classEl.options[classEl.selectedIndex]?.getAttribute('data-id');
-        const groupId = groupEl.options[groupEl.selectedIndex]?.getAttribute('data-id');
-        const sectionId = sectionEl.options[sectionEl.selectedIndex]?.getAttribute('data-id');
-        const sessionId = sessionEl.options[sessionEl.selectedIndex]?.getAttribute('data-id');
+        const classId = selectedMarkDropdownId('m_class');
+        const groupId = selectedMarkDropdownId('m_group');
+        const sectionId = selectedMarkDropdownId('m_section');
+        const sessionId = selectedMarkDropdownId('m_session');
 
         const exm = document.getElementById('m_exam').value;
         const subEl = document.getElementById('m_subject');
         const sub = subEl.value;
-        selectedSubjectType = subEl.options[subEl.selectedIndex]?.getAttribute('data-type') || 1;
+        selectedSubjectType = selectedMarkDropdownOption('m_subject')?.dataset.type || 1;
 
         if (!classId || !sessionId || !exm || !sub) {
             return Swal.fire('Error', 'Please configure Class, Session, Exam and Subject', 'error');
@@ -865,12 +911,11 @@
 
     function renderStudentRows() {
         const tbody = document.getElementById('studentMarkList');
-        const thead = document.querySelector('#step2 thead tr');
+        const thead = document.querySelector('#markStep2 thead tr');
 
         // Get full mark and mark distribution for placeholders
-        const subEl = document.getElementById('m_subject');
-        const selectedSub = subEl.options[subEl.selectedIndex];
-        const gradeId = selectedSub?.getAttribute('data-grade-id');
+        const selectedSub = selectedMarkDropdownOption('m_subject');
+        const gradeId = selectedSub?.dataset.gradeId;
         const referenceRule = gradingSystem.find(g => g.id == gradeId);
         const fullMark = referenceRule ? referenceRule.full_mark : 100;
 
@@ -913,36 +958,46 @@
                 const theoryPlaceholder = theoryMax ? `0 - ${theoryMax}` : 'Min: 0';
                 const practicalPlaceholder = practicalMax ? `0 - ${practicalMax}` : 'Min: 0';
                 markInputs = `
-                        <td><input type="number" placeholder="${theoryPlaceholder}" class="form-input-fixed theory-input" value="${s.theory_mark || ''}" onkeyup="calculateGrade(this, ${idx}, 'theory')" data-idx="${idx}"></td>
-                        <td><input type="number" placeholder="${practicalPlaceholder}" class="form-input-fixed practical-input" value="${s.practical_mark || ''}" onkeyup="calculateGrade(this, ${idx}, 'practical')" data-idx="${idx}"></td>
-                        <td><input type="number" placeholder="Total" class="form-input-fixed mark-input bg-gray-50" value="${s.mark || ''}" readonly id="total_mark_${idx}"></td>`;
+                        <td><input type="number" placeholder="${theoryPlaceholder}" class="mark-entry-input theory-input" value="${s.theory_mark || ''}" oninput="calculateGrade(this, ${idx}, 'theory')" data-idx="${idx}"></td>
+                        <td><input type="number" placeholder="${practicalPlaceholder}" class="mark-entry-input practical-input" value="${s.practical_mark || ''}" oninput="calculateGrade(this, ${idx}, 'practical')" data-idx="${idx}"></td>
+                        <td><input type="number" placeholder="Total" class="mark-entry-input mark-input bg-gray-50" value="${s.mark || ''}" readonly id="total_mark_${idx}"></td>`;
             } else {
                 const fullMarkPlaceholder = `0 - ${fullMark}`;
-                markInputs = `<td><input type="number" placeholder="${fullMarkPlaceholder}" class="form-input-fixed mark-input" value="${s.mark || ''}" min="0" max="${fullMark}" onkeyup="calculateGrade(this, ${idx}, 'total')" data-idx="${idx}"></td>`;
+                markInputs = `<td><input type="number" placeholder="${fullMarkPlaceholder}" class="mark-entry-input mark-input" value="${s.mark || ''}" min="0" max="${fullMark}" oninput="calculateGrade(this, ${idx}, 'total')" data-idx="${idx}"></td>`;
             }
 
             tbody.innerHTML += `
-            <tr>
-                <td class="font-mono text-[10px]">${s.student_id_number}</td>
-                <td class="uppercase font-bold">${s.student_name}</td>
+            <tr id="student_mark_row_${idx}">
+                <td class="font-mono text-[10px]">${escapeMarkHtml(s.student_id_number)}</td>
+                <td class="font-bold uppercase">${escapeMarkHtml(s.student_name)}</td>
                 ${markInputs}
-                <td id="grade_${idx}" class="font-black text-blue-600">${s.letter_name || '-'}</td>
-                <td id="point_${idx}" class="font-bold">${s.point || '-'}</td>
+                <td id="grade_${idx}" class="font-black text-blue-600">${escapeMarkHtml(s.letter_name || '-')}</td>
+                <td id="point_${idx}" class="font-bold">${escapeMarkHtml(s.point || '-')}</td>
             </tr>`;
         });
     }
 
     function showStep(step) {
+        const title = document.getElementById('markModalTitle');
+        const step1Actions = document.getElementById('markStep1Actions');
+        const step2Actions = document.getElementById('markStep2Actions');
+
         if (step === 1) {
-            document.getElementById('step2').classList.add('step-hidden');
-            document.getElementById('step1').classList.remove('step-hidden');
-            document.getElementById('modalTitle').innerText = isEditMode ? 'Edit Mode: Configuration' :
-                'Step 1: Exam Configuration';
+            document.getElementById('markStep2').classList.add('step-hidden');
+            document.getElementById('markStep1').classList.remove('step-hidden');
+            step1Actions.classList.remove('hidden');
+            step1Actions.classList.add('grid');
+            step2Actions.classList.add('hidden');
+            step2Actions.classList.remove('grid');
+            title.innerText = isEditMode ? 'Edit Mark Configuration' : 'Exam Configuration';
         } else {
-            document.getElementById('step1').classList.add('step-hidden');
-            document.getElementById('step2').classList.remove('step-hidden');
-            document.getElementById('modalTitle').innerText = isEditMode ? 'Edit Mode: Update Mark' :
-                'Step 2: Enter Student Marks';
+            document.getElementById('markStep1').classList.add('step-hidden');
+            document.getElementById('markStep2').classList.remove('step-hidden');
+            step1Actions.classList.add('hidden');
+            step1Actions.classList.remove('grid');
+            step2Actions.classList.remove('hidden');
+            step2Actions.classList.add('grid');
+            title.innerText = isEditMode ? 'Update Mark' : 'Enter Student Marks';
         }
     }
 
@@ -955,10 +1010,10 @@
         let practical = 0;
         let total = 0;
 
-        const subEl = document.getElementById('m_subject');
-        const gradeId = subEl.options[subEl.selectedIndex]?.getAttribute('data-grade-id');
+        const gradeId = selectedMarkDropdownOption('m_subject')?.dataset.gradeId;
         const referenceRule = gradingSystem.find(g => g.id == gradeId);
         const fullMark = referenceRule ? referenceRule.full_mark : null;
+        const configuredFailMark = parseFloat(selectedMarkDropdownOption('m_subject')?.dataset.failMark || '0');
 
         if (selectedSubjectType == 3) {
             const tr = input.closest('tr');
@@ -989,8 +1044,14 @@
         }
 
         if (total === 0 && input.value === '') {
+            const row = document.getElementById(`student_mark_row_${idx}`);
+            row?.classList.remove('bg-red-50/60', 'text-red-600');
             document.getElementById(`grade_${idx}`).innerText = '-';
+            document.getElementById(`grade_${idx}`).classList.remove('text-red-600');
+            document.getElementById(`grade_${idx}`).classList.add('text-blue-600');
             document.getElementById(`point_${idx}`).innerText = '-';
+            studentsForEntry[idx].letter_name = null;
+            studentsForEntry[idx].point = null;
             return;
         }
 
@@ -998,19 +1059,56 @@
             (fullMark ? g.full_mark == fullMark : true) &&
             total >= g.mark_from && total <= g.mark_to
         );
-        if (res) {
+        const minimumPassingMark = configuredFailMark > 0
+            ? configuredFailMark
+            : Math.min(...gradingSystem
+                .filter(g => (fullMark ? g.full_mark == fullMark : true)
+                    && Number(g.grade_point) > 0
+                    && !['f', 'fail', 'failed'].includes(String(g.grade_name || '').trim().toLowerCase()))
+                .map(g => Number(g.mark_from)));
+        const failed = (Number.isFinite(minimumPassingMark) && total < minimumPassingMark) || !res;
+        const row = document.getElementById(`student_mark_row_${idx}`);
+
+        row?.classList.toggle('bg-red-50/60', failed);
+        row?.classList.toggle('text-red-600', failed);
+
+        if (failed) {
+            document.getElementById(`grade_${idx}`).innerText = 'F';
+            document.getElementById(`grade_${idx}`).classList.toggle('text-blue-600', false);
+            document.getElementById(`grade_${idx}`).classList.toggle('text-red-600', true);
+            document.getElementById(`point_${idx}`).innerText = '0';
+            studentsForEntry[idx].letter_name = 'F';
+            studentsForEntry[idx].point = 0;
+        } else {
             document.getElementById(`grade_${idx}`).innerText = res.grade_name;
+            document.getElementById(`grade_${idx}`).classList.toggle('text-red-600', false);
+            document.getElementById(`grade_${idx}`).classList.toggle('text-blue-600', true);
             document.getElementById(`point_${idx}`).innerText = res.grade_point;
             studentsForEntry[idx].letter_name = res.grade_name;
             studentsForEntry[idx].point = res.grade_point;
-        } else {
-            document.getElementById(`grade_${idx}`).innerText = '-';
-            document.getElementById(`point_${idx}`).innerText = '-';
         }
     }
 
     function submitMarks(status) {
-        const editId = document.getElementById('edit_id').value;
+        const editId = document.getElementById('mark_edit_id').value;
+
+        document.querySelectorAll('#studentMarkList tr').forEach((row, idx) => {
+            const student = studentsForEntry[idx];
+            if (!student) return;
+
+            const markInput = row.querySelector('.mark-input');
+            const theoryInput = row.querySelector('.theory-input');
+            const practicalInput = row.querySelector('.practical-input');
+
+            if (theoryInput || practicalInput) {
+                student.theory_mark = parseFloat(theoryInput?.value) || 0;
+                student.practical_mark = parseFloat(practicalInput?.value) || 0;
+                student.mark = student.theory_mark + student.practical_mark;
+            } else if (markInput) {
+                student.mark = parseFloat(markInput.value) || 0;
+            }
+        });
+
         const payload = {
             class_name: document.getElementById('m_class').value,
             group_name: document.getElementById('m_group').value,
@@ -1056,20 +1154,20 @@
             const res = await axios.get(`/api/school-exam-marks/${id}`);
             const data = res.data;
 
-            document.getElementById('edit_id').value = id;
-            document.getElementById('m_class').value = data.class_name;
+            document.getElementById('mark_edit_id').value = id;
+            setMarkDropdownValue('m_class', data.class_name, data.class_name);
 
             await handleCascade(document.getElementById('m_class'), 'm_group');
-            document.getElementById('m_group').value = data.group_name;
+            setMarkDropdownValue('m_group', data.group_name, data.group_name);
 
             await handleCascade(document.getElementById('m_group'), 'm_section');
-            document.getElementById('m_section').value = data.section_name;
+            setMarkDropdownValue('m_section', data.section_name, data.section_name);
 
             await handleCascade(document.getElementById('m_section'), 'm_session');
-            document.getElementById('m_session').value = data.session_name;
+            setMarkDropdownValue('m_session', data.session_name, data.session_name);
 
-            document.getElementById('m_exam').value = data.exam_name;
-            document.getElementById('m_subject').value = data.subject_name;
+            setMarkDropdownValue('m_exam', data.exam_name, data.exam_name);
+            setMarkDropdownValue('m_subject', data.subject_name, data.subject_name);
 
             studentsForEntry = [{
                 student_id_number: data.student_id_number,
@@ -1101,7 +1199,11 @@
 
     function openMarkModal() {
         isEditMode = false;
-        document.getElementById('edit_id').value = '';
+        document.getElementById('mark_edit_id').value = '';
+        studentsForEntry = [];
+        ['m_class', 'm_group', 'm_section', 'm_session', 'm_exam', 'm_subject'].forEach(id => {
+            setMarkDropdownValue(id, '');
+        });
         document.getElementById('markModal').classList.remove('hidden');
         showStep(1);
     }
@@ -1119,12 +1221,19 @@
         toggleFilterModal();
     }
 
-    function resetFilters() {
-        document.getElementById('f_class').value = '';
-        document.getElementById('f_exam').value = '';
-        document.getElementById('f_subject').value = '';
-        document.getElementById('header_search').value = '';
+    function restoreMarkSearch() {
+        const desktopSearch = document.getElementById('header_search');
+        const mobileSearch = document.getElementById('header_search_mobile');
+
+        if (desktopSearch) desktopSearch.value = '';
+        if (mobileSearch) mobileSearch.value = '';
+
         fetchTable(1);
+    }
+
+    function resetFilters() {
+        ['f_class', 'f_exam', 'f_subject'].forEach(id => setMarkDropdownValue(id, ''));
+        restoreMarkSearch();
         toggleFilterModal();
     }
 </script>
