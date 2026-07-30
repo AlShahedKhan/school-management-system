@@ -218,16 +218,16 @@ class SchoolExamSeatPlanController extends Controller
         }
 
         if (!empty($classIds)) {
-            $query->whereIn('class', $classIds);
+            $query->whereIn('class_id', $classIds);
         }
         if (!empty($groupIds)) {
-            $query->whereIn('group', $groupIds);
+            $query->whereIn('group_id', $groupIds);
         }
         if (!empty($sectionIds)) {
-            $query->whereIn('section', $sectionIds);
+            $query->whereIn('section_id', $sectionIds);
         }
         if (!empty($sessionIds)) {
-            $query->whereIn('session', $sessionIds);
+            $query->whereIn('session_id', $sessionIds);
         }
 
         $query->where(function ($q) {
@@ -235,7 +235,7 @@ class SchoolExamSeatPlanController extends Controller
                 ->orWhereRaw("LOWER(COALESCE(status, '')) NOT IN ('inactive', 'tc', 'transfer certificate', 'transfer_certificate', 'dropout', 'deleted')");
         });
 
-        $students = $query->select('id', 'student_name', 'student_id_number', 'class', 'group', 'section', 'session', 'status')
+        $students = $query->select('id', 'student_name', 'student_id_number', 'class_id', 'group_id', 'section_id', 'session_id', 'status')
             ->orderBy('student_name', 'asc')
             ->get();
 
@@ -253,14 +253,14 @@ class SchoolExamSeatPlanController extends Controller
                 'id' => $student->id,
                 'student_name' => $student->student_name,
                 'student_id_number' => $student->student_id_number,
-                'class' => $student->class,
-                'group' => $student->group,
-                'section' => $student->section,
-                'session' => $student->session,
-                'class_name' => $classNameLookup[$student->class] ?? null,
-                'group_name' => $groupNameLookup[$student->group] ?? null,
-                'section_name' => $sectionNameLookup[$student->section] ?? null,
-                'session_name' => $sessionNameLookup[$student->session] ?? null,
+                'class' => $student->class_id,
+                'group' => $student->group_id,
+                'section' => $student->section_id,
+                'session' => $student->session_id,
+                'class_name' => $classNameLookup[$student->class_id] ?? null,
+                'group_name' => $groupNameLookup[$student->group_id] ?? null,
+                'section_name' => $sectionNameLookup[$student->section_id] ?? null,
+                'session_name' => $sessionNameLookup[$student->session_id] ?? null,
                 'status' => $student->status,
             ];
         })->all();

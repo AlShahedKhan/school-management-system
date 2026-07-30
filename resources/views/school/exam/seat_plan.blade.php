@@ -87,9 +87,9 @@
         }
 
         .mode-tab-btn.active {
-            background: #2563eb;
-            color: #fff;
-            border-color: #2563eb;
+            background: #2563eb !important;
+            color: #fff !important;
+            border-color: #2563eb !important;
         }
 
         .multi-option-list {
@@ -547,6 +547,52 @@
 
             return selected?.textContent?.trim() || '';
         }
+
+        function getFirstMultiSelection(containerId) {
+            const checkbox = document.querySelector(`#${containerId} input[type="checkbox"]:checked`);
+
+            return checkbox
+                ? { id: checkbox.dataset.id || '', value: checkbox.value || '' }
+                : { id: '', value: '' };
+        }
+
+        async function prepareExamModalForMultiSelection() {
+            const classSelection = getFirstMultiSelection('multi_class_options');
+            const groupSelection = getFirstMultiSelection('multi_group_options');
+            const sectionSelection = getFirstMultiSelection('multi_section_options');
+            const sessionSelection = getFirstMultiSelection('multi_session_options');
+
+            if (!classSelection.id || !groupSelection.id || !sectionSelection.id || !sessionSelection.id) {
+                closeExamModal();
+                Toastify({
+                    text: 'Select at least one class, group, section and session first.',
+                    gravity: 'top',
+                    position: 'right',
+                    style: { background: '#f59e0b' },
+                }).showToast();
+                return;
+            }
+
+            await loadExamFormClassSelect(classSelection.value);
+            const classId = document.getElementById('examFormClass')?.value || '';
+            await loadExamFormGroupSelect(classId, groupSelection.value);
+            const groupId = document.getElementById('examFormGroup')?.value || '';
+            await loadExamFormSectionSelect(classId, groupId, sectionSelection.value);
+            const sectionId = document.getElementById('examFormSection')?.value || '';
+            await loadExamFormSessionSelect(classId, groupId, sectionId, sessionSelection.value);
+
+            document.getElementById('examModal')?.classList.remove('hidden');
+        }
+
+        document.addEventListener('school:dropdown-add-modal-opened', async event => {
+            const { targetModalId, sourceDropdownId } = event.detail || {};
+
+            if (targetModalId !== 'examModal' || sourceDropdownId !== 'exam_name' || activeGenerationMode !== 'multi') {
+                return;
+            }
+
+            await prepareExamModalForMultiSelection();
+        });
 
         function initializeFilterDropdowns() {
             const cascades = {
@@ -1103,7 +1149,19 @@
                 if (err.response && err.response.data.status === 'exists') {
                     Swal.fire('Already Exists', err.response.data.message, 'warning');
                 } else {
-                    Swal.fire('Error', 'Batch creation failed', 'error');
+                    const response = err.response?.data || {};
+                    const validationMessages = Object.values(response.errors || {})
+                        .flat()
+                        .filter(Boolean);
+                    const message = response.message
+                        || validationMessages.join('\n')
+                        || 'Batch creation failed. Please check the selected values and try again.';
+
+                    Swal.fire({
+                        title: 'Error',
+                        text: message,
+                        icon: 'error'
+                    });
                 }
             }).finally(() => btn.disabled = false);
         };
