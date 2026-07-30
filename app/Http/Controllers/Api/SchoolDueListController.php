@@ -106,8 +106,8 @@ class SchoolDueListController extends Controller
         $record = (object) [
             'payment_id'          => $fee->id,
             'status'              => $displayStatus,
-            'display_pay_date'    => $payDate ? $payDate->format('d/m/Y') : 'N/A',
-            'display_last_pay_date' => $payDate ? $payDate->format('d/m/Y') : 'N/A',
+            'display_pay_date'    => $payDate ? $payDate->format('j-F-Y') : 'N/A',
+            'display_last_pay_date' => $payDate ? $payDate->format('j-F-Y') : 'N/A',
             'pay_method'          => '—',
             'total_payable'       => $amount,
             'total_amount'        => $paid,

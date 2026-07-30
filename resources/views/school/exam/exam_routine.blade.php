@@ -678,10 +678,12 @@
             return `${h}:${minutes} ${ampm}`;
         }
 
-        function formatDateDDMMYYYY(dateStr) {
+        function formatDate(dateStr) {
             if (!dateStr) return '';
-            const [y, m, d] = dateStr.split('-');
-            return `${d}/${m}/${y}`;
+            const dt = new Date(dateStr);
+            if (isNaN(dt.getTime())) return dateStr;
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            return dt.getDate() + '-' + months[dt.getMonth()] + '-' + dt.getFullYear();
         }
 
         function updateDayName() {
@@ -1180,7 +1182,7 @@
                                 <td>${item.school_session?.session_year ?? '-'}</td>
                                 <td>${item.school_exam?.exam_name ?? '-'}</td>
                                 <td class="text-gray-700">${item.school_subject?.subject_name ?? '-'}</td>
-                                <td>${formatDateDDMMYYYY(item.exam_date)}</td>
+                                <td>${formatDate(item.exam_date)}</td>
                                 <td>${item.day_name}</td>
                                 <td>${formatTime12h(item.start_time)}</td>
                                 <td>${formatTime12h(item.end_time)}</td>

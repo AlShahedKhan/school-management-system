@@ -187,7 +187,7 @@ class SchoolExamGradeController extends Controller
         $pdf = Pdf::loadView('exports.exam_grade_list_pdf', [
             'grades' => $grades,
             'school' => $school,
-            'date' => now()->format('d/m/Y')
+            'date' => now()->format('j-F-Y')
         ]);
 
         return $pdf->download("exam_grades_" . now()->format('Ymd') . ".pdf");

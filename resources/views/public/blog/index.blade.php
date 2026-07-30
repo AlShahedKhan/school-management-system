@@ -42,7 +42,7 @@
 
                             <div class="flex flex-1 flex-col p-6">
                                 <p class="text-xs font-semibold uppercase tracking-[0.12em] text-blue-500">
-                                    {{ $blog->published_at?->format('d M Y') }}
+                                    {{ $blog->published_at?->format('j-F-Y') }}
                                 </p>
                                 <h2 class="mt-3 text-xl font-bold leading-snug text-slate-950">
                                     <a href="{{ route('public.blogs.show', $blog) }}" class="transition hover:text-blue-600">

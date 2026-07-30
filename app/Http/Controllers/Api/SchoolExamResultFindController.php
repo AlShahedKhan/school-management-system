@@ -77,7 +77,7 @@ class SchoolExamResultFindController extends Controller
             }
 
             $publishDateTime = $scheduled->publish_date && $scheduled->publish_time
-                ? \Carbon\Carbon::parse($scheduled->publish_date . ' ' . $scheduled->publish_time)->format('d-F-y h:i A')
+                ? \Carbon\Carbon::parse($scheduled->publish_date . ' ' . $scheduled->publish_time)->format('j-F-Y h:i A')
                 : null;
 
             $marks = DB::table('school_exam_marks')
