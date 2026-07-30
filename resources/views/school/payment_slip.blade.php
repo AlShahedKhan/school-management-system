@@ -152,7 +152,7 @@
                             @endphp
                             <tr class="align-top">
                                 <td class="py-1.5 px-1.5 whitespace-nowrap border border-gray-200/60">{{ $i + 1 }}</td>
-                                <td class="py-1.5 px-1.5 whitespace-nowrap border border-gray-200/60">{{ $p->pay_date ? \Carbon\Carbon::parse($p->pay_date)->format('d-M-y') : '-' }}</td>
+                                <td class="py-1.5 px-1.5 whitespace-nowrap border border-gray-200/60">{{ $p->pay_date ? \Carbon\Carbon::parse($p->pay_date)->format('j-F-Y') : '-' }}</td>
                                 <td class="py-1.5 px-1.5 whitespace-nowrap border border-gray-200/60">{{ $receiveMonth }}</td>
                                 <td class="py-1.5 px-1.5 whitespace-nowrap border border-gray-200/60">{{ $p->pay_method ?? '-' }}</td>
                                 <td class="py-1.5 px-1.5 whitespace-nowrap font-medium {{ $statusColor }} border border-gray-200/60">{{ $statusText }}</td>

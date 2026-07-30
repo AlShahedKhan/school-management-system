@@ -169,7 +169,7 @@ class SchoolExamNameController extends Controller
         $pdf = Pdf::loadView('exports.exam_name_list_pdf', [
             'records' => $records,
             'school' => $school,
-            'date' => now()->format('d/m/Y')
+            'date' => now()->format('j-F-Y')
         ]);
 
         return $pdf->download('exam_names_' . now()->format('Ymd') . '.pdf');

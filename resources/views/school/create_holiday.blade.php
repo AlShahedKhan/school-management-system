@@ -766,8 +766,9 @@
                     const formatDate = (dateStr) => {
                         if (!dateStr) return 'N/A';
                         const d = new Date(dateStr);
-                        return isNaN(d.getTime()) ? dateStr :
-                            `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+                        if (isNaN(d.getTime())) return dateStr;
+                        const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                        return d.getDate() + '-' + months[d.getMonth()] + '-' + d.getFullYear();
                     };
 
                     let targetHtml = h.type === 'General' ?

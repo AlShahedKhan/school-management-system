@@ -298,15 +298,13 @@
                     }).showToast();
                 }
 
-                // Helper to format date to DD/MM/YYYY
                 function formatDate(dateString) {
                     if (!dateString || dateString === '-' || dateString === 'N/A') return '-';
                     try {
-                        const date = new Date(dateString);
-                        // Check if valid date
-                        if (isNaN(date.getTime())) return dateString;
-                        
-                        return new Intl.DateTimeFormat('en-GB').format(date); // DD/MM/YYYY
+                        const d = new Date(dateString);
+                        if (isNaN(d.getTime())) return dateString;
+                        const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                        return d.getDate() + '-' + months[d.getMonth()] + '-' + d.getFullYear();
                     } catch (e) {
                         return dateString;
                     }

@@ -49,7 +49,7 @@ class PaymentSlipExport implements FromArray, WithHeadings, WithEvents, WithStyl
 
             $rows[] = [
                 $i + 1,
-                $p->pay_date ? Carbon::parse($p->pay_date)->format('d/m/Y') : '-',
+                $p->pay_date ? Carbon::parse($p->pay_date)->format('j-F-Y') : '-',
                 $receiveMonth,
                 $p->pay_method ?? '-',
                 $statusText,

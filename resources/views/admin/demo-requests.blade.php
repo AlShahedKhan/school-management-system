@@ -139,14 +139,14 @@
                                 </td>
                                 <td class="px-4 py-4">
                                     <p class="text-sm font-semibold text-gray-700">
-                                        {{ $demoRequest->created_at?->format('d M Y') }}</p>
+                                        {{ $demoRequest->created_at?->format('j-F-Y') }}</p>
                                     <p class="mt-1 text-xs text-gray-400">{{ $demoRequest->created_at?->format('h:i A') }}
                                     </p>
                                     <p class="mt-3 text-[11px] font-bold uppercase tracking-[0.12em] text-gray-500">
                                         Booking
                                     </p>
                                     <p class="mt-1 text-xs text-gray-600">
-                                        {{ $demoRequest->booking_date?->format('d M Y') ?: 'No date' }}
+                                        {{ $demoRequest->booking_date?->format('j-F-Y') ?: 'No date' }}
                                         @if ($demoRequest->booking_time)
                                             <span class="text-gray-400">at</span>
                                             {{ \Carbon\Carbon::createFromFormat('H:i:s', $demoRequest->booking_time)->format('h:i A') }}

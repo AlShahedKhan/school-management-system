@@ -136,7 +136,7 @@
                 {{ $payroll->receive_year }}
             </x-table.td>
             <x-table.td unstyled class="border border-gray-300 px-3 text-center">
-                {{ $payroll->receive_date?->format('d-M-Y') }}
+                {{ $payroll->receive_date?->format('j-F-Y') }}
             </x-table.td>
             <x-table.td unstyled class="border border-gray-300 px-3 text-center">
                 {{ $payroll->payment_method->label() }}

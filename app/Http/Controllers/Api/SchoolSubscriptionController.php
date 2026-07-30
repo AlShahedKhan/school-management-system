@@ -38,9 +38,9 @@ class SchoolSubscriptionController extends Controller
             'subscription' => [
                 'id' => $subscription->id,
                 'package_name' => $subscription->package->package_type,
-                'start_date' => Carbon::parse($subscription->start_date)->format('d M, Y'),
+                'start_date' => Carbon::parse($subscription->start_date)->format('j-F-Y'),
                 'start_date_raw' => Carbon::parse($subscription->start_date)->format('Y-m-d'),
-                'expires_at' => Carbon::parse($subscription->expiry_date)->format('d M, Y'),
+                'expires_at' => Carbon::parse($subscription->expiry_date)->format('j-F-Y'),
                 'days_remaining' => max($daysRemaining, 0),
                 'status' => $subscription->status,
             ]

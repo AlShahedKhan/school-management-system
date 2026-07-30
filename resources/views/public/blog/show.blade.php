@@ -30,7 +30,7 @@
 
             <header class="mt-8">
                 <p class="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">
-                    {{ $blog->published_at?->format('d M Y') }}
+                    {{ $blog->published_at?->format('j-F-Y') }}
                 </p>
                 <h1 class="home-title-font mt-4 text-[clamp(2.5rem,6vw,4.5rem)] font-black leading-[1.05] text-slate-950">
                     {{ $translation?->title ?? public_trans('public.blog.untitled') }}

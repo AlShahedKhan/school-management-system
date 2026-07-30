@@ -147,7 +147,7 @@ class AdmissionController extends Controller
             $deadline = \Carbon\Carbon::parse($admissionFeeTemplate->pay_date);
             if ($deadline->isPast()) {
                 return response()->json([
-                    'message' => 'Admission deadline has passed (' . $deadline->format('d/m/Y') . '). Please contact the school admin.'
+                    'message' => 'Admission deadline has passed (' . $deadline->format('j-F-Y') . '). Please contact the school admin.'
                 ], 422);
             }
         }

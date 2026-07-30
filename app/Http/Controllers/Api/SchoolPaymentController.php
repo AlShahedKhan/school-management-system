@@ -454,7 +454,7 @@ class SchoolPaymentController extends Controller
             'grandTotal'  => $grandTotal,
             'grandPaid'   => $grandPaid,
             'grandDue'    => $grandDue,
-            'generatedAt' => Carbon::now()->format('d/m/Y'),
+            'generatedAt' => Carbon::now()->format('j-F-Y'),
         ])->setPaper('a4', 'landscape');
 
         $filename = 'payment_report_' . $student->student_id_number . '_' . Carbon::now()->format('Ymd') . '.pdf';
