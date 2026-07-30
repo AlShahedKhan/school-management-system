@@ -199,6 +199,7 @@
 
         const sourceMap = {
             examFormSession: ['examFormClass', 'examFormGroup', 'examFormSection'],
+            m_session: ['m_class', 'm_group', 'm_section'],
             examSessionFilter: ['examClassFilter', 'examGroupFilter', 'examSectionFilter'],
             sessionYearFilter: ['sessionClassFilter', 'sessionGroupFilter', 'sessionSectionFilter'],
             session_name: ['class_name', 'group_name', 'section_name'],

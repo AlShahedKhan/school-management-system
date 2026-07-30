@@ -239,44 +239,44 @@
     fields-class="block"
     onsubmit="event.preventDefault();"
 >
-    <input type="hidden" id="edit_id">
+    <input type="hidden" id="mark_edit_id">
     <input type="hidden" id="action_type" value="exam configure" name="action_type">
 
-    <div id="step1">
+    <div id="markStep1">
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
             <div class="relative">
-                <x-input.dropdown-select id="m_class" placeholder="Select Class" :options="[]" />
+                <x-input.dropdown-select id="m_class" placeholder="Select Class" :options="[]" add-button-label="Add Class" add-button-target="classModal" />
                 <x-input.floating-label for="m_class" :floating="false">Class</x-input.floating-label>
             </div>
 
             <div class="relative">
-                <x-input.dropdown-select id="m_group" placeholder="Select Group" :options="[]" />
+                <x-input.dropdown-select id="m_group" placeholder="Select Group" :options="[]" add-button-label="Add Group" add-button-target="groupModal" />
                 <x-input.floating-label for="m_group" :floating="false">Group</x-input.floating-label>
             </div>
 
             <div class="relative">
-                <x-input.dropdown-select id="m_section" placeholder="Select Section" :options="[]" />
+                <x-input.dropdown-select id="m_section" placeholder="Select Section" :options="[]" add-button-label="Add Section" add-button-target="sectionModal" />
                 <x-input.floating-label for="m_section" :floating="false">Section</x-input.floating-label>
             </div>
 
             <div class="relative">
-                <x-input.dropdown-select id="m_session" placeholder="Select Session" :options="[]" />
+                <x-input.dropdown-select id="m_session" placeholder="Select Session" :options="[]" add-button-label="Add Session" add-button-target="sessionModal" />
                 <x-input.floating-label for="m_session" :floating="false">Session</x-input.floating-label>
             </div>
 
             <div class="relative">
-                <x-input.dropdown-select id="m_exam" placeholder="Select Exam" :options="[]" />
+                <x-input.dropdown-select id="m_exam" placeholder="Select Exam" :options="[]" add-button-label="Add Exam" add-button-target="examModal" />
                 <x-input.floating-label for="m_exam" :floating="false">Exam Name</x-input.floating-label>
             </div>
 
             <div class="relative">
-                <x-input.dropdown-select id="m_subject" placeholder="Select Subject" :options="[]" />
+                <x-input.dropdown-select id="m_subject" placeholder="Select Subject" :options="[]" add-button-id="addMarkSubjectButton" add-button-label="Add Subject" add-button-target="subjectModal" />
                 <x-input.floating-label for="m_subject" :floating="false">Subject</x-input.floating-label>
             </div>
         </div>
     </div>
 
-    <div id="step2" class="step-hidden">
+    <div id="markStep2" class="step-hidden">
         <div class="max-h-[360px] overflow-auto border border-gray-200 bg-white">
             <table class="mark-entry-table w-full min-w-[600px] border-collapse text-left">
                 <thead class="sticky top-0 z-10">
@@ -294,18 +294,48 @@
     </div>
 
     <x-slot:footer>
-        <div id="step1Actions" class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
+        <div id="markStep1Actions" class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
             <x-button.secondary type="button" onclick="closeMarkModal()" class="w-full">Cancel</x-button.secondary>
-            <x-button.primary type="button" id="nextBtn" onclick="goToStep2()" class="w-full">Next</x-button.primary>
+            <x-button.primary type="button" id="markNextBtn" onclick="goToStep2()" class="w-full">Next</x-button.primary>
         </div>
 
-        <div id="step2Actions" class="hidden grid grid-cols-3 gap-3 bg-white px-6 pb-4 pt-3">
-            <x-button.secondary type="button" id="backBtn" onclick="goToStep1()" class="w-full">Back</x-button.secondary>
+        <div id="markStep2Actions" class="hidden grid grid-cols-3 gap-3 bg-white px-6 pb-4 pt-3">
+            <x-button.secondary type="button" id="markBackBtn" onclick="goToStep1()" class="w-full">Back</x-button.secondary>
             <x-button.secondary type="button" onclick="submitMarks('draft')" class="w-full text-blue-600">Draft</x-button.secondary>
             <x-button.primary type="button" onclick="submitMarks('published')" class="w-full">Submit</x-button.primary>
         </div>
     </x-slot:footer>
-</x-modal.form>
+    </x-modal.form>
+
+    @include('school.academic.class.partials.class-modal')
+    @include('school.academic.group.partials.group-modal')
+    @include('school.academic.section.partials.section-modal')
+    @include('school.academic.session.partials.session-modal')
+    @include('school.academic.subject.partials.subject-modal', ['showGradeAddButton' => true])
+    @include('school.exam.exam_name.partials.exam-modal')
+    @include('school.exam.grade.partials.grade-modal')
+
+    @include('school.academic.class.partials.js.modal-open')
+    @include('school.academic.group.partials.js.modal-open')
+    @include('school.academic.section.partials.js.modal-open')
+    @include('school.academic.session.partials.js.modal-open')
+    @include('school.academic.subject.partials.js.modal-open')
+    @include('school.exam.exam_name.partials.js.modal-open')
+    @include('school.exam.grade.partials.js.modal-open')
+    @include('school.academic.class.partials.js.modal-submit')
+    @include('school.academic.group.partials.js.modal-submit')
+    @include('school.academic.section.partials.js.modal-submit')
+    @include('school.academic.session.partials.js.modal-submit')
+    @include('school.academic.subject.partials.js.modal-submit')
+    @include('school.exam.exam_name.partials.js.modal-submit')
+    @include('school.exam.grade.partials.js.modal-submit')
+    @include('school.academic.class.partials.js.error-validation')
+    @include('school.academic.group.partials.js.error-validation')
+    @include('school.academic.section.partials.js.error-validation')
+    @include('school.academic.session.partials.js.error-validation')
+    @include('school.academic.subject.partials.js.error-validation')
+    @include('school.exam.exam_name.partials.js.error-validation')
+    @include('school.exam.grade.partials.js.error-validation')
 
 <script>
     let gradingSystem = [];
@@ -313,6 +343,78 @@
     let isEditMode = false;
     let currentPage = 1;
     let selectedSubjectType = 1;
+
+    function populateDropdown(menuId, data, valueField, labelField) {
+        const menu = document.getElementById(menuId);
+        if (!menu) return;
+
+        menu.innerHTML = '';
+        (data || []).forEach(item => {
+            const option = document.createElement('button');
+            option.type = 'button';
+            option.className = 'dropdown-select-option m-0 flex min-h-6 w-full items-center border-0 bg-white px-3 py-1 text-left text-[11px] font-normal leading-tight text-slate-800 transition-colors hover:bg-slate-100';
+            option.dataset.value = String(item[valueField] ?? '');
+            option.dataset.optionId = String(item.id ?? '');
+            option.textContent = item[labelField] ?? '';
+            option.setAttribute('role', 'option');
+            option.setAttribute('aria-selected', 'false');
+            option.setAttribute('data-dropdown-select-option', '');
+
+            option.addEventListener('click', function () {
+                const root = menu.closest('[data-dropdown-select]');
+                const input = root?.querySelector('[data-dropdown-select-input]');
+                const label = root?.querySelector('[data-dropdown-select-label]');
+                if (!input || !label) return;
+
+                input.value = this.dataset.value || '';
+                label.textContent = this.textContent.trim();
+                menu.querySelectorAll('[data-dropdown-select-option]').forEach(item => {
+                    const selected = item === this;
+                    item.classList.toggle('bg-slate-100', selected);
+                    item.classList.toggle('text-slate-900', selected);
+                    item.classList.toggle('text-slate-800', !selected);
+                    item.setAttribute('aria-selected', String(selected));
+                });
+                menu.classList.add('hidden');
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+
+            menu.appendChild(option);
+        });
+    }
+
+    function setDropdownValue(dropdownId, value, label) {
+        const input = document.getElementById(dropdownId);
+        const labelElement = document.querySelector(`#${dropdownId}Button [data-dropdown-select-label]`);
+        const menu = document.getElementById(`${dropdownId}Menu`);
+
+        if (input) input.value = value || '';
+        if (labelElement) {
+            labelElement.textContent = label || labelElement.dataset.placeholder || 'Select...';
+        }
+
+        menu?.querySelectorAll('[data-dropdown-select-option]').forEach(option => {
+            const selected = String(option.dataset.value || '') === String(value || '');
+            option.classList.toggle('bg-slate-100', selected);
+            option.classList.toggle('text-slate-900', selected);
+            option.classList.toggle('text-slate-800', !selected);
+            option.setAttribute('aria-selected', String(selected));
+        });
+    }
+
+    function getSelectedDataId(elementOrId) {
+        const input = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
+        if (!input) return '';
+
+        if (input.matches?.('[data-dropdown-select-input]')) {
+            const menu = document.getElementById(`${input.id}Menu`);
+            const selected = Array.from(menu?.querySelectorAll('[data-dropdown-select-option]') || [])
+                .find(option => String(option.dataset.value || '') === String(input.value || ''));
+            return selected?.dataset.optionId || input.value || '';
+        }
+
+        return input.options?.[input.selectedIndex]?.getAttribute('data-id') || input.value || '';
+    }
 
     window.addEventListener('load', () => {
         initializeMarkDropdownEvents();
@@ -395,6 +497,9 @@
 
             if (item.subject_type) option.dataset.type = String(item.subject_type);
             if (item.grade_id) option.dataset.gradeId = String(item.grade_id);
+            if (item.fail_mark !== undefined && item.fail_mark !== null) {
+                option.dataset.failMark = String(item.fail_mark);
+            }
             if (item.marks) {
                 option.dataset.marks = typeof item.marks === 'object'
                     ? JSON.stringify(item.marks)
@@ -417,6 +522,129 @@
             fillOptions(filterId, data, field);
         }
     }
+
+    window.prepareMarkSubjectModal = async function () {
+        const classId = selectedMarkDropdownId('m_class');
+        const groupId = selectedMarkDropdownId('m_group');
+        const sectionId = selectedMarkDropdownId('m_section');
+
+        document.getElementById('subjectForm')?.reset();
+        const recordId = document.getElementById('record_id');
+        if (recordId) recordId.value = '';
+        document.getElementById('subjectModalTitle').innerText = 'Add Subject';
+        setDropdownValue('subjectFormClass', '', 'Select Class');
+        setDropdownValue('subjectFormGroup', '', 'Select Group');
+        setDropdownValue('subjectFormSection', '', 'Select Section');
+        populateDropdown('subjectFormGroupMenu', [], 'id', 'group_name');
+        populateDropdown('subjectFormSectionMenu', [], 'id', 'section_name');
+
+        if (classId) {
+            await loadSubjectClassSelect(classId);
+        }
+        if (classId && groupId) {
+            await loadSubjectGroupSelect(groupId);
+        }
+        if (classId && groupId && sectionId) {
+            await loadSubjectSectionSelect(sectionId);
+        }
+
+        document.getElementById('subjectModal')?.classList.remove('hidden');
+    };
+
+    // The Mark Submit dropdowns store display names with their IDs on options, so
+    // capture the Subject quick-add directly before the shared dropdown handler runs.
+    document.addEventListener('click', async event => {
+        const addButton = event.target.closest('#addMarkSubjectButton');
+        if (!addButton) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        const subjectModal = document.getElementById('subjectModal');
+        if (subjectModal) {
+            subjectModal.dataset.returnModalId = 'markModal';
+        }
+
+        try {
+            await window.prepareMarkSubjectModal();
+            document.getElementById('markModal')?.classList.add('hidden');
+        } catch (error) {
+            console.error('Failed to open Add Subject with the selected values:', error);
+            Swal.fire('Error', 'Could not open Add Subject. Please try again.', 'error');
+        }
+    }, true);
+
+    async function refreshMarkDropdownAfterQuickCreate(type, item) {
+        if (!item) return;
+
+        const classId = selectedMarkDropdownId('m_class');
+        const groupId = selectedMarkDropdownId('m_group');
+        const sectionId = selectedMarkDropdownId('m_section');
+
+        if (type === 'class') {
+            const response = await axios.get('/api/get-school-classes');
+            fillOptions('m_class', response.data.data || [], 'class_name');
+            setMarkDropdownValue('m_class', item.class_name, item.class_name, true);
+        } else if (type === 'group') {
+            const response = await axios.get('/api/get-school-groups', { params: { class_id: classId } });
+            fillOptions('m_group', response.data.data || [], 'group_name');
+            setMarkDropdownValue('m_group', item.group_name, item.group_name, true);
+        } else if (type === 'section') {
+            const response = await axios.get('/api/get-school-sections', {
+                params: { class_id: classId, group_id: groupId },
+            });
+            fillOptions('m_section', response.data.data || [], 'section_name');
+            setMarkDropdownValue('m_section', item.section_name, item.section_name, true);
+        } else if (type === 'session') {
+            const response = await axios.get('/api/get-school-sessions', {
+                params: { class_id: classId, group_id: groupId, section_id: sectionId },
+            });
+            fillOptions('m_session', response.data.data || [], 'session_year');
+            setMarkDropdownValue('m_session', item.session_year, item.session_year, true);
+        } else if (type === 'exam') {
+            const response = await axios.get('/api/get-school-exams', {
+                params: {
+                    class_ids: classId ? [classId] : [],
+                    group_ids: groupId ? [groupId] : [],
+                    section_ids: sectionId ? [sectionId] : [],
+                    session_ids: selectedMarkDropdownId('m_session') ? [selectedMarkDropdownId('m_session')] : [],
+                },
+            });
+            fillOptions('m_exam', response.data.data || [], 'exam_name');
+            setMarkDropdownValue('m_exam', item.exam_name, item.exam_name, true);
+        } else if (type === 'subject') {
+            const response = await axios.get('/api/get-school-subjects', {
+                params: { class_id: classId, group_id: groupId, section_id: sectionId },
+            });
+            fillOptions('m_subject', response.data.data || [], 'subject_name');
+            setMarkDropdownValue('m_subject', item.subject_name, item.subject_name, true);
+        }
+
+        document.getElementById('markModal')?.classList.remove('hidden');
+    }
+
+    [
+        ['school:class-saved', 'classItem', 'class'],
+        ['school:group-saved', 'groupItem', 'group'],
+        ['school:section-saved', 'sectionItem', 'section'],
+        ['school:session-saved', 'sessionItem', 'session'],
+        ['school:exam-saved', 'examItem', 'exam'],
+        ['school:subject-saved', 'subjectItem', 'subject'],
+    ].forEach(([eventName, itemKey, type]) => {
+        document.addEventListener(eventName, async event => {
+            const { returnModalId, isNew, [itemKey]: item } = event.detail || {};
+            if (returnModalId !== 'markModal' || !isNew || !item) return;
+
+            event.preventDefault();
+            try {
+                await refreshMarkDropdownAfterQuickCreate(type, item);
+            } catch (error) {
+                console.error(`Failed to refresh ${type} dropdown:`, error);
+                document.getElementById('markModal')?.classList.remove('hidden');
+            }
+        });
+    });
 
     function initializeMarkDropdownEvents() {
         const cascades = {
@@ -574,7 +802,8 @@
                 return;
             }
             res.data.data.forEach((item, i) => {
-                body.innerHTML += `<tr class="hover:bg-gray-50">
+                const failed = ['f', 'fail', 'failed'].includes(String(item.letter_name || '').trim().toLowerCase());
+                body.innerHTML += `<tr class="hover:bg-gray-50 ${failed ? 'bg-red-50/60 text-red-600' : ''}">
                     ${markTableCell(res.data.from + i, 'text-center')}
                     ${markTableCell(item.class_name)}
                     ${markTableCell(item.subject_name)}
@@ -682,7 +911,7 @@
 
     function renderStudentRows() {
         const tbody = document.getElementById('studentMarkList');
-        const thead = document.querySelector('#step2 thead tr');
+        const thead = document.querySelector('#markStep2 thead tr');
 
         // Get full mark and mark distribution for placeholders
         const selectedSub = selectedMarkDropdownOption('m_subject');
@@ -729,16 +958,16 @@
                 const theoryPlaceholder = theoryMax ? `0 - ${theoryMax}` : 'Min: 0';
                 const practicalPlaceholder = practicalMax ? `0 - ${practicalMax}` : 'Min: 0';
                 markInputs = `
-                        <td><input type="number" placeholder="${theoryPlaceholder}" class="mark-entry-input theory-input" value="${s.theory_mark || ''}" onkeyup="calculateGrade(this, ${idx}, 'theory')" data-idx="${idx}"></td>
-                        <td><input type="number" placeholder="${practicalPlaceholder}" class="mark-entry-input practical-input" value="${s.practical_mark || ''}" onkeyup="calculateGrade(this, ${idx}, 'practical')" data-idx="${idx}"></td>
+                        <td><input type="number" placeholder="${theoryPlaceholder}" class="mark-entry-input theory-input" value="${s.theory_mark || ''}" oninput="calculateGrade(this, ${idx}, 'theory')" data-idx="${idx}"></td>
+                        <td><input type="number" placeholder="${practicalPlaceholder}" class="mark-entry-input practical-input" value="${s.practical_mark || ''}" oninput="calculateGrade(this, ${idx}, 'practical')" data-idx="${idx}"></td>
                         <td><input type="number" placeholder="Total" class="mark-entry-input mark-input bg-gray-50" value="${s.mark || ''}" readonly id="total_mark_${idx}"></td>`;
             } else {
                 const fullMarkPlaceholder = `0 - ${fullMark}`;
-                markInputs = `<td><input type="number" placeholder="${fullMarkPlaceholder}" class="mark-entry-input mark-input" value="${s.mark || ''}" min="0" max="${fullMark}" onkeyup="calculateGrade(this, ${idx}, 'total')" data-idx="${idx}"></td>`;
+                markInputs = `<td><input type="number" placeholder="${fullMarkPlaceholder}" class="mark-entry-input mark-input" value="${s.mark || ''}" min="0" max="${fullMark}" oninput="calculateGrade(this, ${idx}, 'total')" data-idx="${idx}"></td>`;
             }
 
             tbody.innerHTML += `
-            <tr>
+            <tr id="student_mark_row_${idx}">
                 <td class="font-mono text-[10px]">${escapeMarkHtml(s.student_id_number)}</td>
                 <td class="font-bold uppercase">${escapeMarkHtml(s.student_name)}</td>
                 ${markInputs}
@@ -750,20 +979,20 @@
 
     function showStep(step) {
         const title = document.getElementById('markModalTitle');
-        const step1Actions = document.getElementById('step1Actions');
-        const step2Actions = document.getElementById('step2Actions');
+        const step1Actions = document.getElementById('markStep1Actions');
+        const step2Actions = document.getElementById('markStep2Actions');
 
         if (step === 1) {
-            document.getElementById('step2').classList.add('step-hidden');
-            document.getElementById('step1').classList.remove('step-hidden');
+            document.getElementById('markStep2').classList.add('step-hidden');
+            document.getElementById('markStep1').classList.remove('step-hidden');
             step1Actions.classList.remove('hidden');
             step1Actions.classList.add('grid');
             step2Actions.classList.add('hidden');
             step2Actions.classList.remove('grid');
             title.innerText = isEditMode ? 'Edit Mark Configuration' : 'Exam Configuration';
         } else {
-            document.getElementById('step1').classList.add('step-hidden');
-            document.getElementById('step2').classList.remove('step-hidden');
+            document.getElementById('markStep1').classList.add('step-hidden');
+            document.getElementById('markStep2').classList.remove('step-hidden');
             step1Actions.classList.add('hidden');
             step1Actions.classList.remove('grid');
             step2Actions.classList.remove('hidden');
@@ -784,6 +1013,7 @@
         const gradeId = selectedMarkDropdownOption('m_subject')?.dataset.gradeId;
         const referenceRule = gradingSystem.find(g => g.id == gradeId);
         const fullMark = referenceRule ? referenceRule.full_mark : null;
+        const configuredFailMark = parseFloat(selectedMarkDropdownOption('m_subject')?.dataset.failMark || '0');
 
         if (selectedSubjectType == 3) {
             const tr = input.closest('tr');
@@ -814,8 +1044,14 @@
         }
 
         if (total === 0 && input.value === '') {
+            const row = document.getElementById(`student_mark_row_${idx}`);
+            row?.classList.remove('bg-red-50/60', 'text-red-600');
             document.getElementById(`grade_${idx}`).innerText = '-';
+            document.getElementById(`grade_${idx}`).classList.remove('text-red-600');
+            document.getElementById(`grade_${idx}`).classList.add('text-blue-600');
             document.getElementById(`point_${idx}`).innerText = '-';
+            studentsForEntry[idx].letter_name = null;
+            studentsForEntry[idx].point = null;
             return;
         }
 
@@ -823,19 +1059,56 @@
             (fullMark ? g.full_mark == fullMark : true) &&
             total >= g.mark_from && total <= g.mark_to
         );
-        if (res) {
+        const minimumPassingMark = configuredFailMark > 0
+            ? configuredFailMark
+            : Math.min(...gradingSystem
+                .filter(g => (fullMark ? g.full_mark == fullMark : true)
+                    && Number(g.grade_point) > 0
+                    && !['f', 'fail', 'failed'].includes(String(g.grade_name || '').trim().toLowerCase()))
+                .map(g => Number(g.mark_from)));
+        const failed = (Number.isFinite(minimumPassingMark) && total < minimumPassingMark) || !res;
+        const row = document.getElementById(`student_mark_row_${idx}`);
+
+        row?.classList.toggle('bg-red-50/60', failed);
+        row?.classList.toggle('text-red-600', failed);
+
+        if (failed) {
+            document.getElementById(`grade_${idx}`).innerText = 'F';
+            document.getElementById(`grade_${idx}`).classList.toggle('text-blue-600', false);
+            document.getElementById(`grade_${idx}`).classList.toggle('text-red-600', true);
+            document.getElementById(`point_${idx}`).innerText = '0';
+            studentsForEntry[idx].letter_name = 'F';
+            studentsForEntry[idx].point = 0;
+        } else {
             document.getElementById(`grade_${idx}`).innerText = res.grade_name;
+            document.getElementById(`grade_${idx}`).classList.toggle('text-red-600', false);
+            document.getElementById(`grade_${idx}`).classList.toggle('text-blue-600', true);
             document.getElementById(`point_${idx}`).innerText = res.grade_point;
             studentsForEntry[idx].letter_name = res.grade_name;
             studentsForEntry[idx].point = res.grade_point;
-        } else {
-            document.getElementById(`grade_${idx}`).innerText = '-';
-            document.getElementById(`point_${idx}`).innerText = '-';
         }
     }
 
     function submitMarks(status) {
-        const editId = document.getElementById('edit_id').value;
+        const editId = document.getElementById('mark_edit_id').value;
+
+        document.querySelectorAll('#studentMarkList tr').forEach((row, idx) => {
+            const student = studentsForEntry[idx];
+            if (!student) return;
+
+            const markInput = row.querySelector('.mark-input');
+            const theoryInput = row.querySelector('.theory-input');
+            const practicalInput = row.querySelector('.practical-input');
+
+            if (theoryInput || practicalInput) {
+                student.theory_mark = parseFloat(theoryInput?.value) || 0;
+                student.practical_mark = parseFloat(practicalInput?.value) || 0;
+                student.mark = student.theory_mark + student.practical_mark;
+            } else if (markInput) {
+                student.mark = parseFloat(markInput.value) || 0;
+            }
+        });
+
         const payload = {
             class_name: document.getElementById('m_class').value,
             group_name: document.getElementById('m_group').value,
@@ -881,7 +1154,7 @@
             const res = await axios.get(`/api/school-exam-marks/${id}`);
             const data = res.data;
 
-            document.getElementById('edit_id').value = id;
+            document.getElementById('mark_edit_id').value = id;
             setMarkDropdownValue('m_class', data.class_name, data.class_name);
 
             await handleCascade(document.getElementById('m_class'), 'm_group');
@@ -926,7 +1199,7 @@
 
     function openMarkModal() {
         isEditMode = false;
-        document.getElementById('edit_id').value = '';
+        document.getElementById('mark_edit_id').value = '';
         studentsForEntry = [];
         ['m_class', 'm_group', 'm_section', 'm_session', 'm_exam', 'm_subject'].forEach(id => {
             setMarkDropdownValue(id, '');

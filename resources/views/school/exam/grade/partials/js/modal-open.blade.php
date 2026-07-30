@@ -7,8 +7,24 @@
     }
 
     function closeGradeModal() {
-        document.getElementById('gradeModal').classList.add('hidden');
+        const modal = document.getElementById('gradeModal');
+        const returnModalId = modal?.dataset.returnModalId || null;
+
+        modal?.classList.add('hidden');
+        if (returnModalId) {
+            document.getElementById(returnModalId)?.classList.remove('hidden');
+            delete modal.dataset.returnModalId;
+        }
     }
+
+    document.addEventListener('school:dropdown-add-modal-opened', function (event) {
+        if (event.detail?.targetModalId !== 'gradeModal') return;
+
+        resetGradeForm();
+        document.getElementById('gradeModalTitle').textContent = 'Add Exam Grade';
+        toggleStep(1);
+        document.getElementById('gradeModal')?.classList.remove('hidden');
+    });
 
     document.addEventListener('DOMContentLoaded', function () {
         const closeBtn = document.getElementById('closeGradeModal');

@@ -57,6 +57,9 @@
             placeholder="Select Grade Type"
             :value="old('grade_id')"
             :options="[]"
+            :add-button-id="($showGradeAddButton ?? false) ? 'addSubjectGradeButton' : null"
+            add-button-label="Add grade"
+            :add-button-target="($showGradeAddButton ?? false) ? 'gradeModal' : null"
         />
         <div id="grade_id_error" class="mt-1 hidden text-[10px] text-red-500"></div>
     </div>
