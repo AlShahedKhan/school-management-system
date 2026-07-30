@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\TeacherStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\Hash;
-
-use App\Enums\TeacherStatus; // Added on 2026-07-11: Import status enum
 
 class Teacher extends Model
 {
@@ -25,15 +25,13 @@ class Teacher extends Model
         'salary_amount',
         'salary_start_date',
         'pay_date',
-        'status', // Added on 2026-07-11
+        'status',
     ];
 
-    // Added on 2026-07-11: Cast status to TeacherStatus Enum
     protected $casts = [
         'status' => TeacherStatus::class,
     ];
 
-    // Added on 2026-07-11: Boot method for auto generating common sequence ID
     protected static function booted()
     {
         static::creating(function ($model) {
@@ -43,13 +41,11 @@ class Teacher extends Model
         });
     }
 
-    // Mutator for password hashing
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = Hash::make($value);
     }
 
-    // Relation to School
     public function school()
     {
         return $this->belongsTo(School::class);
@@ -63,5 +59,13 @@ class Teacher extends Model
     public function latestAcademicRecord()
     {
         return $this->hasOne(TeacherAcademicRecord::class, 'teacher_id')->latestOfMany();
+    }
+
+    /**
+     * Get all of the teacher's attendances.
+     */
+    public function attendances(): MorphMany
+    {
+        return $this->morphMany(Attendance::class, 'attendable');
     }
 }
