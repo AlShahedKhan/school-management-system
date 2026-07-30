@@ -156,8 +156,5 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    if (typeSelect) {
-        loadSmsSettingsData();
-    }
 });
 </script>

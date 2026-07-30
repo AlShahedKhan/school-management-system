@@ -103,7 +103,7 @@
 
 <div class="main-view-container">
     <div class="max-w-full mx-auto w-full">
-        <x-school.list-header title="Mark Submit" breadcrumb-current="Mark Submit" keep-title>
+        <x-school.list-header title="Mark Entry" breadcrumb-current="Mark Entry" keep-title>
             <x-slot:search>
                 <form class="flex items-center gap-2" onsubmit="event.preventDefault(); fetchTable(1);">
                     <x-input.search
