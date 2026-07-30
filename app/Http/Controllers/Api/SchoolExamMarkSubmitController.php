@@ -117,6 +117,8 @@ class SchoolExamMarkSubmitController extends Controller
                     ], 422);
                 }
 
+                $writingMark = $data['writing_mark'] ?? ($data['theory_mark'] ?? 0);
+
                 SchoolExamMark::create([
                     'school_id' => $school->id,
                     'class_name' => $request->class_name,
@@ -129,7 +131,10 @@ class SchoolExamMarkSubmitController extends Controller
                     'student_name' => $data['student_name'],
                     'roll_no' => $data['roll_no'] ?? null,
                     'mark' => $mark,
-                    'theory_mark' => $data['theory_mark'] ?? 0,
+                    'tutorial_mark' => $data['tutorial_mark'] ?? 0,
+                    'mcq_mark' => $data['mcq_mark'] ?? 0,
+                    'writing_mark' => $writingMark,
+                    'theory_mark' => $writingMark,
                     'practical_mark' => $data['practical_mark'] ?? 0,
                     'letter_name' => $grade['letter_name'],
                     'point' => $grade['point'],
@@ -158,6 +163,8 @@ class SchoolExamMarkSubmitController extends Controller
         $markValue = (float) ($data['mark'] ?? 0);
         $grade = $this->calculateGrade($school->id, $request, $markValue);
 
+        $writingMark = $data['writing_mark'] ?? ($data['theory_mark'] ?? 0);
+
         $mark->update([
             'class_name' => $request->class_name,
             'group_name' => $request->group_name,
@@ -166,7 +173,10 @@ class SchoolExamMarkSubmitController extends Controller
             'exam_name' => $request->exam_name,
             'subject_name' => $request->subject_name,
             'mark' => $markValue,
-            'theory_mark' => $data['theory_mark'] ?? 0,
+            'tutorial_mark' => $data['tutorial_mark'] ?? 0,
+            'mcq_mark' => $data['mcq_mark'] ?? 0,
+            'writing_mark' => $writingMark,
+            'theory_mark' => $writingMark,
             'practical_mark' => $data['practical_mark'] ?? 0,
             'letter_name' => $grade['letter_name'],
             'point' => $grade['point'],
