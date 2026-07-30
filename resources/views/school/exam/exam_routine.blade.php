@@ -390,8 +390,9 @@
     @include('school.academic.group.partials.group-modal')
     @include('school.academic.section.partials.section-modal')
     @include('school.academic.session.partials.session-modal')
-    @include('school.academic.subject.partials.subject-modal')
+    @include('school.academic.subject.partials.subject-modal', ['showGradeAddButton' => true])
     @include('school.exam.exam_name.partials.exam-modal')
+    @include('school.exam.grade.partials.grade-modal')
 
     @include('school.academic.class.partials.js.modal-open')
     @include('school.academic.group.partials.js.modal-open')
@@ -399,18 +400,21 @@
     @include('school.academic.session.partials.js.modal-open')
     @include('school.academic.subject.partials.js.modal-open')
     @include('school.exam.exam_name.partials.js.modal-open')
+    @include('school.exam.grade.partials.js.modal-open')
     @include('school.academic.class.partials.js.modal-submit')
     @include('school.academic.group.partials.js.modal-submit')
     @include('school.academic.section.partials.js.modal-submit')
     @include('school.academic.session.partials.js.modal-submit')
     @include('school.academic.subject.partials.js.modal-submit')
     @include('school.exam.exam_name.partials.js.modal-submit')
+    @include('school.exam.grade.partials.js.modal-submit')
     @include('school.academic.class.partials.js.error-validation')
     @include('school.academic.group.partials.js.error-validation')
     @include('school.academic.section.partials.js.error-validation')
     @include('school.academic.subject.partials.js.error-validation')
     @include('school.academic.session.partials.js.error-validation')
     @include('school.exam.exam_name.partials.js.error-validation')
+    @include('school.exam.grade.partials.js.error-validation')
 
     <script>
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

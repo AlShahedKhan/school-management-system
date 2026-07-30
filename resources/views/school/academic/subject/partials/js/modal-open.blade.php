@@ -44,7 +44,7 @@
         }
 
         const sourceMap = {
-            subject_name: ['class_name', 'group_name', 'section_name'],
+            subject_name: ['class_name', 'group_name', 'routine_section_name'],
             m_subject: ['m_class', 'm_group', 'm_section'],
             f_subject: ['f_class', 'f_group', 'f_section'],
         };
@@ -170,6 +170,11 @@
             if (el) el.disabled = disabled;
         });
     }
+
+    document.getElementById('subjectFormGrade')?.addEventListener('change', function() {
+        toggleMarkFields();
+        updateMaxAllowedMark();
+    });
 
     function calculateTotalMark() {
         const tutorial = parseFloat(document.getElementById('tutorial_mark').value) || 0;

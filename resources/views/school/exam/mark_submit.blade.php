@@ -921,21 +921,35 @@
 
         let theoryMax = '';
         let practicalMax = '';
+        let tutorialMax = '';
+        let mcqMax = '';
+        let writingMax = '';
         const marksDataAttr = selectedSub?.getAttribute('data-marks');
         if (marksDataAttr) {
             try {
                 const marks = typeof marksDataAttr === 'string' ? JSON.parse(marksDataAttr) : marksDataAttr;
-                theoryMax = marks.theory_marks || '';
-                practicalMax = marks.practical_marks || '';
+                tutorialMax = marks.tutorial_mark ?? marks.tutorial_marks ?? '';
+                mcqMax = marks.mcq_mark ?? marks.mcq_marks ?? '';
+                writingMax = marks.writing_mark ?? marks.writing_marks ?? marks.theory_mark ?? marks.theory_marks ?? '';
+                theoryMax = writingMax;
+                practicalMax = marks.practical_mark ?? marks.practical_marks ?? '';
             } catch (e) {}
         }
+        const hasComponentMarks = [tutorialMax, mcqMax, writingMax, practicalMax].some(value => Number(value) > 0);
 
         // Update Header based on subject type
         let headerHtml = `
                 <th class="px-4 py-2 text-[10px] font-bold uppercase text-gray-500">ID</th>
                 <th class="px-4 py-2 text-[10px] font-bold uppercase text-gray-500">Name</th>`;
 
-        if (selectedSubjectType == 3) {
+        if (hasComponentMarks) {
+            headerHtml += `
+                    <th width="75" class="px-2 py-2 text-[10px] font-bold uppercase text-gray-500">TU</th>
+                    <th width="75" class="px-2 py-2 text-[10px] font-bold uppercase text-gray-500">MCQ</th>
+                    <th width="75" class="px-2 py-2 text-[10px] font-bold uppercase text-gray-500">WR</th>
+                    <th width="75" class="px-2 py-2 text-[10px] font-bold uppercase text-gray-500">PR</th>
+                    <th width="100" class="px-2 py-2 text-[10px] font-bold uppercase text-gray-500">Total Mark</th>`;
+        } else if (selectedSubjectType == 3) {
             headerHtml += `
                     <th width="100" class="px-4 py-2 text-[10px] font-bold uppercase text-gray-500">Theory</th>
                     <th width="100" class="px-4 py-2 text-[10px] font-bold uppercase text-gray-500">Practical</th>
@@ -954,7 +968,15 @@
         studentsForEntry.forEach((s, idx) => {
 
             let markInputs = '';
-            if (selectedSubjectType == 3) {
+            if (hasComponentMarks) {
+                const componentPlaceholder = max => max ? `0 - ${max}` : 'Min: 0';
+                markInputs = `
+                        <td><input type="number" placeholder="${componentPlaceholder(tutorialMax)}" class="mark-entry-input tutorial-input" value="${s.tutorial_mark || ''}" min="0" max="${tutorialMax || ''}" oninput="calculateGrade(this, ${idx}, 'tutorial')" data-idx="${idx}"></td>
+                        <td><input type="number" placeholder="${componentPlaceholder(mcqMax)}" class="mark-entry-input mcq-input" value="${s.mcq_mark || ''}" min="0" max="${mcqMax || ''}" oninput="calculateGrade(this, ${idx}, 'mcq')" data-idx="${idx}"></td>
+                        <td><input type="number" placeholder="${componentPlaceholder(writingMax)}" class="mark-entry-input writing-input" value="${s.writing_mark ?? s.theory_mark ?? ''}" min="0" max="${writingMax || ''}" oninput="calculateGrade(this, ${idx}, 'writing')" data-idx="${idx}"></td>
+                        <td><input type="number" placeholder="${componentPlaceholder(practicalMax)}" class="mark-entry-input practical-input" value="${s.practical_mark || ''}" min="0" max="${practicalMax || ''}" oninput="calculateGrade(this, ${idx}, 'practical')" data-idx="${idx}"></td>
+                        <td><input type="number" placeholder="Total" class="mark-entry-input mark-input bg-gray-50" value="${s.mark || ''}" readonly id="total_mark_${idx}"></td>`;
+            } else if (selectedSubjectType == 3) {
                 const theoryPlaceholder = theoryMax ? `0 - ${theoryMax}` : 'Min: 0';
                 const practicalPlaceholder = practicalMax ? `0 - ${practicalMax}` : 'Min: 0';
                 markInputs = `
@@ -1008,6 +1030,9 @@
     function calculateGrade(input, idx, type) {
         let theory = 0;
         let practical = 0;
+        let tutorial = 0;
+        let mcq = 0;
+        let writing = 0;
         let total = 0;
 
         const gradeId = selectedMarkDropdownOption('m_subject')?.dataset.gradeId;
@@ -1015,8 +1040,23 @@
         const fullMark = referenceRule ? referenceRule.full_mark : null;
         const configuredFailMark = parseFloat(selectedMarkDropdownOption('m_subject')?.dataset.failMark || '0');
 
-        if (selectedSubjectType == 3) {
-            const tr = input.closest('tr');
+        const tr = input.closest('tr');
+        const hasComponentInputs = tr?.querySelector('.tutorial-input, .mcq-input, .writing-input');
+
+        if (hasComponentInputs) {
+            tutorial = parseFloat(tr.querySelector('.tutorial-input')?.value) || 0;
+            mcq = parseFloat(tr.querySelector('.mcq-input')?.value) || 0;
+            writing = parseFloat(tr.querySelector('.writing-input')?.value) || 0;
+            practical = parseFloat(tr.querySelector('.practical-input')?.value) || 0;
+            total = tutorial + mcq + writing + practical;
+            studentsForEntry[idx].tutorial_mark = tutorial;
+            studentsForEntry[idx].mcq_mark = mcq;
+            studentsForEntry[idx].writing_mark = writing;
+            studentsForEntry[idx].theory_mark = writing;
+            studentsForEntry[idx].practical_mark = practical;
+            studentsForEntry[idx].mark = total;
+            document.getElementById(`total_mark_${idx}`).value = total;
+        } else if (selectedSubjectType == 3) {
             theory = parseFloat(tr.querySelector('.theory-input').value) || 0;
             practical = parseFloat(tr.querySelector('.practical-input').value) || 0;
             total = theory + practical;
@@ -1028,6 +1068,9 @@
             }
 
             studentsForEntry[idx].theory_mark = theory;
+            studentsForEntry[idx].writing_mark = theory;
+            studentsForEntry[idx].tutorial_mark = 0;
+            studentsForEntry[idx].mcq_mark = 0;
             studentsForEntry[idx].practical_mark = practical;
             studentsForEntry[idx].mark = total;
             document.getElementById(`total_mark_${idx}`).value = total;
@@ -1101,9 +1144,15 @@
             const practicalInput = row.querySelector('.practical-input');
 
             if (theoryInput || practicalInput) {
-                student.theory_mark = parseFloat(theoryInput?.value) || 0;
+                const tutorialInput = row.querySelector('.tutorial-input');
+                const mcqInput = row.querySelector('.mcq-input');
+                const writingInput = row.querySelector('.writing-input');
+                student.tutorial_mark = parseFloat(tutorialInput?.value) || 0;
+                student.mcq_mark = parseFloat(mcqInput?.value) || 0;
+                student.writing_mark = parseFloat(writingInput?.value ?? theoryInput?.value) || 0;
+                student.theory_mark = student.writing_mark;
                 student.practical_mark = parseFloat(practicalInput?.value) || 0;
-                student.mark = student.theory_mark + student.practical_mark;
+                student.mark = student.tutorial_mark + student.mcq_mark + student.writing_mark + student.practical_mark;
             } else if (markInput) {
                 student.mark = parseFloat(markInput.value) || 0;
             }
@@ -1123,6 +1172,9 @@
                 roll_no: s.roll_no || null,
                 mark: s.mark,
                 theory_mark: s.theory_mark || 0,
+                tutorial_mark: s.tutorial_mark || 0,
+                mcq_mark: s.mcq_mark || 0,
+                writing_mark: s.writing_mark ?? s.theory_mark ?? 0,
                 practical_mark: s.practical_mark || 0,
                 letter_name: s.letter_name,
                 point: s.point
@@ -1175,6 +1227,9 @@
                 roll_no: data.roll_no,
                 mark: data.mark,
                 theory_mark: data.theory_mark,
+                tutorial_mark: data.tutorial_mark,
+                mcq_mark: data.mcq_mark,
+                writing_mark: data.writing_mark ?? data.theory_mark,
                 practical_mark: data.practical_mark,
                 letter_name: data.letter_name,
                 point: data.point
