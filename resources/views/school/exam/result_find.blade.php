@@ -229,6 +229,20 @@
     let searchMode = 'single';
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    axios.defaults.withCredentials = true;
+
+    axios.interceptors.response.use(response => {
+        sessionStorage.removeItem('result-find-csrf-refresh');
+        return response;
+    }, error => {
+        if (error.response?.status === 419 && !sessionStorage.getItem('result-find-csrf-refresh')) {
+            sessionStorage.setItem('result-find-csrf-refresh', '1');
+            window.location.reload();
+        }
+
+        return Promise.reject(error);
+    });
 
     document.addEventListener('DOMContentLoaded', () => {
         initializeResultDropdownEvents();
@@ -238,6 +252,29 @@
     function toTitleCase(str) {
         if (!str) return 'N/A';
         return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    }
+
+    function escapeResultHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, character => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        })[character]);
+    }
+
+    function formatResultNumber(value) {
+        const number = Number(value);
+        if (!Number.isFinite(number)) return '0';
+        return Number.isInteger(number)
+            ? String(number)
+            : number.toFixed(2).replace(/\.?0+$/, '');
+    }
+
+    function formatResultComponent(value) {
+        const number = Number(value);
+        return Number.isFinite(number) && number !== 0 ? formatResultNumber(number) : '-';
     }
 
     function resultDropdownParts(id) {
@@ -597,6 +634,61 @@
             .subject-summary { margin: 10px 0 8px; display: grid; gap: 4px; font-size: 11px; color: #4b5563; }
             .subject-summary .summary-pill { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
             .subject-summary .summary-pill span { font-weight: 700; color: #111827; }
+            .reference-marksheet {
+                width: 100%;
+                margin-top: 10px;
+                overflow-x: auto;
+            }
+            .reference-result-table {
+                width: 100%;
+                min-width: 760px;
+                table-layout: fixed;
+                border-collapse: collapse;
+                border: 1px solid #777;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 10px;
+                line-height: 1.05;
+                color: #111;
+            }
+            .reference-result-table th,
+            .reference-result-table td {
+                height: 25px;
+                border: 1px solid #777;
+                padding: 3px 5px;
+                text-align: center;
+                vertical-align: middle;
+            }
+            .reference-result-table thead tr:first-child th {
+                background: #f2d5a3;
+                font-weight: 700;
+            }
+            .reference-result-table thead .component-heading {
+                background: #dce8bf;
+                color: #2f6c42;
+                font-weight: 700;
+            }
+            .reference-result-table .subject-cell {
+                padding-left: 7px;
+                text-align: left;
+                font-weight: 500;
+            }
+            .reference-result-table tbody tr:nth-child(even) td {
+                background: #fafafa;
+            }
+            .reference-result-table tfoot td {
+                background: #dcebc4;
+                color: #397349;
+                font-weight: 700;
+            }
+            .reference-result-table tfoot .exam-total-label {
+                background: #d5d6e7;
+                color: #111;
+                text-align: center;
+            }
+            .reference-result-table .subject-column { width: 28%; }
+            .reference-result-table .mark-column { width: 8%; }
+            .reference-result-table .component-column { width: 6%; }
+            .reference-result-table .result-column { width: 8%; }
             @media print { body { background: #fff; padding: 0; } .transcript-page { box-shadow: none; border: none; width: auto; } }
         </style>
 
@@ -642,45 +734,50 @@
                 </div>
             </div>
 
-            <div class="marksheet">
-                <table>
-                    <tr>
-                        <th>Sl</th>
-                        <th>Subject Name</th>
-                        <th>Full Mark</th>
-                        <th>Theory</th>
-                        <th>Practical</th>
-                        <th>Mark</th>
-                        <th>Grade</th>
-                        <th>Point</th>
-                    </tr>
-                    ${data.subjects.map((s, i) => `
+            <div class="reference-marksheet">
+                <table class="reference-result-table">
+                    <thead>
                         <tr>
-                            <td>${String(i + 1).padStart(2, '0')}</td>
-                            <td class="subject-name">${s.name}</td>
-                            <td>${s.full_mark ?? 100}</td>
-                            <td>${s.theory_mark ?? 0}</td>
-                            <td>${s.practical_mark ?? 0}</td>
-                            <td>${s.mark ?? '0'}</td>
-                            <td>${s.grade ?? '-'}</td>
-                            <td>${parseFloat(s.point).toFixed(2)}</td>
-                        </tr>`).join('')}
-                        <tr>
-                            <td class="text-right" colspan="7">Total Mark</td>
-                            <td class="text-left">${data.total_marks}</td>
+                            <th rowspan="2" class="subject-column">Name of Subjects</th>
+                            <th rowspan="2" class="mark-column">Full<br>Marks</th>
+                            <th rowspan="2" class="mark-column">Highest<br>Marks</th>
+                            <th colspan="4">Obtaining Marks</th>
+                            <th rowspan="2" class="result-column">Total<br>Marks</th>
+                            <th rowspan="2" class="result-column">Letter<br>Grade</th>
+                            <th rowspan="2" class="result-column">Grade<br>Point</th>
                         </tr>
                         <tr>
-                            <td class="text-right" colspan="7">GPA Point</td>
-                            <td class="text-left">${data.gpa}</td>
+                            <th class="component-heading component-column">TU</th>
+                            <th class="component-heading component-column">MCQ</th>
+                            <th class="component-heading component-column">WR</th>
+                            <th class="component-heading component-column">PR</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        ${data.subjects.map(subject => `
+                            <tr>
+                                <td class="subject-cell">${escapeResultHtml(subject.name || '-')}</td>
+                                <td>${formatResultNumber(subject.full_mark ?? 0)}</td>
+                                <td>${formatResultNumber(subject.highest_mark ?? subject.mark ?? 0)}</td>
+                                <td>${formatResultComponent(subject.tutorial_mark)}</td>
+                                <td>${formatResultComponent(subject.mcq_mark)}</td>
+                                <td>${formatResultComponent(subject.writing_mark ?? subject.theory_mark)}</td>
+                                <td>${formatResultComponent(subject.practical_mark)}</td>
+                                <td>${formatResultNumber(subject.mark ?? 0)}</td>
+                                <td>${escapeResultHtml(subject.grade ?? '-')}</td>
+                                <td>${formatResultNumber(subject.point ?? 0)}</td>
+                            </tr>`).join('')}
+                    </tbody>
+                    <tfoot>
                         <tr>
-                            <td class="text-right" colspan="7">Letter Grade</td>
-                            <td class="text-left">${data.grade}</td>
+                            <td class="exam-total-label">Total Exam Marks</td>
+                            <td>${formatResultNumber(data.subjects.reduce((total, subject) => total + Number(subject.full_mark || 0), 0))}</td>
+                            <td colspan="5">Obtained Marks &amp; GPA</td>
+                            <td>${formatResultNumber(data.total_marks)}</td>
+                            <td>${escapeResultHtml(data.grade)}</td>
+                            <td>${formatResultNumber(data.gpa)}</td>
                         </tr>
-                        <tr>
-                            <td class="text-right" colspan="7">Position</td>
-                            <td class="text-left">${positionText}</td>
-                        </tr>
+                    </tfoot>
                 </table>
             </div>
 
@@ -743,6 +840,23 @@
                 
                 .no-print { display: none !important; }
                 .a4-landscape-print { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .class-result-table-frame { overflow: visible !important; border: 0 !important; }
+                #mainResultTable { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }
+                #mainResultTable .sticky-column { position: static !important; }
+                #mainResultTable .subject-header {
+                    width: 30px !important;
+                    min-width: 30px !important;
+                    height: 104px !important;
+                    padding: 5px 2px !important;
+                    vertical-align: bottom !important;
+                }
+                #mainResultTable .subject-header div {
+                    display: inline-block;
+                    max-height: 94px;
+                    writing-mode: vertical-rl;
+                    transform: rotate(180deg);
+                    white-space: nowrap;
+                }
             }
             
             .a4-landscape-print { 
@@ -783,23 +897,84 @@
                 text-transform: capitalize; 
             }
             
-            .vertical-header { padding: 8px 2px !important; vertical-align: bottom; text-align: center; background: #f9fafb; width: 30px; }
-            .vertical-header div { 
-                writing-mode: vertical-rl; 
-                transform: rotate(180deg); 
-                text-align: left; 
-                max-height: 100px; 
-                display: inline-block; 
-                font-weight: 700; 
-                font-size: 9px; 
-                white-space: nowrap; 
+            .class-result-table-frame {
+                width: 100%;
+                margin-top: 10px;
+                overflow-x: auto;
+                border: 1px solid #d1d5db;
+                background: #fff;
+                scrollbar-width: thin;
+                scrollbar-color: #94a3b8 #f1f5f9;
+            }
+            .class-result-table-frame::-webkit-scrollbar { height: 8px; }
+            .class-result-table-frame::-webkit-scrollbar-track { background: #f1f5f9; }
+            .class-result-table-frame::-webkit-scrollbar-thumb { background: #94a3b8; }
+
+            .subject-header {
+                width: 96px;
+                min-width: 96px;
+                height: 56px;
+                padding: 6px 5px !important;
+                text-align: center;
+                vertical-align: middle;
+                background: #f8fafc;
+            }
+            .subject-header div {
+                display: -webkit-box;
+                overflow: hidden;
+                font-size: 9px;
+                font-weight: 700;
+                line-height: 1.25;
+                white-space: normal;
+                overflow-wrap: anywhere;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 3;
             }
             
-            #mainResultTable { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 5px; }
-            #mainResultTable td { font-size: 9px; padding: 4px 2px; text-align: center; overflow: hidden; }
-            #mainResultTable th { font-size: 9px; font-weight: 700; padding: 4px 2px; background: #f9fafb; }
+            #mainResultTable {
+                width: max-content;
+                min-width: 100%;
+                border: 0 !important;
+                border-collapse: collapse;
+                table-layout: fixed;
+                margin: 0;
+            }
+            #mainResultTable td {
+                height: 34px;
+                font-size: 9px;
+                padding: 5px 6px;
+                text-align: center;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+            #mainResultTable th { font-size: 9px; font-weight: 700; padding: 6px; background: #f8fafc; }
+            #mainResultTable tbody tr:nth-child(even) td { background: #f8fafc; }
+            #mainResultTable tbody tr:hover td { background: #eff6ff; }
+
+            #mainResultTable .sticky-column {
+                position: sticky;
+                z-index: 2;
+                background: #fff;
+            }
+            #mainResultTable thead .sticky-column {
+                z-index: 4;
+                background: #f8fafc;
+            }
+            #mainResultTable .serial-column { left: 0; width: 42px; min-width: 42px; }
+            #mainResultTable .id-column { left: 42px; width: 112px; min-width: 112px; }
+            #mainResultTable .name-column {
+                left: 154px;
+                width: 180px;
+                min-width: 180px;
+                box-shadow: 2px 0 0 #d1d5db;
+            }
             
-            .student-name-cell { text-align: left !important; padding-left: 8px !important; text-transform: capitalize; }
+            .student-name-cell {
+                text-align: left !important;
+                padding-left: 10px !important;
+                text-transform: capitalize;
+                text-overflow: ellipsis;
+            }
             .capitalize-all { text-transform: capitalize !important; }
         </style>
         
@@ -842,37 +1017,39 @@
                 </div>
             </div>
 
-            <table id="mainResultTable">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th width="25">Sl</th>
-                        <th width="55">ID</th>
-                        <th class="student-name-cell" width="140">Student Name</th>
-                        ${data.subjects_list.map(sub => `<th class="vertical-header"><div>${toTitleCase(sub)}</div></th>`).join('')}
-                        <th width="40">Total</th>
-                        <th width="40">GPA</th>
-                        <th width="40">Grade</th>
-                        <th width="35" class="no-print">Del</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${data.students.map((std, i) => `
-                                <tr>
-                                    <td>${i + 1}</td>
-                                    <td>${std.student_id}</td>
-                                    <td class="student-name-cell font-bold truncate">${toTitleCase(std.name)}</td>
-                                    ${data.subjects_list.map(sub => `<td>${std.marks[sub] || '0'}</td>`).join('')}
-                                    <td class="font-bold">${std.total}</td>
-                                    <td class="font-black text-blue-800">${std.gpa}</td>
-                                    <td class="font-bold">${std.grade}</td>
-                                    <td class="no-print">
-                                        <button onclick="confirmDelete(${std.id})" class="text-red-500">
-                                            <i class="far fa-trash-alt"></i>
-                                        </button>
-                                    </td>
-                                </tr>`).join('')}
-                </tbody>
-            </table>
+            <div class="class-result-table-frame">
+                <table id="mainResultTable">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="sticky-column serial-column">Sl</th>
+                            <th class="sticky-column id-column">ID</th>
+                            <th class="sticky-column name-column student-name-cell">Student Name</th>
+                            ${data.subjects_list.map(sub => `<th class="subject-header" title="${escapeResultHtml(toTitleCase(sub))}"><div>${escapeResultHtml(toTitleCase(sub))}</div></th>`).join('')}
+                            <th width="72">Total</th>
+                            <th width="64">GPA</th>
+                            <th width="64">Grade</th>
+                            <th width="48" class="no-print">Del</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.students.map((std, i) => `
+                                    <tr>
+                                        <td class="sticky-column serial-column">${i + 1}</td>
+                                        <td class="sticky-column id-column font-mono">${escapeResultHtml(std.student_id)}</td>
+                                        <td class="sticky-column name-column student-name-cell font-bold" title="${escapeResultHtml(toTitleCase(std.name))}">${escapeResultHtml(toTitleCase(std.name))}</td>
+                                        ${data.subjects_list.map(sub => `<td>${formatResultNumber(std.marks[sub] ?? 0)}</td>`).join('')}
+                                        <td class="font-bold">${formatResultNumber(std.total)}</td>
+                                        <td class="font-black text-blue-800">${formatResultNumber(std.gpa)}</td>
+                                        <td class="font-bold">${escapeResultHtml(std.grade)}</td>
+                                        <td class="no-print">
+                                            <button type="button" title="Delete result" aria-label="Delete result" onclick="confirmDelete(${Number(std.id)})" class="mx-auto flex h-7 w-7 items-center justify-center text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600">
+                                                <i class="far fa-trash-alt" aria-hidden="true"></i>
+                                            </button>
+                                        </td>
+                                    </tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>
         </div>`;
     }
 

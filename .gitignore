@@ -138,6 +138,7 @@ dist
 
 /vendor
 /Plan.md
+AGENTS.md
 
 # Compiled frontend assets
 /public/build

@@ -55,7 +55,12 @@
         })
         .catch(error => {
             if (error.response?.status === 422) {
-                showSubjectErrors(error.response.data.errors);
+                const messages = showSubjectErrors(error.response.data.errors || {});
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Please fix the subject form',
+                    text: messages.join('\n') || 'Please complete all required fields.',
+                });
                 return;
             }
             Swal.fire({
