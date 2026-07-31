@@ -49,12 +49,26 @@
     </div>
     <div class="relative">
         <x-input.dropdown-select
-            id="discountStudent"
-            name="student_id"
-            placeholder="Select Student"
+            id="discountStudentScope"
+            name="student_scope"
+            placeholder="Select Student Option"
+            :options="[
+                'all' => 'All Students',
+                'multiple' => 'Multiple Students',
+                'single' => 'Single Student',
+            ]"
         />
-        <div id="student_id_error" class="mt-1 hidden text-[10px] text-red-500"></div>
+        <div id="student_scope_error" class="mt-1 hidden text-[10px] text-red-500"></div>
     </div>
+    <div id="div_discount_students" class="relative" style="display:none;">
+        <x-fee.student-selector
+            id="discount_student_list"
+            label="Select Students"
+            count-id="discount_student_count"
+        />
+    </div>
+    <div id="student_ids_error" class="mt-1 hidden text-[10px] text-red-500"></div>
+    <input type="hidden" id="discount_student_ids" name="student_ids" value="">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div class="relative">
             <x-input.dropdown-select
