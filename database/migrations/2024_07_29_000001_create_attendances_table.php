@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendances', function (Blueprint $table) {
+         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->morphs('attendable');
             $table->foreignId('device_id')->nullable()->constrained('devices')->onDelete('set null');
