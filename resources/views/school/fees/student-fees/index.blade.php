@@ -272,7 +272,7 @@
                 const tbody = document.getElementById('feeTableBody');
                 tbody.innerHTML = '';
                 if (items.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="11" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No student fees found.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="14" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No student fees found.</td></tr>`;
                     document.getElementById('paginationInfo').innerText = '0 of 0';
                     document.getElementById('paginationControls').innerHTML = '';
                     return;
@@ -291,7 +291,6 @@
                     const remainingDue = item.remaining_due || 0;
                     const overdue = parseFloat(item.overdue) || 0;
                     const statusClass = `status-${item.status || 'pending'}`;
-                    const academicInfo = [className, groupName, sectionName, sessionYear].filter(v => v && v !== 'N/A' && v !== '-').join(' · ');
                     tbody.innerHTML += `
                         <tr class="hover:bg-gray-50">
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
@@ -302,7 +301,16 @@
                                 <div class="donate-cell-scroll" title="${studentName}">${studentName}</div>
                             </td>
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <div class="donate-cell-scroll" title="${academicInfo || 'N/A'}">${academicInfo || 'N/A'}</div>
+                                <div class="donate-cell-scroll" title="${className}">${className}</div>
+                            </td>
+                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                                <div class="donate-cell-scroll" title="${groupName}">${groupName}</div>
+                            </td>
+                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                                <div class="donate-cell-scroll" title="${sectionName}">${sectionName}</div>
+                            </td>
+                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                                <div class="donate-cell-scroll" title="${sessionYear}">${sessionYear}</div>
                             </td>
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
                                 <div class="donate-cell-scroll" title="${item.fee_type_name || '-'}">${item.fee_type_name || '-'}</div>
