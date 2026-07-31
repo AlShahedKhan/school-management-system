@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreSchoolFeeDiscountRequest;
 use App\Http\Requests\UpdateSchoolFeeDiscountRequest;
+use App\Models\AdmissionStudent;
 use App\Models\SchoolFeeDiscount;
 use App\Models\School;
 use App\Models\SchoolPayment;
@@ -17,6 +18,27 @@ class SchoolFeeDiscountController extends Controller
     private function getSchool($user)
     {
         return School::where('user_id', $user->id)->first();
+    }
+
+    private function resolveStudentIds(int $schoolId, array $validated): array
+    {
+        if ($validated['student_scope'] === 'all') {
+            $query = AdmissionStudent::where('school_id', $schoolId)
+                ->where('status', '!=', 'Inactive')
+                ->where('class_id', $validated['class_id'])
+                ->where('session_id', $validated['session_id']);
+
+            if (!empty($validated['group_id'])) {
+                $query->where('group_id', $validated['group_id']);
+            }
+            if (!empty($validated['section_id'])) {
+                $query->where('section_id', $validated['section_id']);
+            }
+
+            return $query->pluck('id')->all();
+        }
+
+        return $validated['student_ids'] ?? [];
     }
 
     private function applyDiscountToPayments(int $schoolId, int $studentId, string $feeTypeName, string $feeName, float $afterDiscount): void
@@ -114,26 +136,34 @@ class SchoolFeeDiscountController extends Controller
 
             $validated = $request->validated();
 
-            $feeDiscount = DB::transaction(function () use ($validated, $school) {
-                $discount = SchoolFeeDiscount::create(array_merge($validated, [
-                    'school_id' => $school->id
-                ]));
-
+            $feeDiscounts = DB::transaction(function () use ($validated, $school) {
+                $created = [];
                 $feeType = SchoolFeeTemplate::where('id', $validated['fee_type_id'])->first();
-                if ($feeType) {
-                    $this->applyDiscountToPayments(
-                        $school->id,
-                        $validated['student_id'],
-                        $feeType->fee_type_name,
-                        $validated['fee_name'],
-                        (float) $validated['after_discount']
-                    );
+
+                $studentIds = $this->resolveStudentIds($school->id, $validated);
+
+                foreach ($studentIds as $studentId) {
+                    $discount = SchoolFeeDiscount::create(array_merge($validated, [
+                        'school_id' => $school->id,
+                        'student_id' => $studentId,
+                    ]));
+                    $created[] = $discount;
+
+                    if ($feeType) {
+                        $this->applyDiscountToPayments(
+                            $school->id,
+                            $studentId,
+                            $feeType->fee_type_name,
+                            $validated['fee_name'],
+                            (float) $validated['after_discount']
+                        );
+                    }
                 }
 
-                return $discount;
+                return $created;
             });
 
-            return response()->json(['status' => 'success', 'data' => $feeDiscount], 201);
+            return response()->json(['status' => 'success', 'data' => $feeDiscounts], 201);
 
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Failed to create discount.'], 500);
@@ -173,17 +203,38 @@ class SchoolFeeDiscountController extends Controller
             $validated = $request->validated();
 
             DB::transaction(function () use ($discount, $validated, $school) {
-                $discount->update($validated);
+                $studentIds = $this->resolveStudentIds($school->id, $validated);
+                $firstId = reset($studentIds);
+
+                $discount->update(array_merge($validated, [
+                    'student_id' => $firstId ?: $discount->student_id,
+                ]));
 
                 $feeType = SchoolFeeTemplate::where('id', $validated['fee_type_id'])->first();
                 if ($feeType) {
-                    $this->applyDiscountToPayments(
-                        $school->id,
-                        $validated['student_id'],
-                        $feeType->fee_type_name,
-                        $validated['fee_name'],
-                        (float) $validated['after_discount']
-                    );
+                    foreach ($studentIds as $studentId) {
+                        $existing = SchoolFeeDiscount::where('school_id', $school->id)
+                            ->where('fee_type_id', $validated['fee_type_id'])
+                            ->where('session_id', $validated['session_id'])
+                            ->where('student_id', $studentId)
+                            ->where('id', '!=', $discount->id)
+                            ->first();
+
+                        if (!$existing) {
+                            SchoolFeeDiscount::create(array_merge($validated, [
+                                'school_id' => $school->id,
+                                'student_id' => $studentId,
+                            ]));
+                        }
+
+                        $this->applyDiscountToPayments(
+                            $school->id,
+                            $studentId,
+                            $feeType->fee_type_name,
+                            $validated['fee_name'],
+                            (float) $validated['after_discount']
+                        );
+                    }
                 }
             });
 

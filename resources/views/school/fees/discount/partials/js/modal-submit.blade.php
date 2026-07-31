@@ -8,7 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const url = id ? `/api/fee-discounts/${id}` : '/api/fee-discounts';
 
         const payload = {
-            student_id: document.getElementById('discountStudent').value,
+            student_scope: document.getElementById('discountStudentScope').value || 'all',
+            student_ids: (document.getElementById('discount_student_ids').value || '').split(',').filter(Boolean),
             class_id: document.getElementById('discountClass').value,
             session_id: document.getElementById('discountSession').value,
             fee_type_id: document.getElementById('discountFeeType').value,

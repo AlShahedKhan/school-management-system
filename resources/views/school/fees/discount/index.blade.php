@@ -280,7 +280,50 @@
             } catch (e) { console.error(e); }
         }
 
-        async function loadDiscountStudents(selectedId = null) {
+        function resetDiscountStudentPicker() {
+            const list = document.getElementById('discount_student_list');
+            if (list) {
+                list.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">Select class, group, section and session to load students.</td></tr>';
+            }
+            const wrapper = document.getElementById('discount_student_list_all_wrapper');
+            if (wrapper) wrapper.style.display = 'none';
+            const allCb = document.getElementById('discount_student_list_all');
+            if (allCb) allCb.checked = false;
+            const count = document.getElementById('discount_student_count');
+            if (count) count.classList.add('hidden');
+            document.getElementById('discount_student_ids').value = '';
+        }
+
+        function getSelectedStudentIds() {
+            return Array.from(document.querySelectorAll('#discount_student_list .food-student-select:checked'))
+                .map(cb => cb.value);
+        }
+
+        function reloadDiscountDependentData() {
+            const scope = document.getElementById('discountStudentScope')?.value || 'all';
+            if (scope === 'single' || scope === 'multiple') {
+                loadDiscountStudents(scope);
+            } else if (scope === 'all') {
+                loadFeeTypes();
+            }
+        }
+
+        function handleDiscountStudentScopeChange() {
+            const scope = document.getElementById('discountStudentScope').value;
+            const studentDiv = document.getElementById('div_discount_students');
+            if (scope === 'single' || scope === 'multiple') {
+                studentDiv.style.display = 'block';
+                document.getElementById('discount_student_list_select_label').textContent = 'Select';
+                loadDiscountStudents(scope);
+            } else {
+                studentDiv.style.display = 'none';
+                resetDiscountStudentPicker();
+                document.getElementById('discount_student_ids').value = '';
+                loadFeeTypes();
+            }
+        }
+
+        async function loadDiscountStudents(type, selectedIds = []) {
             const classId = document.querySelector('#discountClass')?.value;
             const sessionId = document.querySelector('#discountSession')?.value;
             const groupId = document.querySelector('#discountGroup')?.value;
@@ -289,45 +332,117 @@
             const params = { class_id: classId, session_id: sessionId };
             if (groupId) params.group_id = groupId;
             if (sectionId) params.section_id = sectionId;
+            const isMultiple = type === 'multiple';
+            const tbody = document.getElementById('discount_student_list');
+            const selectAllWrapper = document.getElementById('discount_student_list_all_wrapper');
+            const selectAllCb = document.getElementById('discount_student_list_all');
+            if (selectAllWrapper) selectAllWrapper.style.display = isMultiple ? 'flex' : 'none';
+            if (selectAllCb) selectAllCb.checked = false;
+            tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400"><i class="fas fa-spinner fa-spin mr-1"></i> Loading students...</td></tr>';
             try {
                 const res = await axios.get('/api/get-school-students', { params });
-                const data = res.data.data || [];
-                populateDropdown('discountStudentMenu', data, 'id', 'student_name');
-                if (selectedId) {
-                    const item = data.find(s => String(s.id) === String(selectedId));
-                    if (item) setDropdownValue('discountStudent', item.id, item.student_name);
+                const data = res.data.data || res.data || [];
+                tbody.innerHTML = '';
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">No active students found.</td></tr>';
+                    const count = document.getElementById('discount_student_count');
+                    if (count) count.classList.add('hidden');
+                    return;
                 }
-            } catch (e) { console.error(e); }
+                const inputType = isMultiple ? 'checkbox' : 'radio';
+                const inputName = isMultiple ? 'discount_student_ids[]' : 'discount_student_id';
+                data.forEach((student, index) => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors';
+                    tr.innerHTML =
+                        '<td class="p-2 text-slate-500 font-normal">' + (index + 1) + '</td>' +
+                        '<td class="p-2 font-semibold text-slate-700">' + (student.student_id_number || '-') + '</td>' +
+                        '<td class="p-2 text-slate-600">' + (student.student_name || student.name || 'Student #' + student.id) + '</td>' +
+                        '<td class="p-2 text-center"><input type="' + inputType + '" name="' + inputName + '" value="' + student.id + '" class="food-student-select w-4 h-4 cursor-pointer accent-blue-600" ' + (selectedIds.includes(String(student.id)) ? 'checked' : '') + '></td>';
+                    tbody.appendChild(tr);
+                });
+                const count = document.getElementById('discount_student_count');
+                if (count) {
+                    count.textContent = data.length + ' student(s) available';
+                    count.classList.remove('hidden');
+                }
+                document.getElementById('discount_student_ids').value = getSelectedStudentIds().join(',');
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-red-500">Failed to load students.</td></tr>';
+                console.error(e);
+            }
+        }
+
+        function toggleStudentSelectionAll(master) {
+            const wrapper = master.closest('[id$="_all_wrapper"]');
+            const tbodyId = wrapper ? wrapper.id.replace('_all_wrapper', '') : null;
+            const scope = tbodyId ? '#' + tbodyId : '#discount_student_list';
+            document.querySelectorAll(scope + ' .food-student-select').forEach(function(el) {
+                if (el.type === 'checkbox') el.checked = master.checked;
+            });
+            document.getElementById('discount_student_ids').value = getSelectedStudentIds().join(',');
         }
 
         async function loadFeeTypes(selectedId = null) {
-            const studentId = document.querySelector('#discountStudent')?.value;
-            if (!studentId) { populateDropdown('discountFeeTypeMenu', [], 'id', 'fee_name'); return; }
+            const scope = document.getElementById('discountStudentScope')?.value || 'all';
+            const classId = document.querySelector('#discountClass')?.value;
+            const sessionId = document.querySelector('#discountSession')?.value;
+            const groupId = document.querySelector('#discountGroup')?.value;
+            const sectionId = document.querySelector('#discountSection')?.value;
+            if (!classId || !sessionId) {
+                populateDropdown('discountFeeTypeMenu', [], 'id', 'fee_name');
+                return;
+            }
+
+            let items = [];
             try {
-                const res = await axios.get('/api/student-fees/by-student', { params: { student_id: studentId, all: true } });
-                const allFees = res.data.data || [];
-                const fees = allFees.filter(f => f.status !== 'paid');
-                const items = fees.map(f => ({ id: f.fee_template_id, fee_name: f.fee_type_name + ' - ' + (f.fee_name || '') + ' (' + f.base_amount + ')', amount: f.base_amount, name: f.fee_name }));
-                populateDropdown('discountFeeTypeMenu', items, 'id', 'fee_name');
-
-                items.forEach(f => {
-                    const opt = document.querySelector('#discountFeeTypeMenu [data-value="' + f.id + '"]');
-                    if (opt) {
-                        opt.dataset.amount = f.amount;
-                        opt.dataset.feename = f.name || '';
+                if (scope === 'all') {
+                    const params = { class_id: classId, session_id: sessionId, all: true };
+                    if (groupId) params.group_id = groupId;
+                    if (sectionId) params.section_id = sectionId;
+                    const res = await axios.get('/api/fee-templates', { params });
+                    const templates = res.data.data || [];
+                    items = templates.filter(t => t.fee_type_name !== 'Promote').map(t => ({
+                        id: t.id,
+                        fee_name: t.fee_type_name + ' - ' + (t.fee_name || '') + ' (' + t.amount + ')',
+                        amount: t.amount,
+                        name: t.fee_name
+                    }));
+                } else {
+                    const studentId = getSelectedStudentIds()[0];
+                    if (!studentId) {
+                        populateDropdown('discountFeeTypeMenu', [], 'id', 'fee_name');
+                        return;
                     }
-                });
-
-                if (selectedId) {
-                    const item = items.find(f => String(f.id) === String(selectedId));
-                    if (item) {
-                        setDropdownValue('discountFeeType', item.id, item.fee_name);
-                        document.getElementById('discountFeeName').value = item.name || '';
-                        document.getElementById('beforeDiscount').value = item.amount || 0;
-                        runCalc();
-                    }
+                    const res = await axios.get('/api/student-fees/by-student', { params: { student_id: studentId, all: true } });
+                    const allFees = res.data.data || [];
+                    const fees = allFees.filter(f => f.status !== 'paid');
+                    items = fees.map(f => ({ id: f.fee_template_id, fee_name: f.fee_type_name + ' - ' + (f.fee_name || '') + ' (' + f.base_amount + ')', amount: f.base_amount, name: f.fee_name }));
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error(e);
+                items = [];
+            }
+
+            populateDropdown('discountFeeTypeMenu', items, 'id', 'fee_name');
+
+            items.forEach(f => {
+                const opt = document.querySelector('#discountFeeTypeMenu [data-value="' + f.id + '"]');
+                if (opt) {
+                    opt.dataset.amount = f.amount;
+                    opt.dataset.feename = f.name || '';
+                }
+            });
+
+            if (selectedId) {
+                const item = items.find(f => String(f.id) === String(selectedId));
+                if (item) {
+                    setDropdownValue('discountFeeType', item.id, item.fee_name);
+                    document.getElementById('discountFeeName').value = item.name || '';
+                    document.getElementById('beforeDiscount').value = item.amount || 0;
+                    runCalc();
+                }
+            }
         }
 
         async function loadDiscountFilterOptions() {
@@ -479,7 +594,12 @@
                             setTimeout(() => {
                                 loadDiscountSessionSelect(item.session_id);
                                 setTimeout(() => {
-                                    loadDiscountStudents(item.student_id);
+                                    const hasStudent = !!item.student_id;
+                                    if (hasStudent) {
+                                        setDropdownValue('discountStudentScope', 'single', 'Single Student');
+                                        document.getElementById('div_discount_students').style.display = 'block';
+                                        loadDiscountStudents('single', [String(item.student_id)]);
+                                    }
                                     setTimeout(() => {
                                         loadFeeTypes(item.fee_type_id);
                                         setTimeout(() => {
@@ -630,15 +750,14 @@
                 setDropdownValue('discountGroup', '', 'Select Group');
                 setDropdownValue('discountSection', '', 'Select Section');
                 setDropdownValue('discountSession', '', 'Select Session');
-                setDropdownValue('discountStudent', '', 'Select Student');
                 setDropdownValue('discountFeeType', '', 'Select Fee Type');
                 populateDropdown('discountGroupMenu', [], 'id', 'group_name');
                 populateDropdown('discountSectionMenu', [], 'id', 'section_name');
                 populateDropdown('discountSessionMenu', [], 'id', 'session_year');
-                populateDropdown('discountStudentMenu', [], 'id', 'student_name');
                 populateDropdown('discountFeeTypeMenu', [], 'id', 'fee_name');
                 document.getElementById('discountFeeName').value = '';
                 document.getElementById('beforeDiscount').value = '';
+                resetDiscountStudentPicker();
                 runCalc();
                 if (this.value) loadDiscountGroupSelect();
             });
@@ -646,49 +765,46 @@
             document.getElementById('discountGroup')?.addEventListener('change', function() {
                 setDropdownValue('discountSection', '', 'Select Section');
                 setDropdownValue('discountSession', '', 'Select Session');
-                setDropdownValue('discountStudent', '', 'Select Student');
                 setDropdownValue('discountFeeType', '', 'Select Fee Type');
                 populateDropdown('discountSectionMenu', [], 'id', 'section_name');
                 populateDropdown('discountSessionMenu', [], 'id', 'session_year');
-                populateDropdown('discountStudentMenu', [], 'id', 'student_name');
                 populateDropdown('discountFeeTypeMenu', [], 'id', 'fee_name');
                 document.getElementById('discountFeeName').value = '';
                 document.getElementById('beforeDiscount').value = '';
+                resetDiscountStudentPicker();
                 runCalc();
                 if (this.value) loadDiscountSectionSelect();
             });
 
             document.getElementById('discountSection')?.addEventListener('change', function() {
                 setDropdownValue('discountSession', '', 'Select Session');
-                setDropdownValue('discountStudent', '', 'Select Student');
                 setDropdownValue('discountFeeType', '', 'Select Fee Type');
                 populateDropdown('discountSessionMenu', [], 'id', 'session_year');
-                populateDropdown('discountStudentMenu', [], 'id', 'student_name');
                 populateDropdown('discountFeeTypeMenu', [], 'id', 'fee_name');
                 document.getElementById('discountFeeName').value = '';
                 document.getElementById('beforeDiscount').value = '';
+                resetDiscountStudentPicker();
                 runCalc();
                 if (this.value) loadDiscountSessionSelect();
             });
 
             document.getElementById('discountSession')?.addEventListener('change', function() {
-                setDropdownValue('discountStudent', '', 'Select Student');
                 setDropdownValue('discountFeeType', '', 'Select Fee Type');
-                populateDropdown('discountStudentMenu', [], 'id', 'student_name');
                 populateDropdown('discountFeeTypeMenu', [], 'id', 'fee_name');
                 document.getElementById('discountFeeName').value = '';
                 document.getElementById('beforeDiscount').value = '';
+                resetDiscountStudentPicker();
                 runCalc();
-                if (this.value) loadDiscountStudents();
+                reloadDiscountDependentData();
             });
 
-            document.getElementById('discountStudent')?.addEventListener('change', function() {
-                setDropdownValue('discountFeeType', '', 'Select Fee Type');
-                populateDropdown('discountFeeTypeMenu', [], 'id', 'fee_name');
-                document.getElementById('discountFeeName').value = '';
-                document.getElementById('beforeDiscount').value = '';
-                runCalc();
-                if (this.value) loadFeeTypes();
+            document.getElementById('discountStudentScope')?.addEventListener('change', handleDiscountStudentScopeChange);
+
+            document.getElementById('discount_student_list')?.addEventListener('change', function(e) {
+                if (e.target.classList.contains('food-student-select')) {
+                    document.getElementById('discount_student_ids').value = getSelectedStudentIds().join(',');
+                    loadFeeTypes();
+                }
             });
 
             document.getElementById('discountFeeType')?.addEventListener('change', function() {

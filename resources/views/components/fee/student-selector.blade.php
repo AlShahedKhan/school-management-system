@@ -6,7 +6,7 @@
 
 <label class="mb-1 block text-[10px] font-medium text-slate-600">{{ $label }}</label>
 <div id="{{ $id }}_all_wrapper" class="flex items-center gap-1.5 mb-1 hidden">
-    <input type="checkbox" id="{{ $id }}_all" onchange="toggleAllFoodStudents(this)" class="w-4 h-4 cursor-pointer accent-blue-600">
+    <input type="checkbox" id="{{ $id }}_all" onchange="toggleStudentSelectionAll(this)" class="w-4 h-4 cursor-pointer accent-blue-600">
     <label for="{{ $id }}_all" class="text-[11px] font-semibold text-slate-500 cursor-pointer select-none">Select All</label>
 </div>
 <div class="border border-slate-200 overflow-x-auto custom-scrollbar mb-1 max-h-[160px] overflow-y-auto">

@@ -1,4 +1,11 @@
 <script>
+function resetDropdownLabel(id) {
+    const label = document.querySelector('#' + id + 'Button [data-dropdown-select-label]');
+    if (label) label.textContent = label.dataset.placeholder || 'Select...';
+    const input = document.getElementById(id);
+    if (input) input.value = '';
+}
+
 function openDiscountModal() {
     document.getElementById('edit_id').value = '';
     document.getElementById('discountForm').reset();
@@ -15,7 +22,8 @@ function openDiscountModal() {
             setTimeout(() => {
                 loadDiscountSessionSelect();
                 setTimeout(() => {
-                    setDropdownValue('discountStudent', '', 'Select Student');
+                    resetDropdownLabel('discountStudentScope');
+                    resetDiscountStudentPicker();
                     setDropdownValue('discountFeeType', '', 'Select Fee Type');
                     document.getElementById('discountFeeName').value = '';
                     document.getElementById('beforeDiscount').value = '';
