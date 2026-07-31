@@ -16,7 +16,7 @@
         </div>
         <div class="grid w-full grid-cols-3 gap-2 lg:flex lg:w-auto">
             <x-button.secondary id="btnFilter">Filter</x-button.secondary>
-            <x-dropdown button-id="btnStatusFilter" menu-id="statusFilterMenu" label="Status">
+            <x-dropdown button-id="btnStatusFilter" menu-id="headerStatusFilterMenu" label="Status">
                 <x-dropdown.item id="statusFilterAll">All Status</x-dropdown.item>
                 <x-dropdown.item id="statusFilterPaid">Paid</x-dropdown.item>
                 <x-dropdown.item id="statusFilterPartialPaid">Partial Paid</x-dropdown.item>

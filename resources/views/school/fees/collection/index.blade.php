@@ -969,6 +969,13 @@
                         (!activeFilters.student || studentId == activeFilters.student);
                 });
 
+                if (filteredData.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="15" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No collections found.</td></tr>';
+                    document.getElementById('paginationInfo').innerText = '0 of 0';
+                    document.getElementById('paginationControls').innerHTML = '';
+                    return;
+                }
+
                 filteredData.forEach((p, i) => {
                     const payDate = new Date(p.pay_date);
                     const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
