@@ -139,7 +139,13 @@ class ResultFindDemoSeeder extends Seeder
                 ]
             );
 
-            foreach ($students as $student) {
+            foreach ($students as $studentIndex => $student) {
+                $studentMark = round(max(0, $subjectData['mark'] - ($studentIndex * 0.5)), 2);
+                $writingMark = round(max(0, $studentMark - $subjectData['tutorial'] - $subjectData['mcq'] - $subjectData['practical']), 2);
+                $studentGrade = $grades->first(function (SchoolExamGrade $item) use ($studentMark) {
+                    return $studentMark >= $item->mark_from && $studentMark <= $item->mark_to;
+                }) ?? $grades['F'];
+
                 SchoolExamMark::updateOrCreate(
                     [
                         'school_id' => $school->id,
@@ -154,14 +160,14 @@ class ResultFindDemoSeeder extends Seeder
                         'session_name' => (string) $session->session_year,
                         'student_name' => $student->student_name,
                         'roll_no' => $student->roll_no,
-                        'mark' => $subjectData['mark'],
+                        'mark' => $studentMark,
                         'tutorial_mark' => $subjectData['tutorial'],
                         'mcq_mark' => $subjectData['mcq'],
-                        'writing_mark' => $subjectData['writing'],
-                        'theory_mark' => $subjectData['writing'],
+                        'writing_mark' => $writingMark,
+                        'theory_mark' => $writingMark,
                         'practical_mark' => $subjectData['practical'],
-                        'letter_name' => $grade->grade_name,
-                        'point' => $grade->grade_point,
+                        'letter_name' => $studentGrade->grade_name,
+                        'point' => $studentGrade->grade_point,
                         'status' => 'published',
                     ]
                 );

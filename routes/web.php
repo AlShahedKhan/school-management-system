@@ -446,7 +446,7 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
     Route::get('/school/result-find', [DashboardController::class, 'resultFind'])
         ->name('school.result-find');
 
-    Route::get('/school/merit-list', [DashboardController::class, 'underConstruction'])
+    Route::get('/school/merit-list', [DashboardController::class, 'meritList'])
         ->name('school.merit-list');
 
     Route::get('/school/fail-list', [DashboardController::class, 'underConstruction'])
