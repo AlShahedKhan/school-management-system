@@ -272,7 +272,7 @@
                 const tbody = document.getElementById('feeTableBody');
                 tbody.innerHTML = '';
                 if (items.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="14" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No student fees found.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="11" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No student fees found.</td></tr>`;
                     document.getElementById('paginationInfo').innerText = '0 of 0';
                     document.getElementById('paginationControls').innerHTML = '';
                     return;
@@ -291,26 +291,18 @@
                     const remainingDue = item.remaining_due || 0;
                     const overdue = parseFloat(item.overdue) || 0;
                     const statusClass = `status-${item.status || 'pending'}`;
+                    const academicInfo = [className, groupName, sectionName, sessionYear].filter(v => v && v !== 'N/A' && v !== '-').join(' · ');
                     tbody.innerHTML += `
                         <tr class="hover:bg-gray-50">
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <div class="donate-cell-scroll" title="${className}">${className}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <div class="donate-cell-scroll" title="${groupName}">${groupName}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <div class="donate-cell-scroll" title="${sectionName}">${sectionName}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <div class="donate-cell-scroll" title="${sessionYear}">${sessionYear}</div>
-                            </td>
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
                                 <div class="donate-cell-scroll" title="${studentIdNumber}">${studentIdNumber}</div>
                             </td>
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
                                 <div class="donate-cell-scroll" title="${studentName}">${studentName}</div>
+                            </td>
+                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                                <div class="donate-cell-scroll" title="${academicInfo || 'N/A'}">${academicInfo || 'N/A'}</div>
                             </td>
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
                                 <div class="donate-cell-scroll" title="${item.fee_type_name || '-'}">${item.fee_type_name || '-'}</div>
@@ -360,8 +352,53 @@
         function showEl(id) { const el = document.getElementById(id); if (el) el.style.display = 'block'; }
         function hideEl(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
 
+        function updateStatusFilterButton(status) {
+            const label = document.querySelector('#btnStatusFilter [data-dropdown-label], #btnStatusFilter span');
+            const map = {
+                '': 'Status',
+                'paid': 'Paid',
+                'partial_paid': 'Partial Paid',
+                'due': 'Due',
+                'due_partial': 'Due Partial',
+                'over_due': 'Over Due',
+                'over_due_partial': 'Over Due Partial',
+                'advance': 'Advance',
+                'advance_partial': 'Advance Partial',
+                'pending': 'Pending',
+            };
+            const text = map[status] || 'Status';
+            if (label) {
+                label.textContent = text;
+                if (status && status !== '') label.classList.add('text-gray-900');
+                else label.classList.remove('text-gray-900');
+            }
+        }
+
+        function applyHeaderStatusFilter(status) {
+            currentFilterStatus = status || '';
+            currentPage = 1;
+            updateStatusFilterButton(currentFilterStatus);
+            fetchStudentFees(1);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             loadFeeFilterOptions();
+
+            const headerStatusMap = {
+                statusFilterAll: '',
+                statusFilterPaid: 'paid',
+                statusFilterPartialPaid: 'partial_paid',
+                statusFilterDue: 'due',
+                statusFilterDuePartial: 'due_partial',
+                statusFilterOverDue: 'over_due',
+                statusFilterOverDuePartial: 'over_due_partial',
+                statusFilterAdvance: 'advance',
+                statusFilterAdvancePartial: 'advance_partial',
+                statusFilterPending: 'pending',
+            };
+            Object.entries(headerStatusMap).forEach(([id, value]) => {
+                document.getElementById(id)?.addEventListener('click', () => applyHeaderStatusFilter(value));
+            });
 
             document.getElementById('feeSearch')?.addEventListener('input', () => fetchStudentFees(1));
             document.getElementById('feeSearchMobile')?.addEventListener('input', () => fetchStudentFees(1));
@@ -407,6 +444,7 @@
                 currentFilterFeeType = '';
                 currentFilterStatus = '';
                 currentPage = 1;
+                updateStatusFilterButton('');
                 fetchStudentFees(1);
                 document.getElementById('filterModal')?.classList.add('hidden');
             });
@@ -425,6 +463,7 @@
                 const statusInput = document.getElementById('statusFilter');
                 currentFilterStatus = statusInput ? statusInput.value : '';
                 currentPage = 1;
+                updateStatusFilterButton(currentFilterStatus);
                 fetchStudentFees(1);
                 document.getElementById('filterModal')?.classList.add('hidden');
             });
@@ -438,6 +477,7 @@
                 currentFilterFeeType = '';
                 currentFilterStatus = '';
                 currentPage = 1;
+                updateStatusFilterButton('');
                 fetchStudentFees(1);
             });
 
@@ -450,6 +490,7 @@
                 currentFilterFeeType = '';
                 currentFilterStatus = '';
                 currentPage = 1;
+                updateStatusFilterButton('');
                 fetchStudentFees(1);
             });
 

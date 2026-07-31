@@ -36,20 +36,17 @@
 >
     <x-slot:columns>
         <colgroup>
-            <col style="width: 3%;"><col style="width: 8%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 8%;"><col style="width: 10%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;">
+            <col style="width: 3%;"><col style="width: 9%;"><col style="width: 12%;"><col style="width: 18%;"><col style="width: 9%;"><col style="width: 10%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 8%;">
         </colgroup>
     </x-slot:columns>
     <x-slot:head>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">Sl</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Class</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Group</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Section</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Session</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Id Number</x-table.th>
+        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Student Id</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Student Name</x-table.th>
+        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Class, Group, Section, Session</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Fee Type</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Fee Name</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Total Payable</x-table.th>
+        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Payable</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Paid</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Due</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Over Due</x-table.th>
