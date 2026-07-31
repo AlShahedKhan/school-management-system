@@ -458,8 +458,11 @@
                     menu.appendChild(btn);
                 });
                 if (selectedId) {
-                    if (menu.querySelector('[data-value="' + selectedId + '"]')) {
+                    const selOpt = menu.querySelector('[data-value="' + selectedId + '"]');
+                    if (selOpt) {
                         setDropdownValueFromMenu('discountFeeType', selectedId);
+                        document.getElementById('beforeDiscount').value = selOpt.dataset.amount || 0;
+                        runCalc();
                     }
                 }
             } catch (e) {
@@ -678,6 +681,7 @@
                                         setTimeout(() => {
                                             setDropdownValueFromMenu('discountType', item.discount_type);
                                             document.getElementById('discountValue').value = item.discount_value;
+                                            document.getElementById('beforeDiscount').value = item.fee_type?.amount ?? item.before_discount ?? '';
                                             runCalc();
                                             document.getElementById('discountModal').classList.remove('hidden');
                                         }, 200);
