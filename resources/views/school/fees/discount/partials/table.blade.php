@@ -26,11 +26,12 @@
 >
     <x-slot:columns>
         <colgroup>
-            <col style="width: 4%;"><col style="width: 9%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 9%;"><col style="width: 10%;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 5%;">
+            <col style="width: 4%;"><col style="width: 6%;"><col style="width: 8%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 8%;"><col style="width: 9%;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 7%;"><col style="width: 5%;">
         </colgroup>
     </x-slot:columns>
     <x-slot:head>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">Sl</x-table.th>
+        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Scope</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Class</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Group</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Section</x-table.th>
@@ -43,8 +44,7 @@
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Disc. Type</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Disc. Amt</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">After Disc.</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Start Date</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">End Date</x-table.th>
+        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Min Grade</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">Action</x-table.th>
     </x-slot:head>
     <x-slot:footer>

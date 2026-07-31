@@ -10,6 +10,7 @@ use App\Models\SchoolFeeTemplate;
 use App\Models\SchoolPayment;
 use App\Models\SchoolSession;
 use App\Models\SchoolStudentFee;
+use App\Services\ExamDiscountApplicationService;
 use App\Services\FeeStatusSyncService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -72,6 +73,58 @@ class SchoolPaymentController extends Controller
     }
 
     /**
+     * Apply an exam-based discount on top of the base amount when the student's
+     * achieved grade is equal to or higher than the configured qualifying grade
+     * and the payment matches the discounted fee type.
+     */
+    private function applyExamDiscount(int $schoolId, int $studentId, float $amount, ?string $feesType, ?string $feeName): float
+    {
+        $examDiscount = DB::table('school_fee_discounts')
+            ->where('school_id', $schoolId)
+            ->where('student_id', $studentId)
+            ->where('discount_scope', 'exam')
+            ->orderByDesc('id')
+            ->first();
+
+        if (!$examDiscount) {
+            return $amount;
+        }
+
+        // Match the discount's fee type against the payment being processed.
+        // Legacy exam discounts without a fee type apply to all fees.
+        if ($examDiscount->fee_type_id) {
+            $discountFeeType = DB::table('school_fee_templates')
+                ->where('id', $examDiscount->fee_type_id)
+                ->first();
+
+            if ($discountFeeType) {
+                $typeMatches = $discountFeeType->fee_type_name === $feesType;
+                $nameMatches = empty($discountFeeType->fee_name)
+                    || empty($feeName)
+                    || $discountFeeType->fee_name === $feeName;
+
+                if (!$typeMatches || !$nameMatches) {
+                    return $amount;
+                }
+            }
+        }
+
+        $qualifies = app(ExamDiscountApplicationService::class)
+            ->studentQualifies($schoolId, $studentId, $examDiscount->minimum_grade);
+
+        if (!$qualifies) {
+            return $amount;
+        }
+
+        $value = (float) $examDiscount->discount_value;
+        $discountAmount = $examDiscount->discount_type === 'Percentage'
+            ? $amount * $value / 100
+            : $value;
+
+        return max($amount - $discountAmount, 0);
+    }
+
+    /**
      * Store a newly created payment.
      */
     public function store(Request $request)
@@ -95,16 +148,26 @@ class SchoolPaymentController extends Controller
             return response()->json(['message' => 'Cannot collect payment for inactive students.'], 403);
         }
 
-        // Check for a student-specific discount to get the real total payable
+        // Check for a session-scope discount to get the real total payable
         $discount = DB::table('school_fee_discounts')
             ->where('school_id', $school->id)
             ->where('student_id', $validated['admission_student_id'])
+            ->where('discount_scope', 'session')
             ->where('fee_name', $validated['fee_name'])
             ->first();
 
         $effectiveTotal = $discount
             ? (float) $discount->after_discount
             : (float) $validated['total_payable'];
+
+        // Exam-based discount applied on top of the effective total
+        $effectiveTotal = $this->applyExamDiscount(
+            $school->id,
+            (int) $validated['admission_student_id'],
+            $effectiveTotal,
+            $validated['fees_type'],
+            $validated['fee_name'] ?? null
+        );
 
         // Sum all previous payments for this student + fee combination
         $alreadyPaid = DB::table('school_payments')
@@ -210,6 +273,9 @@ class SchoolPaymentController extends Controller
             $effectiveTotal = $discount
                 ? (float) $discount->after_discount
                 : (float) ($validated['total_payable'] ?? $payment->total_payable);
+
+            // Exam-based discount applied on top of the effective total
+            $effectiveTotal = $this->applyExamDiscount($school->id, (int) $studentId, $effectiveTotal, $feesType, $feeName);
 
             // Sum all OTHER payments for this student + fee (excluding current record)
             $alreadyPaid = DB::table('school_payments')
@@ -361,6 +427,17 @@ class SchoolPaymentController extends Controller
             }
         }
 
+        // Exam-based discount applied on top of the effective total
+        if ($hasDiscount) {
+            $effectiveAmount = $this->applyExamDiscount(
+                $school->id,
+                (int) $request->admission_id,
+                $effectiveAmount,
+                $request->fees_type,
+                $request->fee_name ?? null
+            );
+        }
+
         if ($hasDiscount) {
             $alreadyPaid = DB::table('school_payments')
                 ->where('school_id', $school->id)
@@ -400,16 +477,22 @@ class SchoolPaymentController extends Controller
             ->where('fee_name', $request->fee_name)
             ->sum('type_amount');
 
-        $amountToBePaid = $fee->base_amount;
+        $baseAmount = (float) $fee->base_amount;
 
-        if ($paymentRecord) {
-            $amountToBePaid = max($fee->base_amount - $paymentRecord, 0);
-        }
+        // Exam-based discount applied to the standard fee amount
+        $discountedTotal = $this->applyExamDiscount(
+            $school->id,
+            (int) $request->admission_id,
+            $baseAmount,
+            $request->fees_type,
+            $request->fee_name ?? null
+        );
+        $amountToBePaid = max($discountedTotal - (float) $paymentRecord, 0);
 
         return response()->json([
-            'total_payable' => $fee->base_amount,
+            'total_payable' => $discountedTotal,
             'remaining_due' => $amountToBePaid,
-            'has_discount'  => false,
+            'has_discount'  => $discountedTotal < $baseAmount,
         ]);
     }
 
