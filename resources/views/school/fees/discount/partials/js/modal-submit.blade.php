@@ -12,17 +12,13 @@ document.addEventListener('DOMContentLoaded', function() {
             student_ids: (document.getElementById('discount_student_ids').value || '').split(',').filter(Boolean),
             class_id: document.getElementById('discountClass').value,
             session_id: document.getElementById('discountSession').value,
-            fee_type_id: document.getElementById('discountFeeType').value,
-            fee_name: document.getElementById('discountFeeName').value || 'N/A',
+            discount_scope: document.getElementById('discountScope').value || 'session',
+            fee_type_id: document.getElementById('discountFeeType').value || null,
+            minimum_grade: document.getElementById('discountMinGrade').value || null,
             discount_type: document.getElementById('discountType').value,
             discount_value: document.getElementById('discountValue').value,
-            before_discount: document.getElementById('beforeDiscount').value,
-            discount_amount: document.getElementById('discount_amount').value,
-            after_discount: document.getElementById('afterDiscount').value,
             group_id: document.getElementById('discountGroup').value || null,
             section_id: document.getElementById('discountSection').value || null,
-            start_date: document.getElementById('discountStartDate').value,
-            end_date: document.getElementById('discountEndDate').value,
         };
 
         try {

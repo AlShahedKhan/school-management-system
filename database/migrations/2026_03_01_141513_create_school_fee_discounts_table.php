@@ -19,7 +19,7 @@ return new class extends Migration
             // Fixed: Pointing to admission_students table
             $table->foreignId('student_id')->constrained('admission_students')->onDelete('cascade');
             
-            $table->foreignId('fee_type_id')->constrained('school_fee_types')->onDelete('cascade');
+            $table->foreignId('fee_type_id')->constrained('school_fee_templates')->onDelete('cascade');
             
             $table->string('discount_type'); // Fixed or Percentage
             $table->decimal('discount_value', 12, 2);
