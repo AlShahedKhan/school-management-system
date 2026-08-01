@@ -33,7 +33,9 @@
         @media print {
             body { background: #fff !important; }
             .no-print { display: none !important; }
-            .print-container { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 20mm !important; }
+            .print-container { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 20mm !important; max-width: none !important; }
+            .table-scroll { overflow: visible !important; }
+            .table-scroll table { min-width: 0 !important; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
         body, .print-container { font-family: 'Inter', sans-serif; }
@@ -42,7 +44,7 @@
 <body class="bg-gray-100 antialiased p-4 sm:p-8 flex flex-col items-center" style="font-family: 'Inter', sans-serif;">
 
     {{-- Action Buttons --}}
-    <div class="no-print w-full max-w-[210mm] flex justify-end gap-3 mb-4">
+    <div class="no-print w-full max-w-[210mm] flex flex-wrap justify-end gap-3 mb-4">
         <a href="{{ route('school.payment') }}" class="bg-gray-500 hover:bg-gray-600 text-white text-xs font-medium py-2 px-4 rounded shadow transition">
             &larr; Back
         </a>
@@ -60,12 +62,12 @@
     </div>
 
     {{-- Slip Container --}}
-    <div class="print-container bg-white w-[210mm] min-h-[297mm] p-10 border border-gray-300 shadow-lg flex flex-col justify-between text-[11px] text-gray-800 tracking-tight">
+    <div class="print-container bg-white w-full max-w-[210mm] min-h-[auto] sm:min-h-[297mm] p-4 sm:p-10 border border-gray-300 shadow-lg flex flex-col justify-between text-[11px] text-gray-800 tracking-tight">
 
         {{-- ══════════ HEADER ══════════ --}}
         <div>
             <div class="text-center mb-5">
-                <h1 class="text-xl font-bold tracking-wide text-teal-700 whitespace-nowrap">{{ $school->school_name ?? 'School Name' }}</h1>
+                <h1 class="text-base sm:text-xl font-bold tracking-wide text-teal-700 whitespace-nowrap">{{ $school->school_name ?? 'School Name' }}</h1>
                 <p class="text-gray-500 whitespace-nowrap text-[10.5px] mt-1">
                     {{ implode(', ', array_filter([$school->village, $school->upazila, $school->district ?? null])) }}
                 </p>
@@ -80,7 +82,7 @@
             <div class="border-t border-gray-200 mb-4"></div>
 
             {{-- ══════════ STUDENT INFO ══════════ --}}
-            <div class="grid grid-cols-2 gap-x-12 gap-y-1.5 mb-5 pb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-1.5 mb-5 pb-4">
                 <div class="space-y-1">
                     <div class="flex whitespace-nowrap">
                         <span class="w-24 flex-shrink-0 text-gray-500">Student Id</span>
@@ -128,8 +130,8 @@
             </div>
 
             {{-- ══════════ PAYMENT TABLE ══════════ --}}
-            <div class="w-full">
-                <table class="w-full text-left border-collapse table-auto rounded-lg overflow-hidden">
+            <div class="table-scroll w-full overflow-x-auto">
+                <table class="w-full min-w-[640px] text-left border-collapse table-auto rounded-lg overflow-hidden">
                     <thead>
                         <tr class="bg-gray-50 text-gray-500 text-[9.5px] font-semibold uppercase tracking-wide">
                             <th class="py-2 px-2 whitespace-nowrap w-6 border border-gray-200">Sl</th>
