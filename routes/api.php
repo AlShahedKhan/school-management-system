@@ -227,6 +227,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Finance (Expense)
     Route::apiResource('expenses', ExpenseController::class);
 
+    // HRM (Employee & Payroll)
+    Route::apiResource('employees', EmployeeController::class);
+    Route::get('payrolls/staff-details', [\App\Http\Controllers\Api\EmployeePayrollController::class, 'staffDetails']);
+    Route::apiResource('payrolls', \App\Http\Controllers\Api\EmployeePayrollController::class);
+
     //School Membership
     Route::get('/memberships', [SchoolMembershipController::class, 'index']);
     Route::post('/memberships', [SchoolMembershipController::class, 'store']);

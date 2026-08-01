@@ -88,9 +88,12 @@ class ExpenseController extends Controller
             'details' => $request->details,
             'month' => $month,
             'year' => $year,
+
             'name' => $request->expense_reason,
             'amount' => $request->amount,
         ]);
+
+        record_account_transaction($schoolId, 'debit', $expense->amount, $expense->expense_reason, $expense->details);
 
         return response()->json([
             'message' => 'Expense registered successfully',

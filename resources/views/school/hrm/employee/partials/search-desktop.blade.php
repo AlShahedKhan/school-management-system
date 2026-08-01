@@ -1,6 +1,6 @@
 <form method="GET" action="{{ route('school.employee') }}" class="hidden lg:flex items-center gap-2">
     <x-input.search
-        id="expenseSearch"
+        id="employeeSearch"
         name="search"
         value="{{ request('search') }}"
         placeholder="Search..."
