@@ -7,6 +7,7 @@ use App\Models\School;
 use App\Models\SchoolPayment;
 use App\Models\SchoolStudentFee;
 use App\Services\FeeStatusSyncService;
+use App\Services\SchoolFeeDiscountService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -83,7 +84,16 @@ class SchoolDueListController extends Controller
     {
         $paid = (float) SchoolPayment::where('school_student_fee_id', $fee->id)
             ->sum('type_amount');
-        $amount = (float) $fee->base_amount;
+
+        $effectiveAmount = app(SchoolFeeDiscountService::class)->effectiveTotal(
+            (int) $fee->school_id,
+            (int) $fee->student_id,
+            (float) $fee->base_amount,
+            $fee->fee_type_name,
+            $fee->fee_name
+        );
+
+        $amount = $effectiveAmount;
         $remainingDue = max($amount - $paid, 0);
 
         $payDate = $fee->pay_date ? Carbon::parse($fee->pay_date) : null;
@@ -108,6 +118,7 @@ class SchoolDueListController extends Controller
             'status'              => $displayStatus,
             'display_pay_date'    => $payDate ? $payDate->format('j-F-Y') : 'N/A',
             'display_last_pay_date' => $payDate ? $payDate->format('j-F-Y') : 'N/A',
+            'display_due_date'    => $fee->due_date ? Carbon::parse($fee->due_date)->format('j-F-Y') : 'N/A',
             'pay_method'          => '—',
             'total_payable'       => $amount,
             'total_amount'        => $paid,
@@ -151,7 +162,15 @@ class SchoolDueListController extends Controller
         $alreadyPaid = (float) SchoolPayment::where('school_student_fee_id', $fee->id)
             ->sum('type_amount');
 
-        $remainingAfter = max($fee->base_amount - ($alreadyPaid + $validated['type_amount']), 0);
+        $effectiveTotal = app(SchoolFeeDiscountService::class)->effectiveTotal(
+            (int) $fee->school_id,
+            (int) $fee->student_id,
+            (float) $fee->base_amount,
+            $fee->fee_type_name,
+            $fee->fee_name
+        );
+
+        $remainingAfter = max($effectiveTotal - ($alreadyPaid + $validated['type_amount']), 0);
 
         SchoolPayment::create([
             'school_id'             => $schoolId,
@@ -159,7 +178,7 @@ class SchoolDueListController extends Controller
             'admission_student_id'  => $fee->student_id,
             'fees_type'             => $fee->fee_type_name,
             'fee_name'              => $fee->fee_name,
-            'total_payable'         => $fee->base_amount,
+            'total_payable'         => $effectiveTotal,
             'payable_due'           => $remainingAfter,
             'status'                => 'paid',
             'total_amount'          => $validated['type_amount'],

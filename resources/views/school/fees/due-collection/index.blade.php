@@ -217,10 +217,10 @@
                     <tr class="hover:bg-gray-50">
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                            <span class="status-badge status-${record.status}">${FEE_STATUS_MAP[record.status]?.label || record.status}</span>
+                            <div class="donate-cell-scroll" title="${record.student_id_number}">${record.student_id_number}</div>
                         </td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${record.display_pay_date}">${record.display_pay_date}</div>
+                            <div class="donate-cell-scroll" title="${toTitleCase(record.student_name)}">${toTitleCase(record.student_name)}</div>
                         </td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
                             <div class="donate-cell-scroll" title="${toTitleCase(record.class)}">${toTitleCase(record.class)}</div>
@@ -235,12 +235,6 @@
                             <div class="donate-cell-scroll" title="${record.session || 'N/A'}">${record.session || 'N/A'}</div>
                         </td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${record.student_id_number}">${record.student_id_number}</div>
-                        </td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${toTitleCase(record.student_name)}">${toTitleCase(record.student_name)}</div>
-                        </td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
                             <div class="donate-cell-scroll" title="${toTitleCase(record.fees_type)}">${toTitleCase(record.fees_type)}</div>
                         </td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
@@ -252,6 +246,12 @@
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${overdueDisplay}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
                             <div class="donate-cell-scroll" title="${record.display_last_pay_date}">${record.display_last_pay_date}</div>
+                        </td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                            <div class="donate-cell-scroll" title="${record.display_due_date}">${record.display_due_date}</div>
+                        </td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                            <span class="status-badge status-${record.status}">${FEE_STATUS_MAP[record.status]?.label || record.status}</span>
                         </td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center no-print">
                             <div class="flex justify-center items-center">
