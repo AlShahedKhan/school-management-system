@@ -160,6 +160,18 @@ class SchoolFeeDiscountController extends Controller
                     : null;
 
                 if ($scope === 'exam') {
+                    $amounts = $feeType
+                        ? $this->computeDiscount(
+                            $validated['discount_type'],
+                            (float) $validated['discount_value'],
+                            (float) $feeType->amount
+                        )
+                        : [
+                            'before_discount' => null,
+                            'discount_amount' => null,
+                            'after_discount'  => null,
+                        ];
+
                     foreach ($studentIds as $studentId) {
                         $created[] = SchoolFeeDiscount::create(array_merge($validated, [
                             'school_id'       => $school->id,
@@ -168,9 +180,9 @@ class SchoolFeeDiscountController extends Controller
                             'minimum_grade'   => $validated['minimum_grade'] ?? null,
                             'fee_type_id'     => $feeType ? $feeType->id : null,
                             'fee_name'        => $feeType ? $feeType->fee_name : null,
-                            'before_discount' => null,
-                            'discount_amount' => null,
-                            'after_discount'  => null,
+                            'before_discount' => $amounts['before_discount'],
+                            'discount_amount' => $amounts['discount_amount'],
+                            'after_discount'  => $amounts['after_discount'],
                         ]));
                     }
 
@@ -266,15 +278,27 @@ class SchoolFeeDiscountController extends Controller
                     : null;
 
                 if ($scope === 'exam') {
+                    $amounts = $examFeeType
+                        ? $this->computeDiscount(
+                            $validated['discount_type'],
+                            (float) $validated['discount_value'],
+                            (float) $examFeeType->amount
+                        )
+                        : [
+                            'before_discount' => null,
+                            'discount_amount' => null,
+                            'after_discount'  => null,
+                        ];
+
                     $discount->update(array_merge($validated, [
                         'student_id'      => $firstId ?: $discount->student_id,
                         'discount_scope'  => 'exam',
                         'minimum_grade'   => $validated['minimum_grade'] ?? null,
                         'fee_type_id'     => $examFeeType ? $examFeeType->id : null,
                         'fee_name'        => $examFeeType ? $examFeeType->fee_name : null,
-                        'before_discount' => null,
-                        'discount_amount' => null,
-                        'after_discount'  => null,
+                        'before_discount' => $amounts['before_discount'],
+                        'discount_amount' => $amounts['discount_amount'],
+                        'after_discount'  => $amounts['after_discount'],
                     ]));
 
                     $primaryStudentId = $firstId ?: $discount->student_id;
@@ -298,9 +322,9 @@ class SchoolFeeDiscountController extends Controller
                                 'minimum_grade'   => $validated['minimum_grade'] ?? null,
                                 'fee_type_id'     => $examFeeType ? $examFeeType->id : null,
                                 'fee_name'        => $examFeeType ? $examFeeType->fee_name : null,
-                                'before_discount' => null,
-                                'discount_amount' => null,
-                                'after_discount'  => null,
+                                'before_discount' => $amounts['before_discount'],
+                                'discount_amount' => $amounts['discount_amount'],
+                                'after_discount'  => $amounts['after_discount'],
                             ]));
                         }
                     }

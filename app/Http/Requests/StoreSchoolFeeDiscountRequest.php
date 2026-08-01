@@ -26,8 +26,8 @@ class StoreSchoolFeeDiscountRequest extends FormRequest
             'minimum_grade'     => ['nullable', 'string', 'max:20'],
             'discount_type'     => 'required|in:Fixed,Percentage',
             'discount_value'    => 'required|numeric|gt:0',
-            'group_id'          => 'nullable',
-            'section_id'        => 'nullable',
+            'group_id'          => ['required', 'exists:school_groups,id'],
+            'section_id'        => ['required', 'exists:school_sections,id'],
         ];
     }
 
@@ -69,6 +69,10 @@ class StoreSchoolFeeDiscountRequest extends FormRequest
             'discount_value.required'   => 'Discount value is required.',
             'discount_value.numeric'    => 'Discount value must be a number.',
             'discount_value.gt'         => 'Discount value must be greater than zero.',
+            'group_id.required'         => 'Group is required.',
+            'group_id.exists'           => 'Selected group does not exist.',
+            'section_id.required'       => 'Section is required.',
+            'section_id.exists'         => 'Selected section does not exist.',
         ];
     }
 

@@ -323,7 +323,7 @@
             }
         }
 
-        async function loadDiscountStudents(type, selectedIds = []) {
+        async function loadDiscountStudents(type, selectedIds = [], fallback = null) {
             const classId = document.querySelector('#discountClass')?.value;
             const sessionId = document.querySelector('#discountSession')?.value;
             const groupId = document.querySelector('#discountGroup')?.value;
@@ -342,6 +342,9 @@
             try {
                 const res = await axios.get('/api/get-school-students', { params });
                 const data = res.data.data || res.data || [];
+                if (fallback && !data.some(s => String(s.id) === String(fallback.id))) {
+                    data.push(fallback);
+                }
                 tbody.innerHTML = '';
                 if (data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">No active students found.</td></tr>';
@@ -402,7 +405,10 @@
             runCalc();
         }
 
-        async function loadDiscountFeeTypes(selectedId = null) {
+        let discountFeeTypeLoadSeq = 0;
+
+        async function loadDiscountFeeTypes(selectedId = null, fallback = null) {
+            const seq = ++discountFeeTypeLoadSeq;
             const classId = document.querySelector('#discountClass')?.value;
             const sessionId = document.querySelector('#discountSession')?.value;
             const groupId = document.querySelector('#discountGroup')?.value;
@@ -420,7 +426,11 @@
             menu.innerHTML = '<div class="px-3 py-1 text-slate-400"><i class="fas fa-spinner fa-spin mr-1"></i> Loading fee types...</div>';
             try {
                 const res = await axios.get('/api/fee-templates', { params });
+                if (seq !== discountFeeTypeLoadSeq) return;
                 const templates = (res.data.data || []).filter(t => t.fee_type_name !== 'Promote');
+                if (selectedId && fallback && !templates.some(t => String(t.id) === String(selectedId))) {
+                    templates.push(fallback);
+                }
                 menu.innerHTML = '';
                 if (templates.length === 0) {
                     menu.innerHTML = '<div class="px-3 py-1 text-slate-400">No fee types found.</div>';
@@ -471,9 +481,13 @@
             }
         }
 
+        let discountGradeLoadSeq = 0;
+
         async function loadDiscountGrades(selectedId = null) {
+            const seq = ++discountGradeLoadSeq;
             try {
                 const res = await axios.get('/api/school-exam-grades', { params: { all: true } });
+                if (seq !== discountGradeLoadSeq) return;
                 const grades = res.data.data || [];
                 grades.sort((a, b) => (parseFloat(b.grade_point) || 0) - (parseFloat(a.grade_point) || 0));
                 populateDropdown('discountMinGradeMenu', grades, 'grade_name', 'grade_name');
@@ -593,26 +607,33 @@
                 }
                 items.forEach((item, index) => {
                     const sl = meta.from ? meta.from + index : index + 1;
-                    const scopeLabel = (item.discount_scope || 'session') === 'exam' ? 'Exam' : 'Session';
+                    const scopeLabel = (item.discount_scope || 'session') === 'exam' ? 'Exam' : 'Session';                    const beforeAmt = item.before_discount ?? item.fee_type?.amount ?? null;
+                    const calcAmount = item.discount_type === 'Percentage'
+                        ? (beforeAmt != null ? +(beforeAmt * item.discount_value / 100).toFixed(2) : item.discount_value)
+                        : (item.discount_amount ?? item.discount_value);
+                    const afterAmt = beforeAmt != null ? Math.max(beforeAmt - calcAmount, 0) : null;
                     const discDisplay = item.discount_type === 'Percentage'
                         ? item.discount_value + '%'
-                        : (scopeLabel === 'Exam' ? item.discount_value : (item.discount_amount ?? item.discount_value));
+                        : (beforeAmt != null ? calcAmount : (item.discount_amount ?? item.discount_value));
+                    const periodDisplay = scopeLabel === 'Exam'
+                        ? (item.minimum_grade || '-')
+                        : (item.school_session?.start_date ? `${formatDiscountDate(item.school_session.start_date)} to ${formatDiscountDate(item.school_session.end_date || '')}` : (item.school_session?.session_year || '-'));
                     tbody.innerHTML += `<tr class="hover:bg-gray-50">
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${scopeLabel}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${item.student?.student_id_number || '-'}">${item.student?.student_id_number || '-'}</div></td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${item.student?.student_name || '-'}</div></td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${item.school_class?.class_name || '-'}">${item.school_class?.class_name || '-'}</div></td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${item.school_group?.group_name || 'General'}">${item.school_group?.group_name || 'General'}</div></td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${item.school_section?.section_name || '-'}">${item.school_section?.section_name || '-'}</div></td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${item.school_session?.session_year || '-'}">${item.school_session?.session_year || '-'}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.student?.student_id_number || '-'}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${item.student?.student_name || '-'}</div></td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.fee_type?.fee_type_name || '-'}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${item.fee_name || '-'}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${scopeLabel === 'Exam' ? '-' : (item.before_discount ?? '-')}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${scopeLabel}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${periodDisplay}">${periodDisplay}</div></td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${beforeAmt ?? '-'}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.discount_type}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${discDisplay}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${scopeLabel === 'Exam' ? '-' : (item.after_discount ?? '-')}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${scopeLabel === 'Exam' ? (item.minimum_grade || '-') : '-'}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${afterAmt ?? '-'}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
                             <div class="flex h-6 w-full items-center justify-center -space-x-[3px]">
                                 <button type="button" title="Edit" onclick="editDiscount(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 hover:text-blue-600"><i class="far fa-edit text-xs"></i></button>
@@ -624,6 +645,13 @@
                 renderDiscountPagination(meta);
             })
             .catch(err => console.error('Load Error:', err));
+        }
+
+        function formatDiscountDate(str) {
+            if (!str) return '';
+            const parts = String(str).split('-');
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${parseInt(parts[2], 10)}-${months[parseInt(parts[1], 10) - 1]}-${parts[0]}`;
         }
 
         function renderDiscountPagination(meta) {
@@ -651,47 +679,38 @@
             controls.appendChild(nextBtn);
         }
 
-        function editDiscount(id) {
-            axios.get('/api/fee-discounts/' + id)
-                .then(res => {
-                    const item = res.data;
-                    document.getElementById('edit_id').value = item.id;
-                    document.getElementById('discountModalTitle').innerText = 'Edit Discount';
+        async function editDiscount(id) {
+            try {
+                const res = await axios.get('/api/fee-discounts/' + id);
+                const item = res.data;
+                document.getElementById('edit_id').value = item.id;
+                document.getElementById('discountModalTitle').innerText = 'Edit Discount';
 
-                    loadDiscountClassSelect(item.class_id);
-                    setTimeout(() => {
-                        loadDiscountGroupSelect(item.group_id);
-                        setTimeout(() => {
-                            loadDiscountSectionSelect(item.section_id);
-                            setTimeout(() => {
-                                loadDiscountSessionSelect(item.session_id);
-                                setTimeout(() => {
-                                    setDiscountScope(item.discount_scope || 'session');
-                                    const hasStudent = !!item.student_id;
-                                    if (hasStudent) {
-                                        setDropdownValue('discountStudentScope', 'single', 'Single Student');
-                                        document.getElementById('div_discount_students').style.display = 'block';
-                                        loadDiscountStudents('single', [String(item.student_id)]);
-                                    }
-                                    setTimeout(() => {
-                                        loadDiscountFeeTypes(item.fee_type_id ? String(item.fee_type_id) : null);
-                                        if ((item.discount_scope || 'session') === 'exam') {
-                                            loadDiscountGrades(item.minimum_grade);
-                                        }
-                                        setTimeout(() => {
-                                            setDropdownValueFromMenu('discountType', item.discount_type);
-                                            document.getElementById('discountValue').value = item.discount_value;
-                                            document.getElementById('beforeDiscount').value = item.fee_type?.amount ?? item.before_discount ?? '';
-                                            runCalc();
-                                            document.getElementById('discountModal').classList.remove('hidden');
-                                        }, 200);
-                                    }, 300);
-                                }, 200);
-                            }, 300);
-                        }, 300);
-                    }, 300);
-                })
-                .catch(() => Swal.fire('Error', 'Failed to load discount data.', 'error'));
+                await loadDiscountClassSelect(item.class_id);
+                await loadDiscountGroupSelect(item.group_id);
+                await loadDiscountSectionSelect(item.section_id);
+                await loadDiscountSessionSelect(item.session_id);
+
+                setDiscountScope(item.discount_scope || 'session');
+                const hasStudent = !!item.student_id;
+                if (hasStudent) {
+                    setDropdownValue('discountStudentScope', 'single', 'Single Student');
+                    document.getElementById('div_discount_students').style.display = 'block';
+                    await loadDiscountStudents('single', [String(item.student_id)], item.student || null);
+                }
+                await loadDiscountFeeTypes(item.fee_type_id ? String(item.fee_type_id) : null, item.fee_type || null);
+                if ((item.discount_scope || 'session') === 'exam') {
+                    await loadDiscountGrades(item.minimum_grade);
+                }
+
+                setDropdownValueFromMenu('discountType', item.discount_type);
+                document.getElementById('discountValue').value = item.discount_value;
+                document.getElementById('beforeDiscount').value = item.fee_type?.amount ?? item.before_discount ?? '';
+                runCalc();
+                document.getElementById('discountModal').classList.remove('hidden');
+            } catch (e) {
+                Swal.fire('Error', 'Failed to load discount data.', 'error');
+            }
         }
 
         function deleteDiscount(id) {
