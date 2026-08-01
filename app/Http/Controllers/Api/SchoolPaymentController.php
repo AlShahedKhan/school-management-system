@@ -10,6 +10,7 @@ use App\Models\SchoolFeeTemplate;
 use App\Models\SchoolPayment;
 use App\Models\SchoolSession;
 use App\Models\SchoolStudentFee;
+use App\Models\SchoolFeeDiscount;
 use App\Services\ExamDiscountApplicationService;
 use App\Services\FeeStatusSyncService;
 use App\Services\SchoolFeeDiscountService;
@@ -80,8 +81,7 @@ class SchoolPaymentController extends Controller
      */
     private function applyExamDiscount(int $schoolId, int $studentId, float $amount, ?string $feesType, ?string $feeName): float
     {
-        $examDiscount = DB::table('school_fee_discounts')
-            ->where('school_id', $schoolId)
+        $examDiscount = SchoolFeeDiscount::where('school_id', $schoolId)
             ->where('student_id', $studentId)
             ->where('discount_scope', 'exam')
             ->orderByDesc('id')
@@ -94,9 +94,7 @@ class SchoolPaymentController extends Controller
         // Match the discount's fee type against the payment being processed.
         // Legacy exam discounts without a fee type apply to all fees.
         if ($examDiscount->fee_type_id) {
-            $discountFeeType = DB::table('school_fee_templates')
-                ->where('id', $examDiscount->fee_type_id)
-                ->first();
+            $discountFeeType = SchoolFeeTemplate::where('id', $examDiscount->fee_type_id)->first();
 
             if ($discountFeeType) {
                 $typeMatches = $discountFeeType->fee_type_name === $feesType;
@@ -159,8 +157,7 @@ class SchoolPaymentController extends Controller
         );
 
         // Sum all previous payments for this student + fee combination
-        $alreadyPaid = DB::table('school_payments')
-            ->where('school_id', $school->id)
+        $alreadyPaid = SchoolPayment::where('school_id', $school->id)
             ->where('admission_student_id', $validated['admission_student_id'])
             ->where('fees_type', $validated['fees_type'])
             ->where('fee_name', $validated['fee_name'])
@@ -262,8 +259,7 @@ class SchoolPaymentController extends Controller
             );
 
             // Sum all OTHER payments for this student + fee (excluding current record)
-            $alreadyPaid = DB::table('school_payments')
-                ->where('school_id', $school->id)
+            $alreadyPaid = SchoolPayment::where('school_id', $school->id)
                 ->where('admission_student_id', $studentId)
                 ->where('fees_type', $feesType)
                 ->where('fee_name', $feeName)
@@ -351,8 +347,7 @@ class SchoolPaymentController extends Controller
         $effectiveAmount = 0;
 
         // Load the student fee record to get the original amount
-        $studentFee = DB::table('school_student_fees')
-            ->where('school_id', $school->id)
+        $studentFee = SchoolStudentFee::where('school_id', $school->id)
             ->where('student_id', $request->admission_id)
             ->where('fee_type_name', $request->fees_type)
             ->where('fee_name', $request->fee_name)
@@ -399,8 +394,7 @@ class SchoolPaymentController extends Controller
 
         // 2. Check for legacy discount (school_fee_discounts) if no new discount found
         if (!$hasDiscount) {
-            $legacyDiscount = DB::table('school_fee_discounts')
-                ->where('school_id', $school->id)
+            $legacyDiscount = SchoolFeeDiscount::where('school_id', $school->id)
                 ->where('student_id', $request->admission_id)
                 ->where('fee_name', $request->fee_name)
                 ->first();
@@ -423,8 +417,7 @@ class SchoolPaymentController extends Controller
         }
 
         if ($hasDiscount) {
-            $alreadyPaid = DB::table('school_payments')
-                ->where('school_id', $school->id)
+            $alreadyPaid = SchoolPayment::where('school_id', $school->id)
                 ->where('admission_student_id', $request->admission_id)
                 ->where('fees_type', $request->fees_type)
                 ->where('fee_name', $request->fee_name)
@@ -443,8 +436,7 @@ class SchoolPaymentController extends Controller
         if ($studentFee) {
             $fee = $studentFee;
         } else {
-            $fee = DB::table('school_fee_templates')
-                ->where('school_id', $school->id)
+            $fee = SchoolFeeTemplate::where('school_id', $school->id)
                 ->where('fee_type_name', $request->fees_type)
                 ->where('fee_name', $request->fee_name)
                 ->first();
@@ -454,7 +446,7 @@ class SchoolPaymentController extends Controller
             return response()->json(['message' => 'Fee configuration not found.'], 404);
         }
 
-        $paymentRecord = DB::table('school_payments')
+        $paymentRecord = SchoolPayment::where('school_id', $school->id)
             ->where('school_id', $school->id)
             ->where('admission_student_id', $request->admission_id)
             ->where('fees_type', $request->fees_type)
