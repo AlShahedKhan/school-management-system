@@ -1052,7 +1052,7 @@ class DashboardController extends Controller
             }
         }
 
-        return view('school.payment_slip', compact(
+        return view('school.fees.collection.payment_slip', compact(
             'school',
             'student',
             'payments',
