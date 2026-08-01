@@ -15,6 +15,16 @@
     .pagination-btn { padding: 6px 12px; border: 1px solid #e2e8f0; background: #fff; color: #64748b; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; min-width: 35px; border-radius: 0; }
     .pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .pagination-btn.active { background: #2563eb; border-color: #2563eb; color: #fff; }
+    .status-badge { padding: 2px 8px; font-size: 10px; font-weight: 700; border-radius: 2px; text-transform: uppercase; }
+    .status-paid { background: #d1fae5; color: #059669; }
+    .status-partial_paid { background: #dbeafe; color: #2563eb; }
+    .status-due { background: #fef3c7; color: #d97706; }
+    .status-due_partial { background: #fef3c7; color: #d97706; }
+    .status-over_due { background: #fee2e2; color: #dc2626; }
+    .status-over_due_partial { background: #fee2e2; color: #dc2626; }
+    .status-advance { background: #d1fae5; color: #059669; }
+    .status-advance_partial { background: #dbeafe; color: #2563eb; }
+    .status-pending { background: #f3f4f6; color: #6b7280; }
 </style>
 <x-table
     unstyled :empty="false" empty-message="No dues found."

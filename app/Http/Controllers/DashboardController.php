@@ -325,7 +325,7 @@ class DashboardController extends Controller
                         'pending' => 'bg-amber-100 text-amber-700',
                         default => 'bg-green-100 text-green-700',
                     },
-                    'date' => $admissionDate?->format('d M Y') ?? '',
+                    'date' => $admissionDate?->format('j-F-Y') ?? '',
                     'datetime' => $admissionDate?->toDateString() ?? '',
                 ];
             })
@@ -361,7 +361,7 @@ class DashboardController extends Controller
                     'from_class' => $promotion->fromClass?->class_name ?: '-',
                     'to_class' => $promotion->toClass?->class_name ?: '-',
                     'section' => $promotion->toSection?->section_name ?: '-',
-                    'date' => $promotionDate?->format('d M Y') ?? '',
+                    'date' => $promotionDate?->format('j-F-Y') ?? '',
                     'datetime' => $promotionDate?->toDateString() ?? '',
                 ];
             })
@@ -395,7 +395,7 @@ class DashboardController extends Controller
                     'fee' => $feeName,
                     'method' => $payment->pay_method ?: '-',
                     'amount' => number_format((float) $payment->type_amount, 2),
-                    'date' => $paymentDate?->format('d M Y') ?? '',
+                    'date' => $paymentDate?->format('j-F-Y') ?? '',
                     'datetime' => $paymentDate?->toDateString() ?? '',
                 ];
             })
@@ -427,7 +427,7 @@ class DashboardController extends Controller
                     'student_id' => $fee->student?->student_id_number ?: ($fee->student?->admission_id ?: '-'),
                     'fee' => $feeName,
                     'amount' => number_format((float) $fee->due_amount, 2),
-                    'date' => $dueDate?->format('d M Y') ?? '',
+                    'date' => $dueDate?->format('j-F-Y') ?? '',
                     'datetime' => $dueDate?->toDateString() ?? '',
                 ];
             })
@@ -461,7 +461,7 @@ class DashboardController extends Controller
                     'student_id' => $fee->student?->student_id_number ?: ($fee->student?->admission_id ?: '-'),
                     'fee' => $feeName,
                     'amount' => number_format((float) $fee->due_amount, 2),
-                    'date' => $dueDate?->format('d M Y') ?? '',
+                    'date' => $dueDate?->format('j-F-Y') ?? '',
                     'datetime' => $dueDate?->toDateString() ?? '',
                 ];
             })
@@ -486,7 +486,7 @@ class DashboardController extends Controller
                     'designation' => $payroll->designation ?: '-',
                     'period' => trim($payroll->month.' '.$payroll->year) ?: '-',
                     'days' => (int) $payroll->leave,
-                    'date' => $recordedAt?->format('d M Y') ?? '',
+                    'date' => $recordedAt?->format('j-F-Y') ?? '',
                     'datetime' => $recordedAt?->toDateString() ?? '',
                 ];
             })
@@ -511,8 +511,8 @@ class DashboardController extends Controller
                     'type' => $holiday->type,
                     'reason' => $holiday->reason,
                     'target' => $target ?: '-',
-                    'start_date' => $startDate->format('d M Y'),
-                    'end_date' => $endDate->format('d M Y'),
+                    'start_date' => $startDate->format('j-F-Y'),
+                    'end_date' => $endDate->format('j-F-Y'),
                     'days' => (int) $holiday->total_days,
                     'datetime' => $startDate->toDateString(),
                 ];

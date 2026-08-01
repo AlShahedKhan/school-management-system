@@ -143,7 +143,7 @@
                 @endphp
                 <tr>
                     <td class="text-center">{{ $i + 1 }}</td>
-                    <td class="text-center">{{ $p->pay_date ? \Carbon\Carbon::parse($p->pay_date)->format('d-M-y') : '-' }}</td>
+                    <td class="text-center">{{ $p->pay_date ? \Carbon\Carbon::parse($p->pay_date)->format('j-F-Y') : '-' }}</td>
                     <td class="text-center">{{ $receiveMonth }}</td>
                     <td class="text-center">{{ $p->pay_method ?? '-' }}</td>
                     <td class="text-center {{ $statusClass }}" style="font-weight:600;">{{ $statusText }}</td>

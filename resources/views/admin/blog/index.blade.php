@@ -68,7 +68,7 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-4">
-                                    <p class="text-sm font-medium text-gray-700">{{ $blog->published_at?->format('d M Y') ?? 'Not published' }}</p>
+                                    <p class="text-sm font-medium text-gray-700">{{ $blog->published_at?->format('j-F-Y') ?? 'Not published' }}</p>
                                     @if ($blog->published_at)
                                         <p class="mt-1 text-xs text-gray-400">{{ $blog->published_at->format('h:i A') }}</p>
                                     @endif

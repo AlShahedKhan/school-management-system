@@ -25,6 +25,8 @@ class SchoolStudentFeeController extends Controller
 
             $query = SchoolStudentFee::with([
                 'student.schoolClass',
+                'student.schoolGroup',
+                'student.schoolSection',
                 'student.schoolSession',
                 'feeTemplate.schoolClass',
                 'feeTemplate.schoolGroup',
@@ -143,6 +145,10 @@ class SchoolStudentFeeController extends Controller
                     $totalPaid > 0 => 'partial_paid',
                     default => 'pending',
                 };
+
+                $fee->overdue = in_array($fee->status, ['over_due', 'over_due_partial'])
+                    ? max($effectiveAmount - $totalPaid, 0)
+                    : 0;
 
                 return $fee;
             });

@@ -480,10 +480,12 @@
             return `${h}:${minutes} ${ampm}`;
         }
 
-        function formatDateDDMMYYYY(dateStr) {
+        function formatDate(dateStr) {
             if (!dateStr) return '';
-            const [y, m, d] = dateStr.split('-');
-            return `${d}/${m}/${y}`;
+            const dt = new Date(dateStr);
+            if (isNaN(dt.getTime())) return dateStr;
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            return dt.getDate() + '-' + months[dt.getMonth()] + '-' + dt.getFullYear();
         }
 
         function escapeRoutineHtml(value) {

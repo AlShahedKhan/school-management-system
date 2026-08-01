@@ -369,7 +369,7 @@
                 @endphp
                 <tr>
                     <td class="text-center">{{ $i + 1 }}</td>
-                    <td>{{ \Carbon\Carbon::parse($p->pay_date)->format('d/m/Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($p->pay_date)->format('j-F-Y') }}</td>
                     <td>{{ $p->pay_method ?? '—' }}</td>
                     <td class="text-center">
                         @if ($p->status === 'paid')

@@ -153,9 +153,10 @@
 
         function formatDate(dateString) {
             if (!dateString) return '-';
-            const parts = dateString.split('-');
-            if (parts.length !== 3) return dateString;
-            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            const d = new Date(dateString);
+            if (isNaN(d.getTime())) return dateString;
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            return d.getDate() + '-' + months[d.getMonth()] + '-' + d.getFullYear();
         }
 
         function getSessionLabel() {
@@ -490,7 +491,7 @@
                                     <div class="donate-cell-scroll" title="${item.fee_name || '-'}">${item.fee_name || '-'}</div>
                                 </td>
                                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.amount || 0}</td>
-                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.pay_date ? formatDate(item.pay_date) : '-'}</td>
+                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.pay_date ? formatDate(item.pay_date) : (item.due_day ? 'Every&nbspMonth&nbspDay&nbsp;' + item.due_day : '-')}</td>
                                 <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
                                     <div class="flex h-6 w-full items-center justify-center -space-x-[3px]">
                                         <button type="button" title="Edit" aria-label="Edit" onclick="editFeeTemplate(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 hover:bg-gray-100 hover:text-blue-600 focus-visible:ring-blue-500">

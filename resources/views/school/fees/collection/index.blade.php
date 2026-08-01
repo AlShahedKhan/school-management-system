@@ -316,7 +316,7 @@
                     const grandDue = Math.max(grandTotal - grandPaid, 0);
 
                     const fmt     = n => Number(n).toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    const fmtDate = d => { const dt = new Date(d); return String(dt.getDate()).padStart(2,'0') + '/' + String(dt.getMonth()+1).padStart(2,'0') + '/' + dt.getFullYear(); };
+                    const fmtDate = d => { const dt = new Date(d); const months = ['January','February','March','April','May','June','July','August','September','October','November','December']; return dt.getDate() + '-' + months[dt.getMonth()] + '-' + dt.getFullYear(); };
                     const now     = new Date();
                     const genDate = fmtDate(now);
                     const today   = new Date(); today.setHours(0,0,0,0);
@@ -969,10 +969,17 @@
                         (!activeFilters.student || studentId == activeFilters.student);
                 });
 
+                if (filteredData.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="15" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No collections found.</td></tr>';
+                    document.getElementById('paginationInfo').innerText = '0 of 0';
+                    document.getElementById('paginationControls').innerHTML = '';
+                    return;
+                }
+
                 filteredData.forEach((p, i) => {
                     const payDate = new Date(p.pay_date);
-                    const formattedDate =
-                        `${payDate.getDate().toString().padStart(2,'0')}/${(payDate.getMonth()+1).toString().padStart(2,'0')}/${payDate.getFullYear()}`;
+                    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                    const formattedDate = payDate.getDate() + '-' + months[payDate.getMonth()] + '-' + payDate.getFullYear();
 
                     const className = p.student?.school_class?.class_name || 'N/A';
                     const groupName = p.student?.school_group?.group_name || 'N/A';
