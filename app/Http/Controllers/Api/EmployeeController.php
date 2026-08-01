@@ -29,6 +29,22 @@ class EmployeeController extends Controller
             });
         }
 
+        if ($request->filled('employee_id')) {
+            $query->where('id', $request->employee_id);
+        }
+
+        if ($request->filled('month')) {
+            $query->whereMonth('salary_start_date', $request->month);
+        }
+
+        if ($request->filled('year')) {
+            $query->whereYear('salary_start_date', $request->year);
+        }
+
+        if ($request->filled('designation')) {
+            $query->where('designation', 'like', "%" . trim($request->designation) . "%");
+        }
+
         $employees = $query->orderBy('id', 'desc')->paginate(30);
 
         return response()->json($employees);
