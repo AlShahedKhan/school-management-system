@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
+use App\Models\SchoolFeeTemplate;
+use App\Models\AdmissionStudent;
 
 class SchoolFeeDiscountService
 {
@@ -11,6 +13,31 @@ class SchoolFeeDiscountService
     private array $examDiscountCache = [];
 
     private array $templateCache = [];
+
+    /**
+     * Calculate payable amount and discount amount for a given template and student.
+     */
+    public function calculatePayableAmount(SchoolFeeTemplate $template, AdmissionStudent $student): array
+    {
+        $baseAmount = (float) $template->amount;
+        $feeTypeName = $template->fee_type_name ?? ($template->assign?->name ?? null);
+        $feeName = $template->fee_name;
+
+        $payableAmount = $this->effectiveTotal(
+            $template->school_id,
+            $student->id,
+            $baseAmount,
+            $feeTypeName,
+            $feeName
+        );
+
+        $discountAmount = max(0, $baseAmount - $payableAmount);
+
+        return [
+            'discount_amount' => $discountAmount,
+            'payable_amount' => $payableAmount,
+        ];
+    }
 
     /**
      * Compute the effective payable amount for a student + fee, applying the
