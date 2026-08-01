@@ -9,6 +9,7 @@ use App\Observers\SchoolExamNameObserver;
 use App\Support\BrandAssetResolver;
 use App\Support\HomePageContentResolver;
 use App\Support\PublicTranslationResolver;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -29,6 +30,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Schema::defaultStringLength(191);
+
         SchoolExamName::observe(SchoolExamNameObserver::class);
         AdmissionStudent::observe(AdmissionStudentObserver::class);
 

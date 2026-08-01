@@ -32,216 +32,11 @@
             }
         }
 
-        .table-card {
-            border: 1px solid #e2e8f0;
-            background: #ffffff;
-            border-radius: 0;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-            width: 100%;
-            overflow: hidden;
-        }
-
-        /* ================= Table Container ================= */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto !important;
-            display: block;
-            background: white;
-            padding: 15px;
-        }
-
-        /* ================= Table ================= */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: auto;
-            border: 1px solid #d1d5db;
-            font-size: 12px;
-        }
-
-        /* ================= Table Header ================= */
-        th {
-            padding: 0 10px !important;
-            height: 32px !important;
-            min-height: 32px !important;
-            line-height: 32px !important;
-            white-space: nowrap;
-            background: #f8fafc;
-            border-bottom: 1px solid #d1d5db;
-            border-right: 1px solid #d1d5db;
-            color: #374151;
-            /* Natural dark text color */
-            font-weight: 700;
-            /* Normal Bold */
-            vertical-align: middle;
-            text-align: left;
-            text-transform: none !important;
-            /* Removes any forced casing */
-        }
-
-        /* Specifically center the Photo (first) and Action (last) headers */
-        th:last-child {
-            text-align: center !important;
-        }
-
-        th:last-child {
-            text-align: center !important;
-        }
-
-        /* ================= Table Body ================= */
-        tr {
-            height: 32px !important;
-            min-height: 32px !important;
-        }
-
-        td {
-            padding: 0 10px !important;
-            vertical-align: middle;
-            border-bottom: 1px solid #d1d5db;
-            border-right: 1px solid #d1d5db;
-            font-size: 12px;
-            height: 32px !important;
-            min-height: 32px !important;
-            color: inherit;
-            /* Inherits normal text color */
-        }
-
-        /* ================= Circular Image Styling ================= */
-        td img {
-            /* Equal width and height are vital to prevent the "egg" shape */
-            width: 28px !important;
-            height: 28px !important;
-            border-radius: 50% !important;
-            object-fit: cover !important;
-            /* Crops the image to fit the circle */
-            display: block;
-            margin: 0 auto;
-            padding: 0 !important;
-        }
-
-        /* Shrink all other elements inside td */
-        td *:not(img) {
-            margin: 0 !important;
-            padding: 0 !important;
-            line-height: 1.2 !important;
-            height: auto !important;
-            display: inline-block;
-            max-height: 28px;
-        }
-
-        /* Remove right border for last column */
-        td:last-child {
-            border-right: none;
-        }
-
-        /* ================= Hover Effect ================= */
-        tbody tr:hover {
-            background: #f3f4f6;
-        }
-
-        /* ================= Mobile Adjustments ================= */
-        @media (max-width: 768px) {
-
-            tr,
-            th,
-            td {
-                height: 30px !important;
-                min-height: 30px !important;
-                line-height: 30px !important;
-            }
-
-            th,
-            td {
-                padding: 0 6px !important;
-            }
-
-            td img {
-                width: 24px !important;
-                height: 24px !important;
-            }
-
-            .table-responsive {
-                padding: 12px;
-            }
-        }
-
-
-        .btn-outline-premium {
-            background: transparent;
-            border: 1.5px solid #2563eb;
-            color: #2563eb;
-            font-weight: 600;
-            transition: all .2s ease;
-            border-radius: 0;
-            cursor: pointer;
-        }
-
-        .btn-outline-premium:hover {
-            background: #2563eb;
-            color: #fff;
-        }
-
-        .form-input-fixed {
-            width: 100%;
-            border: 1px solid #cbd5e1 !important;
-            padding: .5rem .7rem;
-            border-radius: 0;
-            font-size: .85rem;
-            outline: none;
-        }
-
-        .action-icon-btn {
-            font-size: 1.25rem;
-            padding: 0px !important;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-
         .loader-row {
             text-align: center;
             padding: 2rem !important;
             color: #64748b;
             font-style: italic;
-        }
-
-        /* Search Input Styling */
-        .search-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 10px;
-            color: #94a3b8;
-            font-size: 16px;
-        }
-
-        .search-input-premium {
-            padding-left: 32px !important;
-            border: 1px solid #e2e8f0 !important;
-            background: #fcfcfc;
-            width: 250px;
-            transition: all 0.3s ease;
-        }
-
-        .search-input-premium:focus {
-            width: 300px;
-            border-color: #2563eb !important;
-            background: #fff;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        }
-
-        /* Pagination Styling */
-        .pagination-container {
-            padding: 1rem;
-            border-top: 1px solid #f1f5f9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fdfdfd;
         }
 
         .page-link-premium {
@@ -273,352 +68,331 @@
 
     <div class="main-view-container">
         <div class="max-w-full mx-auto w-full">
-            <div class="bg-white border border-gray-200 p-2.5 sm:p-4 mb-4" style="border-radius: 0;">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-
-                    <div class="w-full lg:w-auto">
-                        <h2 id="pageHeader" class="text-[15px] sm:text-xl text-gray-800 font-normal leading-tight"></h2>
-                        <div class="flex items-center text-slate-400 text-[12px] mt-1">
-                            <span>School</span>
-                            <i class="fas fa-chevron-right mx-1.5 text-[10px]"></i>
-                            <span id="pageTitle" class="text-slate-500"></span>
-                        </div>
-
-                        <div class="relative w-full sm:w-64 mt-3 hidden lg:block">
-                            <i class="mdi mdi-magnify absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" id="tableSearch" onkeyup="liveSearch()"
-                                placeholder="Search Subject or Date..."
-                                class="pl-8 pr-3 py-2 w-full border border-gray-200 text-xs outline-none focus:border-blue-500"
-                                style="border-radius: 0;" />
-                        </div>
-                    </div>
-
-                    <div class="flex flex-row items-center gap-1 w-full lg:w-auto">
-                        <button onclick="openFilterModal()"
-                            class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
-                            Filter
-                        </button>
-
-                        <div id="exportDropdown" class="relative flex-1 lg:flex-none">
-                            <x-button.secondary
-                                id="exportDropdownButton"
-                                onclick="toggleExportMenu(event)"
-                                class="h-7 w-full px-0.5 text-[9px] tracking-wider sm:h-9 sm:px-4 sm:text-xs">
-                                <span>Export</span>
-                                <i class="fas fa-chevron-down ml-2 text-[8px]" aria-hidden="true"></i>
-                            </x-button.secondary>
-
-                            <div
-                                id="exportMenu"
-                                class="absolute left-0 top-full z-50 mt-1 hidden w-full min-w-[110px] border border-slate-300 bg-white shadow-sm"
-                            >
-                                <x-button.secondary onclick="exportData('pdf')" class="w-full justify-start border-x-0 border-t-0">
-                                    PDF
-                                </x-button.secondary>
-                                <x-button.secondary onclick="exportData('excel')" class="w-full justify-start border-x-0 border-t-0">
-                                    Excel
-                                </x-button.secondary>
-                                <x-button.secondary onclick="window.print(); closeExportMenu()" class="w-full justify-start border-x-0 border-b-0 border-t-0">
-                                    Print
-                                </x-button.secondary>
-                            </div>
-                        </div>
-
-                        <button onclick="openRoutineModal()"
-                            class="btn-outline-premium border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
-                            Create Routine
-                        </button>
-                    </div>
-                </div>
-
-                <div class="relative w-full mt-3 lg:hidden">
-                    <i class="mdi mdi-magnify absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" onkeyup="document.getElementById('tableSearch').value = this.value; liveSearch()"
+            <x-school.list-header title="Exam Routine" breadcrumb-current="Exam Routine" keep-title>
+                <x-slot:search>
+                    <x-input.search
+                        id="tableSearch"
                         placeholder="Search Subject or Date..."
-                        class="pl-8 pr-3 py-1.5 w-full border border-gray-200 text-xs outline-none focus:border-blue-500"
-                        style="border-radius: 0;" />
-                </div>
-            </div>
+                        class="w-72"
+                        onkeyup="syncRoutineSearch('tableSearch'); liveSearch()"
+                    />
+                    <x-button.secondary type="button" onclick="restoreRoutineSearch()">
+                        Restore
+                    </x-button.secondary>
+                </x-slot:search>
+
+                <x-slot:actions>
+                    <x-button.secondary type="button" onclick="openFilterModal()" class="w-full lg:w-auto">
+                        Filter
+                    </x-button.secondary>
+
+                    <x-dropdown
+                        id="exportDropdown"
+                        button-id="exportDropdownButton"
+                        menu-id="exportMenu"
+                        label="Export"
+                        align="full"
+                    >
+                        <x-dropdown.item onclick="exportData('pdf')">PDF</x-dropdown.item>
+                        <x-dropdown.item onclick="exportData('excel')">Excel</x-dropdown.item>
+                        <x-dropdown.item onclick="window.print(); closeExportMenu()">Print</x-dropdown.item>
+                    </x-dropdown>
+
+                    <x-button.primary type="button" onclick="openRoutineModal()" class="w-full lg:w-auto">
+                        Create Routine
+                    </x-button.primary>
+                </x-slot:actions>
+
+                <x-slot:mobile-search>
+                    <div class="col-span-3 grid grid-cols-3 gap-2">
+                        <x-input.search
+                            id="tableSearchMobile"
+                            placeholder="Search Subject or Date..."
+                            class="col-span-2 min-w-0"
+                            onkeyup="syncRoutineSearch('tableSearchMobile'); liveSearch()"
+                        />
+                        <x-button.secondary type="button" onclick="restoreRoutineSearch()" class="w-full">
+                            Restore
+                        </x-button.secondary>
+                    </div>
+                </x-slot:mobile-search>
+            </x-school.list-header>
 
             {{-- Filter Modal --}}
-            <div id="filterModal"
-                class="premium-modal fixed inset-0 bg-black/50 hidden z-[9999] flex items-center justify-center p-12 sm:p-20"
-                onclick="this.classList.add('hidden')">
-                <div class="bg-white p-4 w-full max-w-[320px] modal-content-sharp shadow-2xl" style="border-radius: 0;"
-                    onclick="event.stopPropagation()">
-
-                    <div>
-                        <h3
-                            class="text-gray-800 text-[13px] font-medium leading-tight text-center capitalize tracking-normal">
-                            Routine filter
-                        </h3>
-                        <div class="h-[1px] w-full bg-gray-200 mt-2.5"></div>
-                    </div>
-
-                    <div class="mt-3 mb-4 space-y-3">
-                        {{-- Class Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Class</label>
-                            <x-input.dropdown-select id="f_class" placeholder="All Classes" :options="[]" />
-                        </div>
-
-                        {{-- Group Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Group</label>
-                            <x-input.dropdown-select id="f_group" placeholder="All Groups" :options="[]" />
-                        </div>
-
-                        {{-- Section Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Section</label>
-                            <x-input.dropdown-select id="f_section" placeholder="All Sections" :options="[]" />
-                        </div>
-
-                        {{-- Session Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Session</label>
-                            <x-input.dropdown-select id="f_session" placeholder="All Sessions" :options="[]" />
-                        </div>
-
-                        {{-- Exam Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Exam</label>
-                            <x-input.dropdown-select id="f_exam" placeholder="All Exams" :options="[]" />
-                        </div>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button onclick="resetFilters()"
-                            class="btn-outline-secondary border border-gray-200 w-full text-[11px] capitalize flex items-center justify-center"
-                            style="border-radius: 0; height: 32px;">Reset</button>
-                        <button
-                            onclick="fetchRoutines(1, true); document.getElementById('filterModal').classList.add('hidden');"
-                            class="btn-outline-premium border border-gray-200 w-full text-[11px] capitalize flex items-center justify-center"
-                            style="border-radius: 0; height: 32px;">Apply</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="table-card">
-                <div class="table-responsive">
-                    <table class="min-w-[1500px]">
-                        <thead>
-                            <tr>
-                                <th width="60">Sl</th>
-                                <th>Class</th>
-                                <th>Group</th>
-                                <th>Section</th>
-                                <th>Session</th>
-                                <th>Exam</th>
-                                <th>Subject</th>
-                                <th>Date</th>
-                                <th>Day Name</th>
-                                <th>Start Time</th>
-                                <th>End Time</th>
-                                <th width="120" class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="routineTableBody">
-                            <tr>
-                                <td colspan="12" class="loader-row">Loading routines...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <x-modal.form
+                id="filterModal"
+                form-id="routineFilterForm"
+                title="Routine Filter"
+                close-button-id="closeRoutineFilterModal"
+                title-class="teacher-register-modal-title m-0 text-center font-semibold leading-tight text-slate-800"
+            >
+                <div class="relative">
+                    <x-input.dropdown-select id="f_class" placeholder="All Classes" :options="[]" />
+                    <x-input.floating-label for="f_class" :floating="false">Class</x-input.floating-label>
                 </div>
 
-                <div class="pagination-container" id="paginationControls">
-                    <div class="text-[11px] text-gray-500 font-medium" id="paginationInfo">
-                        0 of 0
-                    </div>
-                    <div class="flex items-center gap-1" id="paginationLinks">
-                    </div>
+                <div class="relative">
+                    <x-input.dropdown-select id="f_group" placeholder="All Groups" :options="[]" />
+                    <x-input.floating-label for="f_group" :floating="false">Group</x-input.floating-label>
                 </div>
-            </div>
+
+                <div class="relative">
+                    <x-input.dropdown-select id="f_section" placeholder="All Sections" :options="[]" />
+                    <x-input.floating-label for="f_section" :floating="false">Section</x-input.floating-label>
+                </div>
+
+                <div class="relative">
+                    <x-input.dropdown-select id="f_session" placeholder="All Sessions" :options="[]" />
+                    <x-input.floating-label for="f_session" :floating="false">Session</x-input.floating-label>
+                </div>
+
+                <div class="relative md:col-span-2">
+                    <x-input.dropdown-select id="f_exam" placeholder="All Exams" :options="[]" />
+                    <x-input.floating-label for="f_exam" :floating="false">Exam</x-input.floating-label>
+                </div>
+
+                <x-slot:footer>
+                    <div class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
+                        <x-button.secondary type="button" onclick="resetFilters()" class="w-full">
+                            Reset
+                        </x-button.secondary>
+                        <x-button.primary
+                            type="button"
+                            onclick="fetchRoutines(1, true); closeFilterModal()"
+                            class="w-full"
+                        >
+                            Apply
+                        </x-button.primary>
+                    </div>
+                </x-slot:footer>
+            </x-modal.form>
+
+            <x-school.data-table
+                :empty="false"
+                :empty-colspan="12"
+                empty-message="No routines found."
+                show-footer="true"
+                min-width="1320px"
+                tbody-id="routineTableBody"
+            >
+                <x-slot:columns>
+                    <colgroup>
+                        <col style="width: 50px;">
+                        <col style="width: 95px;">
+                        <col style="width: 95px;">
+                        <col style="width: 95px;">
+                        <col style="width: 95px;">
+                        <col style="width: 135px;">
+                        <col style="width: 160px;">
+                        <col style="width: 110px;">
+                        <col style="width: 105px;">
+                        <col style="width: 110px;">
+                        <col style="width: 110px;">
+                        <col style="width: 110px;">
+                    </colgroup>
+                </x-slot:columns>
+
+                <x-slot:head>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">SL</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Class</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Group</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Section</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Session</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Exam</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Subject</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">Date</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Day Name</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">Start Time</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">End Time</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">Action</x-table.th>
+                </x-slot:head>
+
+                <x-slot:footer>
+                    <div id="paginationControls" class="pagination-container flex w-full items-center justify-between px-2">
+                        <div id="paginationInfo" class="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                            0 of 0
+                        </div>
+                        <div id="paginationLinks" class="flex items-center gap-1"></div>
+                    </div>
+                </x-slot:footer>
+            </x-school.data-table>
         </div>
     </div>
 
     {{-- Exam Routine Modal --}}
-    <div id="routineModal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modalTitle"
-        class="fixed inset-0 bg-gray-900/60 flex items-center justify-center hidden z-[100] px-8 sm:px-40 py-12 backdrop-blur-sm overflow-y-auto">
+    <x-modal.form
+        id="routineModal"
+        form-id="routineForm"
+        title="Create Exam Routine"
+        close-button-id="closeRoutineModalButton"
+        title-class="teacher-register-modal-title m-0 text-center font-semibold leading-tight text-slate-800"
+    >
+        <input type="hidden" id="routine_edit_id">
 
-        <div
-            class="bg-white w-full max-w-2xl modal-content-sharp shadow-2xl overflow-hidden flex flex-col my-auto max-h-[70vh] sm:max-h-[85vh] mx-auto border border-gray-100">
-
-            {{-- Header --}}
-            <div class="px-5 py-3 border-b flex justify-center items-center bg-white sticky top-0 z-10">
-                <h3 id="modalTitle"
-                    class="text-gray-800 text-[13px] font-medium leading-tight text-center capitalize tracking-normal">
-                    Create Exam Routine
-                </h3>
-            </div>
-
-            <form id="routineForm" class="flex flex-col overflow-hidden m-0">
-                <input type="hidden" id="routine_edit_id">
-
-                {{-- Scrollable Content Area --}}
-                <div class="overflow-y-auto custom-scrollbar p-4 sm:p-6 flex-grow bg-gray-50/30">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
-
-                        {{-- Schedule Section --}}
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Date</label>
-                            <input type="date" id="exam_date" name="exam_date"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                onchange="updateDayName()" style="border-radius: 0;">
-                        </div>
-
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Day
-                                Name</label>
-                            <input type="text" id="day_name" name="day_name"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px] bg-gray-100/50"
-                                readonly style="border-radius: 0;">
-                        </div>
-
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Start
-                                Time</label>
-                            <input type="time" id="start_time" name="start_time"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                onchange="calculateHours()" style="border-radius: 0;">
-                        </div>
-
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">End
-                                Time</label>
-                            <input type="time" id="end_time" name="end_time"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                onchange="calculateHours()" style="border-radius: 0;">
-                        </div>
-
-                        <div class="col-span-1 sm:col-span-2">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Total
-                                Hours</label>
-                            <input type="text" id="total_hours" name="total_hours"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px] bg-blue-50/30 text-blue-600 font-medium"
-                                readonly style="border-radius: 0;">
-                        </div>
-
-                        {{-- Divider --}}
-                        <div class="col-span-1 sm:col-span-2 mt-2 pt-4 border-t border-gray-200/60">
-                            <label class="block text-[10px] capitalize tracking-normal text-blue-600 mb-1.5 font-medium">
-                                Academic & Subject Details
-                            </label>
-                        </div>
-
-                        {{-- Academic Selection --}}
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Class</label>
-                            <x-input.dropdown-select
-                                id="class_name"
-                                name="class_name"
-                                placeholder="Select Class"
-                                :options="[]"
-                                add-button-id="openClassFromRoutineForm"
-                                add-button-label="Add class"
-                                add-button-target="classModal"
-                            />
-                        </div>
-
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Group</label>
-                            <x-input.dropdown-select
-                                id="group_name"
-                                name="group_name"
-                                placeholder="Select Group"
-                                :options="[]"
-                                add-button-id="openGroupFromRoutineForm"
-                                add-button-label="Add group"
-                                add-button-target="groupModal"
-                            />
-                        </div>
-
-                        <div class="col-span-1">
-                            <label
-                                class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Section</label>
-                            <x-input.dropdown-select
-                                id="routine_section_name"
-                                name="section_name"
-                                placeholder="Select Section"
-                                :options="[]"
-                                add-button-id="openSectionFromRoutineForm"
-                                add-button-label="Add section"
-                                add-button-target="sectionModal"
-                            />
-                        </div>
-
-                        <div class="col-span-1">
-                            <label
-                                class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Session</label>
-                            <x-input.dropdown-select
-                                id="session_name"
-                                name="session_name"
-                                placeholder="Select Session"
-                                :options="[]"
-                                add-button-id="openSessionFromRoutineForm"
-                                add-button-label="Add session"
-                                add-button-target="sessionModal"
-                            />
-                        </div>
-
-                        <div class="col-span-1">
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Exam
-                                Name</label>
-                            <x-input.dropdown-select
-                                id="exam_name"
-                                name="exam_name"
-                                placeholder="Select Exam"
-                                :options="[]"
-                                add-button-id="openExamFromRoutineForm"
-                                add-button-label="Add exam"
-                                add-button-target="examModal"
-                            />
-                        </div>
-
-                        <div class="col-span-1">
-                            <label
-                                class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Subject</label>
-                            <x-input.dropdown-select
-                                id="subject_name"
-                                name="subject_name"
-                                placeholder="Select Subject"
-                                :options="[]"
-                                add-button-id="openSubjectFromRoutineForm"
-                                add-button-label="Add subject"
-                                add-button-target="subjectModal"
-                            />
-                        </div>
-
-                    </div>
-                </div>
-
-                {{-- Footer Actions --}}
-                <div
-                    class="px-4 sm:px-6 py-4 border-t border-gray-100 bg-white flex flex-row sm:justify-end gap-2 sticky bottom-0">
-                    <button type="button" onclick="closeRoutineModal()"
-                        class="w-1/2 sm:w-auto sm:px-8 h-[32px] btn-outline-secondary border border-gray-200 text-[10px] tracking-normal capitalize transition-all hover:bg-gray-50 flex items-center justify-center whitespace-nowrap"
-                        style="border-radius: 0;">
-                        Cancel
-                    </button>
-                    <button type="submit"
-                        class="w-1/2 sm:w-auto sm:px-12 h-[32px] btn-outline-premium border border-gray-200 text-[10px] tracking-normal capitalize flex items-center justify-center whitespace-nowrap"
-                        style="border-radius: 0;">
-                        Save
-                    </button>
-                </div>
-            </form>
+        <div class="relative">
+            <x-input.control
+                type="date"
+                id="exam_date"
+                name="exam_date"
+                class="peer placeholder:text-transparent"
+                placeholder=" "
+                onchange="updateDayName()"
+            />
+            <x-input.floating-label for="exam_date" :floating="false">Date</x-input.floating-label>
         </div>
-    </div>
+
+        <div class="relative">
+            <x-input.control
+                id="day_name"
+                name="day_name"
+                class="peer bg-slate-50 placeholder:text-transparent"
+                placeholder=" "
+                readonly
+            />
+            <x-input.floating-label for="day_name" :floating="false">Day Name</x-input.floating-label>
+        </div>
+
+        <div class="relative">
+            <x-input.control
+                type="time"
+                id="start_time"
+                name="start_time"
+                class="peer placeholder:text-transparent"
+                placeholder=" "
+                onchange="calculateHours()"
+            />
+            <x-input.floating-label for="start_time" :floating="false">Start Time</x-input.floating-label>
+        </div>
+
+        <div class="relative">
+            <x-input.control
+                type="time"
+                id="end_time"
+                name="end_time"
+                class="peer placeholder:text-transparent"
+                placeholder=" "
+                onchange="calculateHours()"
+            />
+            <x-input.floating-label for="end_time" :floating="false">End Time</x-input.floating-label>
+        </div>
+
+        <div class="relative md:col-span-2">
+            <x-input.control
+                id="total_hours"
+                name="total_hours"
+                class="peer bg-blue-50/40 font-medium text-blue-600 placeholder:text-transparent"
+                placeholder=" "
+                readonly
+            />
+            <x-input.floating-label for="total_hours" :floating="false">Total Hours</x-input.floating-label>
+        </div>
+
+        <div class="border-t border-slate-200 pt-2 text-[10px] font-medium text-blue-600 md:col-span-2">
+            Academic &amp; Subject Details
+        </div>
+
+        <div class="relative">
+            <x-input.dropdown-select
+                id="class_name"
+                name="class_name"
+                placeholder="Select Class"
+                :options="[]"
+                add-button-id="openClassFromRoutineForm"
+                add-button-label="Add class"
+                add-button-target="classModal"
+            />
+            <x-input.floating-label for="class_name" :floating="false">Class</x-input.floating-label>
+        </div>
+
+        <div class="relative">
+            <x-input.dropdown-select
+                id="group_name"
+                name="group_name"
+                placeholder="Select Group"
+                :options="[]"
+                add-button-id="openGroupFromRoutineForm"
+                add-button-label="Add group"
+                add-button-target="groupModal"
+            />
+            <x-input.floating-label for="group_name" :floating="false">Group</x-input.floating-label>
+        </div>
+
+        <div class="relative">
+            <x-input.dropdown-select
+                id="routine_section_name"
+                name="section_name"
+                placeholder="Select Section"
+                :options="[]"
+                add-button-id="openSectionFromRoutineForm"
+                add-button-label="Add section"
+                add-button-target="sectionModal"
+            />
+            <x-input.floating-label for="routine_section_name" :floating="false">Section</x-input.floating-label>
+        </div>
+
+        <div class="relative">
+            <x-input.dropdown-select
+                id="session_name"
+                name="session_name"
+                placeholder="Select Session"
+                :options="[]"
+                add-button-id="openSessionFromRoutineForm"
+                add-button-label="Add session"
+                add-button-target="sessionModal"
+            />
+            <x-input.floating-label for="session_name" :floating="false">Session</x-input.floating-label>
+        </div>
+
+        <div class="relative">
+            <x-input.dropdown-select
+                id="exam_name"
+                name="exam_name"
+                placeholder="Select Exam"
+                :options="[]"
+                add-button-id="openExamFromRoutineForm"
+                add-button-label="Add exam"
+                add-button-target="examModal"
+            />
+            <x-input.floating-label for="exam_name" :floating="false">Exam Name</x-input.floating-label>
+        </div>
+
+        <div class="relative">
+            <x-input.dropdown-select
+                id="subject_name"
+                name="subject_name"
+                placeholder="Select Subject"
+                :options="[]"
+                add-button-id="openSubjectFromRoutineForm"
+                add-button-label="Add subject"
+                add-button-target="subjectModal"
+            />
+            <x-input.floating-label for="subject_name" :floating="false">Subject</x-input.floating-label>
+        </div>
+
+        <x-slot:footer>
+            <div class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
+                <x-button.secondary
+                    id="closeRoutineModalButton"
+                    type="button"
+                    onclick="closeRoutineModal()"
+                    class="w-full"
+                >
+                    Cancel
+                </x-button.secondary>
+                <x-button.primary type="submit" class="w-full">
+                    Save
+                </x-button.primary>
+            </div>
+        </x-slot:footer>
+    </x-modal.form>
 
     @include('school.academic.class.partials.class-modal')
     @include('school.academic.group.partials.group-modal')
     @include('school.academic.section.partials.section-modal')
     @include('school.academic.session.partials.session-modal')
-    @include('school.academic.subject.partials.subject-modal')
+    @include('school.academic.subject.partials.subject-modal', ['showGradeAddButton' => true])
     @include('school.exam.exam_name.partials.exam-modal')
+    @include('school.exam.grade.partials.grade-modal')
 
     @include('school.academic.class.partials.js.modal-open')
     @include('school.academic.group.partials.js.modal-open')
@@ -626,18 +400,21 @@
     @include('school.academic.session.partials.js.modal-open')
     @include('school.academic.subject.partials.js.modal-open')
     @include('school.exam.exam_name.partials.js.modal-open')
+    @include('school.exam.grade.partials.js.modal-open')
     @include('school.academic.class.partials.js.modal-submit')
     @include('school.academic.group.partials.js.modal-submit')
     @include('school.academic.section.partials.js.modal-submit')
     @include('school.academic.session.partials.js.modal-submit')
     @include('school.academic.subject.partials.js.modal-submit')
     @include('school.exam.exam_name.partials.js.modal-submit')
+    @include('school.exam.grade.partials.js.modal-submit')
     @include('school.academic.class.partials.js.error-validation')
     @include('school.academic.group.partials.js.error-validation')
     @include('school.academic.section.partials.js.error-validation')
     @include('school.academic.subject.partials.js.error-validation')
     @include('school.academic.session.partials.js.error-validation')
     @include('school.exam.exam_name.partials.js.error-validation')
+    @include('school.exam.grade.partials.js.error-validation')
 
     <script>
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -646,10 +423,35 @@
         let currentPage = 1;
 
         // --- Live Search Implementation ---
+        function syncRoutineSearch(sourceId) {
+            const source = document.getElementById(sourceId);
+            const targetId = sourceId === 'tableSearch' ? 'tableSearchMobile' : 'tableSearch';
+            const target = document.getElementById(targetId);
+
+            if (source && target) {
+                target.value = source.value;
+            }
+        }
+
+        function restoreRoutineSearch() {
+            const desktopSearch = document.getElementById('tableSearch');
+            const mobileSearch = document.getElementById('tableSearchMobile');
+
+            if (desktopSearch) desktopSearch.value = '';
+            if (mobileSearch) mobileSearch.value = '';
+
+            liveSearch();
+        }
+
         function liveSearch() {
             const input = document.getElementById("tableSearch");
             const filter = input.value.toUpperCase();
-            const table = document.getElementById("routineTable");
+            const table = document.getElementById("routineTableBody")?.closest('table');
+
+            if (!table) {
+                return;
+            }
+
             const tr = table.getElementsByTagName("tr");
 
             for (let i = 1; i < tr.length; i++) {
@@ -684,6 +486,25 @@
             if (isNaN(dt.getTime())) return dateStr;
             const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
             return dt.getDate() + '-' + months[dt.getMonth()] + '-' + dt.getFullYear();
+        }
+
+        function escapeRoutineHtml(value) {
+            return String(value ?? '-').replace(/[&<>"']/g, (character) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            })[character]);
+        }
+
+        function routineTableCell(value, alignment = 'text-left') {
+            const content = escapeRoutineHtml(value);
+
+            return `
+                <td class="h-8 border border-gray-300 px-3 ${alignment}">
+                    <div class="school-data-table-cell-scroll" title="${content}">${content}</div>
+                </td>`;
         }
 
         function updateDayName() {
@@ -1174,22 +995,38 @@
                     items.forEach((item, i) => {
                         const sl = (data.current_page - 1) * data.per_page + (i + 1);
                         tbody.innerHTML += `
-                            <tr>
-                                <td>${sl}</td>
-                                <td>${item.school_class?.class_name ?? '-'}</td>
-                                <td>${item.school_group?.group_name ?? '-'}</td>
-                                <td>${item.school_section?.section_name ?? '-'}</td>
-                                <td>${item.school_session?.session_year ?? '-'}</td>
-                                <td>${item.school_exam?.exam_name ?? '-'}</td>
-                                <td class="text-gray-700">${item.school_subject?.subject_name ?? '-'}</td>
-                                <td>${formatDate(item.exam_date)}</td>
-                                <td>${item.day_name}</td>
-                                <td>${formatTime12h(item.start_time)}</td>
-                                <td>${formatTime12h(item.end_time)}</td>
-                                <td class="text-center">
-                                    <div class="flex justify-center gap-3">
-                                    <button onclick="editRoutine(${item.id})" class="action-icon-btn text-blue-500"><i class="far fa-edit" style="font-size: 15px;"></i></button>
-                                    <button onclick="deleteRoutine(${item.id})" class="action-icon-btn text-red-400"><i class="far fa-trash-alt" style="font-size: 15px;"></i></button>
+                            <tr class="hover:bg-gray-50">
+                                ${routineTableCell(sl, 'text-center')}
+                                ${routineTableCell(item.school_class?.class_name)}
+                                ${routineTableCell(item.school_group?.group_name)}
+                                ${routineTableCell(item.school_section?.section_name)}
+                                ${routineTableCell(item.school_session?.session_year)}
+                                ${routineTableCell(item.school_exam?.exam_name)}
+                                ${routineTableCell(item.school_subject?.subject_name)}
+                                ${routineTableCell(formatDateDDMMYYYY(item.exam_date), 'text-center')}
+                                ${routineTableCell(item.day_name)}
+                                ${routineTableCell(formatTime12h(item.start_time), 'text-center')}
+                                ${routineTableCell(formatTime12h(item.end_time), 'text-center')}
+                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
+                                    <div class="mx-auto flex h-8 items-center justify-center space-x-1">
+                                        <button
+                                            type="button"
+                                            onclick="editRoutine(${item.id})"
+                                            title="Edit routine"
+                                            aria-label="Edit routine"
+                                            class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+                                        >
+                                            <i class="far fa-edit text-sm" aria-hidden="true"></i>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onclick="deleteRoutine(${item.id})"
+                                            title="Delete routine"
+                                            aria-label="Delete routine"
+                                            class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1"
+                                        >
+                                            <i class="far fa-trash-alt text-sm" aria-hidden="true"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>`;
@@ -1197,10 +1034,11 @@
                 }
                 renderPagination(data);
                 document.getElementById('tableSearch').value = '';
+                document.getElementById('tableSearchMobile').value = '';
                 if (isFiltering) closeFilterModal();
             } catch (err) {
                 tbody.innerHTML =
-                    '<tr><td colspan="7" class="text-center py-4 text-red-500">Failed to load data.</td></tr>';
+                    '<tr><td colspan="12" class="border border-gray-300 px-3 py-4 text-center text-red-500">Failed to load data.</td></tr>';
             }
         }
 
@@ -1265,7 +1103,7 @@
                 setComponentDropdownValue('exam_name', data.exam_name, data.exam_name || 'Select Exam');
                 document.getElementById('subject_name').value = data.subject_name;
 
-                document.getElementById('modalTitle').innerText = "Edit Exam Routine";
+                document.getElementById('routineModalTitle').innerText = "Edit Exam Routine";
                 openRoutineModal();
             } catch (e) {
                 console.error("Edit Load Error", e);
@@ -1360,11 +1198,13 @@
 
             menu.classList.toggle('hidden', isOpen);
             icon?.classList.toggle('rotate-180', !isOpen);
+            document.getElementById('exportDropdownButton')?.setAttribute('aria-expanded', String(!isOpen));
         }
 
         function closeExportMenu() {
             document.getElementById('exportMenu')?.classList.add('hidden');
             document.querySelector('#exportDropdownButton i')?.classList.remove('rotate-180');
+            document.getElementById('exportDropdownButton')?.setAttribute('aria-expanded', 'false');
         }
 
         document.addEventListener('click', function(event) {
@@ -1391,7 +1231,7 @@
             if (!document.getElementById('routine_edit_id').value) {
                 document.getElementById('routineForm').reset();
                 setComponentDropdownValue('class_name', '', 'Select Class');
-                document.getElementById('modalTitle').innerText = "Create Exam Routine";
+                document.getElementById('routineModalTitle').innerText = "Create Exam Routine";
             }
             document.getElementById('routineModal').classList.remove('hidden');
         }
@@ -1413,6 +1253,7 @@
 
         window.onload = () => {
             loadInitialData();
+            document.getElementById('exportDropdownButton')?.addEventListener('click', toggleExportMenu);
             document.getElementById('class_name')?.addEventListener('change', function() {
                 handleCascade(this, 'group');
             });

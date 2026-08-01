@@ -8,129 +8,12 @@
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
 
     <style>
-        html,
-        body {
-            max-width: 100vw;
-            overflow-x: hidden !important;
-            margin: 0;
-            padding: 0;
-        }
-
         .main-view-container {
             display: grid;
             grid-template-columns: minmax(0, 1fr);
             width: 100%;
             padding: .75rem;
             box-sizing: border-box;
-        }
-
-        @media (max-width: 768px) {
-            .main-view-container {
-                padding-left: 0 !important;
-                padding-right: 0 !important;
-            }
-        }
-
-
-        .table-card {
-            border: 1px solid #e2e8f0;
-            background: #ffffff;
-            border-radius: 0;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-            width: 100%;
-            overflow: hidden;
-            border-left: none;
-            border-right: none;
-        }
-
-        /* ================= Table Container ================= */
-        .table-responsive {
-            width: 100% !important;
-            overflow-x: auto !important;
-            display: block !important;
-            background: white !important;
-            padding: 15px !important;
-        }
-
-        /* ================= Custom Scrollbar ================= */
-        .table-responsive::-webkit-scrollbar {
-            height: 6px !important;
-        }
-
-        .table-responsive::-webkit-scrollbar-track {
-            background: #f8fafc !important;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb {
-            background: #cbd5e1 !important;
-            border-radius: 0px !important;
-        }
-
-        /* ================= Table Core ================= */
-        table {
-            width: 100% !important;
-            border-collapse: collapse !important;
-            table-layout: auto !important;
-            border: 1px solid #d1d5db !important;
-            font-size: 11px !important;
-        }
-
-        /* ================= Table Header ================= */
-        th {
-            padding: 0 12px !important;
-            height: 34px !important;
-            line-height: 34px !important;
-            white-space: nowrap !important;
-            background: #f8fafc !important;
-            border-bottom: 1px solid #d1d5db !important;
-            border-right: 1px solid #d1d5db !important;
-            color: #374151 !important;
-            font-weight: 800 !important;
-            vertical-align: middle !important;
-            text-align: left !important;
-            /* Only first letter capitalized */
-            text-transform: capitalize !important;
-            letter-spacing: 0.01em !important;
-        }
-
-        th:last-child {
-            border-right: none !important;
-        }
-
-        /* ================= Table Body ================= */
-        tr {
-            height: 32px !important;
-        }
-
-        td {
-            padding: 0 12px !important;
-            vertical-align: middle !important;
-            border-bottom: 1px solid #d1d5db !important;
-            border-right: 1px solid #d1d5db !important;
-            font-size: 11px !important;
-            color: #4b5563 !important;
-            white-space: nowrap !important;
-            overflow: hidden !important;
-        }
-
-        td:last-child {
-            border-right: none !important;
-        }
-
-        tbody tr:hover {
-            background: #f9fafb !important;
-        }
-
-        /* ================= Pagination Bar (Balanced Height) ================= */
-        .pagination-bar {
-            padding: 0.6rem 1rem !important;
-            border: 1px solid #d1d5db !important;
-            border-top: none !important;
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            background: #ffffff !important;
-            min-height: 44px !important;
         }
 
         .pagination-btn {
@@ -147,7 +30,6 @@
             font-weight: 900 !important;
             color: #64748b !important;
             border-radius: 0 !important;
-            /* Sharp Brutalism Corners */
             text-transform: uppercase !important;
             transition: all 0.1s ease !important;
         }
@@ -176,433 +58,201 @@
             text-transform: uppercase !important;
             letter-spacing: 0.05em !important;
         }
-
-        /* ================= Mobile Adjustments ================= */
-        @media (max-width: 768px) {
-
-            th,
-            td {
-                padding: 0 8px !important;
-                height: 30px !important;
-            }
-
-            .pagination-bar {
-                min-height: 38px !important;
-                padding: 0.4rem 0.75rem !important;
-            }
-
-            .pagination-btn {
-                height: 24px !important;
-                min-width: 24px !important;
-            }
-        }
-
-        .form-input-fixed {
-            width: 100%;
-            border: 1px solid #cbd5e1 !important;
-            padding: .5rem .7rem;
-            border-radius: 0;
-            font-size: .85rem;
-            outline: none;
-            background: #fff;
-        }
-
-        .btn-outline-premium {
-            background: transparent;
-            border: 1.5px solid #2563eb;
-            color: #2563eb;
-            font-weight: 600;
-            transition: all .2s ease;
-            border-radius: 0;
-            cursor: pointer;
-        }
-
-        .btn-outline-premium:hover {
-            background: #2563eb;
-            color: #fff;
-        }
-
-        .btn-outline-secondary {
-            background: transparent;
-            border: 1.5px solid #64748b;
-            color: #64748b;
-            font-weight: 600;
-            transition: all .2s ease;
-            border-radius: 0;
-            cursor: pointer;
-        }
-
-        .btn-outline-secondary:hover {
-            background: #64748b;
-            color: #fff;
-        }
-
-        .count-box {
-            background: #f1f5f9;
-            padding: 10px;
-            border: 1px solid #e2e8f0;
-            text-align: center;
-        }
-
-        .action-icon-btn {
-            font-size: 1.25rem;
-        }
-
-        /* Search Box Specific Style */
-        .search-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-wrapper i {
-            position: absolute;
-            left: 10px;
-            color: #94a3b8;
-            font-size: 1rem;
-        }
-
-        .search-input {
-            padding-left: 32px !important;
-            width: 220px;
-            height: 38px;
-            border: 1.5px solid #e2e8f0 !important;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            border-color: #2563eb !important;
-            width: 280px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        }
     </style>
 
     <div class="main-view-container">
         <div class="max-w-full mx-auto w-full">
-            <div class="bg-white border border-gray-200 p-2.5 sm:p-4 mb-4" style="border-radius: 0;">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-
-                    <div class="w-full lg:w-auto">
-                        <h2 id="pageHeader" class="text-[15px] sm:text-xl text-gray-800 font-normal leading-tight"></h2>
-                        <div class="flex items-center text-slate-400 text-[12px] mt-1">
-                            <span>School</span>
-                            <i class="fas fa-chevron-right mx-1.5 text-[10px]"></i>
-                            <span id="pageTitle" class="text-slate-500"></span>
-                        </div>
-
-                        <div class="relative w-full sm:w-64 mt-3 hidden lg:block">
-                            <i class="mdi mdi-magnify absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" id="tableSearch" onkeyup="searchTable()" placeholder="Search schedule..."
-                                class="pl-8 pr-3 py-2 w-full border border-gray-200 text-xs outline-none focus:border-blue-500 "
-                                style="border-radius: 0;" />
-                        </div>
+            <x-school.list-header title="Exam Schedule" breadcrumb-current="Exam Schedule" keep-title>
+                <x-slot:search>
+                    <div class="flex items-center gap-2">
+                        <x-input.search
+                            id="tableSearch"
+                            placeholder="Search schedule..."
+                            class="w-72"
+                            oninput="document.getElementById('tableSearchMobile').value = this.value; searchTable();"
+                        />
+                        <x-button.secondary type="button" onclick="restoreScheduleSearch()">Restore</x-button.secondary>
                     </div>
+                </x-slot:search>
 
-                    <div class="flex flex-row items-center gap-1 w-full lg:w-auto">
-                        <button onclick="toggleFilterModal()"
-                            class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
-                            Filter
-                        </button>
+                <x-slot:actions>
+                    <x-button.secondary type="button" onclick="toggleFilterModal()" class="w-full">Filter</x-button.secondary>
 
-                        <button id="btnExport" onclick="document.getElementById('exportModal').classList.remove('hidden')"
-                            class="btn-outline-secondary border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
-                            Export
-                        </button>
+                    <x-dropdown button-id="btnScheduleExport" menu-id="scheduleExportDropdown" label="Export" align="full">
+                        <x-dropdown.item onclick="exportData('pdf')">PDF</x-dropdown.item>
+                        <x-dropdown.item onclick="exportData('excel')">Excel</x-dropdown.item>
+                        <x-dropdown.item onclick="window.print()">Print</x-dropdown.item>
+                    </x-dropdown>
 
-                        <button onclick="openModal()"
-                            class="btn-outline-premium border border-gray-200 px-0.5 sm:px-4 h-7 sm:h-9 text-[9px] sm:text-xs tracking-wider flex items-center justify-center flex-1 lg:flex-none whitespace-nowrap">
-                            Create Schedule
-                        </button>
+                    <x-button.primary type="button" onclick="openModal()" class="w-full">Create Schedule</x-button.primary>
+                </x-slot:actions>
+
+                <x-slot:mobile-search>
+                    <div class="col-span-3 grid grid-cols-3 gap-2">
+                        <x-input.search
+                            id="tableSearchMobile"
+                            placeholder="Search schedule..."
+                            class="col-span-2 min-w-0"
+                            oninput="document.getElementById('tableSearch').value = this.value; searchTable();"
+                        />
+                        <x-button.secondary type="button" onclick="restoreScheduleSearch()" class="w-full">Restore</x-button.secondary>
                     </div>
-                </div>
-
-                <div class="relative w-full mt-3 lg:hidden">
-                    <i class="mdi mdi-magnify absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="tableSearchMobile"
-                        onkeyup="document.getElementById('tableSearch').value = this.value; searchTable()"
-                        placeholder="SEARCH SCHEDULE..."
-                        class="pl-8 pr-3 py-1.5 w-full border border-gray-200 text-xs outline-none focus:border-blue-500 uppercase"
-                        style="border-radius: 0;" />
-                </div>
-            </div>
+                </x-slot:mobile-search>
+            </x-school.list-header>
 
             {{-- Filter Modal --}}
-            <div id="filterModal"
-                class="premium-modal fixed inset-0 bg-black/50 hidden z-[9999] flex items-center justify-center p-12 sm:p-20"
-                onclick="toggleFilterModal()">
-                <div class="bg-white p-4 w-full max-w-[320px] modal-content-sharp shadow-2xl" style="border-radius: 0;"
-                    onclick="event.stopPropagation()">
-
-                    <div>
-                        <h3
-                            class="text-gray-800 text-[13px] font-medium leading-tight text-center capitalize tracking-normal">
-                            Schedule filter
-                        </h3>
-                        <div class="h-[1px] w-full bg-gray-200 mt-2.5"></div>
-                    </div>
-
-                    <div class="mt-3 mb-4 space-y-3">
-                        {{-- Class Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Class</label>
-                            <div class="relative">
-                                <select id="f_class" onchange="handleCascade(this, 'f_group')"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Group Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Group</label>
-                            <div class="relative">
-                                <select id="f_group" onchange="handleCascade(this, 'f_section')"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Section Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Section</label>
-                            <div class="relative">
-                                <select id="f_section" onchange="handleCascade(this, 'f_session')"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Session Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Session</label>
-                            <div class="relative">
-                                <select id="f_session"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Exam Filter --}}
-                        <div class="relative">
-                            <label class="text-[10px] text-gray-500 block mb-1">Exam Name</label>
-                            <div class="relative">
-                                <select id="f_exam"
-                                    class="form-input-fixed w-full py-1.5 pl-2 pr-8 text-xs border border-gray-100 outline-none focus:border-blue-500 appearance-none bg-white"
-                                    style="border-radius: 0; height: 32px;">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                    <i class="fas fa-chevron-down text-[9px]"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button onclick="resetFilters()"
-                            class="btn-outline-secondary border border-gray-200 w-full text-[11px] capitalize flex items-center justify-center"
-                            style="border-radius: 0; height: 32px;">Reset</button>
-                        <button onclick="applyFilters(); toggleFilterModal();"
-                            class="btn-outline-premium border border-gray-200 w-full text-[11px] capitalize flex items-center justify-center"
-                            style="border-radius: 0; height: 32px;">Apply</button>
-                    </div>
+            <x-modal.form
+                id="filterModal"
+                form-id="scheduleFilterForm"
+                title="Schedule Filter"
+                close-button-id="closeScheduleFilterModal"
+                title-class="teacher-register-modal-title m-0 text-center font-semibold leading-tight text-slate-800"
+                onsubmit="event.preventDefault(); applyFilters();"
+            >
+                <div class="relative">
+                    <x-input.dropdown-select id="f_class" placeholder="Select Class" :options="[]" />
+                    <x-input.floating-label for="f_class" :floating="false">Class</x-input.floating-label>
                 </div>
-            </div>
-
-            {{-- Export Modal --}}
-            <div id="exportModal"
-                class="premium-modal fixed inset-0 bg-black/50 hidden z-[9999] flex items-center justify-center p-12 sm:p-20"
-                onclick="this.classList.add('hidden')">
-                <div class="bg-white p-4 w-auto min-w-[140px] modal-content-sharp shadow-2xl"
-                    onclick="event.stopPropagation()">
-                    <div class="flex flex-col gap-1.5">
-                        <button onclick="exportData('pdf')"
-                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                            PDF
-                        </button>
-                        <button onclick="exportData('excel')"
-                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                            EXCEL
-                        </button>
-                        <button onclick="window.print()"
-                            class="btn-outline-secondary border border-gray-200 py-1.5 px-4 text-[10px] tracking-widest flex items-center justify-center w-full whitespace-nowrap">
-                            PRINT
-                        </button>
-                        <button onclick="document.getElementById('exportModal').classList.add('hidden')"
-                            class="mt-1 py-1.5 text-[10px] text-gray-400 hover:text-gray-600 w-full text-center border border-gray-200 transition-all">
-                            Cancel
-                        </button>
-                    </div>
+                <div class="relative">
+                    <x-input.dropdown-select id="f_group" placeholder="Select Group" :options="[]" />
+                    <x-input.floating-label for="f_group" :floating="false">Group</x-input.floating-label>
                 </div>
-            </div>
-
-
-            <div class="table-card">
-                <div class="table-responsive">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr>
-                                <th width="60">SL</th>
-                                <th>Class</th>
-                                <th>Group</th>
-                                <th>Section</th>
-                                <th>Session</th>
-                                <th>Exam</th>
-                                <th>Total Sub</th>
-                                <th>Submitted</th>
-                                <th>Remaining</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th width="120" class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="scheduleTableBody">
-                        </tbody>
-                    </table>
+                <div class="relative">
+                    <x-input.dropdown-select id="f_section" placeholder="Select Section" :options="[]" />
+                    <x-input.floating-label for="f_section" :floating="false">Section</x-input.floating-label>
+                </div>
+                <div class="relative">
+                    <x-input.dropdown-select id="f_session" placeholder="Select Session" :options="[]" />
+                    <x-input.floating-label for="f_session" :floating="false">Session</x-input.floating-label>
+                </div>
+                <div class="relative md:col-span-2">
+                    <x-input.dropdown-select id="f_exam" placeholder="Select Exam" :options="[]" />
+                    <x-input.floating-label for="f_exam" :floating="false">Exam Name</x-input.floating-label>
                 </div>
 
-                <div class="flex items-center justify-between p-4 bg-white border-t border-gray-100">
-                    <div class="text-[10px] text-gray-500 font-bold uppercase tracking-widest" id="paginationInfo">
-                        0 of 0
+                <x-slot:footer>
+                    <div class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
+                        <x-button.secondary type="button" onclick="resetFilters()" class="w-full">Reset</x-button.secondary>
+                        <x-button.primary type="submit" class="w-full">Apply</x-button.primary>
                     </div>
-                    <div class="flex items-center gap-1" id="paginationControls">
+                </x-slot:footer>
+            </x-modal.form>
+
+            <x-school.data-table
+                :empty="false"
+                :empty-colspan="12"
+                empty-message="No schedules found."
+                show-footer="true"
+                min-width="1250px"
+                tbody-id="scheduleTableBody"
+            >
+                <x-slot:columns>
+                    <colgroup>
+                        <col style="width:45px;">
+                        <col style="width:90px;">
+                        <col style="width:90px;">
+                        <col style="width:90px;">
+                        <col style="width:90px;">
+                        <col style="width:125px;">
+                        <col style="width:90px;">
+                        <col style="width:95px;">
+                        <col style="width:95px;">
+                        <col style="width:105px;">
+                        <col style="width:95px;">
+                        <col style="width:100px;">
+                    </colgroup>
+                </x-slot:columns>
+
+                <x-slot:head>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">SL</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Class</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Group</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Section</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Session</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Exam</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Total Sub</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Submitted</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Remaining</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Date</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Time</x-table.th>
+                    <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">Action</x-table.th>
+                </x-slot:head>
+
+                <x-slot:footer>
+                    <div class="flex items-center justify-between px-3">
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-gray-500" id="paginationInfo">0 of 0</div>
+                        <div class="flex items-center gap-1" id="paginationControls"></div>
                     </div>
-                </div>
-            </div>
+                </x-slot:footer>
+            </x-school.data-table>
         </div>
     </div>
 
     {{-- Schedule Main Modal --}}
-    <div id="mainModal"
-        class="fixed inset-0 bg-gray-900/60 flex items-center justify-center hidden z-[100] px-8 sm:px-40 py-12 backdrop-blur-sm overflow-y-auto">
+    <x-modal.form
+        id="mainModal"
+        form-id="scheduleForm"
+        title="New Exam Schedule"
+        close-button-id="closeScheduleModalButton"
+        panel-class="custom-scrollbar mx-auto my-auto w-full max-w-[520px] overflow-y-auto border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)]"
+        panel-style="border-radius:4px; max-height:min(520px, calc(100dvh - 2.5rem));"
+        title-class="teacher-register-modal-title m-0 text-center font-semibold leading-tight text-slate-800"
+        onsubmit="event.preventDefault(); saveSchedule();"
+    >
+        <input type="hidden" id="edit_id">
 
-        <div
-            class="bg-white w-full max-w-2xl modal-content-sharp shadow-2xl overflow-hidden flex flex-col my-auto max-h-[70vh] sm:max-h-[85vh] mx-auto border border-gray-100">
+        <div class="relative">
+            <x-input.dropdown-select id="m_class" placeholder="Select Class" :options="[]" />
+            <x-input.floating-label for="m_class" :floating="false">Class</x-input.floating-label>
+        </div>
+        <div class="relative">
+            <x-input.dropdown-select id="m_group" placeholder="Select Group" :options="[]" />
+            <x-input.floating-label for="m_group" :floating="false">Group</x-input.floating-label>
+        </div>
+        <div class="relative">
+            <x-input.dropdown-select id="m_section" placeholder="Select Section" :options="[]" />
+            <x-input.floating-label for="m_section" :floating="false">Section</x-input.floating-label>
+        </div>
+        <div class="relative">
+            <x-input.dropdown-select id="m_session" placeholder="Select Session" :options="[]" />
+            <x-input.floating-label for="m_session" :floating="false">Session</x-input.floating-label>
+        </div>
+        <div class="relative md:col-span-2">
+            <x-input.dropdown-select id="m_exam" placeholder="Select Exam" :options="[]" />
+            <x-input.floating-label for="m_exam" :floating="false">Exam Name</x-input.floating-label>
+        </div>
 
-            {{-- Header: Centered & Sticky --}}
-            <div class="px-5 py-3 border-b flex justify-center items-center bg-white sticky top-0 z-10">
-                <h3 id="modalTitle"
-                    class="text-gray-800 text-[13px] font-medium leading-tight text-center capitalize tracking-normal">
-                    New Exam Schedule
-                </h3>
+        <div class="grid grid-cols-3 gap-2 border border-slate-200 bg-slate-50 p-2 md:col-span-2">
+            <div class="border border-slate-200 bg-white p-2 text-center">
+                <span class="block text-[9px] font-bold text-gray-400">Total</span>
+                <span id="c_total" class="text-sm font-black text-blue-600">0</span>
             </div>
-
-            {{-- Content Area --}}
-            <div class="flex flex-col overflow-hidden m-0">
-                <div class="overflow-y-auto custom-scrollbar p-4 sm:p-6 flex-grow bg-gray-50/30">
-                    <input type="hidden" id="edit_id">
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
-                        {{-- Selectors --}}
-                        <div>
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Class</label>
-                            <select id="m_class" onchange="handleCascade(this, 'm_group')"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                style="border-radius: 0;"></select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Group</label>
-                            <select id="m_group" onchange="handleCascade(this, 'm_section')"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                style="border-radius: 0;"></select>
-                        </div>
-                        <div>
-                            <label
-                                class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Section</label>
-                            <select id="m_section" onchange="handleCascade(this, 'm_session')"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                style="border-radius: 0;"></select>
-                        </div>
-                        <div>
-                            <label
-                                class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Session</label>
-                            <select id="m_session" onchange="fetchSubjectCounts()"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                style="border-radius: 0;"></select>
-                        </div>
-
-                        <div class="col-span-1 sm:col-span-2">
-                            <label
-                                class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5 font-medium">Exam
-                                Name</label>
-                            <select id="m_exam" onchange="fetchSubjectCounts()"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                style="border-radius: 0;"></select>
-                        </div>
-
-                        {{-- Status Count Boxes: Desktop & Mobile side-by-side --}}
-                        <div class="col-span-1 sm:col-span-2 grid grid-cols-3 gap-2 py-4 border-y border-gray-200/60 my-2">
-                            <div class="text-center p-2 bg-white border border-gray-100 shadow-sm">
-                                <span class="block text-[9px] text-gray-400 font-bold tracking-wider">Total</span>
-                                <span id="c_total" class="text-sm font-black text-blue-600">0</span>
-                            </div>
-                            <div class="text-center p-2 bg-white border border-gray-100 shadow-sm">
-                                <span class="block text-[9px] text-gray-400 font-bold  tracking-wider">Submitted</span>
-                                <span id="c_submitted" class="text-sm font-black text-green-600">0</span>
-                            </div>
-                            <div class="text-center p-2 bg-white border border-gray-100 shadow-sm">
-                                <span class="block text-[9px] text-gray-400 font-bold tracking-wider">Remaining</span>
-                                <span id="c_remaining" class="text-sm font-black text-red-600">0</span>
-                            </div>
-                        </div>
-
-                        {{-- DateTime --}}
-                        <div>
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Publish
-                                Date</label>
-                            <input type="date" id="m_date"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                style="border-radius: 0;">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Publish
-                                Time</label>
-                            <input type="time" id="m_time"
-                                class="form-input-fixed w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px]"
-                                style="border-radius: 0;">
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Footer Actions --}}
-                <div
-                    class="px-4 sm:px-6 py-4 border-t border-gray-100 bg-white flex flex-row sm:justify-end gap-2 sticky bottom-0 z-10">
-                    <button type="button" onclick="closeModal()"
-                        class="w-1/2 sm:w-auto sm:px-8 h-[32px] btn-outline-secondary border border-gray-200 text-[10px] tracking-normal capitalize transition-all hover:bg-gray-50 flex items-center justify-center whitespace-nowrap"
-                        style="border-radius: 0;">
-                        Cancel
-                    </button>
-                    <button type="button" onclick="saveSchedule()"
-                        class="w-1/2 sm:w-auto sm:px-12 h-[32px] btn-outline-premium border border-gray-200 text-[10px] tracking-normal capitalize flex items-center justify-center whitespace-nowrap"
-                        style="border-radius: 0;">
-                        Save
-                    </button>
-                </div>
+            <div class="border border-slate-200 bg-white p-2 text-center">
+                <span class="block text-[9px] font-bold text-gray-400">Submitted</span>
+                <span id="c_submitted" class="text-sm font-black text-green-600">0</span>
+            </div>
+            <div class="border border-slate-200 bg-white p-2 text-center">
+                <span class="block text-[9px] font-bold text-gray-400">Remaining</span>
+                <span id="c_remaining" class="text-sm font-black text-red-600">0</span>
             </div>
         </div>
-    </div>
+
+        <div class="relative">
+            <x-input.control type="date" id="m_date" class="peer" />
+            <x-input.floating-label for="m_date" :floating="false">Publish Date</x-input.floating-label>
+        </div>
+        <div class="relative">
+            <x-input.control type="time" id="m_time" class="peer" />
+            <x-input.floating-label for="m_time" :floating="false">Publish Time</x-input.floating-label>
+        </div>
+
+        <x-slot:footer>
+            <div class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
+                <x-button.secondary type="button" onclick="closeModal()" class="w-full">Cancel</x-button.secondary>
+                <x-button.primary type="submit" class="w-full">Save</x-button.primary>
+            </div>
+        </x-slot:footer>
+    </x-modal.form>
 
 
 
@@ -610,25 +260,21 @@
     let isEdit = false;
     let currentPage = 1;
 
-    window.onload = function() {
+    window.addEventListener('load', () => {
+        initializeScheduleDropdownEvents();
         loadInitialData();
         fetchTable();
-    };
+    });
 
     function searchTable() {
-        let input = document.getElementById("tableSearch");
-        let filter = input.value.toUpperCase();
-        let table = document.querySelector("table");
-        let tr = table.getElementsByTagName("tr");
+        const input = document.getElementById('tableSearch');
+        const filter = input.value.toUpperCase();
+        const rows = document.getElementById('scheduleTableBody')?.querySelectorAll('tr') || [];
 
-        for (let i = 1; i < tr.length; i++) {
-            let textContent = tr[i].textContent || tr[i].innerText;
-            if (textContent.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-        }
+        rows.forEach(row => {
+            const textContent = row.textContent || row.innerText;
+            row.style.display = textContent.toUpperCase().includes(filter) ? '' : 'none';
+        });
     }
 
     function formatDate(dateStr) {
@@ -646,6 +292,110 @@
         const ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12 || 12;
         return `${hours}:${minutes} ${ampm}`;
+    }
+
+    function scheduleDropdownParts(id) {
+        const input = document.getElementById(id);
+        const root = input?.closest('[data-dropdown-select]');
+
+        return {
+            input,
+            root,
+            label: root?.querySelector('[data-dropdown-select-label]'),
+            menu: root?.querySelector('[data-dropdown-select-menu]'),
+        };
+    }
+
+    function selectedScheduleOption(id) {
+        const { input, menu } = scheduleDropdownParts(id);
+
+        return Array.from(menu?.querySelectorAll('[data-dropdown-select-option]') || [])
+            .find(option => String(option.dataset.value || '') === String(input?.value || ''));
+    }
+
+    function selectedScheduleId(id) {
+        return selectedScheduleOption(id)?.dataset.optionId || '';
+    }
+
+    function setScheduleDropdownValue(id, value = '', label = null, shouldNotify = false) {
+        const parts = scheduleDropdownParts(id);
+        if (!parts.input) return;
+
+        const selected = Array.from(parts.menu?.querySelectorAll('[data-dropdown-select-option]') || [])
+            .find(option => String(option.dataset.value || '') === String(value || ''));
+        const placeholder = parts.label?.dataset.placeholder || 'Select...';
+
+        parts.input.value = value || '';
+        if (parts.label) {
+            parts.label.textContent = label ?? selected?.textContent.trim() ?? placeholder;
+        }
+
+        parts.menu?.querySelectorAll('[data-dropdown-select-option]').forEach(option => {
+            const isSelected = option === selected;
+            option.classList.toggle('bg-slate-100', isSelected);
+            option.classList.toggle('text-slate-900', isSelected);
+            option.classList.toggle('text-slate-800', !isSelected);
+            option.setAttribute('aria-selected', String(isSelected));
+        });
+
+        if (shouldNotify) {
+            parts.input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+
+    function fillOptions(id, data, field) {
+        const parts = scheduleDropdownParts(id);
+        if (!parts.menu) return;
+
+        parts.menu.innerHTML = '';
+
+        (data || []).forEach(item => {
+            const option = document.createElement('button');
+            option.type = 'button';
+            option.className =
+                'dropdown-select-option m-0 flex min-h-6 w-full items-center border-0 bg-white px-3 py-1 text-left text-[11px] font-normal leading-tight text-slate-800 transition-colors hover:bg-slate-100';
+            option.dataset.value = String(item[field] ?? '');
+            option.dataset.optionId = String(item.id ?? '');
+            option.setAttribute('data-dropdown-select-option', '');
+            option.setAttribute('role', 'option');
+            option.setAttribute('aria-selected', 'false');
+            option.textContent = item[field] ?? '';
+
+            option.addEventListener('click', () => {
+                setScheduleDropdownValue(id, option.dataset.value, option.textContent.trim());
+                parts.menu.classList.add('hidden');
+                parts.root?.querySelector('[data-dropdown-select-button]')?.setAttribute('aria-expanded', 'false');
+                parts.input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+
+            parts.menu.appendChild(option);
+        });
+
+        setScheduleDropdownValue(id, '');
+    }
+
+    function initializeScheduleDropdownEvents() {
+        const cascades = {
+            m_class: 'm_group',
+            m_group: 'm_section',
+            m_section: 'm_session',
+            f_class: 'f_group',
+            f_group: 'f_section',
+            f_section: 'f_session',
+        };
+
+        Object.entries(cascades).forEach(([id, next]) => {
+            document.getElementById(id)?.addEventListener('change', event => {
+                handleCascade(event.currentTarget, next);
+            });
+        });
+
+        document.getElementById('m_session')?.addEventListener('change', async () => {
+            await fetchFilteredExams(false);
+            fetchSubjectCounts();
+        });
+        document.getElementById('m_exam')?.addEventListener('change', fetchSubjectCounts);
+        document.getElementById('f_session')?.addEventListener('change', () => fetchFilteredExams(true));
     }
 
     function loadInitialData() {
@@ -671,21 +421,13 @@
             session_name: document.getElementById(`${prefix}session`).value,
         };
 
-        axios.get('/api/get-school-exams', { params }).then(res => {
+        return axios.get('/api/get-school-exams', { params }).then(res => {
             fillOptions(`${prefix}exam`, res.data.data, 'exam_name');
         });
     }
 
-    function fillOptions(id, data, field) {
-        let h = `<option value="">Select ${field.replace('_', ' ')}</option>`;
-        if (data) {
-            data.forEach(i => h += `<option value="${i[field]}" data-id="${i.id}">${i[field]}</option>`);
-        }
-        document.getElementById(id).innerHTML = h;
-    }
-
     async function handleCascade(el, nextId) {
-        const id = el.options[el.selectedIndex]?.getAttribute('data-id');
+        const id = selectedScheduleId(el.id);
         const isFilter = el.id.startsWith('f_');
         
         if (!id) return;
@@ -701,8 +443,7 @@
             fld = 'section_name';
         } else if (nextId.includes('session')) {
             const classSelect = isFilter ? 'f_class' : 'm_class';
-            const classId = document.getElementById(classSelect).options[document.getElementById(classSelect)
-                .selectedIndex]?.getAttribute('data-id');
+            const classId = selectedScheduleId(classSelect);
             url = `/api/get-school-sessions?section_id=${id}&class_id=${classId}`;
             fld = 'session_year';
         }
@@ -711,7 +452,7 @@
         fillOptions(nextId, res.data.data, fld);
 
         // Sync exams every time the hierarchy changes
-        fetchFilteredExams(isFilter);
+        await fetchFilteredExams(isFilter);
 
         // Trigger subject count if we are in the main modal
         if (!isFilter) fetchSubjectCounts();
@@ -720,7 +461,7 @@
     function fetchSubjectCounts() {
         const clsEl = document.getElementById('m_class');
         const cls = clsEl.value;
-        const clsId = clsEl.options[clsEl.selectedIndex]?.getAttribute('data-id');
+        const clsId = selectedScheduleId('m_class');
         const exm = document.getElementById('m_exam').value;
         const ses = document.getElementById('m_session').value;
 
@@ -771,6 +512,25 @@
         </button>`;
     }
 
+    function escapeScheduleHtml(value) {
+        return String(value ?? 'N/A').replace(/[&<>"']/g, character => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        })[character]);
+    }
+
+    function scheduleTableCell(value, alignment = 'text-left', extraClass = '') {
+        const content = escapeScheduleHtml(value);
+
+        return `
+            <td class="h-8 border border-gray-300 px-3 ${alignment}">
+                <div class="school-data-table-cell-scroll ${extraClass}" title="${content}">${content}</div>
+            </td>`;
+    }
+
     function fetchTable(page = 1) {
         currentPage = page;
         const params = {
@@ -789,32 +549,36 @@
             body.innerHTML = '';
 
             if (res.data.data.length === 0) {
-                body.innerHTML = '<tr><td colspan="12" class="text-center py-8">No records found</td></tr>';
+                body.innerHTML =
+                    '<tr><td colspan="12" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No schedules found.</td></tr>';
                 renderPagination(res.data);
                 return;
             }
 
             res.data.data.forEach((item, i) => {
-                body.innerHTML += `
-            <tr class="hover:bg-gray-50 transition">
-                <td>${res.data.from + i}</td>
-                <td>${item.class_name}</td>
-                <td>${item.group_name || 'N/A'}</td>
-                <td>${item.section_name || 'N/A'}</td>
-                <td>${item.session_name || 'N/A'}</td>
-                <td>${item.exam_name}</td>
-                <td>${item.total_subject}</td>
-                <td>${item.submitted_subject}</td>
-                <td>${item.remaining_subject}</td>
-                <td>${formatDate(item.publish_date)}</td>
-                <td>${formatTime(item.publish_time)}</td>
-                <td class="text-center">
-                    <div class="flex justify-center gap-3">
-                        <button onclick="editItem(${item.id})" class="action-icon-btn text-blue-500"><i class="far fa-edit" style="font-size: 15px;"></i></button>
-                        <button onclick="deleteItem(${item.id})" class="action-icon-btn text-red-400"><i class="far fa-trash-alt" style="font-size: 15px;"></i></button>
-                    </div>
-                </td>
-            </tr>`;
+                body.innerHTML += `<tr class="transition hover:bg-gray-50">
+                    ${scheduleTableCell(res.data.from + i, 'text-center')}
+                    ${scheduleTableCell(item.class_name)}
+                    ${scheduleTableCell(item.group_name)}
+                    ${scheduleTableCell(item.section_name)}
+                    ${scheduleTableCell(item.session_name)}
+                    ${scheduleTableCell(item.exam_name)}
+                    ${scheduleTableCell(item.total_subject)}
+                    ${scheduleTableCell(item.submitted_subject)}
+                    ${scheduleTableCell(item.remaining_subject)}
+                    ${scheduleTableCell(formatDate(item.publish_date))}
+                    ${scheduleTableCell(formatTime(item.publish_time))}
+                    <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
+                        <div class="mx-auto flex h-8 items-center justify-center space-x-1">
+                            <button type="button" title="Edit schedule" aria-label="Edit schedule" onclick="editItem(${item.id})" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1">
+                                <i class="far fa-edit text-sm" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" title="Delete schedule" aria-label="Delete schedule" onclick="deleteItem(${item.id})" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1">
+                                <i class="far fa-trash-alt text-sm" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
             });
             renderPagination(res.data);
         });
@@ -860,29 +624,27 @@
 
     async function editItem(id) {
         isEdit = true;
-        document.getElementById('modalTitle').innerText = "Edit Exam Schedule";
+        document.getElementById('mainModalTitle').innerText = 'Edit Exam Schedule';
         const res = await axios.get(`/api/school-exam-schedules/${id}`);
         const d = res.data;
 
         document.getElementById('edit_id').value = id;
 
         const classEl = document.getElementById('m_class');
-        classEl.value = d.class_name;
+        setScheduleDropdownValue('m_class', d.class_name, d.class_name);
         await handleCascade(classEl, 'm_group');
 
         const groupEl = document.getElementById('m_group');
-        groupEl.value = d.group_name;
+        setScheduleDropdownValue('m_group', d.group_name, d.group_name);
         await handleCascade(groupEl, 'm_section');
 
         const sectionEl = document.getElementById('m_section');
-        sectionEl.value = d.section_name;
+        setScheduleDropdownValue('m_section', d.section_name, d.section_name);
         await handleCascade(sectionEl, 'm_session');
 
-        document.getElementById('m_session').value = d.session_name;
-        
-        // Ensure exams are fetched before setting value
-        fetchFilteredExams(false);
-        document.getElementById('m_exam').value = d.exam_name;
+        setScheduleDropdownValue('m_session', d.session_name, d.session_name);
+        await fetchFilteredExams(false);
+        setScheduleDropdownValue('m_exam', d.exam_name, d.exam_name);
         
         document.getElementById('m_date').value = d.publish_date;
         document.getElementById('m_time').value = d.publish_time;
@@ -909,13 +671,16 @@
 
     function openModal() {
         isEdit = false;
-        document.getElementById('modalTitle').innerText = "New Exam Schedule";
+        document.getElementById('mainModalTitle').innerText = 'New Exam Schedule';
         document.getElementById('edit_id').value = '';
-        document.getElementById('m_class').value = '';
-        document.getElementById('m_group').innerHTML = '<option value="">Select Group</option>';
-        document.getElementById('m_section').innerHTML = '<option value="">Select Section</option>';
-        document.getElementById('m_session').innerHTML = '<option value="">Select Session</option>';
-        document.getElementById('m_exam').innerHTML = '<option value="">Select Exam Name</option>';
+        ['m_class', 'm_group', 'm_section', 'm_session', 'm_exam'].forEach(id => {
+            setScheduleDropdownValue(id, '');
+        });
+        ['m_group', 'm_section', 'm_session', 'm_exam'].forEach(id => {
+            fillOptions(id, [], '');
+        });
+        document.getElementById('m_date').value = '';
+        document.getElementById('m_time').value = '';
         document.getElementById('c_total').innerText = '0';
         document.getElementById('c_submitted').innerText = '0';
         document.getElementById('c_remaining').innerText = '0';
@@ -931,11 +696,12 @@
     }
 
     function resetFilters() {
-        document.getElementById('f_class').value = '';
-        document.getElementById('f_group').innerHTML = '<option value="">Select Group</option>';
-        document.getElementById('f_section').innerHTML = '<option value="">Select Section</option>';
-        document.getElementById('f_session').innerHTML = '<option value="">Select Session</option>';
-        document.getElementById('f_exam').innerHTML = '<option value="">Select Exam Name</option>';
+        ['f_class', 'f_group', 'f_section', 'f_session', 'f_exam'].forEach(id => {
+            setScheduleDropdownValue(id, '');
+        });
+        ['f_group', 'f_section', 'f_session', 'f_exam'].forEach(id => {
+            fillOptions(id, [], '');
+        });
         fetchTable(1);
         toggleFilterModal();
     }
@@ -943,6 +709,16 @@
     function applyFilters() {
         fetchTable(1);
         toggleFilterModal();
+    }
+
+    function restoreScheduleSearch() {
+        const desktopSearch = document.getElementById('tableSearch');
+        const mobileSearch = document.getElementById('tableSearchMobile');
+
+        if (desktopSearch) desktopSearch.value = '';
+        if (mobileSearch) mobileSearch.value = '';
+
+        searchTable();
     }
 </script>
 @endsection

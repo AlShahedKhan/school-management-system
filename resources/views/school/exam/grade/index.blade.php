@@ -22,14 +22,9 @@
         form-id="gradeFilterForm"
         title="Grade Filter"
         close-button-id="resetFilter"
-        action="#"
-        method="GET"
-        :enctype="null"
-        class="exam-filter-modal"
-        panel-class="custom-scrollbar mx-auto my-auto w-full max-w-[288px] overflow-visible border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)] md:max-w-[480px]"
+        title-class="teacher-register-modal-title m-0 text-center font-semibold leading-tight text-slate-800"
     >
         <div class="relative">
-            <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Total Mark (Full Mark)</label>
             <x-input.dropdown-select
                 id="filter_full_mark"
                 placeholder="All Marks"
@@ -39,10 +34,13 @@
                     ['value' => '50', 'label' => '50 Mark Grade'],
                 ]"
             />
+            <x-input.floating-label for="filter_full_mark" :floating="false">
+                Total Mark (Full Mark)
+            </x-input.floating-label>
         </div>
 
         <x-slot:footer>
-            <div class="grid grid-cols-2 gap-3 border-slate-200 bg-white px-6 py-3">
+            <div class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
                 <x-button.secondary id="resetFilter" type="button" class="w-full">Reset</x-button.secondary>
                 <x-button.primary id="applyFilter" type="button" class="w-full">Apply</x-button.primary>
             </div>
@@ -61,6 +59,46 @@
         axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
 
         let currentPage = 1;
+
+        function escapeGradeHtml(value) {
+            return String(value ?? '-').replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            })[character]);
+        }
+
+        function gradeTableCell(value, alignment = 'text-center') {
+            const content = escapeGradeHtml(value);
+
+            return `
+                <td class="h-8 border border-gray-300 px-3 ${alignment}">
+                    <div class="school-data-table-cell-scroll" title="${content}">${content}</div>
+                </td>`;
+        }
+
+        function syncGradeSearch(sourceId) {
+            const source = document.getElementById(sourceId);
+            const targetId = sourceId === 'gradeSearch' ? 'gradeSearchMobile' : 'gradeSearch';
+            const target = document.getElementById(targetId);
+
+            if (source && target) {
+                target.value = source.value;
+            }
+        }
+
+        function restoreGradeSearch() {
+            const desktopSearch = document.getElementById('gradeSearch');
+            const mobileSearch = document.getElementById('gradeSearchMobile');
+
+            if (desktopSearch) desktopSearch.value = '';
+            if (mobileSearch) mobileSearch.value = '';
+
+            currentPage = 1;
+            fetchGrades(1);
+        }
 
         function fetchGrades(page = 1) {
             currentPage = page;
@@ -91,21 +129,19 @@
                     const sl = meta.from ? meta.from + i : i + 1;
                     tbody.innerHTML += `
                         <tr class="hover:bg-gray-50">
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${item.mark_from ?? '-'}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${item.mark_to ?? '-'}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <div class="donate-cell-scroll" title="${item.grade_name || '-'}">${item.grade_name || '-'}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${item.grade_point ?? '-'}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${item.full_mark ?? '-'}</td>
+                            ${gradeTableCell(sl)}
+                            ${gradeTableCell(item.mark_from)}
+                            ${gradeTableCell(item.mark_to)}
+                            ${gradeTableCell(item.grade_name, 'text-left')}
+                            ${gradeTableCell(item.grade_point)}
+                            ${gradeTableCell(item.full_mark)}
                             <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
-                                <div class="flex h-6 w-full items-center justify-center -space-x-[3px]">
-                                    <button type="button" title="Edit" onclick="editGrade(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 hover:bg-gray-100 hover:text-blue-600 focus-visible:ring-blue-500">
-                                        <i class="far fa-edit text-xs" aria-hidden="true"></i>
+                                <div class="mx-auto flex h-8 items-center justify-center space-x-1">
+                                    <button type="button" title="Edit grade" aria-label="Edit grade" onclick="editGrade(${item.id})" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1">
+                                        <i class="far fa-edit text-sm" aria-hidden="true"></i>
                                     </button>
-                                    <button type="button" title="Delete" onclick="deleteGrade(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 hover:bg-gray-100 hover:text-red-600 focus-visible:ring-red-500">
-                                        <i class="far fa-trash-alt text-xs" aria-hidden="true"></i>
+                                    <button type="button" title="Delete grade" aria-label="Delete grade" onclick="deleteGrade(${item.id})" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1">
+                                        <i class="far fa-trash-alt text-sm" aria-hidden="true"></i>
                                     </button>
                                 </div>
                             </td>
@@ -190,7 +226,14 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('gradeSearch')?.addEventListener('input', () => fetchGrades(1));
+            document.getElementById('gradeSearch')?.addEventListener('input', event => {
+                syncGradeSearch(event.currentTarget.id);
+                fetchGrades(1);
+            });
+            document.getElementById('gradeSearchMobile')?.addEventListener('input', event => {
+                syncGradeSearch(event.currentTarget.id);
+                fetchGrades(1);
+            });
 
             document.getElementById('exportPdf')?.addEventListener('click', () => exportData('pdf'));
             document.getElementById('exportExcel')?.addEventListener('click', () => exportData('excel'));
@@ -220,17 +263,8 @@
             });
         });
 
-        document.getElementById('btnRestoreDesktop')?.addEventListener('click', () => {
-            document.getElementById('gradeSearch').value = '';
-            currentPage = 1;
-            fetchGrades(1);
-        });
-
-        document.getElementById('btnRestoreMobile')?.addEventListener('click', () => {
-            document.getElementById('gradeSearchMobile').value = '';
-            currentPage = 1;
-            fetchGrades(1);
-        });
+        document.getElementById('btnRestoreDesktop')?.addEventListener('click', restoreGradeSearch);
+        document.getElementById('btnRestoreMobile')?.addEventListener('click', restoreGradeSearch);
 
         fetchGrades();
     </script>

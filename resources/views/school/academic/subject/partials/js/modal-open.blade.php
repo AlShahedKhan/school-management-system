@@ -38,8 +38,14 @@
             return;
         }
 
+        if (sourceDropdownId === 'm_subject' && typeof window.prepareMarkSubjectModal === 'function') {
+            await window.prepareMarkSubjectModal();
+            return;
+        }
+
         const sourceMap = {
-            subject_name: ['class_name', 'group_name', 'section_name'],
+            subject_name: ['class_name', 'group_name', 'routine_section_name'],
+            m_subject: ['m_class', 'm_group', 'm_section'],
             f_subject: ['f_class', 'f_group', 'f_section'],
         };
 
@@ -62,7 +68,7 @@
             return;
         }
 
-        loadSubjectClassSelect(classId);
+        await loadSubjectClassSelect(classId);
         if (groupId) {
             await loadSubjectGroupSelect(groupId);
         }
@@ -81,7 +87,7 @@
     }
 
     function loadSubjectClassSelect(selectedId = null) {
-        axios.get('/api/get-school-classes').then(res => {
+        return axios.get('/api/get-school-classes').then(res => {
             const data = res.data.data || [];
             populateDropdown('subjectFormClassMenu', data, 'id', 'class_name');
             if (selectedId) {
@@ -94,7 +100,7 @@
     function loadSubjectGroupSelect(selectedId = null) {
         const classId = document.querySelector('#subjectFormClass')?.value;
         const params = classId ? { class_id: classId } : {};
-        axios.get('/api/get-school-groups', { params }).then(res => {
+        return axios.get('/api/get-school-groups', { params }).then(res => {
             const data = res.data.data || [];
             populateDropdown('subjectFormGroupMenu', data, 'id', 'group_name');
             if (selectedId) {
@@ -110,7 +116,7 @@
         const params = {};
         if (classId) params.class_id = classId;
         if (groupId) params.group_id = groupId;
-        axios.get('/api/get-school-sections', { params }).then(res => {
+        return axios.get('/api/get-school-sections', { params }).then(res => {
             const data = res.data.data || [];
             populateDropdown('subjectFormSectionMenu', data, 'id', 'section_name');
             if (selectedId) {
@@ -120,15 +126,17 @@
         }).catch(err => console.error("Section dropdown error:", err));
     }
 
-    function loadSubjectGradeSelect(selectedId = null) {
-        axios.get('/api/get-grading-systems').then(res => {
+    function loadSubjectGradeSelect(selectedId = null, selectedFullMark = null) {
+        return axios.get('/api/get-grading-systems').then(res => {
             const data = res.data.data || [];
             console.log('Grade API response:', data);
             gradingSystemsData = data;
             const items = data.map(g => ({ id: g.id, grade_name: parseInt(g.full_mark) + ' Mark Grade' }));
             populateDropdown('subjectFormGradeMenu', items, 'id', 'grade_name');
-            if (selectedId) {
-                const item = data.find(g => String(g.id) === String(selectedId));
+            if (selectedId || selectedFullMark) {
+                const item = data.find(g => selectedId
+                    ? String(g.id) === String(selectedId)
+                    : String(g.full_mark) === String(selectedFullMark));
                 if (item) {
                     setDropdownValue('subjectFormGrade', item.id, parseInt(item.full_mark) + ' Mark Grade');
                     toggleMarkFields();
@@ -137,6 +145,15 @@
             }
         }).catch(err => console.error("Grade dropdown error:", err));
     }
+
+    document.addEventListener('school:grade-saved', async function (event) {
+        const { fullMark, returnModalId, isNew } = event.detail || {};
+        if (returnModalId !== 'subjectModal' || !isNew || !fullMark) return;
+
+        event.preventDefault();
+        await loadSubjectGradeSelect(null, fullMark);
+        document.getElementById('subjectModal')?.classList.remove('hidden');
+    });
 
     function updateMaxAllowedMark() {
         const gradeId = document.getElementById('subjectFormGrade').value;
@@ -153,6 +170,11 @@
             if (el) el.disabled = disabled;
         });
     }
+
+    document.getElementById('subjectFormGrade')?.addEventListener('change', function() {
+        toggleMarkFields();
+        updateMaxAllowedMark();
+    });
 
     function calculateTotalMark() {
         const tutorial = parseFloat(document.getElementById('tutorial_mark').value) || 0;

@@ -108,6 +108,7 @@
 
         const sourceMap = {
             examFormSection: ['examFormClass', 'examFormGroup'],
+            m_section: ['m_class', 'm_group'],
             examSectionFilter: ['examClassFilter', 'examGroupFilter'],
             sessionFormSection: ['sessionFormClass', 'sessionFormGroup'],
             section_name: ['class_name', 'group_name'],

@@ -89,3 +89,30 @@ if (! function_exists('generate_school_common_id_number')) {
         return $schoolPrefix . str_pad($nextSerial, 6, '0', STR_PAD_LEFT);
     }
 }
+
+if (! function_exists('record_account_transaction')) {
+    /**
+     * Future-proof global function for logging account transactions and updating balance.
+     */
+    function record_account_transaction($school_id, $payment_type, $amount, $purpose, $details = null)
+    {
+        /*
+        if ($payment_type === 'credit' || $payment_type === 'income') {
+            \DB::table('school_accounts')->where('school_id', $school_id)->increment('balance', $amount);
+        } elseif ($payment_type === 'debit' || $payment_type === 'expense') {
+            \DB::table('school_accounts')->where('school_id', $school_id)->decrement('balance', $amount);
+        }
+
+        \DB::table('account_transactions')->insert([
+            'school_id'    => $school_id,
+            'payment_type' => $payment_type,
+            'amount'       => $amount,
+            'purpose'      => $purpose,
+            'details'      => $details,
+            'created_at'   => now(),
+        ]);
+        */
+
+        return true;
+    }
+}

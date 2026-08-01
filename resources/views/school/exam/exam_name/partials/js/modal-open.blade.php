@@ -192,6 +192,7 @@
 
             const sourceMap = {
                 exam_name: ['class_name', 'group_name', 'section_name', 'session_name'],
+                m_exam: ['m_class', 'm_group', 'm_section', 'm_session'],
             };
 
             const parentIds = sourceMap[sourceDropdownId];

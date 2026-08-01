@@ -4,8 +4,7 @@
             <h3 id="pageHeader" class="text-[15px] sm:text-xl text-gray-800 font-normal leading-tight">Expense Management</h3>
             <div class="flex items-center text-slate-400 text-[12px] mt-1">
                 <span>School</span>
-                <i class="fas fa-chevron-right mx-1.5 text-[10px]"></i>
-                <span>Finance</span>
+                <span>HRM</span>
                 <i class="fas fa-chevron-right mx-1.5 text-[10px]"></i>
                 <span id="pageTitle" class="text-slate-500">Expense</span>
             </div>

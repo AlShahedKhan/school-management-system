@@ -2,18 +2,21 @@
 
 <div id="step1" class="space-y-4">
     <div class="relative">
-        <label class="block text-[10px] capitalize tracking-normal text-gray-500 mb-1.5">Total Mark (Full Mark)</label>
         <div class="flex gap-2">
             <div class="relative min-w-0 flex-1">
-                <select id="full_mark" name="full_mark"
-                    class="w-full border border-gray-200 py-1.5 px-3 text-xs h-[32px] focus:border-blue-600 outline-none transition-colors appearance-none bg-white"
-                    style="border-radius: 0;">
-                    <option value="100">100 Mark Grade</option>
-                    <option value="50">50 Mark Grade</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                    <i class="fas fa-chevron-down text-[9px]"></i>
-                </div>
+                <x-input.dropdown-select
+                    id="full_mark"
+                    name="full_mark"
+                    value="100"
+                    placeholder="Select Total Mark"
+                    :options="[
+                        ['value' => '100', 'label' => '100 Mark Grade'],
+                        ['value' => '50', 'label' => '50 Mark Grade'],
+                    ]"
+                />
+                <x-input.floating-label for="full_mark" :floating="false">
+                    Total Mark (Full Mark)
+                </x-input.floating-label>
             </div>
             <x-button.secondary
                 type="button"
@@ -25,16 +28,20 @@
                 <i class="fas fa-plus text-[10px]" aria-hidden="true"></i>
             </x-button.secondary>
         </div>
-        <div id="customFullMarkInput" class="mt-2 hidden flex gap-2">
-            <input
-                id="custom_full_mark"
-                type="number"
-                min="1"
-                step="0.01"
-                placeholder="Enter full mark"
-                class="min-w-0 flex-1 border border-gray-200 px-3 text-xs h-[32px] outline-none focus:border-blue-600"
-                style="border-radius: 0;"
-            >
+        <div id="customFullMarkInput" class="mt-3 hidden gap-2">
+            <div class="relative min-w-0 flex-1">
+                <x-input.control
+                    id="custom_full_mark"
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    class="peer placeholder:text-transparent"
+                    placeholder=" "
+                />
+                <x-input.floating-label for="custom_full_mark">
+                    Custom full mark
+                </x-input.floating-label>
+            </div>
             <x-button.secondary type="button" onclick="addCustomFullMark()" class="h-8 px-3">
                 Add
             </x-button.secondary>
@@ -59,9 +66,14 @@
     <div id="gradeRowsContainer" class="space-y-3"></div>
 
     <div class="flex justify-end pr-5 sm:pr-3">
-        <button type="button" onclick="addGradeRow()"
-            class="text-blue-600 hover:text-blue-800 transition-all p-1">
-            <i class="fas fa-plus"></i>
-        </button>
+        <x-button.secondary
+            type="button"
+            onclick="addGradeRow()"
+            class="h-8 w-8 px-0 text-blue-600"
+            aria-label="Add grade distribution row"
+            title="Add grade distribution row"
+        >
+            <i class="fas fa-plus text-[10px]" aria-hidden="true"></i>
+        </x-button.secondary>
     </div>
 </div>

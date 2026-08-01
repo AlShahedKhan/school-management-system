@@ -52,6 +52,7 @@
 
         const sourceClassMap = {
             examFormGroup: 'examFormClass',
+            m_group: 'm_class',
             examGroupFilter: 'examClassFilter',
             sectionGroupSelect: 'sectionClassSelect',
             sessionFormGroup: 'sessionFormClass',

@@ -5,8 +5,10 @@ use App\Http\Controllers\Api\AdminProfileEditController;
 use App\Http\Controllers\Api\AdvancePaymentController;
 use App\Http\Controllers\Api\AdminSmSRequestApproveController;
 use App\Http\Controllers\Api\AdmissionController;
+use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DemoRequestController;
+use App\Http\Controllers\Api\DeviceController;
 use App\Http\Controllers\Api\DropdownController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\PackageController;
@@ -27,6 +29,7 @@ use App\Http\Controllers\Api\SchoolExamGradeController;
 use App\Http\Controllers\Api\SchoolExamMarkSubmitController;
 use App\Http\Controllers\Api\SchoolExamNameController;
 use App\Http\Controllers\Api\SchoolExamResultFindController;
+use App\Http\Controllers\Api\SchoolMeritListController;
 use App\Http\Controllers\Api\SchoolExamRoutineController;
 use App\Http\Controllers\Api\SchoolExamScheduleController;
 use App\Http\Controllers\Api\SchoolExamSeatPlanController;
@@ -58,6 +61,9 @@ use App\Http\Controllers\Api\SmsPackageController;
 use App\Http\Controllers\Api\TeacherProfileEditController;
 use App\Http\Controllers\Api\SubscriptionController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AdminDynamicOperationController;
+use App\Http\Controllers\Api\AdminHomePageSettingController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -72,19 +78,6 @@ Route::middleware(['web'])->post('/login', [AuthController::class, 'login'])->na
 Route::get('/login', function () {
     return redirect('/')->with('error', 'Please use the login form.');
 });
-
-
-
-/* OLD CODE (Before Fix):
-Route::post('/login', [AuthController::class, 'login'])->name('login');
-Route::get('/login', function () {
-    if (request()->expectsJson()) {
-        return response()->json(['message' => 'Session expired. Please login again.'], 401);
-    }
-    return redirect('/')->with('error', 'Session expired.');
-});
-Route::post('/logout', [AuthController::class, 'logout']);
-*/
 
 // Registration
 Route::post('/school-register', [SchoolController::class, 'register']);
@@ -103,6 +96,9 @@ Route::get('/get-groups/{school_id}/{class_id}', [AdmissionController::class, 'g
 Route::get('/get-sessions/{school_id}/{class_id}', [AdmissionController::class, 'getSessions']);
 Route::get('/get-fees/{school_id}/{class_id}', [AdmissionController::class, 'getFees']);
 
+// ZKTeco Device Attendance Endpoint
+Route::post('/attendance/store', [AttendanceController::class, 'store']);
+
 
 /*
 |--------------------------------------------------------------------------
@@ -117,11 +113,15 @@ Route::middleware('auth:sanctum')->group(function () {
     // Admin Profile Edit
     Route::post('/admin/profile-update', [AdminProfileEditController::class, 'update']);
 
-    // Public Translation Management
+    // Admin-only routes
     Route::middleware('role:admin')->group(function () {
+        // Public Translation Management
         Route::get('/public-translations', [AdminPublicTranslationController::class, 'index']);
         Route::post('/public-translations', [AdminPublicTranslationController::class, 'store']);
         Route::put('/public-translations/{publicTranslation}', [AdminPublicTranslationController::class, 'update']);
+
+        // Device Management
+        Route::apiResource('devices', DeviceController::class);
     });
 
     // Package Management
@@ -226,6 +226,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Finance (Expense)
     Route::apiResource('expenses', ExpenseController::class);
+
+    // HRM (Employee & Payroll)
+    Route::apiResource('employees', EmployeeController::class);
+    Route::get('payrolls/staff-details', [\App\Http\Controllers\Api\EmployeePayrollController::class, 'staffDetails']);
+    Route::apiResource('payrolls', \App\Http\Controllers\Api\EmployeePayrollController::class);
 
     //School Membership
     Route::get('/memberships', [SchoolMembershipController::class, 'index']);
@@ -368,6 +373,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Exam Result Find Routes
     Route::post('/school-find-results', [SchoolExamResultFindController::class, 'findResult']);
+    Route::post('/school-merit-list', [SchoolMeritListController::class, 'generate']);
+    Route::post('/school-merit-list/export-pdf', [SchoolMeritListController::class, 'exportPdf']);
     Route::delete('/school-results/{id}', [SchoolExamResultFindController::class, 'destroy']);
 });
 // Modified on 2026-07-09: Made public to prevent guest session cookie overwrite during Axios calls

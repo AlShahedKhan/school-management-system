@@ -181,6 +181,9 @@ class RoleUserSeeder extends Seeder
             $studentName = $studentFirstNames[($index - 1) % count($studentFirstNames)].' '.$studentLastNames[($index - 1) % count($studentLastNames)];
             $studentIdNumber = '02401'.str_pad((string) $index, 6, '0', STR_PAD_LEFT);
             $mobile = '55555'.str_pad((string) $index, 6, '0', STR_PAD_LEFT);
+            $class = $seededClasses->get($className);
+            $section = $seededSections->get($className);
+            $session = $seededSessions->get($className);
 
             $guardian = Guardian::updateOrCreate(
                 ['mobile' => '66666'.str_pad((string) $index, 6, '0', STR_PAD_LEFT)],
@@ -202,10 +205,10 @@ class RoleUserSeeder extends Seeder
                     'district' => 'Dhaka',
                     'upazila' => 'Dhanmondi',
                     'school' => $school->school_name,
-                    'class' => $className,
-                    'group' => 'General',
-                    'section' => 'A',
-                    'session' => '2026',
+                    'class_id' => $class?->id,
+                    'group_id' => $section?->group_id,
+                    'section_id' => $section?->id,
+                    'session_id' => $session?->id,
                     'admission_fee' => '1500',
                     'admission_date' => Carbon::now()->subDays($index)->toDateString(),
                     'previous_school' => 'Previous School '.$number,

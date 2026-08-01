@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\School;
 use App\Models\SchoolExamSchedule;
+use App\Models\SchoolSubject;
 use App\Models\Principal;
 use Illuminate\Support\Facades\Auth;
 
@@ -90,6 +91,41 @@ class SchoolExamResultFindController extends Controller
                 return response()->json(['message' => 'No marks found for this exam record'], 404);
             }
 
+            $subjectDefinitions = SchoolSubject::query()
+                ->where('school_id', $school->id)
+                ->whereIn('subject_name', $marks->pluck('subject_name')->filter()->unique())
+                ->whereHas('school_class', function ($query) use ($admitCard) {
+                    $query->where('class_name', $admitCard->class_name);
+                })
+                ->when($admitCard->group_name, function ($query) use ($admitCard) {
+                    $query->whereHas('school_group', function ($groupQuery) use ($admitCard) {
+                        $groupQuery->where('group_name', $admitCard->group_name);
+                    });
+                })
+                ->when($admitCard->section_name, function ($query) use ($admitCard) {
+                    $query->whereHas('school_section', function ($sectionQuery) use ($admitCard) {
+                        $sectionQuery->where('section_name', $admitCard->section_name);
+                    });
+                })
+                ->with('grade_type:id,full_mark')
+                ->get()
+                ->keyBy('subject_name');
+
+            $highestMarks = DB::table('school_exam_marks')
+                ->where('school_id', $school->id)
+                ->where('exam_name', $admitCard->exam_name)
+                ->where('class_name', $admitCard->class_name)
+                ->where('session_name', $admitCard->session_name)
+                ->when($admitCard->group_name, function ($query) use ($admitCard) {
+                    $query->where('group_name', $admitCard->group_name);
+                })
+                ->when($admitCard->section_name, function ($query) use ($admitCard) {
+                    $query->where('section_name', $admitCard->section_name);
+                })
+                ->select('subject_name', DB::raw('MAX(mark) as highest_mark'))
+                ->groupBy('subject_name')
+                ->pluck('highest_mark', 'subject_name');
+
             $gradingScale = DB::table('school_exam_grades')
                 ->where('school_id', $school->id)
                 ->select('full_mark', 'mark_from', 'mark_to', 'grade_name', 'grade_point')
@@ -134,10 +170,20 @@ class SchoolExamResultFindController extends Controller
                 $previousRank = $rank;
             }
 
-            $subjectDetails = $marks->map(function ($m) use ($gradingScale) {
-                $fullMark = $m->mark > 50 ? 100 : ($m->mark > 10 ? 50 : 10);
+            $subjectDetails = $marks->map(function ($m) use ($gradingScale, $highestMarks, $subjectDefinitions) {
+                $subjectDefinition = $subjectDefinitions->get($m->subject_name);
+                $configuredMarks = $subjectDefinition?->marks ?? [];
+                $fullMark = (int) (
+                    $subjectDefinition?->grade_type?->full_mark
+                    ?? ($configuredMarks['total_mark'] ?? null)
+                    ?? ($m->mark > 50 ? 100 : ($m->mark > 10 ? 50 : 10))
+                );
                 $gradeName = $m->letter_name;
                 $gradePoint = $m->point;
+                $tutorialMark = $m->tutorial_mark ?? 0;
+                $mcqMark = $m->mcq_mark ?? 0;
+                $writingMark = $m->writing_mark ?? $m->theory_mark ?? 0;
+                $practicalMark = $m->practical_mark ?? 0;
 
                 $matchingRules = $gradingScale->filter(function ($rule) use ($fullMark) {
                     return (int) $rule->full_mark === (int) $fullMark;
@@ -157,9 +203,13 @@ class SchoolExamResultFindController extends Controller
                 return [
                     'name'          => $m->subject_name,
                     'full_mark'     => $fullMark,
+                    'highest_mark'  => $highestMarks->get($m->subject_name, $m->mark),
                     'mark'          => $m->mark,
+                    'tutorial_mark' => $tutorialMark,
+                    'mcq_mark'      => $mcqMark,
+                    'writing_mark'  => $writingMark,
                     'theory_mark'   => $m->theory_mark ?? 0,
-                    'practical_mark'=> $m->practical_mark ?? 0,
+                    'practical_mark'=> $practicalMark,
                     'grade'         => $gradeName ?? '-',
                     'point'         => $gradePoint,
                 ];
@@ -296,7 +346,9 @@ class SchoolExamResultFindController extends Controller
 
     private function calculateFinalGrade($gpa, $grades = null)
     {
-        if (!$grades || count($grades) == 0) {
+        $gpa = (float) $gpa;
+
+        if (!$grades || count($grades) === 0) {
             if ($gpa >= 5.0) return 'A+';
             if ($gpa >= 4.0) return 'A';
             if ($gpa >= 3.5) return 'A-';
@@ -306,7 +358,22 @@ class SchoolExamResultFindController extends Controller
             return 'F';
         }
 
-        foreach ($grades as $grade) {
+        $gpaGrades = collect($grades)
+            ->filter(function ($grade) {
+                return is_numeric($grade->grade_point)
+                    && (float) $grade->grade_point >= 0
+                    && (float) $grade->grade_point <= 5;
+            })
+            ->groupBy(function ($grade) {
+                return (float) $grade->full_mark;
+            })
+            ->sortKeysDesc()
+            ->first()
+            ?->sortByDesc(function ($grade) {
+                return (float) $grade->grade_point;
+            }) ?? collect();
+
+        foreach ($gpaGrades as $grade) {
             if ($gpa >= $grade->grade_point) {
                 return $grade->grade_name;
             }
