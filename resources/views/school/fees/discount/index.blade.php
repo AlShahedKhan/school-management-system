@@ -420,14 +420,19 @@
                 menu.innerHTML = '<div class="px-3 py-1 text-slate-400">Select class and session to load fee types.</div>';
                 return;
             }
-            const params = { class_id: classId, session_id: sessionId, all: true };
-            if (groupId) params.group_id = groupId;
-            if (sectionId) params.section_id = sectionId;
             menu.innerHTML = '<div class="px-3 py-1 text-slate-400"><i class="fas fa-spinner fa-spin mr-1"></i> Loading fee types...</div>';
             try {
-                const res = await axios.get('/api/fee-templates', { params });
+                const res = await axios.get('/api/fee-templates', { params: { all: true } });
                 if (seq !== discountFeeTypeLoadSeq) return;
-                const templates = (res.data.data || []).filter(t => t.fee_type_name !== 'Promote');
+                const templates = (res.data.data || []).filter(t => {
+                    const type = t.fee_type_name || '';
+                    if (type === 'Admission' || type === 'Promote') return true;
+                    if (t.class_id && String(t.class_id) !== String(classId)) return false;
+                    if (groupId && t.group_id && String(t.group_id) !== String(groupId)) return false;
+                    if (sectionId && t.section_id && String(t.section_id) !== String(sectionId)) return false;
+                    if (t.session_id && String(t.session_id) !== String(sessionId)) return false;
+                    return true;
+                });
                 if (selectedId && fallback && !templates.some(t => String(t.id) === String(selectedId))) {
                     templates.push(fallback);
                 }
