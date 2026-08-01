@@ -9,16 +9,22 @@
     class="slip-modal"
     panel-class="custom-scrollbar mx-auto my-auto w-full max-w-[288px] overflow-visible border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)] md:max-w-[400px]"
 >
-    <div class="relative">
-        <x-input.control id="slipStudentIdSearch" placeholder=" " class="peer placeholder:text-transparent" />
-        <x-input.floating-label for="slipStudentIdSearch" class="text-[10px]">Student ID (Quick Search)</x-input.floating-label>
-        <p id="slipIdNotFound" class="hidden text-[9px] text-red-500">Not found.</p>
-    </div>
-
-    <x-input.dropdown-select id="slipClassFilter" placeholder="All Classes" />
-    <x-input.dropdown-select id="slipGroupFilter" placeholder="All Groups" />
-    <x-input.dropdown-select id="slipSectionFilter" placeholder="All Sections" />
-    <x-input.dropdown-select id="slipSessionFilter" placeholder="All Sessions" />
+    <x-input.dropdown-select id="slipClassFilter" placeholder="All Classes"
+        add-button-id="openClassFromSlip"
+        add-button-label="Add class"
+        add-button-target="classModal" />
+    <x-input.dropdown-select id="slipGroupFilter" placeholder="All Groups"
+        add-button-id="openGroupFromSlip"
+        add-button-label="Add group"
+        add-button-target="groupModal" />
+    <x-input.dropdown-select id="slipSectionFilter" placeholder="All Sections"
+        add-button-id="openSectionFromSlip"
+        add-button-label="Add section"
+        add-button-target="sectionModal" />
+    <x-input.dropdown-select id="slipSessionFilter" placeholder="All Sessions"
+        add-button-id="openSessionFromSlip"
+        add-button-label="Add session"
+        add-button-target="sessionModal" />
 
     <div class="relative">
         <x-input.control id="slipFromDate" type="date" placeholder=" " class="peer placeholder:text-transparent" />

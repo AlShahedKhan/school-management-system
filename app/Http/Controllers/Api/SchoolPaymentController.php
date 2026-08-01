@@ -12,6 +12,7 @@ use App\Models\SchoolSession;
 use App\Models\SchoolStudentFee;
 use App\Services\ExamDiscountApplicationService;
 use App\Services\FeeStatusSyncService;
+use App\Services\SchoolFeeDiscountService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -148,23 +149,11 @@ class SchoolPaymentController extends Controller
             return response()->json(['message' => 'Cannot collect payment for inactive students.'], 403);
         }
 
-        // Check for a session-scope discount to get the real total payable
-        $discount = DB::table('school_fee_discounts')
-            ->where('school_id', $school->id)
-            ->where('student_id', $validated['admission_student_id'])
-            ->where('discount_scope', 'session')
-            ->where('fee_name', $validated['fee_name'])
-            ->first();
-
-        $effectiveTotal = $discount
-            ? (float) $discount->after_discount
-            : (float) $validated['total_payable'];
-
-        // Exam-based discount applied on top of the effective total
-        $effectiveTotal = $this->applyExamDiscount(
+        // Apply session-scope then exam-scope discounts to get the real total payable
+        $effectiveTotal = app(SchoolFeeDiscountService::class)->effectiveTotal(
             $school->id,
             (int) $validated['admission_student_id'],
-            $effectiveTotal,
+            (float) $validated['total_payable'],
             $validated['fees_type'],
             $validated['fee_name'] ?? null
         );
@@ -263,19 +252,14 @@ class SchoolPaymentController extends Controller
             $feeName   = $validated['fee_name']   ?? $payment->fee_name;
             $studentId = $payment->admission_student_id;
 
-            // Check for discount
-            $discount = DB::table('school_fee_discounts')
-                ->where('school_id', $school->id)
-                ->where('student_id', $studentId)
-                ->where('fee_name', $feeName)
-                ->first();
-
-            $effectiveTotal = $discount
-                ? (float) $discount->after_discount
-                : (float) ($validated['total_payable'] ?? $payment->total_payable);
-
-            // Exam-based discount applied on top of the effective total
-            $effectiveTotal = $this->applyExamDiscount($school->id, (int) $studentId, $effectiveTotal, $feesType, $feeName);
+            // Apply session-scope then exam-scope discounts to get the real total payable
+            $effectiveTotal = app(SchoolFeeDiscountService::class)->effectiveTotal(
+                $school->id,
+                (int) $studentId,
+                (float) ($validated['total_payable'] ?? $payment->total_payable),
+                $feesType,
+                $feeName
+            );
 
             // Sum all OTHER payments for this student + fee (excluding current record)
             $alreadyPaid = DB::table('school_payments')
