@@ -99,15 +99,31 @@ class SchoolStudentController extends Controller
             });
         })->when($request->filled('student_type'), function ($q) use ($request) {
             $type = strtolower(trim($request->student_type));
+            $targetSession = $request->input('session');
+
             if ($type === 'promote') {
-                $promotedStudentIds = StudentPromotion::pluck('student_id')->toArray();
+                $promotedQuery = StudentPromotion::query();
+                if ($targetSession) {
+                    $promotedQuery->where('to_session_id', $targetSession);
+                }
+                $promotedStudentIds = $promotedQuery->pluck('student_id')->toArray();
                 $q->whereIn('id', $promotedStudentIds);
             } elseif ($type === 're-admission' || $type === 'readmission') {
-                $readmittedStudentIds = StudentReadmission::pluck('student_id')->toArray();
+                $readmitQuery = StudentReadmission::query();
+                if ($targetSession) {
+                    $readmitQuery->where('to_session_id', $targetSession);
+                }
+                $readmittedStudentIds = $readmitQuery->pluck('student_id')->toArray();
                 $q->whereIn('id', $readmittedStudentIds);
             } elseif ($type === 'admission') {
-                $promotedStudentIds = StudentPromotion::pluck('student_id')->toArray();
-                $readmittedStudentIds = StudentReadmission::pluck('student_id')->toArray();
+                $promotedQuery = StudentPromotion::query();
+                $readmitQuery = StudentReadmission::query();
+                if ($targetSession) {
+                    $promotedQuery->where('to_session_id', $targetSession);
+                    $readmitQuery->where('to_session_id', $targetSession);
+                }
+                $promotedStudentIds = $promotedQuery->pluck('student_id')->toArray();
+                $readmittedStudentIds = $readmitQuery->pluck('student_id')->toArray();
                 $excludedIds = array_unique(array_merge($promotedStudentIds, $readmittedStudentIds));
                 $q->whereNotIn('id', $excludedIds)
                   ->where(function ($subQ) {
@@ -156,39 +172,60 @@ class SchoolStudentController extends Controller
             return $student;
         };
 
-        if ($request->boolean('all')) {
-            $query->where('status', '!=', StudentStatus::Inactive->value);
-            $students = $query->orderBy('id', 'asc')->get();
+        $applyStudentType = function ($students) use ($request, $transformStudent) {
             $studentIds = $students->pluck('id')->toArray();
-            $promotedIds = StudentPromotion::whereIn('student_id', $studentIds)->pluck('student_id')->toArray();
-            $readmittedIds = StudentReadmission::whereIn('student_id', $studentIds)->pluck('student_id')->toArray();
-            $students->map(function ($student) use ($promotedIds, $readmittedIds, $transformStudent) {
+            $targetSessionId = $request->input('session');
+
+            $promotionsQuery = StudentPromotion::whereIn('student_id', $studentIds);
+            $readmissionsQuery = StudentReadmission::whereIn('student_id', $studentIds);
+
+            if ($targetSessionId) {
+                $promotionsQuery->where('to_session_id', $targetSessionId);
+                $readmissionsQuery->where('to_session_id', $targetSessionId);
+            }
+
+            $promotedMap = $promotionsQuery->get()->groupBy('student_id');
+            $readmittedMap = $readmissionsQuery->get()->groupBy('student_id');
+
+            $students->transform(function ($student) use ($promotedMap, $readmittedMap, $transformStudent, $targetSessionId) {
                 $student = $transformStudent($student);
+
+                $isPromoted = false;
+                if (isset($promotedMap[$student->id])) {
+                    $isPromoted = $targetSessionId
+                        ? true
+                        : $promotedMap[$student->id]->contains('to_session_id', $student->session_id);
+                }
+
+                $isReadmitted = false;
+                if (isset($readmittedMap[$student->id])) {
+                    $isReadmitted = $targetSessionId
+                        ? true
+                        : $readmittedMap[$student->id]->contains('to_session_id', $student->session_id);
+                }
+
                 $student->student_type = match (true) {
-                    in_array($student->id, $promotedIds) => 'Promote',
-                    in_array($student->id, $readmittedIds) => 'Re-Admission',
+                    $isPromoted => 'Promote',
+                    $isReadmitted => 'Re-Admission',
                     $student->admission_fee === 'N/A' => 'Bulk Upload',
                     default => 'Admission',
                 };
                 return $student;
             });
+
+            return $students;
+        };
+
+        if ($request->boolean('all')) {
+            $query->where('status', '!=', StudentStatus::Inactive->value);
+            $students = $query->orderBy('id', 'asc')->get();
+            $students = $applyStudentType($students);
             return response()->json($students);
         }
         $perPage = (int) $request->input('per_page', 30);
         $students = $query->orderBy('id', 'asc')->paginate($perPage);
-        $studentIds = $students->getCollection()->pluck('id')->toArray();
-        $promotedIds = StudentPromotion::whereIn('student_id', $studentIds)->pluck('student_id')->toArray();
-        $readmittedIds = StudentReadmission::whereIn('student_id', $studentIds)->pluck('student_id')->toArray();
-        $students->getCollection()->transform(function ($student) use ($promotedIds, $readmittedIds, $transformStudent) {
-            $student = $transformStudent($student);
-            $student->student_type = match (true) {
-                in_array($student->id, $promotedIds) => 'Promote',
-                in_array($student->id, $readmittedIds) => 'Re-Admission',
-                $student->admission_fee === 'N/A' => 'Bulk Upload',
-                default => 'Admission',
-            };
-            return $student;
-        });
+        $collection = $students->getCollection();
+        $students->setCollection($applyStudentType($collection));
         return response()->json($students);
     }
     public function updateStatus(Request $request, $id)
