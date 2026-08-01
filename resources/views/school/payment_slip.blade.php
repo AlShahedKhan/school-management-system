@@ -8,6 +8,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     @php
         function slipStatus($payDate, $total, $paid) {
             $due = max((float)$total - (float)$paid, 0);
@@ -15,13 +18,13 @@
             $today = \Carbon\Carbon::today();
             $isFuture = $d && $d->copy()->startOfDay()->gt($today);
             $isOverdue = $d && $due > 0 && $d->copy()->startOfDay()->lt($today);
-            if ((float)$paid >= (float)$total && (float)$total > 0) return $isFuture ? ['Advance', 'text-teal-600'] : ['Paid', 'text-green-600'];
+            if ((float)$paid >= (float)$total && (float)$total > 0) return $isFuture ? ['Advance', 'text-blue-600'] : ['Paid', 'text-emerald-600'];
             if ((float)$paid > 0 && (float)$paid < (float)$total) {
                 if ($isFuture) return ['Advance Partial', 'text-cyan-600'];
                 if ($isOverdue) return ['Over Due Partial', 'text-purple-600'];
-                return ['Partial Paid', 'text-blue-600'];
+                return ['Partial Paid', 'text-amber-600'];
             }
-            if ($isOverdue) return ['Over Due', 'text-red-700'];
+            if ($isOverdue) return ['Over Due', 'text-red-600'];
             return ['Due', 'text-red-500'];
         }
     @endphp
@@ -33,9 +36,10 @@
             .print-container { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 20mm !important; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
+        body, .print-container { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans antialiased p-4 sm:p-8 flex flex-col items-center">
+<body class="bg-gray-100 antialiased p-4 sm:p-8 flex flex-col items-center" style="font-family: 'Inter', sans-serif;">
 
     {{-- Action Buttons --}}
     <div class="no-print w-full max-w-[210mm] flex justify-end gap-3 mb-4">
@@ -56,88 +60,99 @@
     </div>
 
     {{-- Slip Container --}}
-    <div class="print-container bg-white w-[210mm] min-h-[297mm] p-8 border border-gray-300 shadow-lg flex flex-col justify-between text-[11px] text-gray-800 tracking-tight">
+    <div class="print-container bg-white w-[210mm] min-h-[297mm] p-10 border border-gray-300 shadow-lg flex flex-col justify-between text-[11px] text-gray-800 tracking-tight">
 
         {{-- ══════════ HEADER ══════════ --}}
         <div>
-            <div class="text-center mb-6 py-2">
-                <h1 class="text-sm font-bold tracking-wider text-gray-900 whitespace-nowrap">{{ $school->school_name ?? 'School Name' }}</h1>
-                <p class="text-gray-600 whitespace-nowrap text-[10px] mt-0.5">
-                    {{ implode(', ', array_filter([$school->village, $school->upazila])) }}
+            <div class="text-center mb-5">
+                <h1 class="text-xl font-bold tracking-wide text-teal-700 whitespace-nowrap">{{ $school->school_name ?? 'School Name' }}</h1>
+                <p class="text-gray-500 whitespace-nowrap text-[10.5px] mt-1">
+                    {{ implode(', ', array_filter([$school->village, $school->upazila, $school->district ?? null])) }}
                 </p>
                 @if(!empty($school->mobile))
-                    <p class="text-gray-600 whitespace-nowrap text-[10px]">Mobile: {{ $school->mobile }}</p>
+                    <p class="text-gray-500 whitespace-nowrap text-[10.5px]">Mobile: {{ $school->mobile }}</p>
                 @endif
+                <div class="mt-3 inline-block border border-teal-500 text-teal-600 text-[10px] font-semibold tracking-[0.15em] uppercase px-4 py-1 rounded-full">
+                    Payment Invoice
+                </div>
             </div>
 
+            <div class="border-t border-gray-200 mb-4"></div>
+
             {{-- ══════════ STUDENT INFO ══════════ --}}
-            <div class="grid grid-cols-2 gap-x-12 gap-y-1 mb-4 border-b border-gray-100 pb-4">
-                <div class="space-y-0.5">
+            <div class="grid grid-cols-2 gap-x-12 gap-y-1.5 mb-5 pb-4">
+                <div class="space-y-1">
                     <div class="flex whitespace-nowrap">
-                        <span class="w-24 flex-shrink-0 font-medium">Student Id</span>
-                        <span class="mr-2">:</span>
-                        <span class="truncate">{{ $student->student_id_number }}</span>
+                        <span class="w-24 flex-shrink-0 text-gray-500">Student Id</span>
+                        <span class="mr-2 text-gray-400">:</span>
+                        <span class="truncate font-semibold text-gray-900">{{ $student->student_id_number }}</span>
                     </div>
                     <div class="flex whitespace-nowrap">
-                        <span class="w-24 flex-shrink-0 font-medium">Student Name</span>
-                        <span class="mr-2">:</span>
+                        <span class="w-24 flex-shrink-0 text-gray-500">Student Name</span>
+                        <span class="mr-2 text-gray-400">:</span>
                         <span class="truncate font-semibold text-gray-900">{{ $student->student_name }}</span>
                     </div>
                     <div class="flex whitespace-nowrap">
-                        <span class="w-24 flex-shrink-0 font-medium">Duration</span>
-                        <span class="mr-2">:</span>
-                        <span class="truncate">{{ $duration }}</span>
+                        <span class="w-24 flex-shrink-0 text-gray-500">Duration</span>
+                        <span class="mr-2 text-gray-400">:</span>
+                        <span class="truncate font-semibold text-gray-900">{{ $duration }}</span>
                     </div>
                     <div class="flex whitespace-nowrap">
-                        <span class="w-24 flex-shrink-0 font-medium">Print Date</span>
-                        <span class="mr-2">:</span>
-                        <span class="truncate">{{ \Carbon\Carbon::now()->format('j-F-Y h:i A') }}</span>
+                        <span class="w-24 flex-shrink-0 text-gray-500">Print Date</span>
+                        <span class="mr-2 text-gray-400">:</span>
+                        <span class="truncate font-semibold text-gray-900">{{ \Carbon\Carbon::now()->format('d-F-Y h:i A') }}</span>
                     </div>
                 </div>
-                <div class="space-y-0.5 text-right">
-                    <div class="flex whitespace-nowrap justify-end">
-                        <span class="flex-shrink-0 font-medium">Class</span>
-                        <span class="mx-1.5">:</span>
-                        <span>{{ $student->schoolClass->class_name ?? '—' }}</span>
+                <div class="space-y-1">
+                    <div class="flex whitespace-nowrap">
+                        <span class="w-20 flex-shrink-0 text-gray-500">Class</span>
+                        <span class="mr-2 text-gray-400">:</span>
+                        <span class="font-semibold text-gray-900">{{ $student->schoolClass->class_name ?? '—' }}</span>
                     </div>
-                    <div class="flex whitespace-nowrap justify-end">
-                        <span class="flex-shrink-0 font-medium">Group</span>
-                        <span class="mx-1.5">:</span>
-                        <span>{{ $student->schoolGroup->group_name ?? '—' }}</span>
+                    <div class="flex whitespace-nowrap">
+                        <span class="w-20 flex-shrink-0 text-gray-500">Group</span>
+                        <span class="mr-2 text-gray-400">:</span>
+                        <span class="font-semibold text-gray-900">{{ $student->schoolGroup->group_name ?? '—' }}</span>
                     </div>
-                    <div class="flex whitespace-nowrap justify-end">
-                        <span class="flex-shrink-0 font-medium">Section</span>
-                        <span class="mx-1.5">:</span>
-                        <span>{{ $student->schoolSection->section_name ?? '—' }}</span>
+                    <div class="flex whitespace-nowrap">
+                        <span class="w-20 flex-shrink-0 text-gray-500">Section</span>
+                        <span class="mr-2 text-gray-400">:</span>
+                        <span class="font-semibold text-gray-900">{{ $student->schoolSection->section_name ?? '—' }}</span>
                     </div>
-                    <div class="flex whitespace-nowrap justify-end">
-                        <span class="flex-shrink-0 font-medium">Session</span>
-                        <span class="mx-1.5">:</span>
-                        <span>{{ $student->schoolSession->session_year ?? '—' }}</span>
+                    <div class="flex whitespace-nowrap">
+                        <span class="w-20 flex-shrink-0 text-gray-500">Session</span>
+                        <span class="mr-2 text-gray-400">:</span>
+                        <span class="font-semibold text-gray-900">{{ $student->schoolSession->session_year ?? '—' }}</span>
                     </div>
                 </div>
             </div>
 
             {{-- ══════════ PAYMENT TABLE ══════════ --}}
             <div class="w-full">
-                <table class="w-full text-left border-collapse table-auto">
+                <table class="w-full text-left border-collapse table-auto rounded-lg overflow-hidden">
                     <thead>
-                        <tr class="bg-[#3b82f6] text-white text-[10px] font-semibold">
-                            <th class="py-1.5 px-1.5 whitespace-nowrap w-6 border border-blue-400/30">Sl</th>
-                            <th class="py-1.5 px-1.5 whitespace-nowrap border border-blue-400/30">Pay Date</th>
-                            <th class="py-1.5 px-1.5 whitespace-nowrap border border-blue-400/30">Receive Month</th>
-                            <th class="py-1.5 px-1.5 whitespace-nowrap border border-blue-400/30">Receive Method</th>
-                            <th class="py-1.5 px-1.5 whitespace-nowrap border border-blue-400/30">Receive Status</th>
-                            <th class="py-1.5 px-1.5 whitespace-nowrap border border-blue-400/30">Fee Type</th>
-                            <th class="py-1.5 px-1.5 whitespace-nowrap border border-blue-400/30">Fee Name</th>
-                            <th class="py-1.5 px-1.5 whitespace-nowrap border border-blue-400/30">Payable</th>
-                            <th class="py-1.5 px-1.5 whitespace-nowrap border border-blue-400/30">Paid</th>
-                            <th class="py-1.5 px-1.5 whitespace-nowrap border border-blue-400/30">Due</th>
-                            <th class="py-1.5 px-1.5 whitespace-nowrap pr-2 border border-blue-400/30">Over Due</th>
+                        <tr class="bg-gray-50 text-gray-500 text-[9.5px] font-semibold uppercase tracking-wide">
+                            <th class="py-2 px-2 whitespace-nowrap w-6 border border-gray-200">Sl</th>
+                            <th class="py-2 px-2 whitespace-nowrap border border-gray-200">Pay Date</th>
+                            <th class="py-2 px-2 whitespace-nowrap border border-gray-200">Receive Month</th>
+                            <th class="py-2 px-2 whitespace-nowrap border border-gray-200">Method</th>
+                            <th class="py-2 px-2 whitespace-nowrap border border-gray-200">Status</th>
+                            <th class="py-2 px-2 whitespace-nowrap border border-gray-200">Fee Type</th>
+                            <th class="py-2 px-2 whitespace-nowrap border border-gray-200">Fee Name</th>
+                            <th class="py-2 px-2 whitespace-nowrap border border-gray-200 text-right">Payable</th>
+                            <th class="py-2 px-2 whitespace-nowrap border border-gray-200 text-right">Paid</th>
+                            <th class="py-2 px-2 whitespace-nowrap border border-gray-200 text-right">Due</th>
+                            <th class="py-2 px-2 whitespace-nowrap pr-2 border border-gray-200 text-right">Over Due</th>
                         </tr>
                     </thead>
                     <tbody class="text-gray-700 text-[10.5px]">
-                        @php $shownFees = []; @endphp
+                        @php
+                            $shownFees = [];
+                            $sumPayable = 0;
+                            $sumPaid = 0;
+                            $sumDue = 0;
+                            $sumOverdue = 0;
+                        @endphp
                         @forelse ($payments as $i => $p)
                             @php
                                 $total = (float) ($p->total_payable ?? 0);
@@ -146,22 +161,25 @@
                                 $isOverdue = $due > 0 && $p->pay_date && \Carbon\Carbon::parse($p->pay_date)->startOfDay()->lt(\Carbon\Carbon::today());
                                 $feeKey = $p->fees_type . '||' . $p->fee_name;
                                 $showTotal = !in_array($feeKey, $shownFees);
-                                if ($showTotal) $shownFees[] = $feeKey;
+                                if ($showTotal) { $shownFees[] = $feeKey; $sumPayable += $total; }
+                                $sumPaid += $paid;
+                                $sumDue += $due;
+                                if ($isOverdue) { $sumOverdue += $due; }
                                 $receiveMonth = $p->pay_date ? \Carbon\Carbon::parse($p->pay_date)->format('F') : '-';
                                 [$statusText, $statusColor] = slipStatus($p->pay_date, $total, $paid);
                             @endphp
-                            <tr class="align-top">
-                                <td class="py-1.5 px-1.5 whitespace-nowrap border border-gray-200/60">{{ $i + 1 }}</td>
-                                <td class="py-1.5 px-1.5 whitespace-nowrap border border-gray-200/60">{{ $p->pay_date ? \Carbon\Carbon::parse($p->pay_date)->format('j-F-Y') : '-' }}</td>
-                                <td class="py-1.5 px-1.5 whitespace-nowrap border border-gray-200/60">{{ $receiveMonth }}</td>
-                                <td class="py-1.5 px-1.5 whitespace-nowrap border border-gray-200/60">{{ $p->pay_method ?? '-' }}</td>
-                                <td class="py-1.5 px-1.5 whitespace-nowrap font-medium {{ $statusColor }} border border-gray-200/60">{{ $statusText }}</td>
-                                <td class="py-1.5 px-1.5 whitespace-nowrap border border-gray-200/60">{{ $p->fees_type ?? '-' }}</td>
-                                <td class="py-1.5 px-1.5 whitespace-nowrap border border-gray-200/60">{{ $p->fee_name ?? '-' }}</td>
-                                <td class="py-1.5 px-1.5 whitespace-nowrap border border-gray-200/60">{{ $showTotal ? number_format($total, 2) : '-' }}</td>
-                                <td class="py-1.5 px-1.5 whitespace-nowrap border border-gray-200/60">{{ number_format($paid, 2) }}</td>
-                                <td class="py-1.5 px-1.5 whitespace-nowrap border border-gray-200/60">{{ number_format($due, 2) }}</td>
-                                <td class="py-1.5 px-1.5 whitespace-nowrap text-center border border-gray-200/60">{{ $isOverdue ? 'YES' : '-' }}</td>
+                            <tr class="align-top even:bg-gray-50/40">
+                                <td class="py-2 px-2 whitespace-nowrap border border-gray-100">{{ $i + 1 }}</td>
+                                <td class="py-2 px-2 whitespace-nowrap border border-gray-100">{{ $p->pay_date ? \Carbon\Carbon::parse($p->pay_date)->format('d-M-y') : '-' }}</td>
+                                <td class="py-2 px-2 whitespace-nowrap border border-gray-100 font-semibold text-gray-900">{{ $receiveMonth }}</td>
+                                <td class="py-2 px-2 whitespace-nowrap border border-gray-100">{{ $p->pay_method ?? '-' }}</td>
+                                <td class="py-2 px-2 whitespace-nowrap font-semibold {{ $statusColor }} border border-gray-100">{{ $statusText }}</td>
+                                <td class="py-2 px-2 whitespace-nowrap border border-gray-100">{{ $p->fees_type ?? '-' }}</td>
+                                <td class="py-2 px-2 whitespace-nowrap border border-gray-100">{{ $p->fee_name ?? '-' }}</td>
+                                <td class="py-2 px-2 whitespace-nowrap border border-gray-100 text-right">{{ $showTotal ? number_format($total, 2) : '-' }}</td>
+                                <td class="py-2 px-2 whitespace-nowrap border border-gray-100 text-right">{{ number_format($paid, 2) }}</td>
+                                <td class="py-2 px-2 whitespace-nowrap border border-gray-100 text-right">{{ number_format($due, 2) }}</td>
+                                <td class="py-2 px-2 whitespace-nowrap text-right border border-gray-100">{{ $isOverdue ? number_format($due, 2) : '0.00' }}</td>
                             </tr>
                         @empty
                             <tr>
@@ -171,8 +189,33 @@
                     </tbody>
                 </table>
             </div>
-        </div>
 
+            {{-- ══════════ SUMMARY BOX ══════════ --}}
+            @if(count($payments))
+                <div class="flex justify-end mt-5">
+                    <table class="text-[11px] border-collapse w-64">
+                        <tbody>
+                            <tr>
+                                <td class="py-1.5 px-3 border border-gray-200 text-gray-500 bg-gray-50">Total Payable</td>
+                                <td class="py-1.5 px-3 border border-gray-200 text-right font-bold text-gray-900">{{ number_format($sumPayable, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1.5 px-3 border border-gray-200 text-gray-500 bg-gray-50">Paid</td>
+                                <td class="py-1.5 px-3 border border-gray-200 text-right font-bold text-emerald-600">{{ number_format($sumPaid, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1.5 px-3 border border-gray-200 text-gray-500 bg-gray-50">Due</td>
+                                <td class="py-1.5 px-3 border border-gray-200 text-right font-bold text-red-600">{{ number_format($sumDue, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1.5 px-3 border border-gray-200 text-gray-500 bg-gray-50">Over Due</td>
+                                <td class="py-1.5 px-3 border border-gray-200 text-right font-bold text-red-600">{{ number_format($sumOverdue, 2) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
 
     </div>
 

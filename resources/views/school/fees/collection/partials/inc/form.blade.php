@@ -1,24 +1,31 @@
     {{-- Cascade Select Row --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         <div class="relative">
-            <x-input.control id="feeStudentIdSearch" placeholder=" " class="peer placeholder:text-transparent" />
-            <x-input.floating-label for="feeStudentIdSearch" class="text-[10px]">Student ID</x-input.floating-label>
-            <p id="feeIdNotFound" class="hidden text-[9px] text-red-500 mt-0.5">Not found.</p>
+            <x-input.dropdown-select id="feeClassFilter" placeholder="Select Class"
+                add-button-id="openClassFromCollect"
+                add-button-label="Add class"
+                add-button-target="classModal" />
         </div>
         <div class="relative">
-            <x-input.dropdown-select id="feeClassFilter" placeholder="All" />
+            <x-input.dropdown-select id="feeGroupFilter" placeholder="Select Group"
+                add-button-id="openGroupFromCollect"
+                add-button-label="Add group"
+                add-button-target="groupModal" />
         </div>
         <div class="relative">
-            <x-input.dropdown-select id="feeGroupFilter" placeholder="All" />
+            <x-input.dropdown-select id="feeSectionFilter" placeholder="Select Section"
+                add-button-id="openSectionFromCollect"
+                add-button-label="Add section"
+                add-button-target="sectionModal" />
         </div>
         <div class="relative">
-            <x-input.dropdown-select id="feeSectionFilter" placeholder="All" />
+            <x-input.dropdown-select id="feeSessionFilter" placeholder="Select Session"
+                add-button-id="openSessionFromCollect"
+                add-button-label="Add session"
+                add-button-target="sessionModal" />
         </div>
-        <div class="relative">
-            <x-input.dropdown-select id="feeSessionFilter" placeholder="All" />
-        </div>
-        <div class="relative">
-            <x-input.dropdown-select id="feeStudentFilter" placeholder="— Select Student —" required />
+        <div class="relative sm:col-span-2 lg:col-span-1">
+            <x-input.dropdown-select id="feeStudentFilter" placeholder="Select Student" required />
             <p id="feeStudentError" class="hidden text-[9px] text-red-500 mt-0.5">Please select a student.</p>
         </div>
     </div>
