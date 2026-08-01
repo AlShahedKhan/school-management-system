@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('designation');
             $table->decimal('salary_amount', 12, 2);
             $table->date('salary_start_date');
+            $table->unsignedTinyInteger('pay_date')->default(10);
             $table->enum(
                     'employee_status',
                     EmployeeStatusEnum::values()

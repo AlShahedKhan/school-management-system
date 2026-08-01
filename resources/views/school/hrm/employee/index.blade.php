@@ -13,5 +13,6 @@
         </div>
     </div>
     @include('school.hrm.employee.partials.employee-modal')
+    @include('school.hrm.employee.partials.filter')
     @include('school.hrm.employee.partials.js.employee-js')
 @endsection

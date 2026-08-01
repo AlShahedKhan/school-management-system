@@ -876,6 +876,9 @@ class DashboardController extends Controller
         $search = trim((string) $request->query('search', ''));
         $month = trim((string) $request->query('month', ''));
         $year = trim((string) $request->query('year', ''));
+        $designation = trim((string) $request->query('designation', ''));
+        $employeeId = trim((string) $request->query('employee_id', ''));
+
         $school = School::where('user_id', Auth::id())->first();
         if (! $school) {
             return redirect()->back()->with('error', 'School profile not found.');
@@ -894,6 +897,7 @@ class DashboardController extends Controller
                 },
             ], 'receive_amount')
             ->when($schoolId, fn ($query) => $query->where('school_id', $schoolId))
+            ->when($employeeId !== '', fn ($query) => $query->where('id', $employeeId))
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($employeeQuery) use ($search) {
                     $employeeQuery
@@ -903,20 +907,13 @@ class DashboardController extends Controller
                         ->orWhere('designation', 'like', "%{$search}%");
                 });
             })
-            ->when($month !== '' || $year !== '', function ($query) use ($month, $year) {
-                $query->where(function ($employeeQuery) use ($month, $year) {
-                    $employeeQuery->whereDate('salary_start_date', '<=', now());
-                    if ($month !== '') {
-                        $employeeQuery->whereMonth('salary_start_date', '<=', $month);
-                    }
-                    if ($year !== '') {
-                        $employeeQuery->whereYear('salary_start_date', '<=', $year);
-                    }
-                });
-            })
+            ->when($designation !== '', fn ($query) => $query->where('designation', 'like', "%{$designation}%"))
+            ->when($month !== '', fn ($query) => $query->whereMonth('salary_start_date', $month))
+            ->when($year !== '', fn ($query) => $query->whereYear('salary_start_date', $year))
             ->orderBy('id', 'asc')
             ->paginate(30)
             ->withQueryString();
+
         return view('school.hrm.employee.index', compact('employees'));
     }
 
@@ -925,28 +922,43 @@ class DashboardController extends Controller
         $search = trim((string) $request->query('search', ''));
         $month = trim((string) $request->query('month', ''));
         $year = trim((string) $request->query('year', ''));
+        $type = trim((string) $request->query('type', ''));
+        $employeeId = trim((string) $request->query('employee_id', ''));
+        $teacherId = trim((string) $request->query('teacher_id', ''));
+
         $school = School::where('user_id', Auth::id())->first();
         if (! $school) {
             return redirect()->back()->with('error', 'School profile not found.');
         }
         $schoolId = $school->id;
         $payrolls = EmployeePayroll::query()
-            ->with('employee')
+            ->with(['employee', 'teacher'])
             ->when($schoolId, fn ($query) => $query->where('school_id', $schoolId))
+            ->when($type !== '', fn ($query) => $query->where('type', $type))
+            ->when($employeeId !== '', fn ($query) => $query->where('employee_id', $employeeId))
+            ->when($teacherId !== '', fn ($query) => $query->where('teacher_id', $teacherId))
             ->when($search !== '', function ($query) use ($search) {
-                $query->whereHas('employee', function ($employeeQuery) use ($search) {
-                    $employeeQuery
-                        ->where('employee_no', 'like', "%{$search}%")
-                        ->orWhere('name', 'like', "%{$search}%")
-                        ->orWhere('mobile_number', 'like', "%{$search}%")
-                        ->orWhere('designation', 'like', "%{$search}%");
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('employee', function ($employeeQuery) use ($search) {
+                        $employeeQuery
+                            ->where('employee_no', 'like', "%{$search}%")
+                            ->orWhere('name', 'like', "%{$search}%")
+                            ->orWhere('mobile_number', 'like', "%{$search}%")
+                            ->orWhere('designation', 'like', "%{$search}%");
+                    })->orWhereHas('teacher', function ($teacherQuery) use ($search) {
+                        $teacherQuery
+                            ->where('name', 'like', "%{$search}%")
+                            ->orWhere('mobile', 'like', "%{$search}%")
+                            ->orWhere('designation', 'like', "%{$search}%");
+                    });
                 });
             })
             ->when($month !== '', fn ($query) => $query->where('receive_month', $month))
             ->when($year !== '', fn ($query) => $query->where('receive_year', $year))
-            ->orderBy('id', 'asc')
+            ->orderBy('id', 'desc')
             ->paginate(30)
             ->withQueryString();
+
         return view('school.hrm.payroll.index', compact('payrolls'));
     }
     
