@@ -9,19 +9,19 @@
     class="slip-modal"
     panel-class="custom-scrollbar mx-auto my-auto w-full max-w-[288px] overflow-visible border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)] md:max-w-[400px]"
 >
-    <x-input.dropdown-select id="slipClassFilter" placeholder="All Classes"
+    <x-input.dropdown-select id="slipClassFilter" placeholder="Select Class"
         add-button-id="openClassFromSlip"
         add-button-label="Add class"
         add-button-target="classModal" />
-    <x-input.dropdown-select id="slipGroupFilter" placeholder="All Groups"
+    <x-input.dropdown-select id="slipGroupFilter" placeholder="Select Group"
         add-button-id="openGroupFromSlip"
         add-button-label="Add group"
         add-button-target="groupModal" />
-    <x-input.dropdown-select id="slipSectionFilter" placeholder="All Sections"
+    <x-input.dropdown-select id="slipSectionFilter" placeholder="Select Section"
         add-button-id="openSectionFromSlip"
         add-button-label="Add section"
         add-button-target="sectionModal" />
-    <x-input.dropdown-select id="slipSessionFilter" placeholder="All Sessions"
+    <x-input.dropdown-select id="slipSessionFilter" placeholder="Select Session"
         add-button-id="openSessionFromSlip"
         add-button-label="Add session"
         add-button-target="sessionModal" />

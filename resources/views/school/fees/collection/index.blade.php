@@ -801,10 +801,10 @@
             populateDropdown('feeSectionFilterMenu', [], 'id', 'section_name');
             populateDropdown('feeSessionFilterMenu', [], 'id', 'session_year');
             populateDropdown('feeStudentFilterMenu', [], 'id', 'student_name');
-            setDropdownValue('feeGroupFilter', '', 'All');
-            setDropdownValue('feeSectionFilter', '', 'All');
-            setDropdownValue('feeSessionFilter', '', 'All');
-            setDropdownValue('feeStudentFilter', '', '— Select Student —');
+            setDropdownValue('feeGroupFilter', '', 'Select Group');
+            setDropdownValue('feeSectionFilter', '', 'Select Section');
+            setDropdownValue('feeSessionFilter', '', 'Select Session');
+            setDropdownValue('feeStudentFilter', '', 'Select Student');
         }
 
         function populateStaticMenu(menuId, options) {
@@ -1190,7 +1190,7 @@
                 setDropdownValue('feeGroupFilter', '', 'All');
                 setDropdownValue('feeSectionFilter', '', 'All');
                 setDropdownValue('feeSessionFilter', '', 'All');
-                setDropdownValue('feeStudentFilter', '', '— Select Student —');
+                setDropdownValue('feeStudentFilter', '', 'Select Student');
                 populateDropdown('feeGroupFilterMenu', [], 'id', 'group_name');
                 populateDropdown('feeSectionFilterMenu', [], 'id', 'section_name');
                 populateDropdown('feeSessionFilterMenu', [], 'id', 'session_year');
@@ -1208,7 +1208,7 @@
                 const grp = this.value;
                 setDropdownValue('feeSectionFilter', '', 'All');
                 setDropdownValue('feeSessionFilter', '', 'All');
-                setDropdownValue('feeStudentFilter', '', '— Select Student —');
+                setDropdownValue('feeStudentFilter', '', 'Select Student');
                 populateDropdown('feeSectionFilterMenu', [], 'id', 'section_name');
                 populateDropdown('feeSessionFilterMenu', [], 'id', 'session_year');
                 populateDropdown('feeStudentFilterMenu', [], 'id', 'student_name');
@@ -1225,7 +1225,7 @@
                 const grp = document.getElementById('feeGroupFilter').value;
                 const sec = this.value;
                 setDropdownValue('feeSessionFilter', '', 'All');
-                setDropdownValue('feeStudentFilter', '', '— Select Student —');
+                setDropdownValue('feeStudentFilter', '', 'Select Student');
                 populateDropdown('feeSessionFilterMenu', [], 'id', 'session_year');
                 populateDropdown('feeStudentFilterMenu', [], 'id', 'student_name');
                 document.getElementById('feeStudentInfo').classList.add('hidden');
@@ -1241,7 +1241,7 @@
                 const grp = document.getElementById('feeGroupFilter').value;
                 const sec = document.getElementById('feeSectionFilter').value;
                 const ses = this.value;
-                setDropdownValue('feeStudentFilter', '', '— Select Student —');
+                setDropdownValue('feeStudentFilter', '', 'Select Student');
                 populateDropdown('feeStudentFilterMenu', [], 'id', 'student_name');
                 document.getElementById('feeStudentInfo').classList.add('hidden');
                 document.getElementById('feeMonthGridWrap').classList.add('hidden');
@@ -1265,49 +1265,6 @@
                 if (!id) return;
                 const student = allStudents.find(s => s.id == id);
                 if (student) findStudentByCascade(student);
-            });
-
-            document.getElementById('feeStudentIdSearch').addEventListener('input', function() {
-                const sid = this.value.trim();
-                const errEl = document.getElementById('feeIdNotFound');
-                if (!sid) { errEl.classList.add('hidden'); return; }
-
-                const student = allStudents.find(s => String(s.student_id_number) === sid);
-                if (!student) {
-                    errEl.classList.remove('hidden');
-                    feePopulateCascades();
-                    document.getElementById('feeStudentInfo').classList.add('hidden');
-                    document.getElementById('feeMonthGridWrap').classList.add('hidden');
-                    document.getElementById('feePaymentSection').classList.add('hidden');
-                    return;
-                }
-
-                errEl.classList.add('hidden');
-
-                feePopulateCascades();
-                setDropdownValue('feeClassFilter', student.class_name, student.class_name);
-
-                const groups = [...new Set(allStudents.filter(s => s.class_name === student.class_name).map(s => s.group_name))].filter(Boolean);
-                populateDropdown('feeGroupFilterMenu', groups.map(g => ({ id: g, group_name: g })), 'id', 'group_name');
-                setDropdownValue('feeGroupFilter', student.group_name, student.group_name);
-
-                const sections = [...new Set(allStudents.filter(s => s.class_name === student.class_name && s.group_name === student.group_name).map(s => s.section_name))].filter(Boolean);
-                populateDropdown('feeSectionFilterMenu', sections.map(s => ({ id: s, section_name: s })), 'id', 'section_name');
-                setDropdownValue('feeSectionFilter', student.section_name, student.section_name);
-
-                const sessions = [...new Set(allStudents.filter(s => s.class_name === student.class_name && s.group_name === student.group_name && s.section_name === student.section_name).map(s => s.session_year))].filter(Boolean);
-                populateDropdown('feeSessionFilterMenu', sessions.map(s => ({ id: s, session_year: s })), 'id', 'session_year');
-                setDropdownValue('feeSessionFilter', student.session_year, student.session_year);
-
-                const peers = allStudents.filter(s =>
-                    s.class_name === student.class_name && s.group_name === student.group_name &&
-                    s.section_name === student.section_name && s.session_year === student.session_year
-                ).sort((a, b) => a.student_name.localeCompare(b.student_name));
-                const items = peers.map(s => ({ id: s.id, student_name: s.student_id_number + ' — ' + s.student_name }));
-                populateDropdown('feeStudentFilterMenu', items, 'id', 'student_name');
-                setDropdownValue('feeStudentFilter', student.id, student.student_id_number + ' — ' + student.student_name);
-
-                findStudentByCascade(student);
             });
         });
 
