@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
      <link   href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"rel="stylesheet">
    <link rel="stylesheet"  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
+    <link rel="stylesheet" href="{{ asset('admin/style.css') }}">
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -332,44 +332,22 @@
                     <i class="fas fa-th-large w-4"></i> Dashboard
                 </a>
 
-                <p class="nav-header">Management</p>
+                    <p class="nav-header">Management</p>
 
-                {{-- Configuration Menu --}}
+                    {{-- Configuration Menu --}}
                     <div class="sidebar-group {{ request()->routeIs('admin.configuration.*') ? 'open' : '' }}">
 
                         <div class="sidebar-group-toggle">
-                            <span>
-                                <i class="fas fa-cog w-4"></i>
-                                Configuration
-                            </span>
-
+                            <span> <i class="fas fa-cog w-4"></i> Configuration </span>
                             <i class="fas fa-chevron-right text-xs"></i>
                         </div>
 
-
                         <div class="sidebar-group-content">
 
-                            {{-- Fingerprint Device --}}
-                            <a href="{{ route('admin.configuration.devices') }}"
-                            data-title="Fingerprint Device"
-                            data-link
-                            class="sidebar-subitem {{ request()->routeIs('admin.configuration.devices') ? 'active' : '' }}">
-
-                                <i class="fas fa-microchip"></i>
-
-                                 Device
-                            </a>
-
-
-                            {{-- Teacher --}}
-                            <a href="{{ route('admin.configuration.teachers') }}"
-                            data-title="Teacher Configuration"
-                            data-link
-                            class="sidebar-subitem {{ request()->routeIs('admin.configuration.teachers') ? 'active' : '' }}">
-
-                                <i class="fas fa-chalkboard-teacher"></i>
-
-                                Teacher
+                                {{-- Fingerprint Device --}}
+                            <a href="{{ route('admin.configuration.devices.index') }}" data-title="Fingerprint Device" data-link
+                               class="sidebar-subitem {{ request()->routeIs('admin.configuration.devices.*') ? 'active' : '' }}">
+                                <i class="fas fa-microchip"></i>Device
                             </a>
 
                         </div>
