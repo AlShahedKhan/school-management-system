@@ -493,6 +493,21 @@
                             <div class="adm-colon">:</div>
                             <div class="adm-input-line" id="print_mobile"></div>
                         </div>
+                        <div class="adm-form-row">
+                            <div class="adm-label-text">Date of Birth</div>
+                            <div class="adm-colon">:</div>
+                            <div class="adm-input-line" id="print_dob"></div>
+                        </div>
+                        <div class="adm-form-row">
+                            <div class="adm-label-text">NID / Birth Cert</div>
+                            <div class="adm-colon">:</div>
+                            <div class="adm-input-line" id="print_nid_birth_certificate"></div>
+                        </div>
+                        <div class="adm-form-row">
+                            <div class="adm-label-text">Blood Group</div>
+                            <div class="adm-colon">:</div>
+                            <div class="adm-input-line" id="print_blood_group"></div>
+                        </div>
 
                         {{-- Guardian Row --}}
                         <div class="adm-guardian-row">
