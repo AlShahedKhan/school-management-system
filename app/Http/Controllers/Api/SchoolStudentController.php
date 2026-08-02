@@ -27,7 +27,11 @@ class SchoolStudentController extends Controller
             'schoolClass',
             'schoolSection',
             'schoolGroup',
-            'schoolSession'
+            'schoolSession',
+            'academicRecords.schoolClass',
+            'academicRecords.schoolSection',
+            'academicRecords.schoolGroup',
+            'academicRecords.schoolSession'
         ])->where(function ($q) use ($schoolName, $schoolId) {
             $q->where('school_id', $schoolId)
                 ->orWhere('school', $schoolName);
@@ -63,69 +67,165 @@ class SchoolStudentController extends Controller
                     ->orWhere('admission_id', 'like', "%$search%")
                     ->orWhere('mobile', 'like', "%$search%");
             });
-        })->when($request->filled('class'), fn($q) => $q->where('class_id', $request->class))
-          ->when($request->filled('group'), fn($q) => $q->where('group_id', $request->group))
-          ->when($request->filled('section'), fn($q) => $q->where('section_id', $request->section))
-          ->when($request->filled('session'), fn($q) => $q->where('session_id', $request->session))
-          ->when($request->filled('student_type'), function ($q) use ($request) {
-              $type = strtolower(trim($request->student_type));
-              if ($type === 'promote') {
-                  $promotedStudentIds = StudentPromotion::pluck('student_id')->toArray();
-                  $q->whereIn('id', $promotedStudentIds);
-              } elseif ($type === 're-admission' || $type === 'readmission') {
-                  $readmittedStudentIds = StudentReadmission::pluck('student_id')->toArray();
-                  $q->whereIn('id', $readmittedStudentIds);
-              } elseif ($type === 'admission') {
-                  $promotedStudentIds = StudentPromotion::pluck('student_id')->toArray();
-                  $readmittedStudentIds = StudentReadmission::pluck('student_id')->toArray();
-                  $excludedIds = array_unique(array_merge($promotedStudentIds, $readmittedStudentIds));
-                  $q->whereNotIn('id', $excludedIds)
-                    ->where(function ($subQ) {
-                        $subQ->whereNull('admission_fee')->orWhere('admission_fee', '!=', 'N/A');
-                    });
-              } elseif ($type === 'bulk upload') {
-                  $q->where('admission_fee', 'N/A');
-              }
-          });
-        if ($request->boolean('all')) {
-            $query->where('status', '!=', StudentStatus::Inactive->value);
-            $students = $query->orderBy('id', 'asc')->get();
+        })->when($request->filled('class') || $request->filled('group') || $request->filled('section') || $request->filled('session'), function ($q) use ($request) {
+            $q->where(function ($sq) use ($request) {
+                $sq->where(function ($currQ) use ($request) {
+                    if ($request->filled('class')) {
+                        $currQ->where('class_id', $request->class);
+                    }
+                    if ($request->filled('group')) {
+                        $currQ->where('group_id', $request->group);
+                    }
+                    if ($request->filled('section')) {
+                        $currQ->where('section_id', $request->section);
+                    }
+                    if ($request->filled('session')) {
+                        $currQ->where('session_id', $request->session);
+                    }
+                })->orWhereHas('academicRecords', function ($acadQ) use ($request) {
+                    if ($request->filled('class')) {
+                        $acadQ->where('class_id', $request->class);
+                    }
+                    if ($request->filled('group')) {
+                        $acadQ->where('group_id', $request->group);
+                    }
+                    if ($request->filled('section')) {
+                        $acadQ->where('section_id', $request->section);
+                    }
+                    if ($request->filled('session')) {
+                        $acadQ->where('session_id', $request->session);
+                    }
+                });
+            });
+        })->when($request->filled('student_type'), function ($q) use ($request) {
+            $type = strtolower(trim($request->student_type));
+            $targetSession = $request->input('session');
+
+            if ($type === 'promote') {
+                $promotedQuery = StudentPromotion::query();
+                if ($targetSession) {
+                    $promotedQuery->where('to_session_id', $targetSession);
+                }
+                $promotedStudentIds = $promotedQuery->pluck('student_id')->toArray();
+                $q->whereIn('id', $promotedStudentIds);
+            } elseif ($type === 're-admission' || $type === 'readmission') {
+                $readmitQuery = StudentReadmission::query();
+                if ($targetSession) {
+                    $readmitQuery->where('to_session_id', $targetSession);
+                }
+                $readmittedStudentIds = $readmitQuery->pluck('student_id')->toArray();
+                $q->whereIn('id', $readmittedStudentIds);
+            } elseif ($type === 'admission') {
+                $promotedQuery = StudentPromotion::query();
+                $readmitQuery = StudentReadmission::query();
+                if ($targetSession) {
+                    $promotedQuery->where('to_session_id', $targetSession);
+                    $readmitQuery->where('to_session_id', $targetSession);
+                }
+                $promotedStudentIds = $promotedQuery->pluck('student_id')->toArray();
+                $readmittedStudentIds = $readmitQuery->pluck('student_id')->toArray();
+                $excludedIds = array_unique(array_merge($promotedStudentIds, $readmittedStudentIds));
+                $q->whereNotIn('id', $excludedIds)
+                  ->where(function ($subQ) {
+                      $subQ->whereNull('admission_fee')->orWhere('admission_fee', '!=', 'N/A');
+                  });
+            } elseif ($type === 'bulk upload') {
+                $q->where('admission_fee', 'N/A');
+            }
+        });
+
+        $transformStudent = function ($student) use ($request) {
+            $className = $student->schoolClass->class_name ?? $student->class;
+            $sectionName = $student->schoolSection->section_name ?? $student->section;
+            $groupName = $student->schoolGroup->group_name ?? $student->group;
+            $sessionYear = $student->schoolSession->session_year ?? $student->session;
+            $rollNo = $student->roll_no;
+
+            $matchesCurrentClass = !$request->filled('class') || (string)$student->class_id === (string)$request->class;
+            $matchesCurrentSession = !$request->filled('session') || (string)$student->session_id === (string)$request->session;
+            $matchesCurrentGroup = !$request->filled('group') || (string)$student->group_id === (string)$request->group;
+            $matchesCurrentSection = !$request->filled('section') || (string)$student->section_id === (string)$request->section;
+
+            if (!($matchesCurrentClass && $matchesCurrentSession && $matchesCurrentGroup && $matchesCurrentSection)) {
+                $matchingRecord = $student->academicRecords->first(function ($rec) use ($request) {
+                    $classOk = !$request->filled('class') || (string)$rec->class_id === (string)$request->class;
+                    $sessionOk = !$request->filled('session') || (string)$rec->session_id === (string)$request->session;
+                    $groupOk = !$request->filled('group') || (string)$rec->group_id === (string)$request->group;
+                    $sectionOk = !$request->filled('section') || (string)$rec->section_id === (string)$request->section;
+                    return $classOk && $sessionOk && $groupOk && $sectionOk;
+                });
+
+                if ($matchingRecord) {
+                    $className = $matchingRecord->schoolClass->class_name ?? $className;
+                    $sectionName = $matchingRecord->schoolSection->section_name ?? $sectionName;
+                    $groupName = $matchingRecord->schoolGroup->group_name ?? $groupName;
+                    $sessionYear = $matchingRecord->schoolSession->session_year ?? $matchingRecord->session_year;
+                    $rollNo = $matchingRecord->roll_no ?? $rollNo;
+                }
+            }
+
+            $student->class_name = $className;
+            $student->section_name = $sectionName;
+            $student->group_name = $groupName;
+            $student->session_year = $sessionYear;
+            $student->roll_no = $rollNo;
+            return $student;
+        };
+
+        $applyStudentType = function ($students) use ($request, $transformStudent) {
             $studentIds = $students->pluck('id')->toArray();
-            $promotedIds = StudentPromotion::whereIn('student_id', $studentIds)->pluck('student_id')->toArray();
-            $readmittedIds = StudentReadmission::whereIn('student_id', $studentIds)->pluck('student_id')->toArray();
-            $students->map(function ($student) use ($promotedIds, $readmittedIds) {
-                $student->class_name = $student->schoolClass->class_name ?? $student->class;
-                $student->section_name = $student->schoolSection->section_name ?? $student->section;
-                $student->group_name = $student->schoolGroup->group_name ?? $student->group;
-                $student->session_year = $student->schoolSession->session_year ?? $student->session;
+            $targetSessionId = $request->input('session');
+
+            $promotionsQuery = StudentPromotion::whereIn('student_id', $studentIds);
+            $readmissionsQuery = StudentReadmission::whereIn('student_id', $studentIds);
+
+            if ($targetSessionId) {
+                $promotionsQuery->where('to_session_id', $targetSessionId);
+                $readmissionsQuery->where('to_session_id', $targetSessionId);
+            }
+
+            $promotedMap = $promotionsQuery->get()->groupBy('student_id');
+            $readmittedMap = $readmissionsQuery->get()->groupBy('student_id');
+
+            $students->transform(function ($student) use ($promotedMap, $readmittedMap, $transformStudent, $targetSessionId) {
+                $student = $transformStudent($student);
+
+                $isPromoted = false;
+                if (isset($promotedMap[$student->id])) {
+                    $isPromoted = $targetSessionId
+                        ? true
+                        : $promotedMap[$student->id]->contains('to_session_id', $student->session_id);
+                }
+
+                $isReadmitted = false;
+                if (isset($readmittedMap[$student->id])) {
+                    $isReadmitted = $targetSessionId
+                        ? true
+                        : $readmittedMap[$student->id]->contains('to_session_id', $student->session_id);
+                }
+
                 $student->student_type = match (true) {
-                    in_array($student->id, $promotedIds) => 'Promote',
-                    in_array($student->id, $readmittedIds) => 'Re-Admission',
+                    $isPromoted => 'Promote',
+                    $isReadmitted => 'Re-Admission',
                     $student->admission_fee === 'N/A' => 'Bulk Upload',
                     default => 'Admission',
                 };
                 return $student;
             });
+
+            return $students;
+        };
+
+        if ($request->boolean('all')) {
+            $query->where('status', '!=', StudentStatus::Inactive->value);
+            $students = $query->orderBy('id', 'asc')->get();
+            $students = $applyStudentType($students);
             return response()->json($students);
         }
         $perPage = (int) $request->input('per_page', 30);
         $students = $query->orderBy('id', 'asc')->paginate($perPage);
-        $studentIds = $students->getCollection()->pluck('id')->toArray();
-        $promotedIds = StudentPromotion::whereIn('student_id', $studentIds)->pluck('student_id')->toArray();
-        $readmittedIds = StudentReadmission::whereIn('student_id', $studentIds)->pluck('student_id')->toArray();
-        $students->getCollection()->transform(function ($student) use ($promotedIds, $readmittedIds) {
-            $student->class_name = $student->schoolClass->class_name ?? $student->class;
-            $student->section_name = $student->schoolSection->section_name ?? $student->section;
-            $student->group_name = $student->schoolGroup->group_name ?? $student->group;
-            $student->session_year = $student->schoolSession->session_year ?? $student->session;
-            $student->student_type = match (true) {
-                in_array($student->id, $promotedIds) => 'Promote',
-                in_array($student->id, $readmittedIds) => 'Re-Admission',
-                $student->admission_fee === 'N/A' => 'Bulk Upload',
-                default => 'Admission',
-            };
-            return $student;
-        });
+        $collection = $students->getCollection();
+        $students->setCollection($applyStudentType($collection));
         return response()->json($students);
     }
     public function updateStatus(Request $request, $id)
