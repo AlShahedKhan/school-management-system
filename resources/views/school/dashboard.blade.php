@@ -142,7 +142,6 @@
                 ['label' => 'Promote', 'value' => $promotionsCount, 'icon' => 'fa-level-up-alt', 'icon_style' => 'bg-violet-50 text-violet-600'],
                 ['label' => 'Tuition', 'value' => $totalTuitionFees, 'icon' => 'fa-book', 'icon_style' => 'bg-green-50 text-green-600'],
                 ['label' => 'Food', 'value' => $totalFoodFees, 'icon' => 'fa-utensils', 'icon_style' => 'bg-amber-50 text-amber-600'],
-                ['label' => 'Fine', 'value' => $totalFineFees, 'icon' => 'fa-exclamation-circle', 'icon_style' => 'bg-red-50 text-red-600'],
                 ['label' => 'Session', 'value' => $sessionsCount, 'icon' => 'fa-calendar-alt', 'icon_style' => 'bg-sky-50 text-sky-600'],
                 ['label' => 'Exam', 'value' => $examsCount, 'icon' => 'fa-clipboard-list', 'icon_style' => 'bg-pink-50 text-pink-600'],
                 ['label' => 'Total Fee', 'value' => $totalFees, 'icon' => 'fa-file-invoice-dollar', 'icon_style' => 'bg-orange-50 text-orange-600'],

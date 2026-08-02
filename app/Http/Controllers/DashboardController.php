@@ -1153,7 +1153,8 @@ class DashboardController extends Controller
         $summary = app(\App\Services\AccountService::class)->reportSummary(
             $school->id,
             $request->query('from_date') ?: null,
-            $request->query('to_date') ?: null
+            $request->query('to_date') ?: null,
+            (int) $request->query('per_page', 10)
         );
 
         return view('school.inventory.profit_loss', [
