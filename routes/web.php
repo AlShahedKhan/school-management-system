@@ -310,6 +310,23 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
         ->name('school.student-id-card');
     Route::get('/school/student-attendance', [DashboardController::class, 'underConstruction'])
         ->name('school.student-attendance');
+   
+
+        Route::prefix('school/fingerprint-attendance')
+    ->name('school.fingerprint-attendance.')
+    ->group(function () {
+
+        // Teacher Attendance
+        Route::view('/teacher','school.fingerprint-attendance.teacher')->name('teacher');
+
+
+        // Employee Attendance
+        Route::view( '/employee', 'school.fingerprint-attendance.employee')->name('employee');
+
+       // Student Attendance
+        Route::view('/student','school.fingerprint-attendance.student')->name('student');
+
+    });
 
     // Academic Settings
     Route::get('/school/classes', [DashboardController::class, 'classes'])->name('school.classes');
