@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminDemoRequestController;
 use App\Http\Controllers\Admin\AboutPageSettingController;
 use App\Http\Controllers\Admin\AboutPersonController as AdminAboutPersonController;
+use App\Http\Controllers\Admin\AdminDeviceController;
 use App\Http\Controllers\Admin\BlogController as AdminBlogController;
 use App\Http\Controllers\Admin\DashboardNewsController as AdminDashboardNewsController;
 use App\Http\Controllers\Admin\FeatureController as AdminFeatureController;
@@ -213,18 +214,23 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::resource('admin/showcases', PageShowcaseController::class)
         ->names('admin.showcases');
-        Route::get('/admin/configuration/devices', function () {
-
-         return view('admin.configuration.device.index');
-
-            })->name('admin.configuration.devices');
 
 
-            Route::get('/admin/configuration/teachers', function () {
+    // Device routes
+    Route::prefix('admin/configuration/devices')->name('admin.configuration.devices.')->group(function () {
+        Route::get('/', [AdminDeviceController::class, 'index'])->name('index');
 
-                return view('admin.configuration.teacher.index');
+        Route::get('/{device}/details', [AdminDeviceController::class, 'showPage'])->name('show.page');
 
-            })->name('admin.configuration.teachers');
+        Route::post('/store', [AdminDeviceController::class, 'store'])->name('store');
+        Route::get('/{device}', [AdminDeviceController::class, 'show'])->name('show');
+        Route::put('/{device}', [AdminDeviceController::class, 'update'])->name('update');
+        Route::delete('/{device}', [AdminDeviceController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::get('/admin/configuration/teachers', function () {
+        return view('admin.configuration.teacher.index');
+    })->name('admin.configuration.teachers');
 
     // Admin SMS Settings and Activations
     Route::get('/admin/sms-credentials', [\App\Http\Controllers\Admin\AdminSmsCredentialController::class, 'index'])->name('admin.sms-credentials');
@@ -414,7 +420,7 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
     Route::get('/school/create-holiday', [DashboardController::class, 'createHoliday'])
         ->name('school.create-holiday');
 
-       
+
      // ================= Notification =================
      Route::get('/school/notice', [DashboardController::class, 'notice'])->name('school.notice');
      Route::get('/school/holiday', [DashboardController::class, 'holiday'])->name('school.holiday');
