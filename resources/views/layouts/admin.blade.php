@@ -10,6 +10,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+     <link   href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"rel="stylesheet">
+   <link rel="stylesheet"  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -252,6 +255,56 @@
             color: #94a3b8;
             z-index: 10;
         }
+                        /* ========================================
+                Sidebar Configuration Submenu
+                ======================================== */
+
+                .submenu {
+                    padding-left: 18px;
+                    margin-top: 6px;
+                }
+
+                .submenu .nav-item {
+                    width: 100%;
+                }
+
+                .submenu-link {
+                    display: flex !important;
+                    align-items: center;
+                    width: 100%;
+                    padding: 9px 12px !important;
+                    margin-bottom: 4px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    color: #64748b !important;
+                    text-decoration: none;
+                    transition: all 0.2s ease;
+                }
+
+                .submenu-link i {
+                    width: 20px;
+                    font-size: 15px;
+                }
+
+                .submenu-link:hover {
+                    background: #f1f5f9;
+                    color: #4f46e5 !important;
+                }
+
+                .submenu-link.active {
+                    background: #eef2ff;
+                    color: #4f46e5 !important;
+                    font-weight: 600;
+                }
+
+                /* Configuration arrow animation */
+                .nav-link[aria-expanded="true"] .bi-chevron-down {
+                    transform: rotate(180deg);
+                }
+
+                .bi-chevron-down {
+                    transition: transform 0.2s ease;
+                }
     </style>
 
     @stack('styles')
@@ -280,6 +333,48 @@
                 </a>
 
                 <p class="nav-header">Management</p>
+
+                {{-- Configuration Menu --}}
+                    <div class="sidebar-group {{ request()->routeIs('admin.configuration.*') ? 'open' : '' }}">
+
+                        <div class="sidebar-group-toggle">
+                            <span>
+                                <i class="fas fa-cog w-4"></i>
+                                Configuration
+                            </span>
+
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </div>
+
+
+                        <div class="sidebar-group-content">
+
+                            {{-- Fingerprint Device --}}
+                            <a href="{{ route('admin.configuration.devices') }}"
+                            data-title="Fingerprint Device"
+                            data-link
+                            class="sidebar-subitem {{ request()->routeIs('admin.configuration.devices') ? 'active' : '' }}">
+
+                                <i class="fas fa-microchip"></i>
+
+                                 Device
+                            </a>
+
+
+                            {{-- Teacher --}}
+                            <a href="{{ route('admin.configuration.teachers') }}"
+                            data-title="Teacher Configuration"
+                            data-link
+                            class="sidebar-subitem {{ request()->routeIs('admin.configuration.teachers') ? 'active' : '' }}">
+
+                                <i class="fas fa-chalkboard-teacher"></i>
+
+                                Teacher
+                            </a>
+
+                        </div>
+
+                    </div>
 
                 <div class="sidebar-group">
                     <div class="sidebar-group-toggle">
@@ -800,6 +895,9 @@
             }
         }
     </script>
+    <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+   </script>
 
     @stack('scripts')
 </body>

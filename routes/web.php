@@ -213,6 +213,18 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::resource('admin/showcases', PageShowcaseController::class)
         ->names('admin.showcases');
+        Route::get('/admin/configuration/devices', function () {
+
+         return view('admin.configuration.device.index');
+
+            })->name('admin.configuration.devices');
+
+
+            Route::get('/admin/configuration/teachers', function () {
+
+                return view('admin.configuration.teacher.index');
+
+            })->name('admin.configuration.teachers');
 
     // Admin SMS Settings and Activations
     Route::get('/admin/sms-credentials', [\App\Http\Controllers\Admin\AdminSmsCredentialController::class, 'index'])->name('admin.sms-credentials');
