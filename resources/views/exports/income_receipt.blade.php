@@ -175,7 +175,7 @@
                 <td class="label">Receipt No:</td>
                 <td>#INC-{{ str_pad($income->id, 5, '0', STR_PAD_LEFT) }}</td>
                 <td class="label">Date:</td>
-                <td>{{ date('d M, Y', strtotime($income->date)) }}</td>
+                <td>{{ date('j-F-Y', strtotime($income->date)) }}</td>
             </tr>
             <tr>
                 <td class="label">Received From:</td>
@@ -216,7 +216,7 @@
     </div>
 
     <p style="text-align: center; font-size: 9px; color: #888; margin-top: 10px;">
-        This is a computer-generated receipt. Generated on {{ date('d-m-Y H:i:s') }}
+        This is a computer-generated receipt. Generated on {{ date('j-F-Y H:i:s') }}
     </p>
 
 </body>

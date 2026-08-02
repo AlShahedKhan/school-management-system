@@ -316,7 +316,7 @@
                     const grandDue = Math.max(grandTotal - grandPaid, 0);
 
                     const fmt     = n => Number(n).toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    const fmtDate = d => { const dt = new Date(d); return String(dt.getDate()).padStart(2,'0') + '/' + String(dt.getMonth()+1).padStart(2,'0') + '/' + dt.getFullYear(); };
+                    const fmtDate = d => { const dt = new Date(d); const months = ['January','February','March','April','May','June','July','August','September','October','November','December']; return dt.getDate() + '-' + months[dt.getMonth()] + '-' + dt.getFullYear(); };
                     const now     = new Date();
                     const genDate = fmtDate(now);
                     const today   = new Date(); today.setHours(0,0,0,0);
@@ -801,10 +801,10 @@
             populateDropdown('feeSectionFilterMenu', [], 'id', 'section_name');
             populateDropdown('feeSessionFilterMenu', [], 'id', 'session_year');
             populateDropdown('feeStudentFilterMenu', [], 'id', 'student_name');
-            setDropdownValue('feeGroupFilter', '', 'All');
-            setDropdownValue('feeSectionFilter', '', 'All');
-            setDropdownValue('feeSessionFilter', '', 'All');
-            setDropdownValue('feeStudentFilter', '', '— Select Student —');
+            setDropdownValue('feeGroupFilter', '', 'Select Group');
+            setDropdownValue('feeSectionFilter', '', 'Select Section');
+            setDropdownValue('feeSessionFilter', '', 'Select Session');
+            setDropdownValue('feeStudentFilter', '', 'Select Student');
         }
 
         function populateStaticMenu(menuId, options) {
@@ -969,10 +969,17 @@
                         (!activeFilters.student || studentId == activeFilters.student);
                 });
 
+                if (filteredData.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="15" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No collections found.</td></tr>';
+                    document.getElementById('paginationInfo').innerText = '0 of 0';
+                    document.getElementById('paginationControls').innerHTML = '';
+                    return;
+                }
+
                 filteredData.forEach((p, i) => {
                     const payDate = new Date(p.pay_date);
-                    const formattedDate =
-                        `${payDate.getDate().toString().padStart(2,'0')}/${(payDate.getMonth()+1).toString().padStart(2,'0')}/${payDate.getFullYear()}`;
+                    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                    const formattedDate = payDate.getDate() + '-' + months[payDate.getMonth()] + '-' + payDate.getFullYear();
 
                     const className = p.student?.school_class?.class_name || 'N/A';
                     const groupName = p.student?.school_group?.group_name || 'N/A';
@@ -987,19 +994,19 @@
                     tbody.innerHTML += `
                     <tr>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${res.data.from + i}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${formattedDate}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${p.pay_method}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${p.student?.student_id_number || '---'}</div></td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${p.student?.student_name || 'Unknown'}</div></td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${className}</div></td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${groupName}</div></td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${sectionName}</div></td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${sessionYear}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${p.student?.student_id_number || '---'}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${p.student?.student_name || 'Unknown'}</div></td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${p.fees_type}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${p.fee_name || '---'}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${p.total_payable}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${p.type_amount}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${dueDisplay}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${p.pay_method}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${formattedDate}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
                             <div class="flex h-6 w-full items-center justify-center -space-x-[3px]">
                                 <button type="button" title="Edit" onclick="editPayment(${p.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600"><i class="far fa-edit text-xs"></i></button>
@@ -1183,7 +1190,7 @@
                 setDropdownValue('feeGroupFilter', '', 'All');
                 setDropdownValue('feeSectionFilter', '', 'All');
                 setDropdownValue('feeSessionFilter', '', 'All');
-                setDropdownValue('feeStudentFilter', '', '— Select Student —');
+                setDropdownValue('feeStudentFilter', '', 'Select Student');
                 populateDropdown('feeGroupFilterMenu', [], 'id', 'group_name');
                 populateDropdown('feeSectionFilterMenu', [], 'id', 'section_name');
                 populateDropdown('feeSessionFilterMenu', [], 'id', 'session_year');
@@ -1201,7 +1208,7 @@
                 const grp = this.value;
                 setDropdownValue('feeSectionFilter', '', 'All');
                 setDropdownValue('feeSessionFilter', '', 'All');
-                setDropdownValue('feeStudentFilter', '', '— Select Student —');
+                setDropdownValue('feeStudentFilter', '', 'Select Student');
                 populateDropdown('feeSectionFilterMenu', [], 'id', 'section_name');
                 populateDropdown('feeSessionFilterMenu', [], 'id', 'session_year');
                 populateDropdown('feeStudentFilterMenu', [], 'id', 'student_name');
@@ -1218,7 +1225,7 @@
                 const grp = document.getElementById('feeGroupFilter').value;
                 const sec = this.value;
                 setDropdownValue('feeSessionFilter', '', 'All');
-                setDropdownValue('feeStudentFilter', '', '— Select Student —');
+                setDropdownValue('feeStudentFilter', '', 'Select Student');
                 populateDropdown('feeSessionFilterMenu', [], 'id', 'session_year');
                 populateDropdown('feeStudentFilterMenu', [], 'id', 'student_name');
                 document.getElementById('feeStudentInfo').classList.add('hidden');
@@ -1234,7 +1241,7 @@
                 const grp = document.getElementById('feeGroupFilter').value;
                 const sec = document.getElementById('feeSectionFilter').value;
                 const ses = this.value;
-                setDropdownValue('feeStudentFilter', '', '— Select Student —');
+                setDropdownValue('feeStudentFilter', '', 'Select Student');
                 populateDropdown('feeStudentFilterMenu', [], 'id', 'student_name');
                 document.getElementById('feeStudentInfo').classList.add('hidden');
                 document.getElementById('feeMonthGridWrap').classList.add('hidden');
@@ -1258,49 +1265,6 @@
                 if (!id) return;
                 const student = allStudents.find(s => s.id == id);
                 if (student) findStudentByCascade(student);
-            });
-
-            document.getElementById('feeStudentIdSearch').addEventListener('input', function() {
-                const sid = this.value.trim();
-                const errEl = document.getElementById('feeIdNotFound');
-                if (!sid) { errEl.classList.add('hidden'); return; }
-
-                const student = allStudents.find(s => String(s.student_id_number) === sid);
-                if (!student) {
-                    errEl.classList.remove('hidden');
-                    feePopulateCascades();
-                    document.getElementById('feeStudentInfo').classList.add('hidden');
-                    document.getElementById('feeMonthGridWrap').classList.add('hidden');
-                    document.getElementById('feePaymentSection').classList.add('hidden');
-                    return;
-                }
-
-                errEl.classList.add('hidden');
-
-                feePopulateCascades();
-                setDropdownValue('feeClassFilter', student.class_name, student.class_name);
-
-                const groups = [...new Set(allStudents.filter(s => s.class_name === student.class_name).map(s => s.group_name))].filter(Boolean);
-                populateDropdown('feeGroupFilterMenu', groups.map(g => ({ id: g, group_name: g })), 'id', 'group_name');
-                setDropdownValue('feeGroupFilter', student.group_name, student.group_name);
-
-                const sections = [...new Set(allStudents.filter(s => s.class_name === student.class_name && s.group_name === student.group_name).map(s => s.section_name))].filter(Boolean);
-                populateDropdown('feeSectionFilterMenu', sections.map(s => ({ id: s, section_name: s })), 'id', 'section_name');
-                setDropdownValue('feeSectionFilter', student.section_name, student.section_name);
-
-                const sessions = [...new Set(allStudents.filter(s => s.class_name === student.class_name && s.group_name === student.group_name && s.section_name === student.section_name).map(s => s.session_year))].filter(Boolean);
-                populateDropdown('feeSessionFilterMenu', sessions.map(s => ({ id: s, session_year: s })), 'id', 'session_year');
-                setDropdownValue('feeSessionFilter', student.session_year, student.session_year);
-
-                const peers = allStudents.filter(s =>
-                    s.class_name === student.class_name && s.group_name === student.group_name &&
-                    s.section_name === student.section_name && s.session_year === student.session_year
-                ).sort((a, b) => a.student_name.localeCompare(b.student_name));
-                const items = peers.map(s => ({ id: s.id, student_name: s.student_id_number + ' — ' + s.student_name }));
-                populateDropdown('feeStudentFilterMenu', items, 'id', 'student_name');
-                setDropdownValue('feeStudentFilter', student.id, student.student_id_number + ' — ' + student.student_name);
-
-                findStudentByCascade(student);
             });
         });
 
@@ -1328,8 +1292,6 @@
                 document.getElementById('slipFromDate').value = '';
                 document.getElementById('slipToDate').value = '';
                 document.getElementById('slipStudentError').classList.add('hidden');
-                document.getElementById('slipIdNotFound').classList.add('hidden');
-                document.getElementById('slipStudentIdSearch').value = '';
                 slipModal.classList.remove('hidden');
             });
 
@@ -1423,62 +1385,6 @@
                 if (this.value) {
                     document.getElementById('slipStudentError').classList.add('hidden');
                 }
-            });
-
-            document.getElementById('slipStudentIdSearch').addEventListener('input', function() {
-                const sid = this.value.trim();
-                const errEl = document.getElementById('slipIdNotFound');
-                if (!sid) { errEl.classList.add('hidden'); return; }
-                const student = allStudents.find(s => String(s.student_id_number) === sid);
-                if (!student) {
-                    errEl.classList.remove('hidden');
-                    populateDropdown('slipClassFilterMenu', allClasses.map(c => ({ id: c, class_name: c })), 'id', 'class_name');
-                    resetSlipCascades();
-                    document.getElementById('slipFromDate').value = '';
-                    document.getElementById('slipToDate').value = '';
-                    return;
-                }
-                errEl.classList.add('hidden');
-
-                populateDropdown('slipClassFilterMenu', allClasses.map(c => ({ id: c, class_name: c })), 'id', 'class_name');
-                setDropdownValue('slipClassFilter', student.class_name, student.class_name);
-
-                const groups = [...new Set(allStudents.filter(s => s.class_name === student.class_name).map(s => s.group_name))].filter(Boolean);
-                populateDropdown('slipGroupFilterMenu', groups.map(g => ({ id: g, group_name: g })), 'id', 'group_name');
-                setDropdownValue('slipGroupFilter', student.group_name, student.group_name);
-
-                const sections = [...new Set(allStudents.filter(s => s.class_name === student.class_name && s.group_name === student.group_name).map(s => s.section_name))].filter(Boolean);
-                populateDropdown('slipSectionFilterMenu', sections.map(s => ({ id: s, section_name: s })), 'id', 'section_name');
-                setDropdownValue('slipSectionFilter', student.section_name, student.section_name);
-
-                const sessions = [...new Set(allStudents.filter(s =>
-                    s.class_name   === student.class_name &&
-                    s.group_name   === student.group_name &&
-                    s.section_name === student.section_name
-                ).map(s => s.session_year))].filter(Boolean);
-                populateDropdown('slipSessionFilterMenu', sessions.map(s => ({ id: s, session_year: s })), 'id', 'session_year');
-                setDropdownValue('slipSessionFilter', student.session_year, student.session_year);
-
-                (async () => {
-                    const sessionId = student.session || student?.school_session?.id || student?.session_id;
-                    if (sessionId) {
-                        try {
-                            const res = await axios.get(`/api/school-sessions/${sessionId}/dates`);
-                            if (res.data.start_date) document.getElementById('slipFromDate').value = res.data.start_date;
-                            if (res.data.end_date) document.getElementById('slipToDate').value = res.data.end_date;
-                        } catch (e) { console.warn('Could not fetch session dates', e); }
-                    }
-                })();
-
-                const peers = allStudents.filter(s =>
-                    s.class_name   === student.class_name &&
-                    s.group_name   === student.group_name &&
-                    s.section_name === student.section_name &&
-                    s.session_year === student.session_year
-                ).sort((a, b) => a.student_name.localeCompare(b.student_name));
-                const items = peers.map(s => ({ id: s.id, student_name: s.student_id_number + ' — ' + s.student_name }));
-                populateDropdown('slipStudentFilterMenu', items, 'id', 'student_name');
-                setDropdownValue('slipStudentFilter', student.id, student.student_id_number + ' — ' + student.student_name);
             });
 
             document.getElementById('slipShowPage').addEventListener('click', function() {

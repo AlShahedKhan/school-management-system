@@ -236,7 +236,7 @@ class SchoolIncomeController extends Controller
         $pdf = Pdf::loadView('exports.income_list_pdf', [
             'incomes' => $incomes,
             'school' => $school,
-            'date' => now()->format('d/m/Y')
+            'date' => now()->format('j-F-Y')
         ]);
 
         return $pdf->download("income_report_" . now()->format('Ymd') . ".pdf");

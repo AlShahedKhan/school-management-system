@@ -41,8 +41,8 @@
                                     <p class="mt-1 max-w-xl text-sm font-semibold text-gray-900">{{ $news->message }}</p>
                                 </td>
                                 <td class="px-4 py-4 text-xs text-gray-500">
-                                    <p>Start: {{ $news->starts_at?->format('d M Y, h:i A') ?? 'Any time' }}</p>
-                                    <p class="mt-1">End: {{ $news->ends_at?->format('d M Y, h:i A') ?? 'No end date' }}</p>
+                                    <p>Start: {{ $news->starts_at?->format('j-F-Y, h:i A') ?? 'Any time' }}</p>
+                                    <p class="mt-1">End: {{ $news->ends_at?->format('j-F-Y, h:i A') ?? 'No end date' }}</p>
                                 </td>
                                 <td class="px-4 py-4">
                                     <p class="text-sm font-medium text-gray-700">{{ $news->sort_order }}</p>

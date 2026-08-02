@@ -20,26 +20,10 @@
 
       function formatDate(dateStr) {
           if (!dateStr) return '';
-          const date = new Date(dateStr);
-          if (isNaN(date.getTime())) return dateStr;
-          const monthNames = [
-              'January',
-              'February',
-              'March',
-              'April',
-              'May',
-              'June',
-              'July',
-              'August',
-              'September',
-              'October',
-              'November',
-              'December'
-          ];
-          const day = String(date.getDate()).padStart(2, '0');
-          const month = monthNames[date.getMonth()];
-          const year = String(date.getFullYear()).slice(-2);
-          return `${day}-${month}-${year}`;
+          const d = new Date(dateStr);
+          if (isNaN(d.getTime())) return dateStr;
+          const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+          return d.getDate() + '-' + months[d.getMonth()] + '-' + d.getFullYear();
       }
 
       function togglePass(id, trigger) {

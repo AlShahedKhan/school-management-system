@@ -15,16 +15,16 @@ class SchoolFeeDiscount extends Model
         'group_id',
         'section_id',
         'session_id',
+        'discount_scope',
         'student_id',
         'fee_type_id',
         'fee_name',
         'discount_type',
         'discount_value',
+        'minimum_grade',
         'before_discount',
         'discount_amount',
         'after_discount',
-        'start_date',
-        'end_date',
     ];
 
     public function schoolClass() {

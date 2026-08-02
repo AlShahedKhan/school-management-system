@@ -14,8 +14,20 @@
             <x-input.search id="feeSearch" placeholder="Search..." class="w-full lg:block lg:w-72" />
             <x-button.secondary id="btnRestoreDesktop" class="hidden lg:inline-flex">Restore</x-button.secondary>
         </div>
-        <div class="grid w-full grid-cols-2 gap-2 lg:flex lg:w-auto">
+        <div class="grid w-full grid-cols-3 gap-2 lg:flex lg:w-auto">
             <x-button.secondary id="btnFilter">Filter</x-button.secondary>
+            <x-dropdown button-id="btnStatusFilter" menu-id="headerStatusFilterMenu" label="Status">
+                <x-dropdown.item id="statusFilterAll">All Status</x-dropdown.item>
+                <x-dropdown.item id="statusFilterPaid">Paid</x-dropdown.item>
+                <x-dropdown.item id="statusFilterPartialPaid">Partial Paid</x-dropdown.item>
+                <x-dropdown.item id="statusFilterDue">Due</x-dropdown.item>
+                <x-dropdown.item id="statusFilterDuePartial">Due Partial</x-dropdown.item>
+                <x-dropdown.item id="statusFilterOverDue">Over Due</x-dropdown.item>
+                <x-dropdown.item id="statusFilterOverDuePartial">Over Due Partial</x-dropdown.item>
+                <x-dropdown.item id="statusFilterAdvance">Advance</x-dropdown.item>
+                <x-dropdown.item id="statusFilterAdvancePartial">Advance Partial</x-dropdown.item>
+                <x-dropdown.item id="statusFilterPending">Pending</x-dropdown.item>
+            </x-dropdown>
             <x-dropdown button-id="btnExport" menu-id="exportDropdown" label="Export">
                 <x-dropdown.item id="exportPdf">PDF</x-dropdown.item>
                 <x-dropdown.item id="exportExcel">Excel</x-dropdown.item>

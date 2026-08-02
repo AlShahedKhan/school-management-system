@@ -68,4 +68,9 @@ class Teacher extends Model
     {
         return $this->morphMany(Attendance::class, 'attendable');
     }
+
+    public function payrolls()
+    {
+        return $this->hasMany(EmployeePayroll::class, 'teacher_id');
+    }
 }

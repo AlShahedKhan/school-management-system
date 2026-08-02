@@ -354,11 +354,6 @@
                 <i class="hgi hgi-stroke hgi-rounded hgi-wallet-02"></i>
                 Collection
             </a>
-            <a href="{{ route('school.expense') }}" data-title="Expense" data-link
-                class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-money-send-01"></i>
-                Expense
-            </a>
         </div>
     </div>
     {{-- <!-- ================= Inventory ================= -->
@@ -414,20 +409,20 @@
         </div>
 
         <div class="sidebar-group-content">
-            <a href="{{ route('school.hrm-employee-coming-soon') }}" data-title="Employee" data-link
+            <a href="{{ route('school.employee') }}" data-title="Employee" data-link
                 class="sidebar-subitem">
                 <i class="hgi hgi-stroke hgi-rounded hgi-briefcase-01"></i>
                 Employee
             </a>
 
-            <a href="{{ route('school.hrm-payroll-coming-soon') }}" data-title="Payroll" data-link
+            <a href="{{ route('school.payroll') }}" data-title="Payroll" data-link
                 class="sidebar-subitem">
                 <i class="hgi hgi-stroke hgi-rounded hgi-dollar-circle"></i>
                 Payroll
             </a>
 
-            <a href="{{ route('school.hrm-expense-coming-soon') }}" data-title="expense" data-link class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-dollar-circle"></i>
+            <a href="{{ route('school.expense') }}" data-title="Expense" data-link class="sidebar-subitem">
+                <i class="hgi hgi-stroke hgi-rounded hgi-money-send-01"></i>
                 Expense
             </a>
         </div>

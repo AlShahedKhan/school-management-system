@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\SchoolExamGradeController;
 use App\Http\Controllers\Api\SchoolExamMarkSubmitController;
 use App\Http\Controllers\Api\SchoolExamNameController;
 use App\Http\Controllers\Api\SchoolExamResultFindController;
+use App\Http\Controllers\Api\SchoolMeritListController;
 use App\Http\Controllers\Api\SchoolExamRoutineController;
 use App\Http\Controllers\Api\SchoolExamScheduleController;
 use App\Http\Controllers\Api\SchoolExamSeatPlanController;
@@ -226,6 +227,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Finance (Expense)
     Route::apiResource('expenses', ExpenseController::class);
 
+    // HRM (Employee & Payroll)
+    Route::apiResource('employees', EmployeeController::class);
+    Route::get('payrolls/staff-details', [\App\Http\Controllers\Api\EmployeePayrollController::class, 'staffDetails']);
+    Route::apiResource('payrolls', \App\Http\Controllers\Api\EmployeePayrollController::class);
+
     //School Membership
     Route::get('/memberships', [SchoolMembershipController::class, 'index']);
     Route::post('/memberships', [SchoolMembershipController::class, 'store']);
@@ -367,6 +373,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Exam Result Find Routes
     Route::post('/school-find-results', [SchoolExamResultFindController::class, 'findResult']);
+    Route::post('/school-merit-list', [SchoolMeritListController::class, 'generate']);
+    Route::post('/school-merit-list/export-pdf', [SchoolMeritListController::class, 'exportPdf']);
     Route::delete('/school-results/{id}', [SchoolExamResultFindController::class, 'destroy']);
 });
 // Modified on 2026-07-09: Made public to prevent guest session cookie overwrite during Axios calls

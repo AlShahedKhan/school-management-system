@@ -95,7 +95,7 @@ class SchoolFeeTypeController extends Controller
         $item->display_detail = $item->fee_name ?? $item->fee_type_name;
 
         if ($item->pay_date) {
-            $item->pay_date_formatted = \Carbon\Carbon::parse($item->pay_date)->format('d-M-Y');
+            $item->pay_date_formatted = \Carbon\Carbon::parse($item->pay_date)->format('j-F-Y');
         } else {
             $item->pay_date_formatted = '---';
         }

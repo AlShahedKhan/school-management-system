@@ -73,7 +73,7 @@
                         <span
                             class="flex h-full items-center truncate px-2 pr-6 text-xs text-slate-500"
                             data-dashboard-start-date-display
-                        >{{ $filterStart ? $filterStart->format('d M y') : 'Select' }}</span>
+                        >{{ $filterStart ? $filterStart->format('j-F-Y') : 'Select' }}</span>
                         <input
                             type="date"
                             class="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
@@ -96,7 +96,7 @@
                         <span
                             class="flex h-full items-center truncate px-2 pr-6 text-xs text-slate-500"
                             data-dashboard-end-date-display
-                        >{{ $filterEnd ? $filterEnd->format('d M y') : 'Select' }}</span>
+                        >{{ $filterEnd ? $filterEnd->format('j-F-Y') : 'Select' }}</span>
                         <input
                             type="date"
                             class="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"

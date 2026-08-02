@@ -1,4 +1,11 @@
 <script>
+function resetDropdownLabel(id) {
+    const label = document.querySelector('#' + id + 'Button [data-dropdown-select-label]');
+    if (label) label.textContent = label.dataset.placeholder || 'Select...';
+    const input = document.getElementById(id);
+    if (input) input.value = '';
+}
+
 function openDiscountModal() {
     document.getElementById('edit_id').value = '';
     document.getElementById('discountForm').reset();
@@ -6,6 +13,7 @@ function openDiscountModal() {
     document.getElementById('discountValue').value = '0';
     document.getElementById('afterDiscount').value = '';
     document.getElementById('beforeDiscount').value = '';
+    document.getElementById('discount_amount').value = '';
 
     loadDiscountClassSelect();
     setTimeout(() => {
@@ -15,10 +23,16 @@ function openDiscountModal() {
             setTimeout(() => {
                 loadDiscountSessionSelect();
                 setTimeout(() => {
-                    setDropdownValue('discountStudent', '', 'Select Student');
-                    setDropdownValue('discountFeeType', '', 'Select Fee Type');
-                    document.getElementById('discountFeeName').value = '';
+                    resetDropdownLabel('discountScope');
+                    resetDropdownLabel('discountStudentScope');
+                    resetDiscountStudentPicker();
+                    setDiscountScope('session');
+                    resetDiscountFeeType();
+                    populateDropdown('discountMinGradeMenu', [], 'id', 'grade_name');
+                    setDropdownValue('discountMinGrade', '', 'Select Minimum Qualifying Grade');
                     document.getElementById('beforeDiscount').value = '';
+                    document.getElementById('afterDiscount').value = '';
+                    document.getElementById('discount_amount').value = '';
                     runCalc();
                     document.getElementById('discountModal').classList.remove('hidden');
                 }, 100);

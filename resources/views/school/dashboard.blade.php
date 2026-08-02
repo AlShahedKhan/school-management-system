@@ -327,15 +327,11 @@
             };
 
             const formatDate = (value) => {
-                if (!value) {
-                    return 'Select';
-                }
-
-                return new Intl.DateTimeFormat('en-GB', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: '2-digit',
-                }).format(new Date(`${value}T00:00:00`));
+                if (!value) return 'Select';
+                const d = new Date(`${value}T00:00:00`);
+                if (isNaN(d.getTime())) return value;
+                const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                return d.getDate() + '-' + months[d.getMonth()] + '-' + d.getFullYear();
             };
 
             startDate.addEventListener('change', () => {

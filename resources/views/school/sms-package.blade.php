@@ -343,10 +343,9 @@
                                 (item.status === 'rejected' ? 'text-red-600 border-red-200 bg-red-50' :
                                     'text-yellow-600 border-yellow-200 bg-yellow-50');
 
-                            const activationDate = item.purchase_date ? new Date(item.purchase_date)
-                                .toLocaleDateString('en-GB') : '--';
-                            const expiryDate = item.expiry_date ? new Date(item.expiry_date)
-                                .toLocaleDateString('en-GB') : 'N/A';
+                            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                            const activationDate = item.purchase_date ? (d => { const dt = new Date(d); return dt.getDate() + '-' + months[dt.getMonth()] + '-' + dt.getFullYear(); })(item.purchase_date) : '--';
+                            const expiryDate = item.expiry_date ? (d => { const dt = new Date(d); return dt.getDate() + '-' + months[dt.getMonth()] + '-' + dt.getFullYear(); })(item.expiry_date) : 'N/A';
 
                             return `
                         <tr class="border-b border-gray-50">

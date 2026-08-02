@@ -999,11 +999,8 @@
             const formatDate = (dateStr) => {
                 if (!dateStr) return '';
                 const d = new Date(dateStr);
-                const day = d.getDate();
-                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-                const month = months[d.getMonth()];
-                const year = d.getFullYear().toString().substring(2);
-                return `${day}-${month}-${year}`;
+                const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                return d.getDate() + '-' + months[d.getMonth()] + '-' + d.getFullYear();
             };
             const formatTime = (timeStr) => {
                 if (!timeStr) return '-';

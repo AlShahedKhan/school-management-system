@@ -325,7 +325,7 @@ class DashboardController extends Controller
                         'pending' => 'bg-amber-100 text-amber-700',
                         default => 'bg-green-100 text-green-700',
                     },
-                    'date' => $admissionDate?->format('d M Y') ?? '',
+                    'date' => $admissionDate?->format('j-F-Y') ?? '',
                     'datetime' => $admissionDate?->toDateString() ?? '',
                 ];
             })
@@ -361,7 +361,7 @@ class DashboardController extends Controller
                     'from_class' => $promotion->fromClass?->class_name ?: '-',
                     'to_class' => $promotion->toClass?->class_name ?: '-',
                     'section' => $promotion->toSection?->section_name ?: '-',
-                    'date' => $promotionDate?->format('d M Y') ?? '',
+                    'date' => $promotionDate?->format('j-F-Y') ?? '',
                     'datetime' => $promotionDate?->toDateString() ?? '',
                 ];
             })
@@ -395,7 +395,7 @@ class DashboardController extends Controller
                     'fee' => $feeName,
                     'method' => $payment->pay_method ?: '-',
                     'amount' => number_format((float) $payment->type_amount, 2),
-                    'date' => $paymentDate?->format('d M Y') ?? '',
+                    'date' => $paymentDate?->format('j-F-Y') ?? '',
                     'datetime' => $paymentDate?->toDateString() ?? '',
                 ];
             })
@@ -427,7 +427,7 @@ class DashboardController extends Controller
                     'student_id' => $fee->student?->student_id_number ?: ($fee->student?->admission_id ?: '-'),
                     'fee' => $feeName,
                     'amount' => number_format((float) $fee->due_amount, 2),
-                    'date' => $dueDate?->format('d M Y') ?? '',
+                    'date' => $dueDate?->format('j-F-Y') ?? '',
                     'datetime' => $dueDate?->toDateString() ?? '',
                 ];
             })
@@ -461,7 +461,7 @@ class DashboardController extends Controller
                     'student_id' => $fee->student?->student_id_number ?: ($fee->student?->admission_id ?: '-'),
                     'fee' => $feeName,
                     'amount' => number_format((float) $fee->due_amount, 2),
-                    'date' => $dueDate?->format('d M Y') ?? '',
+                    'date' => $dueDate?->format('j-F-Y') ?? '',
                     'datetime' => $dueDate?->toDateString() ?? '',
                 ];
             })
@@ -486,7 +486,7 @@ class DashboardController extends Controller
                     'designation' => $payroll->designation ?: '-',
                     'period' => trim($payroll->month.' '.$payroll->year) ?: '-',
                     'days' => (int) $payroll->leave,
-                    'date' => $recordedAt?->format('d M Y') ?? '',
+                    'date' => $recordedAt?->format('j-F-Y') ?? '',
                     'datetime' => $recordedAt?->toDateString() ?? '',
                 ];
             })
@@ -511,8 +511,8 @@ class DashboardController extends Controller
                     'type' => $holiday->type,
                     'reason' => $holiday->reason,
                     'target' => $target ?: '-',
-                    'start_date' => $startDate->format('d M Y'),
-                    'end_date' => $endDate->format('d M Y'),
+                    'start_date' => $startDate->format('j-F-Y'),
+                    'end_date' => $endDate->format('j-F-Y'),
                     'days' => (int) $holiday->total_days,
                     'datetime' => $startDate->toDateString(),
                 ];
@@ -876,6 +876,9 @@ class DashboardController extends Controller
         $search = trim((string) $request->query('search', ''));
         $month = trim((string) $request->query('month', ''));
         $year = trim((string) $request->query('year', ''));
+        $designation = trim((string) $request->query('designation', ''));
+        $employeeId = trim((string) $request->query('employee_id', ''));
+
         $school = School::where('user_id', Auth::id())->first();
         if (! $school) {
             return redirect()->back()->with('error', 'School profile not found.');
@@ -894,6 +897,7 @@ class DashboardController extends Controller
                 },
             ], 'receive_amount')
             ->when($schoolId, fn ($query) => $query->where('school_id', $schoolId))
+            ->when($employeeId !== '', fn ($query) => $query->where('id', $employeeId))
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($employeeQuery) use ($search) {
                     $employeeQuery
@@ -903,20 +907,13 @@ class DashboardController extends Controller
                         ->orWhere('designation', 'like', "%{$search}%");
                 });
             })
-            ->when($month !== '' || $year !== '', function ($query) use ($month, $year) {
-                $query->where(function ($employeeQuery) use ($month, $year) {
-                    $employeeQuery->whereDate('salary_start_date', '<=', now());
-                    if ($month !== '') {
-                        $employeeQuery->whereMonth('salary_start_date', '<=', $month);
-                    }
-                    if ($year !== '') {
-                        $employeeQuery->whereYear('salary_start_date', '<=', $year);
-                    }
-                });
-            })
+            ->when($designation !== '', fn ($query) => $query->where('designation', 'like', "%{$designation}%"))
+            ->when($month !== '', fn ($query) => $query->whereMonth('salary_start_date', $month))
+            ->when($year !== '', fn ($query) => $query->whereYear('salary_start_date', $year))
             ->orderBy('id', 'asc')
             ->paginate(30)
             ->withQueryString();
+
         return view('school.hrm.employee.index', compact('employees'));
     }
 
@@ -925,28 +922,43 @@ class DashboardController extends Controller
         $search = trim((string) $request->query('search', ''));
         $month = trim((string) $request->query('month', ''));
         $year = trim((string) $request->query('year', ''));
+        $type = trim((string) $request->query('type', ''));
+        $employeeId = trim((string) $request->query('employee_id', ''));
+        $teacherId = trim((string) $request->query('teacher_id', ''));
+
         $school = School::where('user_id', Auth::id())->first();
         if (! $school) {
             return redirect()->back()->with('error', 'School profile not found.');
         }
         $schoolId = $school->id;
         $payrolls = EmployeePayroll::query()
-            ->with('employee')
+            ->with(['employee', 'teacher'])
             ->when($schoolId, fn ($query) => $query->where('school_id', $schoolId))
+            ->when($type !== '', fn ($query) => $query->where('type', $type))
+            ->when($employeeId !== '', fn ($query) => $query->where('employee_id', $employeeId))
+            ->when($teacherId !== '', fn ($query) => $query->where('teacher_id', $teacherId))
             ->when($search !== '', function ($query) use ($search) {
-                $query->whereHas('employee', function ($employeeQuery) use ($search) {
-                    $employeeQuery
-                        ->where('employee_no', 'like', "%{$search}%")
-                        ->orWhere('name', 'like', "%{$search}%")
-                        ->orWhere('mobile_number', 'like', "%{$search}%")
-                        ->orWhere('designation', 'like', "%{$search}%");
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('employee', function ($employeeQuery) use ($search) {
+                        $employeeQuery
+                            ->where('employee_no', 'like', "%{$search}%")
+                            ->orWhere('name', 'like', "%{$search}%")
+                            ->orWhere('mobile_number', 'like', "%{$search}%")
+                            ->orWhere('designation', 'like', "%{$search}%");
+                    })->orWhereHas('teacher', function ($teacherQuery) use ($search) {
+                        $teacherQuery
+                            ->where('name', 'like', "%{$search}%")
+                            ->orWhere('mobile', 'like', "%{$search}%")
+                            ->orWhere('designation', 'like', "%{$search}%");
+                    });
                 });
             })
             ->when($month !== '', fn ($query) => $query->where('receive_month', $month))
             ->when($year !== '', fn ($query) => $query->where('receive_year', $year))
-            ->orderBy('id', 'asc')
+            ->orderBy('id', 'desc')
             ->paginate(30)
             ->withQueryString();
+
         return view('school.hrm.payroll.index', compact('payrolls'));
     }
     
@@ -1040,7 +1052,7 @@ class DashboardController extends Controller
             }
         }
 
-        return view('school.payment_slip', compact(
+        return view('school.fees.collection.payment_slip', compact(
             'school',
             'student',
             'payments',
@@ -1102,6 +1114,11 @@ class DashboardController extends Controller
     public function resultFind()
     {
         return view('school.exam.result_find');
+    }
+
+    public function meritList()
+    {
+        return view('school.exam.merit_list');
     }
 
     // ================= Inventory =================

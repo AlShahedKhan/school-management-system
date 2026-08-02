@@ -233,12 +233,21 @@
         const searchInput = document.getElementById('employeeSearch') || document.getElementById('searchDesktop') || document.querySelector('input[name="search"]');
         const searchVal = searchInput ? searchInput.value : '';
 
-        axios.get('{{ url('/api/employees') }}', {
-            params: {
-                page: page,
-                search: searchVal
-            }
-        }).then(res => {
+        const monthInput = document.getElementById('employeeFilterMonth');
+        const yearInput = document.getElementById('employeeFilterYear');
+        const designationInput = document.getElementById('employeeFilterDesignation');
+        const employeeInput = document.getElementById('employeeFilterEmployee');
+
+        const params = {
+            page: page,
+            search: searchVal
+        };
+        if (employeeInput && employeeInput.value) params.employee_id = employeeInput.value;
+        if (monthInput && monthInput.value) params.month = monthInput.value;
+        if (yearInput && yearInput.value) params.year = yearInput.value;
+        if (designationInput && designationInput.value) params.designation = designationInput.value;
+
+        axios.get('{{ url('/api/employees') }}', { params: params }).then(res => {
             if (!tbody) {
                 window.location.reload();
                 return;
@@ -308,6 +317,50 @@
         searchEl.addEventListener('input', function() {
             clearTimeout(searchTimer);
             searchTimer = setTimeout(() => fetchEmployees(1), 400);
+        });
+    }
+
+    // Filter Modal Handling
+    const btnFilter = document.getElementById('btnFilter');
+    const filterModal = document.getElementById('filterModal');
+    const closeFilterModal = document.getElementById('closeFilterModal');
+    const applyFilter = document.getElementById('applyFilter');
+    const resetFilter = document.getElementById('resetFilter');
+    const employeeFilterForm = document.getElementById('employeeFilterForm');
+
+    if (btnFilter && filterModal) {
+        btnFilter.addEventListener('click', () => {
+            filterModal.classList.remove('hidden');
+        });
+    }
+
+    if (closeFilterModal && filterModal) {
+        closeFilterModal.addEventListener('click', () => {
+            filterModal.classList.add('hidden');
+        });
+    }
+
+    if (applyFilter && employeeFilterForm) {
+        applyFilter.addEventListener('click', () => {
+            employeeFilterForm.submit();
+        });
+    }
+
+    if (resetFilter) {
+        resetFilter.addEventListener('click', () => {
+            window.location.href = '{{ route('school.employee') }}';
+        });
+    }
+
+    // Auto populate designation when employee is selected in filter modal
+    const employeeFilterEmployeeEl = document.getElementById('employeeFilterEmployee');
+    const employeeFilterDesignationEl = document.getElementById('employeeFilterDesignation');
+    if (employeeFilterEmployeeEl && employeeFilterDesignationEl) {
+        employeeFilterEmployeeEl.addEventListener('change', function() {
+            const selectedOpt = document.querySelector('#employeeFilterEmployeeMenu [data-dropdown-select-option][aria-selected="true"]');
+            if (selectedOpt && selectedOpt.dataset.optionDesignation !== undefined) {
+                employeeFilterDesignationEl.value = selectedOpt.dataset.optionDesignation;
+            }
         });
     }
 </script>

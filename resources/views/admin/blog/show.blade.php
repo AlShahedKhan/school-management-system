@@ -124,15 +124,15 @@
                         </div>
                         <div>
                             <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-500">Published At</p>
-                            <p class="mt-2 font-medium text-gray-900">{{ $blog->published_at?->format('d M Y h:i A') ?? 'Not published' }}</p>
+                            <p class="mt-2 font-medium text-gray-900">{{ $blog->published_at?->format('j-F-Y h:i A') ?? 'Not published' }}</p>
                         </div>
                         <div>
                             <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-500">Created At</p>
-                            <p class="mt-2 font-medium text-gray-900">{{ $blog->created_at?->format('d M Y h:i A') }}</p>
+                            <p class="mt-2 font-medium text-gray-900">{{ $blog->created_at?->format('j-F-Y h:i A') }}</p>
                         </div>
                         <div>
                             <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-500">Updated At</p>
-                            <p class="mt-2 font-medium text-gray-900">{{ $blog->updated_at?->format('d M Y h:i A') }}</p>
+                            <p class="mt-2 font-medium text-gray-900">{{ $blog->updated_at?->format('j-F-Y h:i A') }}</p>
                         </div>
                     </div>
                 </div>

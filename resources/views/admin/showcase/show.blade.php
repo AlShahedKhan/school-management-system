@@ -100,7 +100,7 @@
                             </p>
 
                             <p class="mt-2 font-medium text-gray-900">
-                                {{ $showcase->created_at?->format('d M Y h:i A') }}
+                                {{ $showcase->created_at?->format('j-F-Y h:i A') }}
                             </p>
                         </div>
 
@@ -111,7 +111,7 @@
                             </p>
 
                             <p class="mt-2 font-medium text-gray-900">
-                                {{ $showcase->updated_at?->format('d M Y h:i A') }}
+                                {{ $showcase->updated_at?->format('j-F-Y h:i A') }}
                             </p>
                         </div>
                     </div>
