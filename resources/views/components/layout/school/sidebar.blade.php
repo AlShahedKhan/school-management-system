@@ -413,6 +413,11 @@
                 <i class="hgi hgi-stroke hgi-rounded hgi-wallet-02"></i>
                 Collection
             </a>
+            <a href="{{ route('school.profit-loss') }}" data-title="Profit Loss" data-link
+                class="sidebar-subitem">
+                <i class="hgi hgi-stroke hgi-rounded hgi-chart-line-data-01"></i>
+                Profit & Loss
+            </a>
         </div>
     </div>
     {{-- <!-- ================= Inventory ================= -->

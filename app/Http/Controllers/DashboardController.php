@@ -1148,9 +1148,23 @@ class DashboardController extends Controller
         return view('school.inventory.due_paid');
     }
 
-    public function profitLoss()
+    public function profitLoss(Request $request)
     {
-        return view('school.inventory.profit_loss');
+        $school = School::where('user_id', Auth::id())->first();
+        if (! $school) {
+            return redirect()->back()->with('error', 'School profile not found.');
+        }
+
+        $summary = app(\App\Services\AccountService::class)->reportSummary(
+            $school->id,
+            $request->query('from_date') ?: null,
+            $request->query('to_date') ?: null
+        );
+
+        return view('school.inventory.profit_loss', [
+            'summary' => $summary,
+            'school'  => $school,
+        ]);
     }
 
     public function addPayment()
