@@ -61,6 +61,7 @@
                         :empty-colspan="4"
                         empty-message="No cash in entries"
                         min-width="560px"
+                        :show-footer="true"
                         frame-class="school-data-table-frame border-0 bg-white p-0 shadow-none"
                     >
                         <x-slot:columns>
@@ -81,7 +82,7 @@
 
                         @forelse ($summary['cash_in_by_module'] as $row)
                             <x-table.row unstyled class="hover:bg-gray-50">
-                                <x-table.td unstyled class="h-8 border border-gray-300 px-3 text-left">{{ $loop->iteration }}</x-table.td>
+                                <x-table.td unstyled class="h-8 border border-gray-300 px-3 text-left">{{ ($summary['cash_in_by_module']->firstItem() ?? 1) + $loop->index }}</x-table.td>
                                 <x-table.td unstyled class="h-8 border border-gray-300 px-3 text-left">{{ $row->source_module }}</x-table.td>
                                 <x-table.td unstyled class="h-8 border border-gray-300 px-3 text-left">{{ $row->entries }}</x-table.td>
                                 <x-table.td unstyled class="h-8 border border-gray-300 px-3 text-left">{{ number_format((float) $row->total, 2) }}</x-table.td>
@@ -91,6 +92,12 @@
                                 <x-table.td unstyled colspan="4" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No cash in entries</x-table.td>
                             </x-table.row>
                         @endforelse
+
+                        @if ($summary['cash_in_by_module'] instanceof \Illuminate\Pagination\AbstractPaginator)
+                            <x-slot:footer>
+                                <x-school.pagination :paginator="$summary['cash_in_by_module']" />
+                            </x-slot:footer>
+                        @endif
                     </x-school.data-table>
                 </section>
 
@@ -106,6 +113,7 @@
                         :empty-colspan="4"
                         empty-message="No cash out entries"
                         min-width="560px"
+                        :show-footer="true"
                         frame-class="school-data-table-frame border-0 bg-white p-0 shadow-none"
                     >
                         <x-slot:columns>
@@ -126,7 +134,7 @@
 
                         @forelse ($summary['cash_out_by_module'] as $row)
                             <x-table.row unstyled class="hover:bg-gray-50">
-                                <x-table.td unstyled class="h-8 border border-gray-300 px-3 text-left">{{ $loop->iteration }}</x-table.td>
+                                <x-table.td unstyled class="h-8 border border-gray-300 px-3 text-left">{{ ($summary['cash_out_by_module']->firstItem() ?? 1) + $loop->index }}</x-table.td>
                                 <x-table.td unstyled class="h-8 border border-gray-300 px-3 text-left">{{ $row->source_module }}</x-table.td>
                                 <x-table.td unstyled class="h-8 border border-gray-300 px-3 text-left">{{ $row->entries }}</x-table.td>
                                 <x-table.td unstyled class="h-8 border border-gray-300 px-3 text-left">{{ number_format((float) $row->total, 2) }}</x-table.td>
@@ -136,6 +144,12 @@
                                 <x-table.td unstyled colspan="4" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No cash out entries</x-table.td>
                             </x-table.row>
                         @endforelse
+
+                        @if ($summary['cash_out_by_module'] instanceof \Illuminate\Pagination\AbstractPaginator)
+                            <x-slot:footer>
+                                <x-school.pagination :paginator="$summary['cash_out_by_module']" />
+                            </x-slot:footer>
+                        @endif
                     </x-school.data-table>
                 </section>
             </div>

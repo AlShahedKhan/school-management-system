@@ -113,7 +113,7 @@ class AccountService
      * Profit & Loss. All figures come from system_cash_balances and
      * account_transactions — the single source of truth.
      */
-    public function reportSummary(int $schoolId, ?string $fromDate = null, ?string $toDate = null): array
+    public function reportSummary(int $schoolId, ?string $fromDate = null, ?string $toDate = null, ?int $modulePerPage = null): array
     {
         $balance = $this->balances->forSchool($schoolId);
 
@@ -125,19 +125,25 @@ class AccountService
         $cashIn  = (float) (clone $transactions)->where('transaction_type', self::TYPE_CASH_IN)->sum('amount');
         $cashOut = (float) (clone $transactions)->where('transaction_type', self::TYPE_CASH_OUT)->sum('amount');
 
-        $cashInByModule = (clone $transactions)
+        $cashInByModuleQuery = (clone $transactions)
             ->where('transaction_type', self::TYPE_CASH_IN)
             ->selectRaw('source_module, COUNT(*) as entries, SUM(amount) as total')
             ->groupBy('source_module')
-            ->orderByDesc('total')
-            ->get();
+            ->orderByDesc('total');
 
-        $cashOutByModule = (clone $transactions)
+        $cashOutByModuleQuery = (clone $transactions)
             ->where('transaction_type', self::TYPE_CASH_OUT)
             ->selectRaw('source_module, COUNT(*) as entries, SUM(amount) as total')
             ->groupBy('source_module')
-            ->orderByDesc('total')
-            ->get();
+            ->orderByDesc('total');
+
+        $cashInByModule = $modulePerPage !== null
+            ? $cashInByModuleQuery->paginate($modulePerPage, ['*'], 'page_cash_in')->withQueryString()
+            : $cashInByModuleQuery->get();
+
+        $cashOutByModule = $modulePerPage !== null
+            ? $cashOutByModuleQuery->paginate($modulePerPage, ['*'], 'page_cash_out')->withQueryString()
+            : $cashOutByModuleQuery->get();
 
         return [
             'opening_balance'   => $balance ? (float) $balance->opening_balance : 0.0,
