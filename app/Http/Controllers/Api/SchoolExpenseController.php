@@ -9,6 +9,7 @@ use App\Models\School;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\AccountService;
 use App\Http\Requests\StoreSchoolExpenseRequest;
 
 class SchoolExpenseController extends Controller
@@ -61,6 +62,18 @@ class SchoolExpenseController extends Controller
                 'amount'         => $request->amount,
                 'balance'        => 0,
             ]);
+
+            // Cash Out from the internal System Cash Balance (immutable ledger)
+            app(AccountService::class)->cashOut(
+                (int) $school->id,
+                (float) $expense->amount,
+                'Expense',
+                $expense->id,
+                [
+                    'remarks' => $expense->expense_reason . ' | Invoice #' . $expense->invoice_no,
+                ]
+            );
+
             DB::commit();
             return response()->json([
                 'message' => 'Expense recorded successfully.',
@@ -96,7 +109,19 @@ class SchoolExpenseController extends Controller
     {
         $school = $this->getSchool($request->user());
         $expense = SchoolExpense::where('school_id', $school->id)->findOrFail($id);
-        $expense->delete();
+
+        DB::transaction(function () use ($school, $expense) {
+            $amount = (float) $expense->amount;
+            $expenseId = $expense->id;
+            $expense->delete();
+
+            if ($amount > 0) {
+                app(AccountService::class)->cashIn((int) $school->id, $amount, 'Expense Adjustment', $expenseId, [
+                    'remarks' => 'Reversal of deleted expense #' . $expenseId,
+                ]);
+            }
+        });
+
         return response()->json(['message' => 'Expense deleted']);
     }
 
