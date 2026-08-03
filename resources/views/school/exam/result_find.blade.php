@@ -1,471 +1,476 @@
 @extends('layouts.school')
 
 @section('content')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
 
-<meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-<style>
-    .main-view-container {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        width: 100%;
-        padding: .75rem;
-        box-sizing: border-box;
-    }
-
-    .search-tab {
-        cursor: pointer;
-        padding: 8px 12px;
-        font-size: 10px;
-        font-weight: 600;
-        text-transform: capitalize;
-        border: 1px solid #e2e8f0;
-        color: #94a3b8;
-        transition: all 0.2s;
-        background: #fff;
-    }
-
-    .search-tab.active {
-        color: #2563eb;
-        border-color: #2563eb;
-        background: #eff6ff;
-    }
-
-    /* ================= Transcript Specific Styling ================= */
-    .a4-report {
-        width: 210mm;
-        min-height: 280mm;
-        padding: 12mm;
-        margin: 10px auto;
-        background: white;
-        border: 1px solid #d1d5db;
-        color: #000;
-        box-sizing: border-box;
-    }
-
-    .info-label {
-        font-weight: 700;
-        width: 110px;
-        display: inline-block;
-        font-size: 10px;
-        text-transform: capitalize;
-    }
-
-    .info-value {
-        font-weight: 400;
-        font-size: 10px;
-        text-transform: capitalize;
-    }
-
-    .equal-height-container {
-        display: flex;
-        align-items: stretch;
-        gap: 1rem;
-    }
-
-    @page {
-        size: A4;
-        margin: 0;
-    }
-
-    @media print {
-        body * {
-            visibility: hidden;
-        }
-
-        /* Removes browser headers and footers (date, title, URL) */
-        @page {
-            margin: 0;
-        }
-
-        body {
-            margin: 1.6cm;
-        }
-
-        #resultContainer,
-        #resultContainer * {
-            visibility: visible;
-        }
-
-        #resultContainer {
-            position: absolute;
-            left: 0;
-            top: 0;
+    <style>
+        .main-view-container {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
             width: 100%;
-            padding: 0;
-            margin: 0;
-            border: none;
+            padding: .75rem;
+            box-sizing: border-box;
         }
 
+        .search-tab {
+            cursor: pointer;
+            padding: 8px 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: capitalize;
+            border: 1px solid #e2e8f0;
+            color: #94a3b8;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        .search-tab.active {
+            color: #2563eb;
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        /* ================= Transcript Specific Styling ================= */
         .a4-report {
-            border: none;
-            box-shadow: none;
+            width: 210mm;
+            min-height: 280mm;
+            padding: 12mm;
+            margin: 10px auto;
+            background: white;
+            border: 1px solid #d1d5db;
+            color: #000;
+            box-sizing: border-box;
+        }
+
+        .info-label {
+            font-weight: 700;
+            width: 110px;
+            display: inline-block;
+            font-size: 10px;
+            text-transform: capitalize;
+        }
+
+        .info-value {
+            font-weight: 400;
+            font-size: 10px;
+            text-transform: capitalize;
+        }
+
+        .equal-height-container {
+            display: flex;
+            align-items: stretch;
+            gap: 1rem;
+        }
+
+        @page {
+            size: A4;
             margin: 0;
-            width: 100%;
-            min-height: auto;
         }
 
-        .no-print {
-            display: none !important;
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            /* Removes browser headers and footers (date, title, URL) */
+            @page {
+                margin: 0;
+            }
+
+            body {
+                margin: 1.6cm;
+            }
+
+            #resultContainer,
+            #resultContainer * {
+                visibility: visible;
+            }
+
+            #resultContainer {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 0;
+                margin: 0;
+                border: none;
+            }
+
+            .a4-report {
+                border: none;
+                box-shadow: none;
+                margin: 0;
+                width: 100%;
+                min-height: auto;
+            }
+
+            .no-print {
+                display: none !important;
+            }
         }
-    }
-</style>
 
-<div class="main-view-container">
-    <div class="max-w-full mx-auto w-full">
-        <x-school.list-header
-            title="Academic Result Management"
-            breadcrumb-current="Search & Transcripts"
-            actions-class="grid w-full grid-cols-2 gap-2 lg:flex lg:w-auto"
-            keep-title
-        >
-            <x-slot:actions>
-                <x-dropdown button-id="btnResultExport" menu-id="resultExportDropdown" label="Export" align="full">
-                    <x-dropdown.item onclick="exportResultPdf()">PDF</x-dropdown.item>
-                    <x-dropdown.item onclick="exportToExcel()">Excel</x-dropdown.item>
-                    <x-dropdown.item onclick="printResult()">Print</x-dropdown.item>
-                </x-dropdown>
+        .grade-table th,
+        .grade-table td {
+            height: 10px !important;
+            padding: 0 6px !important;
+            line-height: 20px;
+            vertical-align: middle;
+        }
+    </style>
 
-                <x-button.primary type="button" onclick="document.getElementById('searchModal')?.classList.remove('hidden')" class="w-full">
-                    Find Result
-                </x-button.primary>
-            </x-slot:actions>
-        </x-school.list-header>
+    <div class="main-view-container">
+        <div class="max-w-full mx-auto w-full">
+            <x-school.list-header title="Academic Result Management" breadcrumb-current="Search & Transcripts"
+                actions-class="grid w-full grid-cols-2 gap-2 lg:flex lg:w-auto" keep-title>
+                <x-slot:actions>
+                    <x-dropdown button-id="btnResultExport" menu-id="resultExportDropdown" label="Export" align="full">
+                        <x-dropdown.item onclick="exportResultPdf()">PDF</x-dropdown.item>
+                        <x-dropdown.item onclick="exportToExcel()">Excel</x-dropdown.item>
+                        <x-dropdown.item onclick="printResult()">Print</x-dropdown.item>
+                    </x-dropdown>
 
-        <div id="resultContainer" class="w-full overflow-x-auto">
-            <x-school.data-table
-                :empty="false"
-                :empty-colspan="1"
-                empty-message="Click Find Result to generate academic reports."
-                :show-footer="false"
-                min-width="720px"
-            >
-                <x-slot:columns>
-                    <colgroup>
-                        <col style="width:100%;">
-                    </colgroup>
-                </x-slot:columns>
+                    <x-button.primary type="button"
+                        onclick="document.getElementById('searchModal')?.classList.remove('hidden')" class="w-full">
+                        Find Result
+                    </x-button.primary>
+                </x-slot:actions>
+            </x-school.list-header>
 
-                <x-slot:head>
-                    <x-table.th unstyled class="h-12 border border-gray-300 px-3 text-center font-normal text-gray-500">
-                        Click "Find Result" to generate academic reports or tabular sheets
-                    </x-table.th>
-                </x-slot:head>
-            </x-school.data-table>
+            <div id="resultContainer" class="w-full overflow-x-auto">
+                <x-school.data-table :empty="false" :empty-colspan="1"
+                    empty-message="Click Find Result to generate academic reports." :show-footer="false" min-width="720px">
+                    <x-slot:columns>
+                        <colgroup>
+                            <col style="width:100%;">
+                        </colgroup>
+                    </x-slot:columns>
+
+                    <x-slot:head>
+                        <x-table.th unstyled class="h-12 border border-gray-300 px-3 text-center font-normal text-gray-500">
+                            Click "Find Result" to generate academic reports or tabular sheets
+                        </x-table.th>
+                    </x-slot:head>
+                </x-school.data-table>
+            </div>
         </div>
     </div>
-</div>
 
-{{-- Universal Search Modal --}}
-<x-modal.form
-    id="searchModal"
-    form-id="resultSearchForm"
-    title="Find Result"
-    close-button-id="closeResultSearchModal"
-    panel-class="custom-scrollbar mx-auto my-auto w-full max-w-[480px] overflow-y-auto border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)]"
-    panel-style="border-radius:4px; max-height:min(520px, calc(100dvh - 2.5rem));"
-    title-class="teacher-register-modal-title m-0 text-center font-semibold leading-tight text-slate-800"
-    fields-class="block"
-    onsubmit="event.preventDefault(); executeFind();"
->
-    <div id="single-fields" class="grid grid-cols-1 gap-3">
-        <div class="relative">
-            <x-input.control id="s_admit_no" class="peer placeholder:text-transparent" placeholder=" " />
-            <x-input.floating-label for="s_admit_no">Admit Card Number</x-input.floating-label>
+    {{-- Universal Search Modal --}}
+    <x-modal.form id="searchModal" form-id="resultSearchForm" title="Find Result" close-button-id="closeResultSearchModal"
+        panel-class="custom-scrollbar mx-auto my-auto w-full max-w-[480px] overflow-y-auto border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)]"
+        panel-style="border-radius:4px; max-height:min(520px, calc(100dvh - 2.5rem));"
+        title-class="teacher-register-modal-title m-0 text-center font-semibold leading-tight text-slate-800"
+        fields-class="block" onsubmit="event.preventDefault(); executeFind();">
+        <div id="single-fields" class="grid grid-cols-1 gap-3">
+            <div class="relative">
+                <x-input.control id="s_admit_no" class="peer placeholder:text-transparent" placeholder=" " />
+                <x-input.floating-label for="s_admit_no">Admit Card Number</x-input.floating-label>
+            </div>
         </div>
-    </div>
 
-    <x-slot:footer>
-        <div class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
-            <x-button.secondary type="button" onclick="document.getElementById('searchModal')?.classList.add('hidden')" class="w-full">Cancel</x-button.secondary>
-            <x-button.primary type="submit" class="w-full">Generate</x-button.primary>
-        </div>
-    </x-slot:footer>
-</x-modal.form>
+        <x-slot:footer>
+            <div class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
+                <x-button.secondary type="button" onclick="document.getElementById('searchModal')?.classList.add('hidden')"
+                    class="w-full">Cancel</x-button.secondary>
+                <x-button.primary type="submit" class="w-full">Generate</x-button.primary>
+            </div>
+        </x-slot:footer>
+    </x-modal.form>
 
-@push('scripts')
-<script>
-    window.openSearchModal = function () {
-        document.getElementById('searchModal')?.classList.remove('hidden');
-    };
-    window.closeSearchModal = function () {
-        document.getElementById('searchModal')?.classList.add('hidden');
-    };
+    @push('scripts')
+        <script>
+            window.openSearchModal = function() {
+                document.getElementById('searchModal')?.classList.remove('hidden');
+            };
+            window.closeSearchModal = function() {
+                document.getElementById('searchModal')?.classList.add('hidden');
+            };
 
-    let currentResultData = null;
-    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-    axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
-    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-    axios.defaults.withCredentials = true;
+            let currentResultData = null;
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            axios.defaults.withCredentials = true;
 
-    axios.interceptors.response.use(response => {
-        sessionStorage.removeItem('result-find-csrf-refresh');
-        return response;
-    }, error => {
-        if (error.response?.status === 419 && !sessionStorage.getItem('result-find-csrf-refresh')) {
-            sessionStorage.setItem('result-find-csrf-refresh', '1');
-            window.location.reload();
-        }
+            axios.interceptors.response.use(response => {
+                sessionStorage.removeItem('result-find-csrf-refresh');
+                return response;
+            }, error => {
+                if (error.response?.status === 419 && !sessionStorage.getItem('result-find-csrf-refresh')) {
+                    sessionStorage.setItem('result-find-csrf-refresh', '1');
+                    window.location.reload();
+                }
 
-        return Promise.reject(error);
-    });
-
-    function toTitleCase(str) {
-        if (!str) return 'N/A';
-        return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    }
-
-    function escapeResultHtml(value) {
-        return String(value ?? '').replace(/[&<>"']/g, character => ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        })[character]);
-    }
-
-    function formatResultNumber(value) {
-        const number = Number(value);
-        if (!Number.isFinite(number)) return '0';
-        return Number.isInteger(number)
-            ? String(number)
-            : number.toFixed(2).replace(/\.?0+$/, '');
-    }
-
-    function formatResultComponent(value) {
-        const number = Number(value);
-        return Number.isFinite(number) && number !== 0 ? formatResultNumber(number) : '-';
-    }
-
-    function resultDropdownParts(id) {
-        const input = document.getElementById(id);
-        const root = input?.closest('[data-dropdown-select]');
-
-        return {
-            input,
-            root,
-            label: root?.querySelector('[data-dropdown-select-label]'),
-            menu: root?.querySelector('[data-dropdown-select-menu]'),
-        };
-    }
-
-    function selectedResultOption(id) {
-        const { input, menu } = resultDropdownParts(id);
-
-        return Array.from(menu?.querySelectorAll('[data-dropdown-select-option]') || [])
-            .find(option => String(option.dataset.value || '') === String(input?.value || ''));
-    }
-
-    function selectedResultId(id) {
-        return selectedResultOption(id)?.dataset.optionId || '';
-    }
-
-    function setResultDropdownValue(id, value = '', label = null, shouldNotify = false) {
-        const parts = resultDropdownParts(id);
-        if (!parts.input) return;
-
-        const selected = Array.from(parts.menu?.querySelectorAll('[data-dropdown-select-option]') || [])
-            .find(option => String(option.dataset.value || '') === String(value || ''));
-        const placeholder = parts.label?.dataset.placeholder || 'Select...';
-
-        parts.input.value = value || '';
-        if (parts.label) {
-            parts.label.textContent = label ?? selected?.textContent.trim() ?? placeholder;
-        }
-
-        parts.menu?.querySelectorAll('[data-dropdown-select-option]').forEach(option => {
-            const isSelected = option === selected;
-            option.classList.toggle('bg-slate-100', isSelected);
-            option.classList.toggle('text-slate-900', isSelected);
-            option.classList.toggle('text-slate-800', !isSelected);
-            option.setAttribute('aria-selected', String(isSelected));
-        });
-
-        if (shouldNotify) {
-            parts.input.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-    }
-
-    function fillResultOptions(id, data, valueField, labelField = valueField) {
-        const parts = resultDropdownParts(id);
-        if (!parts.menu) return;
-
-        parts.menu.innerHTML = '';
-
-        (data || []).forEach(item => {
-            const value = item[valueField] ?? '';
-            const label = item[labelField] ?? value;
-            const option = document.createElement('button');
-            option.type = 'button';
-            option.className =
-                'dropdown-select-option m-0 flex min-h-6 w-full items-center border-0 bg-white px-3 py-1 text-left text-[11px] font-normal leading-tight text-slate-800 transition-colors hover:bg-slate-100';
-            option.dataset.value = String(value);
-            option.dataset.optionId = String(item.id ?? '');
-            option.setAttribute('data-dropdown-select-option', '');
-            option.setAttribute('role', 'option');
-            option.setAttribute('aria-selected', 'false');
-            option.textContent = label;
-
-            option.addEventListener('click', () => {
-                setResultDropdownValue(id, option.dataset.value, option.textContent.trim());
-                parts.menu.classList.add('hidden');
-                parts.root?.querySelector('[data-dropdown-select-button]')?.setAttribute('aria-expanded', 'false');
-                parts.input.dispatchEvent(new Event('change', { bubbles: true }));
+                return Promise.reject(error);
             });
 
-            parts.menu.appendChild(option);
-        });
+            function toTitleCase(str) {
+                if (!str) return 'N/A';
+                return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            }
 
-        setResultDropdownValue(id, '');
-    }
+            function escapeResultHtml(value) {
+                return String(value ?? '').replace(/[&<>"']/g, character => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                })[character]);
+            }
 
-    function clearResultDropdowns(ids) {
-        ids.forEach(id => fillResultOptions(id, [], ''));
-    }
+            function formatResultNumber(value) {
+                const number = Number(value);
+                if (!Number.isFinite(number)) return '0';
+                return Number.isInteger(number) ?
+                    String(number) :
+                    number.toFixed(2).replace(/\.?0+$/, '');
+            }
 
-    function initializeResultDropdownEvents() {
-        document.getElementById('c_class')?.addEventListener('change', handleClassChange);
-        document.getElementById('c_group')?.addEventListener('change', handleGroupChange);
-        document.getElementById('c_section')?.addEventListener('change', handleSectionChange);
-        document.getElementById('c_session')?.addEventListener('change', handleSessionChange);
-    }
+            function formatResultComponent(value) {
+                const number = Number(value);
+                return Number.isFinite(number) && number !== 0 ? formatResultNumber(number) : '-';
+            }
 
-    function fetchClasses() {
-        return axios.get('/api/get-school-classes').then(res => {
-            fillResultOptions('c_class', res.data.data, 'class_name');
-        });
-    }
+            function resultDropdownParts(id) {
+                const input = document.getElementById(id);
+                const root = input?.closest('[data-dropdown-select]');
 
-    function handleClassChange() {
-        const classId = selectedResultId('c_class');
-        clearResultDropdowns(['c_group', 'c_section', 'c_session', 'c_exam']);
-
-        if (!classId) return;
-        return axios.get(`/api/get-school-groups?class_id=${classId}`).then(async res => {
-            fillResultOptions('c_group', res.data.data, 'group_name');
-            await fetchSessions();
-        });
-    }
-
-    function handleGroupChange() {
-        const groupId = selectedResultId('c_group');
-        clearResultDropdowns(['c_section', 'c_session', 'c_exam']);
-
-        if (!groupId) {
-            return fetchSessions();
-        }
-
-        return axios.get(`/api/get-school-sections?group_id=${groupId}`).then(async res => {
-            fillResultOptions('c_section', res.data.data, 'section_name');
-            await fetchSessions();
-        });
-    }
-
-    function handleSectionChange() {
-        return fetchSessions();
-    }
-
-    function fetchSessions() {
-        const cId = selectedResultId('c_class');
-        const gId = selectedResultId('c_group');
-        const sId = selectedResultId('c_section');
-
-        if (!cId) return;
-
-        return axios.get(`/api/get-school-sessions?class_id=${cId}&group_id=${gId}&section_id=${sId}`).then(res => {
-            const sessions = (res.data.data || []).map(item => ({
-                ...item,
-                session_value: item.session_year || item.session_name,
-            }));
-            fillResultOptions('c_session', sessions, 'session_value');
-        });
-    }
-
-    function handleSessionChange() {
-        const sess = document.getElementById('c_session').value;
-        const cls = document.getElementById('c_class').value;
-        clearResultDropdowns(['c_exam']);
-
-        if (!sess || !cls) return;
-
-        return axios.get(`/api/get-school-exams?session_name=${sess}&class_name=${cls}`).then(res => {
-            fillResultOptions('c_exam', res.data.data, 'exam_name');
-        });
-    }
-
-    function openSearchModal() {
-        document.getElementById('searchModal').classList.remove('hidden');
-    }
-
-    function closeSearchModal() {
-        document.getElementById('searchModal').classList.add('hidden');
-    }
-
-    function executeFind() {
-        const payload = {
-            mode: 'single',
-            admit_no: document.getElementById('s_admit_no').value,
-        };
-
-        axios.post('/api/school-find-results', payload).then(res => {
-            renderSingleResult(res.data);
-            closeSearchModal();
-        }).catch(err => {
-            Swal.fire('Error', err.response?.data?.message || 'Data Fetch Failed', 'error');
-        });
-    }
-
-    function renderSingleResult(data) {
-        currentResultData = data;
-        const container = document.getElementById('resultContainer');
-        const gradingScale = data.grading_scale || [];
-        const groupedGrades = Object.values(gradingScale.reduce((acc, g) => {
-            const gradeName = g.grade_name || g.grade || g.letter_name || 'N/A';
-            const gradePoint = parseFloat(g.grade_point || 0).toFixed(2);
-            const key = `${gradeName}|${gradePoint}`;
-            const fullMark = Number(g.full_mark);
-            if (!acc[key]) {
-                acc[key] = {
-                    grade_name: gradeName,
-                    grade_point: gradePoint,
-                    full_mark_50: '',
-                    full_mark_100: '',
+                return {
+                    input,
+                    root,
+                    label: root?.querySelector('[data-dropdown-select-label]'),
+                    menu: root?.querySelector('[data-dropdown-select-menu]'),
                 };
             }
-            if (fullMark === 50) {
-                acc[key].full_mark_50 = `${Math.round(Number(g.mark_from || 0))}-${Math.round(Number(g.mark_to || 0))}`;
-            }
-            if (fullMark === 100) {
-                acc[key].full_mark_100 = `${Math.round(Number(g.mark_from || 0))}-${Math.round(Number(g.mark_to || 0))}`;
-            }
-            return acc;
-        }, {})).sort((a, b) => parseFloat(b.grade_point) - parseFloat(a.grade_point));
 
-        const gradeScaleRows = groupedGrades.length
-            ? groupedGrades.map(g => `
+            function selectedResultOption(id) {
+                const {
+                    input,
+                    menu
+                } = resultDropdownParts(id);
+
+                return Array.from(menu?.querySelectorAll('[data-dropdown-select-option]') || [])
+                    .find(option => String(option.dataset.value || '') === String(input?.value || ''));
+            }
+
+            function selectedResultId(id) {
+                return selectedResultOption(id)?.dataset.optionId || '';
+            }
+
+            function setResultDropdownValue(id, value = '', label = null, shouldNotify = false) {
+                const parts = resultDropdownParts(id);
+                if (!parts.input) return;
+
+                const selected = Array.from(parts.menu?.querySelectorAll('[data-dropdown-select-option]') || [])
+                    .find(option => String(option.dataset.value || '') === String(value || ''));
+                const placeholder = parts.label?.dataset.placeholder || 'Select...';
+
+                parts.input.value = value || '';
+                if (parts.label) {
+                    parts.label.textContent = label ?? selected?.textContent.trim() ?? placeholder;
+                }
+
+                parts.menu?.querySelectorAll('[data-dropdown-select-option]').forEach(option => {
+                    const isSelected = option === selected;
+                    option.classList.toggle('bg-slate-100', isSelected);
+                    option.classList.toggle('text-slate-900', isSelected);
+                    option.classList.toggle('text-slate-800', !isSelected);
+                    option.setAttribute('aria-selected', String(isSelected));
+                });
+
+                if (shouldNotify) {
+                    parts.input.dispatchEvent(new Event('change', {
+                        bubbles: true
+                    }));
+                }
+            }
+
+            function fillResultOptions(id, data, valueField, labelField = valueField) {
+                const parts = resultDropdownParts(id);
+                if (!parts.menu) return;
+
+                parts.menu.innerHTML = '';
+
+                (data || []).forEach(item => {
+                    const value = item[valueField] ?? '';
+                    const label = item[labelField] ?? value;
+                    const option = document.createElement('button');
+                    option.type = 'button';
+                    option.className =
+                        'dropdown-select-option m-0 flex min-h-6 w-full items-center border-0 bg-white px-3 py-1 text-left text-[11px] font-normal leading-tight text-slate-800 transition-colors hover:bg-slate-100';
+                    option.dataset.value = String(value);
+                    option.dataset.optionId = String(item.id ?? '');
+                    option.setAttribute('data-dropdown-select-option', '');
+                    option.setAttribute('role', 'option');
+                    option.setAttribute('aria-selected', 'false');
+                    option.textContent = label;
+
+                    option.addEventListener('click', () => {
+                        setResultDropdownValue(id, option.dataset.value, option.textContent.trim());
+                        parts.menu.classList.add('hidden');
+                        parts.root?.querySelector('[data-dropdown-select-button]')?.setAttribute(
+                            'aria-expanded', 'false');
+                        parts.input.dispatchEvent(new Event('change', {
+                            bubbles: true
+                        }));
+                    });
+
+                    parts.menu.appendChild(option);
+                });
+
+                setResultDropdownValue(id, '');
+            }
+
+            function clearResultDropdowns(ids) {
+                ids.forEach(id => fillResultOptions(id, [], ''));
+            }
+
+            function initializeResultDropdownEvents() {
+                document.getElementById('c_class')?.addEventListener('change', handleClassChange);
+                document.getElementById('c_group')?.addEventListener('change', handleGroupChange);
+                document.getElementById('c_section')?.addEventListener('change', handleSectionChange);
+                document.getElementById('c_session')?.addEventListener('change', handleSessionChange);
+            }
+
+            function fetchClasses() {
+                return axios.get('/api/get-school-classes').then(res => {
+                    fillResultOptions('c_class', res.data.data, 'class_name');
+                });
+            }
+
+            function handleClassChange() {
+                const classId = selectedResultId('c_class');
+                clearResultDropdowns(['c_group', 'c_section', 'c_session', 'c_exam']);
+
+                if (!classId) return;
+                return axios.get(`/api/get-school-groups?class_id=${classId}`).then(async res => {
+                    fillResultOptions('c_group', res.data.data, 'group_name');
+                    await fetchSessions();
+                });
+            }
+
+            function handleGroupChange() {
+                const groupId = selectedResultId('c_group');
+                clearResultDropdowns(['c_section', 'c_session', 'c_exam']);
+
+                if (!groupId) {
+                    return fetchSessions();
+                }
+
+                return axios.get(`/api/get-school-sections?group_id=${groupId}`).then(async res => {
+                    fillResultOptions('c_section', res.data.data, 'section_name');
+                    await fetchSessions();
+                });
+            }
+
+            function handleSectionChange() {
+                return fetchSessions();
+            }
+
+            function fetchSessions() {
+                const cId = selectedResultId('c_class');
+                const gId = selectedResultId('c_group');
+                const sId = selectedResultId('c_section');
+
+                if (!cId) return;
+
+                return axios.get(`/api/get-school-sessions?class_id=${cId}&group_id=${gId}&section_id=${sId}`).then(res => {
+                    const sessions = (res.data.data || []).map(item => ({
+                        ...item,
+                        session_value: item.session_year || item.session_name,
+                    }));
+                    fillResultOptions('c_session', sessions, 'session_value');
+                });
+            }
+
+            function handleSessionChange() {
+                const sess = document.getElementById('c_session').value;
+                const cls = document.getElementById('c_class').value;
+                clearResultDropdowns(['c_exam']);
+
+                if (!sess || !cls) return;
+
+                return axios.get(`/api/get-school-exams?session_name=${sess}&class_name=${cls}`).then(res => {
+                    fillResultOptions('c_exam', res.data.data, 'exam_name');
+                });
+            }
+
+            function openSearchModal() {
+                document.getElementById('searchModal').classList.remove('hidden');
+            }
+
+            function closeSearchModal() {
+                document.getElementById('searchModal').classList.add('hidden');
+            }
+
+            function executeFind() {
+                const payload = {
+                    mode: 'single',
+                    admit_no: document.getElementById('s_admit_no').value,
+                };
+
+                axios.post('/api/school-find-results', payload).then(res => {
+                    renderSingleResult(res.data);
+                    closeSearchModal();
+                }).catch(err => {
+                    Swal.fire('Error', err.response?.data?.message || 'Data Fetch Failed', 'error');
+                });
+            }
+
+            function renderSingleResult(data) {
+                currentResultData = data;
+                const container = document.getElementById('resultContainer');
+                const gradingScale = data.grading_scale || [];
+                const groupedGrades = Object.values(gradingScale.reduce((acc, g) => {
+                    const gradeName = g.grade_name || g.grade || g.letter_name || 'N/A';
+                    const gradePoint = parseFloat(g.grade_point || 0).toFixed(2);
+                    const key = `${gradeName}|${gradePoint}`;
+                    const fullMark = Number(g.full_mark);
+                    if (!acc[key]) {
+                        acc[key] = {
+                            grade_name: gradeName,
+                            grade_point: gradePoint,
+                            full_mark_50: '',
+                            full_mark_100: '',
+                        };
+                    }
+                    if (fullMark === 50) {
+                        acc[key].full_mark_50 =
+                            `${Math.round(Number(g.mark_from || 0))}-${Math.round(Number(g.mark_to || 0))}`;
+                    }
+                    if (fullMark === 100) {
+                        acc[key].full_mark_100 =
+                            `${Math.round(Number(g.mark_from || 0))}-${Math.round(Number(g.mark_to || 0))}`;
+                    }
+                    return acc;
+                }, {})).sort((a, b) => parseFloat(b.grade_point) - parseFloat(a.grade_point));
+
+                const gradeScaleRows = groupedGrades.length ?
+                    groupedGrades.map(g => `
                 <tr>
                     <td>${g.full_mark_50 || '-'}</td>
                     <td>${g.full_mark_100 || '-'}</td>
                     <td>${Number(g.grade_point).toFixed(2)}</td>
                     <td>${g.grade_name ?? 'N/A'}</td>
-                </tr>`).join('')
-            : '<tr><td colspan="4">No grade scale found</td></tr>';
+                </tr>`).join('') :
+                    '<tr><td colspan="4">No grade scale found</td></tr>';
 
-        const formattedDate = data.publish_datetime || 'N/A';
-        const address = [data.school_info?.village, data.school_info?.upazila, data.school_info?.district]
-            .filter(Boolean)
-            .join(', ');
-        const schoolMobile = data.school_info?.mobile ? `Mobile: ${data.school_info.mobile}` : '';
-        const positionText = data.position === 'N/A' ? 'N/A' : `${data.position}${getOrdinalSuffix(data.position)}`;
+                const formattedDate = data.publish_datetime || 'N/A';
+                const address = [data.school_info?.village, data.school_info?.upazila, data.school_info?.district]
+                    .filter(Boolean)
+                    .join(', ');
+                const schoolMobile = data.school_info?.mobile ? `Mobile: ${data.school_info.mobile}` : '';
+                const positionText = data.position === 'N/A' ? 'N/A' : `${data.position}${getOrdinalSuffix(data.position)}`;
 
-        container.innerHTML = `
+                container.innerHTML = `
         <style>
             @page { size: Legal; margin: 10mm; }
             body { margin: 0; padding: 0; }
@@ -483,35 +488,41 @@
             .watermark { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); opacity: 0.03; width: 420px; pointer-events: none; z-index: 0; }
             .transcript-header {
                 display: grid;
-                grid-template-columns: 82px minmax(0, 1fr) 82px;
+                grid-template-columns: 140px minmax(0, 1fr) 140px;
                 align-items: center;
-                gap: 16px;
-                margin-bottom: 8px;
+                min-height: 128px;
+                gap: 24px;
+                margin-bottom: 12px;
+                padding: 0 6px 12px;
+                border-bottom: 1px solid #dbe3ef;
             }
-            .header { text-align: center; margin-bottom: 8px; }
+            .header { text-align: center; margin: 0; }
             .school-logo-frame,
             .student-photo-frame {
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 width: 100%;
-                height: 82px;
+                height: 108px;
                 overflow: hidden;
-                border: 1px solid #d1d5db;
-                border-radius: 9999px;
                 background: #fff;
             }
             .school-logo-frame {
-                width: 82px;
+                width: 140px;
+                border: 0;
+                border-radius: 0;
             }
             .school-logo-frame img {
-                max-width: 68px;
-                max-height: 68px;
+                max-width: 126px;
+                max-height: 94px;
                 object-fit: contain;
             }
             .student-photo-frame {
-                width: 82px;
+                width: 108px;
+                height: 108px;
                 justify-self: end;
+                border: 2px solid #1e3a6d;
+                border-radius: 9999px;
             }
             .student-photo-frame img {
                 width: 100%;
@@ -526,40 +537,60 @@
             .exam-meta {
                 display: grid;
                 grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 12px;
-                margin: 0 0 10px;
-                padding: 6px 10px;
-                border: 1px solid #5B2C8F;
-                background: #fcfbff;
-                color: #374151;
-                font-size: 10px;
+                align-items: center;
+                gap: 18px;
+                min-height: 46px;
+                margin: 0 0 14px;
+                padding: 9px 16px;
+                border: 1px solid #8ba0bb;
+                background: #fff;
+                color: #17345f;
+                font-size: 13px;
+                font-weight: 600;
                 text-align: center;
             }
             .exam-meta strong {
-                color: #5B2C8F;
-                font-weight: 700;
+                color: #102f63;
+                font-weight: 800;
             }
             @media (max-width: 640px) {
                 .exam-meta {
                     grid-template-columns: 1fr;
                 }
             }
-            .school-name { font-family: 'Inter', sans-serif; font-weight: bold; font-size: 22px; color: #5B2C8F; margin: 0 0 2px 0; }
-            .address, .transcript-title, .mobile { margin: 2px 0; }
-            .address { font-size: 10px; }
-            .transcript-title {
-                font-size: 11px;
-                display: inline-block;
-                padding: 4px 15px;
-                background: #efe3ff;
-                border: 1px solid #5B2C8F;
+            .school-name {
+                margin: 0 0 4px;
+                color: #102f63;
+                font-family: 'Inter', sans-serif;
+                font-size: 30px;
+                font-weight: 800;
+                line-height: 1.1;
+                letter-spacing: 0;
+                text-transform: uppercase;
             }
-            .mobile { font-size: 10px; font-weight: bold; }
+            .address, .transcript-title, .mobile { margin: 3px 0; }
+            .address { color: #294a79; font-size: 14px; font-weight: 600; }
+            .transcript-title {
+                display: inline-block;
+                margin-top: 5px;
+                padding: 5px 20px;
+                border: 0;
+                border-radius: 9999px;
+                background: #123a78;
+                color: #fff;
+                font-size: 13px;
+                font-weight: 700;
+                line-height: 1;
+                letter-spacing: .02em;
+                text-transform: uppercase;
+            }
+            .mobile { color: #294a79; font-size: 14px; font-weight: 700; }
             .top-row {
                 display: grid;
-                grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.75fr) minmax(0, 1fr);
-                gap: 20px;
-                margin-bottom: 8px;
+                grid-template-columns: minmax(0, 431fr) minmax(0, 352fr) minmax(0, 404fr);
+                align-items: start;
+                gap: 22px;
+                margin-bottom: 14px;
             }
             .box { min-width: 0; }
             .box-header {
@@ -572,13 +603,61 @@
                 border: 1px solid #5B2C8F;
                 border-bottom: none;
             }
-            .info-table, .grade-table, .marksheet table { width: 100%; border-collapse: collapse; font-size: 10px; }
-            .info-table td, .grade-table th, .grade-table td, .marksheet th, .marksheet td { border: 1px solid #5B2C8F; padding: 3px 4px; }
-            .info-table td.label { font-weight: bold; width: 42%; }
+            .info-table, .grade-table, .marksheet table { width: 100%; border-collapse: collapse; }
+            .info-table { color: #17345f; font-size: 13px; }
+            .info-table td {
+                height: 42px;
+                border: 1px solid #8ba0bb;
+                padding: 7px 13px;
+                vertical-align: middle;
+            }
+            .info-table td.label {
+                color: #102f63;
+                font-weight: 800;
+                white-space: nowrap;
+            }
+            .student-info-box .info-table td.label { width: 49.5%; }
+            .academic-info-box .info-table td.label { width: 45%; }
             th:first-child, th:last-child {
                 text-align: left !important;
             }
-            .grade-table th { font-weight: bold; font-size: 11px; }
+            .grade-table { color: #17345f; font-size: 11px; text-align: center; }
+            .grade-table th,
+            .grade-table td {
+                height: 20px !important;
+                border: 1px solid #8ba0bb;
+                padding: 0 6px !important;
+                line-height: 20px;
+                text-align: center !important;
+                vertical-align: middle;
+            }
+            .grade-table tbody tr {
+                height: 18px !important;
+                line-height: 18px !important;
+            }
+
+            .grade-table tbody td {
+                height: 20px !important;
+                min-height: 20px !important;
+                max-height: 20px !important;
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                line-height: 20px !important;
+            }
+            .grade-table th {
+                height: 18px !important;
+                min-height: 18px !important;
+                max-height: 18px !important;
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                line-height: 18px !important;
+                background: #f4f7fb;
+                color: #102f63;
+                font-size: 11px;
+                font-weight: 800;
+            }
+            .marksheet { font-size: 10px; }
+            .marksheet th, .marksheet td { border: 1px solid #5B2C8F; padding: 3px 4px; }
             .marksheet td.subject-name { text-align: left; }
             .total-row td.total-label { text-align: right; font-weight: bold; padding-right: 12px; }
             .total-row td.total-value { font-weight: bold; font-size: 15px; }
@@ -896,7 +975,7 @@
             </div>
 
             <div class="top-row">
-                <div class="box">
+                <div class="box student-info-box">
                     <table class="info-table">
                         <tr><td class="label">Student ID</td><td>${data.student_id_number}</td></tr>
                         <tr><td class="label">Student Name</td><td>${data.student_name}</td></tr>
@@ -905,7 +984,7 @@
                     </table>
                 </div>
 
-                <div class="box">
+                <div class="box academic-info-box">
                     <table class="info-table">
                         <tr><td class="label">Class</td><td>${data.class_name || 'N/A'}</td></tr>
                         <tr><td class="label">Group</td><td>${data.group_name || 'N/A'}</td></tr>
@@ -914,7 +993,8 @@
                     </table>
                 </div>
 
-                <div class="box">
+
+                <div class="box grade-info-box">
                     <table class="grade-table">
                         <thead>
                             <tr>
@@ -952,18 +1032,18 @@
                     </thead>
                     <tbody>
                         ${data.subjects.map(subject => `
-                            <tr>
-                                <td class="subject-cell">${escapeResultHtml(subject.name || '-')}</td>
-                                <td>${formatResultNumber(subject.full_mark ?? 0)}</td>
-                                <td>${formatResultNumber(subject.highest_mark ?? subject.mark ?? 0)}</td>
-                                <td>${formatResultComponent(subject.tutorial_mark)}</td>
-                                <td>${formatResultComponent(subject.mcq_mark)}</td>
-                                <td>${formatResultComponent(subject.writing_mark ?? subject.theory_mark)}</td>
-                                <td>${formatResultComponent(subject.practical_mark)}</td>
-                                <td>${formatResultNumber(subject.mark ?? 0)}</td>
-                                <td>${escapeResultHtml(subject.grade ?? '-')}</td>
-                                <td>${formatResultNumber(subject.point ?? 0)}</td>
-                            </tr>`).join('')}
+                                    <tr>
+                                        <td class="subject-cell">${escapeResultHtml(subject.name || '-')}</td>
+                                        <td>${formatResultNumber(subject.full_mark ?? 0)}</td>
+                                        <td>${formatResultNumber(subject.highest_mark ?? subject.mark ?? 0)}</td>
+                                        <td>${formatResultComponent(subject.tutorial_mark)}</td>
+                                        <td>${formatResultComponent(subject.mcq_mark)}</td>
+                                        <td>${formatResultComponent(subject.writing_mark ?? subject.theory_mark)}</td>
+                                        <td>${formatResultComponent(subject.practical_mark)}</td>
+                                        <td>${formatResultNumber(subject.mark ?? 0)}</td>
+                                        <td>${escapeResultHtml(subject.grade ?? '-')}</td>
+                                        <td>${formatResultNumber(subject.point ?? 0)}</td>
+                                    </tr>`).join('')}
                     </tbody>
                     <tfoot>
                         <tr>
@@ -1051,50 +1131,50 @@
                 </div>
             </div>
         </div>`;
-    }
+            }
 
-    function getOrdinalSuffix(rank) {
-        const j = rank % 10,
-              k = rank % 100;
-        if (k === 11 || k === 12 || k === 13) return 'th';
-        if (j === 1) return 'st';
-        if (j === 2) return 'nd';
-        if (j === 3) return 'rd';
-        return 'th';
-    }
+            function getOrdinalSuffix(rank) {
+                const j = rank % 10,
+                    k = rank % 100;
+                if (k === 11 || k === 12 || k === 13) return 'th';
+                if (j === 1) return 'st';
+                if (j === 2) return 'nd';
+                if (j === 3) return 'rd';
+                return 'th';
+            }
 
-    function renderClasswiseTable(data) {
-        const container = document.getElementById('resultContainer');
-        const gradingScale = data.grading_scale || [];
-        const className = document.getElementById('c_class').value;
-        const groupName = document.getElementById('c_group').value || 'N/A';
-        const sectionName = document.getElementById('c_section').value || 'N/A';
-        const sessionName = document.getElementById('c_session').value;
-        const examName = document.getElementById('c_exam').value;
+            function renderClasswiseTable(data) {
+                const container = document.getElementById('resultContainer');
+                const gradingScale = data.grading_scale || [];
+                const className = document.getElementById('c_class').value;
+                const groupName = document.getElementById('c_group').value || 'N/A';
+                const sectionName = document.getElementById('c_section').value || 'N/A';
+                const sessionName = document.getElementById('c_session').value;
+                const examName = document.getElementById('c_exam').value;
 
-        container.innerHTML = `
+                container.innerHTML = `
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
 
             /* Clear browser artifacts and hide non-target elements */
-            @media print { 
-                @page { size: A4 landscape; margin: 0; } 
+            @media print {
+                @page { size: A4 landscape; margin: 0; }
                 html, body { height: 100%; margin: 0 !important; padding: 0 !important; overflow: hidden; background: white; }
-                
+
                 /* Strict Visibility Toggle: Hides everything except target */
                 body * { visibility: hidden !important; }
                 #resultContainer, #resultContainer * { visibility: visible !important; }
-                
-                #resultContainer { 
-                    position: absolute; 
-                    left: 0; 
-                    top: 0; 
-                    width: 100%; 
-                    padding: 8mm; 
-                    box-sizing: border-box; 
+
+                #resultContainer {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    padding: 8mm;
+                    box-sizing: border-box;
                     display: block !important;
                 }
-                
+
                 .no-print { display: none !important; }
                 .a4-landscape-print { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                 .class-result-table-frame,
@@ -1119,11 +1199,11 @@
                     white-space: nowrap;
                 }
             }
-            
-            .a4-landscape-print { 
-                background: white; 
-                width: 100%; 
-                font-family: 'Roboto', sans-serif; 
+
+            .a4-landscape-print {
+                background: white;
+                width: 100%;
+                font-family: 'Roboto', sans-serif;
                 color: #000;
                 position: relative;
             }
@@ -1144,38 +1224,38 @@
                 position: relative;
                 z-index: 1;
             }
-            
+
             /* Elite Subtle Grey Border Design - No Border Radius */
-            .info-table, .grading-table, #mainResultTable, 
-            #mainResultTable th, #mainResultTable td, 
-            .info-table td, .grading-table td, 
-            .grading-table th, .table-header-box { 
-                border: 0.5px solid #d1d5db !important; 
-                border-radius: 0 !important; 
+            .info-table, .grading-table, #mainResultTable,
+            #mainResultTable th, #mainResultTable td,
+            .info-table td, .grading-table td,
+            .grading-table th, .table-header-box {
+                border: 0.5px solid #d1d5db !important;
+                border-radius: 0 !important;
             }
 
-            .split-table-container { 
-                display: flex; 
-                justify-content: space-between; 
-                align-items: stretch; 
-                margin-bottom: 15px; 
+            .split-table-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: stretch;
+                margin-bottom: 15px;
                 gap: 20px;
             }
             .info-container, .grading-container { flex: 1; display: flex; flex-direction: column; max-width: 350px; }
-            
+
             .info-table, .grading-table { width: 100%; border-collapse: collapse; flex-grow: 1; }
             .info-table td, .grading-table td, .grading-table th { padding: 3px 6px; font-size: 10px; vertical-align: middle; }
-            
-            .table-header-box { 
-                background: #f9fafb; 
-                border-bottom: none !important; 
-                padding: 4px; 
-                text-align: center; 
-                font-weight: 800; 
-                font-size: 10px; 
-                text-transform: capitalize; 
+
+            .table-header-box {
+                background: #f9fafb;
+                border-bottom: none !important;
+                padding: 4px;
+                text-align: center;
+                font-weight: 800;
+                font-size: 10px;
+                text-transform: capitalize;
             }
-            
+
             .class-result-table-frame {
                 width: 100%;
                 margin-top: 10px;
@@ -1207,7 +1287,7 @@
                 -webkit-box-orient: vertical;
                 -webkit-line-clamp: 3;
             }
-            
+
             #mainResultTable {
                 width: 100%;
                 min-width: 1100px;
@@ -1245,7 +1325,7 @@
                 min-width: 180px;
                 box-shadow: 2px 0 0 #d1d5db;
             }
-            
+
             .student-name-cell {
                 text-align: left !important;
                 padding-left: 10px !important;
@@ -1254,7 +1334,7 @@
             }
             .capitalize-all { text-transform: capitalize !important; }
         </style>
-        
+
         <div class="a4-landscape-print">
             ${data.school_logo ? `<img src="${escapeResultHtml(data.school_logo)}" class="class-result-watermark" alt="School logo watermark">` : ''}
             <div class="text-center mb-4">
@@ -1262,7 +1342,7 @@
                 <p class="text-[10px] font-bold text-gray-500 mb-0.5 capitalize-all">${toTitleCase(data.location || '')}</p>
                 <p class="text-[11px] font-black text-gray-800 capitalize-all tracking-widest">${toTitleCase(examName)} Result Sheet</p>
             </div>
-            
+
             <div class="split-table-container">
                 <div class="info-container">
                     <div class="table-header-box">Class Information</div>
@@ -1285,11 +1365,11 @@
                         </thead>
                         <tbody>
                             ${gradingScale.map(g => `
-                                        <tr>
-                                            <td>${Math.round(g.mark_from)}-${Math.round(g.mark_to)}</td>
-                                            <td class="font-bold">${g.grade_name}</td>
-                                            <td>${parseFloat(g.grade_point).toFixed(2)}</td>
-                                        </tr>`).join('')}
+                                                <tr>
+                                                    <td>${Math.round(g.mark_from)}-${Math.round(g.mark_to)}</td>
+                                                    <td class="font-bold">${g.grade_name}</td>
+                                                    <td>${parseFloat(g.grade_point).toFixed(2)}</td>
+                                                </tr>`).join('')}
                         </tbody>
                     </table>
                 </div>
@@ -1312,95 +1392,100 @@
                     </thead>
                     <tbody>
                         ${data.students.map((std, i) => `
-                                    <tr class="transition-colors hover:bg-gray-50">
-                                        <td class="sticky-column serial-column h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${i + 1}</td>
-                                        <td class="sticky-column id-column h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll font-mono" title="${escapeResultHtml(std.student_id)}">${escapeResultHtml(std.student_id)}</div></td>
-                                        <td class="sticky-column name-column h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll student-name-cell font-bold" title="${escapeResultHtml(toTitleCase(std.name))}">${escapeResultHtml(toTitleCase(std.name))}</div></td>
-                                        ${data.subjects_list.map(sub => `<td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${formatResultNumber(std.marks[sub] ?? 0)}</td>`).join('')}
-                                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-bold">${formatResultNumber(std.total)}</td>
-                                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-black text-blue-800">${formatResultNumber(std.gpa)}</td>
-                                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-bold">${escapeResultHtml(std.grade)}</td>
-                                        <td class="no-print h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
-                                            <button type="button" title="Delete result" aria-label="Delete result" onclick="confirmDelete(${Number(std.id)})" class="mx-auto flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1">
-                                                <i class="far fa-trash-alt" aria-hidden="true"></i>
-                                            </button>
-                                        </td>
-                                    </tr>`).join('')}
+                                            <tr class="transition-colors hover:bg-gray-50">
+                                                <td class="sticky-column serial-column h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${i + 1}</td>
+                                                <td class="sticky-column id-column h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll font-mono" title="${escapeResultHtml(std.student_id)}">${escapeResultHtml(std.student_id)}</div></td>
+                                                <td class="sticky-column name-column h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll student-name-cell font-bold" title="${escapeResultHtml(toTitleCase(std.name))}">${escapeResultHtml(toTitleCase(std.name))}</div></td>
+                                                ${data.subjects_list.map(sub => `<td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${formatResultNumber(std.marks[sub] ?? 0)}</td>`).join('')}
+                                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-bold">${formatResultNumber(std.total)}</td>
+                                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-black text-blue-800">${formatResultNumber(std.gpa)}</td>
+                                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-bold">${escapeResultHtml(std.grade)}</td>
+                                                <td class="no-print h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
+                                                    <button type="button" title="Delete result" aria-label="Delete result" onclick="confirmDelete(${Number(std.id)})" class="mx-auto flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1">
+                                                        <i class="far fa-trash-alt" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>`).join('')}
                     </tbody>
                 </table>
                 </div>
             </div>
         </div>`;
-    }
+            }
 
-    function exportToExcel() {
-        if (typeof XLSX === 'undefined') {
-            Swal.fire('Export failed', 'The Excel export library could not be loaded. Please refresh and try again.', 'error');
-            return;
-        }
+            function exportToExcel() {
+                if (typeof XLSX === 'undefined') {
+                    Swal.fire('Export failed', 'The Excel export library could not be loaded. Please refresh and try again.',
+                        'error');
+                    return;
+                }
 
-        if (currentResultData?.subjects?.length) {
-            const data = currentResultData;
-            const rows = [
-                ['Academic Result'],
-                ['Student', data.student_name || 'N/A', 'Student ID', data.student_id_number || 'N/A'],
-                ['Admit Card', data.admit_card_number || 'N/A', 'Exam', data.exam_name || 'N/A'],
-                ['Class', data.class_name || 'N/A', 'Session', data.session_name || 'N/A'],
-                [],
-                ['Subject', 'Full Mark', 'Highest Mark', 'Tutorial', 'MCQ', 'Writing', 'Practical', 'Mark', 'Grade', 'Point'],
-                ...data.subjects.map(subject => [
-                    subject.name || 'N/A',
-                    subject.full_mark ?? 0,
-                    subject.highest_mark ?? subject.mark ?? 0,
-                    subject.tutorial_mark ?? 0,
-                    subject.mcq_mark ?? 0,
-                    subject.writing_mark ?? subject.theory_mark ?? 0,
-                    subject.practical_mark ?? 0,
-                    subject.mark ?? 0,
-                    subject.grade || '-',
-                    subject.point ?? 0,
-                ]),
-                [],
-                ['Total Marks', data.total_marks ?? 0, 'GPA', data.gpa ?? '0.00', 'Grade', data.grade || 'N/A', 'Position', data.position || 'N/A'],
-            ];
-            const worksheet = XLSX.utils.aoa_to_sheet(rows);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'Academic Result');
-            XLSX.writeFile(workbook, `academic-result-${data.admit_card_number || 'report'}.xlsx`);
-            return;
-        }
+                if (currentResultData?.subjects?.length) {
+                    const data = currentResultData;
+                    const rows = [
+                        ['Academic Result'],
+                        ['Student', data.student_name || 'N/A', 'Student ID', data.student_id_number || 'N/A'],
+                        ['Admit Card', data.admit_card_number || 'N/A', 'Exam', data.exam_name || 'N/A'],
+                        ['Class', data.class_name || 'N/A', 'Session', data.session_name || 'N/A'],
+                        [],
+                        ['Subject', 'Full Mark', 'Highest Mark', 'Tutorial', 'MCQ', 'Writing', 'Practical', 'Mark', 'Grade',
+                            'Point'
+                        ],
+                        ...data.subjects.map(subject => [
+                            subject.name || 'N/A',
+                            subject.full_mark ?? 0,
+                            subject.highest_mark ?? subject.mark ?? 0,
+                            subject.tutorial_mark ?? 0,
+                            subject.mcq_mark ?? 0,
+                            subject.writing_mark ?? subject.theory_mark ?? 0,
+                            subject.practical_mark ?? 0,
+                            subject.mark ?? 0,
+                            subject.grade || '-',
+                            subject.point ?? 0,
+                        ]),
+                        [],
+                        ['Total Marks', data.total_marks ?? 0, 'GPA', data.gpa ?? '0.00', 'Grade', data.grade || 'N/A',
+                            'Position', data.position || 'N/A'
+                        ],
+                    ];
+                    const worksheet = XLSX.utils.aoa_to_sheet(rows);
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, 'Academic Result');
+                    XLSX.writeFile(workbook, `academic-result-${data.admit_card_number || 'report'}.xlsx`);
+                    return;
+                }
 
-        const table = document.getElementById('mainResultTable');
-        if (!table || table.rows.length <= 1) {
-            Swal.fire('Find a result first', 'Generate an academic result before exporting it.', 'info');
-            return;
-        }
-        const wb = XLSX.utils.table_to_book(table, {
-            sheet: "Results"
-        });
-        XLSX.writeFile(wb, "Exam_Results.xlsx");
-    }
+                const table = document.getElementById('mainResultTable');
+                if (!table || table.rows.length <= 1) {
+                    Swal.fire('Find a result first', 'Generate an academic result before exporting it.', 'info');
+                    return;
+                }
+                const wb = XLSX.utils.table_to_book(table, {
+                    sheet: "Results"
+                });
+                XLSX.writeFile(wb, "Exam_Results.xlsx");
+            }
 
-    function printResult() {
-        const resultContainer = document.getElementById('resultContainer');
+            function printResult() {
+                const resultContainer = document.getElementById('resultContainer');
 
-        if (!currentResultData || !resultContainer?.querySelector('.transcript-page')) {
-            Swal.fire('Find a result first', 'Generate an academic result before printing it.', 'info');
-            return;
-        }
+                if (!currentResultData || !resultContainer?.querySelector('.transcript-page')) {
+                    Swal.fire('Find a result first', 'Generate an academic result before printing it.', 'info');
+                    return;
+                }
 
-        const printWindow = window.open('', '_blank', 'width=1200,height=900');
+                const printWindow = window.open('', '_blank', 'width=1200,height=900');
 
-        if (!printWindow) {
-            Swal.fire('Print blocked', 'Allow pop-ups for this site, then try printing again.', 'warning');
-            return;
-        }
+                if (!printWindow) {
+                    Swal.fire('Print blocked', 'Allow pop-ups for this site, then try printing again.', 'warning');
+                    return;
+                }
 
-        const styles = Array.from(document.querySelectorAll('style'))
-            .map(style => style.outerHTML)
-            .join('');
+                const styles = Array.from(document.querySelectorAll('style'))
+                    .map(style => style.outerHTML)
+                    .join('');
 
-        printWindow.document.write(`
+                printWindow.document.write(`
             <!doctype html>
             <html>
                 <head>
@@ -1415,105 +1500,113 @@
                 <body>${resultContainer.innerHTML}<\/body>
             </html>
         `);
-        printWindow.document.close();
+                printWindow.document.close();
 
-        printWindow.addEventListener('load', () => {
-            printWindow.focus();
-            printWindow.print();
-            printWindow.addEventListener('afterprint', () => printWindow.close(), { once: true });
-        }, { once: true });
-    }
-
-    async function exportResultPdf() {
-        const admitNumber = document.getElementById('s_admit_no')?.value?.trim();
-
-        if (!admitNumber) {
-            Swal.fire('Find a result first', 'Enter an admit card number before exporting the PDF.', 'info');
-            return;
-        }
-
-        try {
-            const response = await axios.post('/api/school-find-results/export-pdf', {
-                mode: 'single',
-                admit_no: admitNumber,
-            }, { responseType: 'blob' });
-
-            const blob = new Blob([response.data], { type: 'application/pdf' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `academic-result-${admitNumber}.pdf`;
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            URL.revokeObjectURL(url);
-        } catch (error) {
-            let message = 'Unable to export the academic result.';
-
-            if (error.response?.data instanceof Blob) {
-                try {
-                    const payload = JSON.parse(await error.response.data.text());
-                    message = payload.message || message;
-                } catch (_) {
-                    // Keep the generic message when the server response is not JSON.
-                }
-            } else {
-                message = error.response?.data?.message || message;
+                printWindow.addEventListener('load', () => {
+                    printWindow.focus();
+                    printWindow.print();
+                    printWindow.addEventListener('afterprint', () => printWindow.close(), {
+                        once: true
+                    });
+                }, {
+                    once: true
+                });
             }
 
-            Swal.fire('PDF export failed', message, 'error');
-        }
-    }
+            async function exportResultPdf() {
+                const admitNumber = document.getElementById('s_admit_no')?.value?.trim();
 
-    function initResultExportDropdown() {
-        const button = document.getElementById('btnResultExport');
-        const menu = document.getElementById('resultExportDropdown');
-        if (!button || !menu || button.dataset.dropdownReady === 'true') return;
+                if (!admitNumber) {
+                    Swal.fire('Find a result first', 'Enter an admit card number before exporting the PDF.', 'info');
+                    return;
+                }
 
-        button.dataset.dropdownReady = 'true';
+                try {
+                    const response = await axios.post('/api/school-find-results/export-pdf', {
+                        mode: 'single',
+                        admit_no: admitNumber,
+                    }, {
+                        responseType: 'blob'
+                    });
 
-        const closeMenu = () => {
-            menu.classList.add('hidden');
-            button.setAttribute('aria-expanded', 'false');
-        };
+                    const blob = new Blob([response.data], {
+                        type: 'application/pdf'
+                    });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `academic-result-${admitNumber}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    URL.revokeObjectURL(url);
+                } catch (error) {
+                    let message = 'Unable to export the academic result.';
 
-        button.addEventListener('click', event => {
-            event.stopPropagation();
-            const open = menu.classList.contains('hidden');
+                    if (error.response?.data instanceof Blob) {
+                        try {
+                            const payload = JSON.parse(await error.response.data.text());
+                            message = payload.message || message;
+                        } catch (_) {
+                            // Keep the generic message when the server response is not JSON.
+                        }
+                    } else {
+                        message = error.response?.data?.message || message;
+                    }
 
-            menu.classList.toggle('hidden', !open);
-            button.setAttribute('aria-expanded', String(open));
-        });
+                    Swal.fire('PDF export failed', message, 'error');
+                }
+            }
 
-        menu.addEventListener('click', closeMenu);
-        document.addEventListener('click', event => {
-            if (!menu.contains(event.target) && event.target !== button) closeMenu();
-        });
-        document.addEventListener('keydown', event => {
-            if (event.key === 'Escape') closeMenu();
-        });
-    }
+            function initResultExportDropdown() {
+                const button = document.getElementById('btnResultExport');
+                const menu = document.getElementById('resultExportDropdown');
+                if (!button || !menu || button.dataset.dropdownReady === 'true') return;
 
-    function confirmDelete(id) {
-        Swal.fire({
-            title: 'Are you sure?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, Delete'
-        }).then((res) => {
-            if (res.isConfirmed) axios.delete(`/api/school-results/${id}`).then(() => executeFind());
-        });
-    }
+                button.dataset.dropdownReady = 'true';
 
-    window.openSearchModal = openSearchModal;
-    window.closeSearchModal = closeSearchModal;
-    window.executeFind = executeFind;
-    window.exportToExcel = exportToExcel;
-    window.printResult = printResult;
-    window.exportResultPdf = exportResultPdf;
-    window.confirmDelete = confirmDelete;
+                const closeMenu = () => {
+                    menu.classList.add('hidden');
+                    button.setAttribute('aria-expanded', 'false');
+                };
 
-    initResultExportDropdown();
-</script>
-@endpush
+                button.addEventListener('click', event => {
+                    event.stopPropagation();
+                    const open = menu.classList.contains('hidden');
+
+                    menu.classList.toggle('hidden', !open);
+                    button.setAttribute('aria-expanded', String(open));
+                });
+
+                menu.addEventListener('click', closeMenu);
+                document.addEventListener('click', event => {
+                    if (!menu.contains(event.target) && event.target !== button) closeMenu();
+                });
+                document.addEventListener('keydown', event => {
+                    if (event.key === 'Escape') closeMenu();
+                });
+            }
+
+            function confirmDelete(id) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Delete'
+                }).then((res) => {
+                    if (res.isConfirmed) axios.delete(`/api/school-results/${id}`).then(() => executeFind());
+                });
+            }
+
+            window.openSearchModal = openSearchModal;
+            window.closeSearchModal = closeSearchModal;
+            window.executeFind = executeFind;
+            window.exportToExcel = exportToExcel;
+            window.printResult = printResult;
+            window.exportResultPdf = exportResultPdf;
+            window.confirmDelete = confirmDelete;
+
+            initResultExportDropdown();
+        </script>
+    @endpush
 @endsection

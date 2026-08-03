@@ -186,7 +186,6 @@
                         <table class="detail-table">
                             <tr><td class="detail-label">Student Name</td><td class="detail-colon">:</td><td class="detail-value strong">{{ $card['student_name'] ?: '-' }}</td></tr>
                             <tr><td class="detail-label">Student ID</td><td class="detail-colon">:</td><td class="detail-value">{{ $card['student_id_number'] ?: '-' }}</td></tr>
-                            <tr><td class="detail-label">Seat No</td><td class="detail-colon">:</td><td class="detail-value">{{ $card['seat_number'] ?: '-' }}</td></tr>
                             <tr><td class="detail-label">Father's Name</td><td class="detail-colon">:</td><td class="detail-value">{{ $card['father_name'] ?: '-' }}</td></tr>
                             <tr><td class="detail-label">Admit Card No</td><td class="detail-colon">:</td><td class="detail-value">{{ $card['admit_card_number'] ?: '-' }}</td></tr>
                         </table>
