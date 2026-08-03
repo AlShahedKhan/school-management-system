@@ -7,6 +7,7 @@ use App\Models\AdvancePayment;
 use App\Models\School;
 use App\Models\SchoolStudentFee;
 use App\Models\SchoolFeeTemplate;
+use App\Services\AccountService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -105,18 +106,33 @@ class AdvancePaymentController extends Controller
             $partialCredit = $amount;
         }
 
-        $advance = AdvancePayment::create([
-            'school_id'        => $school->id,
-            'student_id'       => $validated['student_id'],
-            'amount'           => $amount,
-            'monthly_fee'      => $monthlyFee,
-            'full_months'      => $fullMonths,
-            'partial_credit'   => $partialCredit,
-            'remaining_credit' => $amount,
-            'pay_date'         => $validated['pay_date'],
-            'pay_method'       => $validated['pay_method'],
-            'notes'            => $validated['notes'] ?? null,
-        ]);
+        $advance = DB::transaction(function () use ($school, $validated, $amount, $monthlyFee, $fullMonths, $partialCredit) {
+            $advance = AdvancePayment::create([
+                'school_id'        => $school->id,
+                'student_id'       => $validated['student_id'],
+                'amount'           => $amount,
+                'monthly_fee'      => $monthlyFee,
+                'full_months'      => $fullMonths,
+                'partial_credit'   => $partialCredit,
+                'remaining_credit' => $amount,
+                'pay_date'         => $validated['pay_date'],
+                'pay_method'       => $validated['pay_method'],
+                'notes'            => $validated['notes'] ?? null,
+            ]);
+
+            // Cash In to the internal System Cash Balance (immutable ledger)
+            app(AccountService::class)->cashIn(
+                $school->id,
+                $amount,
+                'Advance Collection',
+                $advance->id,
+                [
+                    'remarks' => 'Advance payment | Student #' . $validated['student_id'] . ($validated['notes'] ?? ''),
+                ]
+            );
+
+            return $advance;
+        });
 
         return response()->json([
             'status' => 'success',

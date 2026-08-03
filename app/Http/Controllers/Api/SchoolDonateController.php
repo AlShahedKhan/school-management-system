@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Donate;
+use App\Services\AccountService;
 use Illuminate\Support\Facades\DB;
 
 class SchoolDonateController extends Controller
@@ -67,15 +68,30 @@ class SchoolDonateController extends Controller
             'donate_reason' => 'nullable|string',
             'amount'        => 'required|numeric|min:0',
         ]);
-        $donate = Donate::create([
-            'school_id'     => $school->id,
-            'donate_date'   => $request->donate_date,
-            'name'          => $request->name,
-            'mobile_number' => $request->mobile_number,
-            'location'      => $request->location,
-            'donate_reason' => $request->donate_reason,
-            'amount'        => $request->amount,
-        ]);
+        $donate = DB::transaction(function () use ($school, $request) {
+            $donate = Donate::create([
+                'school_id'     => $school->id,
+                'donate_date'   => $request->donate_date,
+                'name'          => $request->name,
+                'mobile_number' => $request->mobile_number,
+                'location'      => $request->location,
+                'donate_reason' => $request->donate_reason,
+                'amount'        => $request->amount,
+            ]);
+
+            // Cash In to the internal System Cash Balance (immutable ledger)
+            app(AccountService::class)->cashIn(
+                $school->id,
+                (float) $request->amount,
+                'Donation',
+                $donate->id,
+                [
+                    'remarks' => ($request->donate_reason ?? '') . ' | ' . $request->name . ' | ' . $request->mobile_number,
+                ]
+            );
+
+            return $donate;
+        });
         return response()->json([
             'message' => 'Donate recorded successfully.',
             'donate'  => $donate,

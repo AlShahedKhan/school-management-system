@@ -138,6 +138,12 @@ class SchoolController extends Controller
                 'contract_close_date' => null,
             ]);
 
+            // ================= CREATE SYSTEM CASH BALANCE =================
+            // Internal System Cash Balance — exactly one record per school,
+            // created during setup so it always exists before any activity.
+            app(\App\Services\AccountService::class)->ensureBalance($school->id, 0.0);
+
+
             // ================= SEND SMS =================
             $this->sendRegistrationSMS($user, $generatedId);
 

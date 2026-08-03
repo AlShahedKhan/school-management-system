@@ -7,9 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class SchoolFeeAssignService
 {
-    /**
-     * Seed default fee assigns for a new school.
-     */
+
     public function seedDefaultAssigns($schoolId = null)
     {
         $defaults = [
@@ -35,17 +33,13 @@ class SchoolFeeAssignService
         });
     }
 
-    /**
-     * Toggle the status of a Fee Assign.
-     */
+
     public function toggleStatus(SchoolFeeAssign $assign, $status)
     {
         $assign->update(['status' => $status]);
     }
 
-    /**
-     * Delete a Fee Assign, ensuring defaults are protected.
-     */
+
     public function delete(SchoolFeeAssign $assign)
     {
         if ($assign->is_default) {
