@@ -7,7 +7,7 @@
     <div class="device-page mb-4">
 
         {{-- PAGE HEADER --}}
-        <div class="page-header d-flex justify-content-between  mb-4">
+        <div class="page-header d-flex justify-content-between mb-4">
             <div class="page-title-area">
                 <h2 class="mb-0">Device: {{ $device->name }}</h2>
                 <p class="text-muted">Detailed information for the selected device.</p>
@@ -19,7 +19,7 @@
         </div>
 
         <div class="row g-4">
-            {{-- Left Column: Device Info --}}
+            {{-- Left Column: Device Info & Connection --}}
             <div class="col-lg-7">
                 <div class="details-card">
                     <div class="details-header">
@@ -50,6 +50,28 @@
                         <h5><i class="bi bi-router me-2"></i>Connection Details</h5>
                     </div>
                     <div class="details-body">
+                        {{-- NEW: Live Connection Status --}}
+                        <div class="detail-item">
+                            <span class="detail-label">Connection Status</span>
+                            <span class="detail-value">
+                                <span class="status-badge status-{{ $device->connection_status['color'] }}">
+                                    <span class="status-dot"></span>
+                                    {{ $device->connection_status['status'] }}
+                                </span>
+                            </span>
+                        </div>
+                        {{-- NEW: Last Heartbeat Time --}}
+                        <div class="detail-item">
+                            <span class="detail-label">Last Heartbeat</span>
+                            <span class="detail-value">
+                                @if($device->last_heartbeat_at)
+                                    {{ $device->last_heartbeat_at->format('d M Y, h:i A') }}
+                                    <small class="d-block text-muted">({{ $device->last_heartbeat_at->diffForHumans() }})</small>
+                                @else
+                                    Never
+                                @endif
+                            </span>
+                        </div>
                         <div class="detail-item">
                             <span class="detail-label">IP Address</span>
                             <span class="detail-value">{{ $device->ip_address }}</span>
@@ -114,20 +136,13 @@
                     </div>
                     <div class="details-body">
                         <div class="detail-item">
-                            <span class="detail-label">Current Status</span>
+                            <span class="detail-label">Device Status</span>
                             <span class="detail-value">
-                             @if ($device->status)
-                                    <span class="status-badge status-{{ $device->status->value }}">
+                                <span class="status-badge status-{{ $device->status->value ?? 'inactive' }}">
                                     <span class="status-dot"></span>
-                                    {{ $device->status->label() }}
+                                    {{ $device->status->label() ?? 'Inactive' }}
                                 </span>
-                                @else
-                                    <span class="status-badge status-inactive">
-                                    <span class="status-dot"></span>
-                                    Inactive
-                                </span>
-                                @endif
-                        </span>
+                            </span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Time Zone</span>
