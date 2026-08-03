@@ -149,6 +149,22 @@ class DashboardController extends Controller
             SchoolStudentFee::where('school_id', $school->id)
                 ->where('fee_type_name', 'Food')
         )->sum('payable_amount');
+        $totalAdmissionFees = $applyDashboardFilter(
+            SchoolStudentFee::where('school_id', $school->id)
+                ->where('fee_type_name', 'Admission')
+        )->sum('payable_amount');
+        $totalPromoteFees = $applyDashboardFilter(
+            SchoolStudentFee::where('school_id', $school->id)
+                ->where('fee_type_name', 'Promote')
+        )->sum('payable_amount');
+        $totalExamFees = $applyDashboardFilter(
+            SchoolStudentFee::where('school_id', $school->id)
+                ->where('fee_type_name', 'Exams')
+        )->sum('payable_amount');
+        $totalSessionFees = $applyDashboardFilter(
+            SchoolStudentFee::where('school_id', $school->id)
+                ->where('fee_type_name', 'Session')
+        )->sum('payable_amount');
         $totalFineFees = $applyDashboardFilter(
             SchoolStudentFee::where('school_id', $school->id)
                 ->where('fee_type_name', 'Fine')
@@ -537,6 +553,10 @@ class DashboardController extends Controller
             'promotionsCount',
             'totalTuitionFees',
             'totalFoodFees',
+            'totalAdmissionFees',
+            'totalPromoteFees',
+            'totalExamFees',
+            'totalSessionFees',
             'totalFineFees',
             'sessionsCount',
             'examsCount',

@@ -9,6 +9,7 @@ use App\Models\AdmissionStudent;
 use App\Models\SchoolFeeDiscount;
 use App\Models\School;
 use App\Models\SchoolPayment;
+use App\Models\SchoolStudentFee;
 use App\Models\SchoolFeeTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -68,6 +69,29 @@ class SchoolFeeDiscountController extends Controller
                 'payable_due'   => $newDue,
                 'total_due'     => $newDue,
                 'status'        => $newStatus,
+            ]);
+        }
+
+        $this->applyDiscountToStudentFees($schoolId, $studentId, $feeTypeName, $feeName, $afterDiscount);
+    }
+
+    private function applyDiscountToStudentFees(int $schoolId, int $studentId, string $feeTypeName, string $feeName, float $afterDiscount): void
+    {
+        $studentFees = SchoolStudentFee::where('school_id', $schoolId)
+            ->where('student_id', $studentId)
+            ->where('fee_type_name', $feeTypeName)
+            ->where('fee_name', $feeName)
+            ->get();
+
+        foreach ($studentFees as $studentFee) {
+            $baseAmount   = (float) $studentFee->base_amount;
+            $discount     = max($baseAmount - $afterDiscount, 0);
+            $newDue       = max($afterDiscount - (float) $studentFee->paid_amount, 0);
+
+            $studentFee->update([
+                'discount_amount' => round($discount, 2),
+                'payable_amount'  => round($afterDiscount, 2),
+                'due_amount'      => round($newDue, 2),
             ]);
         }
     }
