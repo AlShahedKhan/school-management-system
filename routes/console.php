@@ -19,8 +19,9 @@ Schedule::command('sms:cleanup-expired')
     ->timezone('Asia/Dhaka');
 
 // Fee Management Cron Jobs
+// Runs daily at 12:01 AM; generates only templates whose due_day matches today's date.
 Schedule::command('fees:monthly-reset')
-    ->monthlyOn(1, '00:00')
+    ->dailyAt('00:01')
     ->timezone('Asia/Dhaka')
     ->withoutOverlapping();
 
