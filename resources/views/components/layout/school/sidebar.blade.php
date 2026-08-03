@@ -7,6 +7,42 @@
         <i class="hgi hgi-stroke hgi-rounded hgi-dashboard-browsing w-4"></i>
         Dashboard
     </a>
+    {{-- Fingerprint Attendance --}}
+            <div class="sidebar-group {{ request()->routeIs('school.fingerprint-attendance.*') ? 'open' : '' }}">
+
+                <div class="sidebar-group-toggle">
+
+                    <span>
+                        <i class="fas fa-fingerprint"></i>
+                        Fingerprint Attendance
+                    </span>
+
+                    <i class="fas fa-chevron-right text-xs"></i>
+
+         </div>
+                <div class="sidebar-group-content">
+
+                    {{-- Teacher --}}
+                    <a href="{{ route('school.fingerprint-attendance.teacher') }}"
+                    class="sidebar-subitem {{ request()->routeIs('school.fingerprint-attendance.teacher') ? 'active' : '' }}">
+
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        Teacher Attendance
+                    </a>
+                    {{-- Employee --}}
+                    <a href="{{ route('school.fingerprint-attendance.employee') }}"
+                    class="sidebar-subitem {{ request()->routeIs('school.fingerprint-attendance.employee') ? 'active' : '' }}">
+                        <i class="fas fa-user-tie"></i>
+                        Employee Attendance
+                    </a>
+                    {{-- Student --}}
+                    <a href="{{ route('school.fingerprint-attendance.student') }}"
+                    class="sidebar-subitem {{ request()->routeIs('school.fingerprint-attendance.student') ? 'active' : '' }}">
+                        <i class="fas fa-user-graduate"></i>
+                        Student Attendance
+                    </a>
+                </div>
+            </div>
 
     {{-- <p class="nav-header">Teacher Management</p> --}}
 

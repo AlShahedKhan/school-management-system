@@ -215,13 +215,36 @@
                     if (el) el.textContent = text || '';
                 };
 
+                const formatDateFormatted = (dateStr) => {
+                    if (!dateStr) return '';
+                    const cleanDate = dateStr.split('T')[0];
+                    const parts = cleanDate.split('-');
+                    if (parts.length === 3) {
+                        const year = parts[0];
+                        const monthIdx = parseInt(parts[1], 10) - 1;
+                        const day = parts[2].padStart(2, '0');
+                        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                        if (monthIdx >= 0 && monthIdx < 12) {
+                            return `${day}-${months[monthIdx]}-${year}`;
+                        }
+                    }
+                    const d = new Date(dateStr);
+                    if (isNaN(d.getTime())) return dateStr;
+                    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                    return `${String(d.getDate()).padStart(2, '0')}-${months[d.getMonth()]}-${d.getFullYear()}`;
+                };
+
                 setText('print_student_id_number', s.student_id_number);
-                setText('print_admission_id', s.admission_id || sl);
-                setText('print_date_box', s.created_at ? s.created_at.split('T')[0] : (s.admission_date || new Date().toISOString().split('T')[0]));
+                setText('print_admission_id', sl !== undefined && sl !== null ? sl : (s.admission_id || ''));
+                const rawDate = s.created_at ? s.created_at.split('T')[0] : (s.admission_date || new Date().toISOString().split('T')[0]);
+                setText('print_date_box', formatDateFormatted(rawDate));
                 setText('print_student_name', s.student_name);
                 setText('print_father_name', s.father_name);
                 setText('print_mother_name', s.mother_name);
                 setText('print_mobile', s.mobile);
+                setText('print_dob', formatDateFormatted(s.dob));
+                setText('print_nid_birth_certificate', s.nid_birth_certificate);
+                setText('print_blood_group', s.blood_group);
 
                 setText('print_g_name', s.g_name || s.guardian_name || s.father_name);
                 setText('print_g_relation', s.g_relation || s.relation || 'Father');
