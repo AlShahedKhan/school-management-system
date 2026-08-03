@@ -490,3 +490,18 @@ body{
     color: #1e293b;
     text-align: right;
 }
+
+
+.status-badge.status-success {
+    background: var(--success-soft);
+    color: var(--success);
+}
+
+.status-badge.status-danger {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+.device-avatar i {
+    font-size: 20px;
+}
