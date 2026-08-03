@@ -13,13 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 class AttendanceService
 {
-    /**
-     * Process and store attendance data from a device.
-     *
-     * @param int $idNumber The user ID from the attendance device.
-     * @param string $timestamp The timestamp string from the device.
-     * @return Attendance|null The created attendance record or null on failure.
-     */
+
     public function processAttendance(int $idNumber, string $timestamp): ?Attendance
     {
         $attendable = $this->findAttendable($idNumber);
@@ -45,12 +39,7 @@ class AttendanceService
         }
     }
 
-    /**
-     * Find the user (Teacher or Student) by their ID number.
-     *
-     * @param int $idNumber
-     * @return Teacher|AdmissionStudent|null
-     */
+
     private function findAttendable(int $idNumber)
     {
         $user = Teacher::where('id_number', $idNumber)->first();

@@ -18,11 +18,7 @@ class SchoolStudentFeeGenerationService
         $this->discountService = $discountService;
     }
 
-    /**
-     * Generate Admission Fee automatically after Admission or Promotion.
-     * Only once per student for the specific class+session.
-     * @return SchoolStudentFee|false
-     */
+
     public function generateAdmissionFee(AdmissionStudent $student, $classId, $sessionId, $schoolId = null)
     {
         $query = SchoolFeeTemplate::where(function ($q) {
@@ -44,7 +40,7 @@ class SchoolStudentFeeGenerationService
             throw new Exception("Active Admission Fee Template not found. Cannot generate fee.");
         }
 
-        // Prevent duplicate generation
+
         $exists = SchoolStudentFee::where('student_id', $student->id)
             ->where('fee_template_id', $template->id)
             ->exists();
@@ -53,7 +49,7 @@ class SchoolStudentFeeGenerationService
             return false;
         }
 
-        // Use template's pay_date as due_date, fallback to 7 days from now
+
         $dueDate = $template->pay_date
             ? Carbon::parse($template->pay_date)
             : Carbon::now()->addDays(7);
@@ -61,11 +57,7 @@ class SchoolStudentFeeGenerationService
         return $this->generateFeeRecord($template, $student, $dueDate);
     }
 
-    /**
-     * Generate Promote Fee automatically after Student Promotion.
-     * Only once per student for the specific class+session.
-     * @return SchoolStudentFee|false
-     */
+
     public function generatePromoteFee(AdmissionStudent $student, $classId, $sessionId, $schoolId = null)
     {
         $query = SchoolFeeTemplate::where(function ($q) {
@@ -86,7 +78,7 @@ class SchoolStudentFeeGenerationService
             throw new Exception("Active Promote Fee Template not found. Cannot generate fee.");
         }
 
-        // Prevent duplicate generation
+
         $exists = SchoolStudentFee::where('student_id', $student->id)
             ->where('fee_template_id', $template->id)
             ->exists();
@@ -95,7 +87,7 @@ class SchoolStudentFeeGenerationService
             return false;
         }
 
-        // Use template's pay_date as due_date, fallback to 7 days from now
+
         $dueDate = $template->pay_date
             ? Carbon::parse($template->pay_date)
             : Carbon::now()->addDays(7);
@@ -103,26 +95,23 @@ class SchoolStudentFeeGenerationService
         return $this->generateFeeRecord($template, $student, $dueDate);
     }
 
-    /**
-     * Generate Monthly Fees (e.g. Tuition, Food)
-     * Called by a Scheduler (e.g. on the 1st of every month).
-     */
+
     public function generateMonthlyFees(SchoolFeeTemplate $template, $monthYear)
     {
         if ($template->assign->payment_type !== 'monthly') {
             throw new Exception("Template is not a monthly fee.");
         }
 
-        // Fetch active students for this template's class/group/section
+
         $students = $this->getActiveStudentsForTemplate($template);
 
         DB::transaction(function () use ($template, $students, $monthYear) {
             foreach ($students as $student) {
-                // Check if already generated for this month
-                // Assuming month_year column exists, else we can check pay_date boundaries
-                // For simplicity, we assume month_year is handled somehow, or we check pay_date month.
-                // In a real implementation we would add 'month_year' to SchoolStudentFee or check created_at.
-                
+
+
+
+
+
                 $exists = SchoolStudentFee::where('student_id', $student->id)
                     ->where('fee_template_id', $template->id)
                     ->whereYear('pay_date', substr($monthYear, 0, 4))
@@ -137,16 +126,14 @@ class SchoolStudentFeeGenerationService
         });
     }
 
-    /**
-     * Generate One-Time Fees (Exam, Fine, Session)
-     */
+
     public function generateOneTimeFee(SchoolFeeTemplate $template, array $studentIds = [])
     {
         if ($template->assign->payment_type !== 'one_time') {
             throw new Exception("Template is not a one-time fee.");
         }
 
-        $students = count($studentIds) > 0 
+        $students = count($studentIds) > 0
             ? AdmissionStudent::whereIn('id', $studentIds)->where('status', 'active')->get()
             : $this->getActiveStudentsForTemplate($template);
 
@@ -164,19 +151,17 @@ class SchoolStudentFeeGenerationService
         });
     }
 
-    /**
-     * Internal method to create the fee record applying discounts.
-     */
+
     protected function generateFeeRecord(SchoolFeeTemplate $template, AdmissionStudent $student, Carbon $dueDate, $generationPeriod = 'one_time')
     {
         $amounts = $this->discountService->calculatePayableAmount($template, $student);
-        
-        // Final duplicate check leveraging generation_period
+
+
         $exists = SchoolStudentFee::where('student_id', $student->id)
             ->where('fee_template_id', $template->id)
             ->where('generation_period', $generationPeriod)
             ->exists();
-            
+
         if ($exists) {
             return false;
         }
@@ -201,9 +186,7 @@ class SchoolStudentFeeGenerationService
         ]);
     }
 
-    /**
-     * Helper to get active students matching template scope.
-     */
+
     protected function getActiveStudentsForTemplate(SchoolFeeTemplate $template)
     {
         $query = AdmissionStudent::where('status', 'active')

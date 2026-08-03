@@ -12,10 +12,7 @@ class SchoolFeeDiscountService
 
     private array $templateCache = [];
 
-    /**
-     * Compute the effective payable amount for a student + fee, applying the
-     * same session-scope then exam-scope discounts used during payment.
-     */
+
     public function effectiveTotal(int $schoolId, int $studentId, float $amount, ?string $feesType, ?string $feeName): float
     {
         $total = $this->applySessionDiscount($schoolId, $studentId, $amount, $feeName);
@@ -63,8 +60,8 @@ class SchoolFeeDiscountService
             return $amount;
         }
 
-        // Match the discount's fee type against the fee being processed.
-        // Legacy exam discounts without a fee type apply to all fees.
+
+
         if ($examDiscount->fee_type_id) {
             $discountFeeType = $this->feeTemplate($examDiscount->fee_type_id);
 

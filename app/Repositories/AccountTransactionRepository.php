@@ -5,15 +5,10 @@ namespace App\Repositories;
 use App\Models\AccountTransaction;
 use Illuminate\Support\Arr;
 
-/**
- * Repository for the immutable account_transactions ledger.
- * Records are only ever inserted; they are never updated or deleted.
- */
+
 class AccountTransactionRepository
 {
-    /**
-     * Append an immutable ledger entry.
-     */
+
     public function create(array $data): AccountTransaction
     {
         return AccountTransaction::create(Arr::only($data, [
@@ -33,9 +28,7 @@ class AccountTransactionRepository
         ]));
     }
 
-    /**
-     * Paginated ledger history for a school with optional filters.
-     */
+
     public function history(int $schoolId, array $filters = [], int $perPage = 50)
     {
         $query = AccountTransaction::query()
