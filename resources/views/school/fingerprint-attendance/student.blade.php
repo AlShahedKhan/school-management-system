@@ -2,171 +2,320 @@
 
 @section('content')
 
-<style>
-    .fp-page{
-        --primary:#2563eb;
-        --primary-soft:#eff6ff;
-        --text:#0f172a;
-        --muted:#64748b;
-        --border:#e2e8f0;
-        --bg:#f8fafc;
-        --green:#16a34a;
-        --red:#dc2626;
-        --orange:#ea580c;
-        --purple:#7c3aed;
-        padding:24px;
-        background:#f8fafc;
-        min-height:100vh;
-        font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    }
-    .fp-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:20px}
-    .fp-kicker{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--primary);margin-bottom:6px}
-    .fp-title{margin:0;font-size:27px;font-weight:800;color:var(--text)}
-    .fp-subtitle{margin:6px 0 0;font-size:12px;color:var(--muted)}
-    .fp-device-chip{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #bbf7d0;background:#f0fdf4;color:#15803d;border-radius:12px;font-size:11px;font-weight:800;white-space:nowrap}
-    .fp-device-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.12)}
-    .fp-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}
-    .fp-stat{background:#fff;border:1px solid var(--border);border-radius:15px;padding:15px;display:flex;align-items:center;gap:11px;box-shadow:0 6px 20px rgba(15,23,42,.035)}
-    .fp-stat-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 40px}
-    .fp-stat-icon.green{background:#ecfdf5;color:var(--green)}
-    .fp-stat-icon.red{background:#fef2f2;color:var(--red)}
-    .fp-stat-icon.orange{background:#fff7ed;color:var(--orange)}
-    .fp-stat-icon.blue{background:#eff6ff;color:var(--primary)}
-    .fp-stat-icon.purple{background:#faf5ff;color:var(--purple)}
-    .fp-stat h3{margin:0;font-size:19px;font-weight:800;color:var(--text)}
-    .fp-stat p{margin:4px 0 0;font-size:10px;font-weight:700;color:var(--muted)}
-    .fp-card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 7px 22px rgba(15,23,42,.035);overflow:hidden;margin-bottom:18px}
-    .fp-card-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 18px;border-bottom:1px solid var(--border)}
-    .fp-card-head h4{margin:0;font-size:14px;font-weight:800;color:var(--text)}
-    .fp-card-head p{margin:3px 0 0;font-size:10px;color:var(--muted)}
-    .fp-card-body{padding:18px}
-    .fp-filter-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px;align-items:end}
-    .col-6{grid-column:span 6}.col-4{grid-column:span 4}.col-3{grid-column:span 3}.col-2{grid-column:span 2}.col-1{grid-column:span 1}.col-12{grid-column:span 12}
-    .fp-label{display:block;margin-bottom:6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#475569}
-    .fp-input,.fp-select{width:100%;height:40px;border:1px solid #dbe3ed;border-radius:9px;background:#fff;padding:0 11px;font-size:11px;color:#334155;outline:none}
-    .fp-input:focus,.fp-select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
-    .fp-btn{width:100%;height:40px;border:0;border-radius:9px;background:var(--primary);color:#fff;font-size:11px;font-weight:800;cursor:pointer}
-    .fp-btn:hover{background:#1d4ed8}
-    .fp-search{position:relative;width:235px}
-    .fp-search i{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:11px;color:#94a3b8}
-    .fp-search input{width:100%;height:36px;border:1px solid var(--border);border-radius:9px;padding:0 11px 0 32px;font-size:10px;outline:none}
-    .fp-search input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
-    .fp-table-wrap{overflow-x:auto}
-    .fp-table{width:100%;border-collapse:collapse;min-width:950px}
-    .fp-table th{padding:12px 13px;background:#f8fafc;border-bottom:1px solid var(--border);color:#64748b;font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;text-align:left;white-space:nowrap}
-    .fp-table td{padding:13px;border-bottom:1px solid #f1f5f9;color:#334155;font-size:10.5px;vertical-align:middle;white-space:nowrap}
-    .fp-person{display:flex;align-items:center;gap:9px}
-    .fp-avatar{width:34px;height:34px;border-radius:10px;background:#eff6ff;color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}
-    .fp-person b{display:block;font-size:10.5px;color:var(--text)}
-    .fp-person small{display:block;margin-top:2px;color:#94a3b8;font-size:8.5px}
-    .fp-status{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;font-size:8.5px;font-weight:800}
-    .fp-status::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
-    .present{background:#ecfdf5;color:#15803d}
-    .absent{background:#fef2f2;color:#dc2626}
-    .late{background:#fff7ed;color:#c2410c}
-    .leave{background:#eff6ff;color:#1d4ed8}
-    .holiday{background:#faf5ff;color:#7e22ce}
-    .late-min{font-weight:800;color:#c2410c}
-    .fp-note{display:flex;align-items:center;gap:7px;padding:11px 14px;background:#f8fafc;border-top:1px solid var(--border);font-size:9.5px;color:#64748b}
-    @media(max-width:1100px){.fp-summary{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:800px){
-        .fp-page{padding:16px}
-        .fp-header{flex-direction:column}
-        .fp-summary{grid-template-columns:repeat(2,1fr)}
-        .fp-card-head{align-items:flex-start;flex-direction:column}
-        .fp-search{width:100%}
-        .col-6,.col-4,.col-3,.col-2,.col-1{grid-column:span 12}
-    }
-    @media(max-width:480px){.fp-summary{grid-template-columns:1fr}}
-</style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
 
-<div class="fp-page">
-    <div class="fp-header">
-        <div>
-            <div class="fp-kicker">Fingerprint Attendance</div>
-            <h1 class="fp-title">Student Attendance</h1>
-            <p class="fp-subtitle">Class-wise student fingerprint attendance, in/out time and attendance status.</p>
-        </div>
-        <div class="fp-device-chip"><span class="fp-device-dot"></span><i class="fas fa-microchip"></i> Device Online</div>
-    </div>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    
-<div class="fp-summary">
-    <div class="fp-stat"><div class="fp-stat-icon green"><i class="fas fa-user-check"></i></div><div><h3>22</h3><p>Total Present</p></div></div>
-    <div class="fp-stat"><div class="fp-stat-icon red"><i class="fas fa-user-times"></i></div><div><h3>3</h3><p>Total Absent</p></div></div>
-    <div class="fp-stat"><div class="fp-stat-icon orange"><i class="fas fa-clock"></i></div><div><h3>4</h3><p>Total Late</p></div></div>
-    <div class="fp-stat"><div class="fp-stat-icon blue"><i class="fas fa-calendar-check"></i></div><div><h3>1</h3><p>Total Leave</p></div></div>
-    <div class="fp-stat"><div class="fp-stat-icon purple"><i class="fas fa-umbrella-beach"></i></div><div><h3>2</h3><p>Total Holiday</p></div></div>
-</div>
+    <style>
+        .fp-main-view{padding:18px}
+        .fp-shell{background:#fff;border:1px solid #e2e8f0;box-shadow:0 8px 24px rgba(15,23,42,.04)}
+        .fp-toolbar-btn{
+            height:34px;padding:0 11px;border:1px solid #cbd5e1;background:#fff;color:#475569;
+            font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:.18s;
+        }
+        .fp-toolbar-btn:hover{background:#f8fafc;color:#0f172a}
+        .fp-toolbar-btn.primary{background:#0f172a;border-color:#0f172a;color:#fff}
+        .fp-toolbar-btn.primary:hover{background:#1e293b}
+        .fp-search-wrap{position:relative;min-width:230px}
+        .fp-search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:#94a3b8}
+        .fp-search-input{
+            width:100%;height:34px;border:1px solid #cbd5e1;background:#fff;padding:0 10px 0 32px;
+            font-size:10px;color:#334155;outline:none;
+        }
+        .fp-search-input:focus{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.08)}
+        .fp-status-badge{
+            display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:66px;
+            padding:4px 8px;border-radius:999px;font-size:9px;font-weight:800;border:1px solid transparent;
+        }
+        .fp-status-badge:before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+        .present{background:#ecfdf5;color:#15803d;border-color:#bbf7d0}
+        .absent{background:#fef2f2;color:#dc2626;border-color:#fecaca}
+        .late{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
+        .leave{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+        .holiday{background:#faf5ff;color:#7e22ce;border-color:#e9d5ff}
+        .fp-table-scroll{overflow:auto;scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
+        .fp-table-scroll::-webkit-scrollbar{height:5px;width:5px}
+        .fp-table-scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
+        .fp-empty{padding:38px 16px;text-align:center;color:#94a3b8;font-size:11px}
+        .fp-filter-panel{display:none}
+        .fp-filter-panel.show{display:block}
+        .fp-status-menu,.fp-export-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:50;width:160px;border:1px solid #e2e8f0;background:#fff;box-shadow:0 12px 30px rgba(15,23,42,.12)}
+        .fp-status-menu.show,.fp-export-menu.show{display:block}
+        .fp-menu-btn{width:100%;padding:8px 10px;text-align:left;font-size:10px;color:#475569;background:#fff;border:0}
+        .fp-menu-btn:hover{background:#f8fafc;color:#0f172a}
+        .fp-filter-select{
+            width:100%;height:34px;border:1px solid #cbd5e1;background:#fff;padding:0 9px;font-size:10px;color:#475569;outline:none
+        }
+        .fp-filter-select:focus{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.08)}
+        @media(max-width:900px){
+            .fp-main-view{padding:12px}
+            .fp-search-wrap{width:100%;min-width:0}
+        }
+    </style>
 
+<div class="main-view-container fp-main-view">
+    <div class="max-w-full mx-auto w-full">
+        
+        <div class="mb-3 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+                <div class="text-[10px] font-black uppercase tracking-[0.16em] text-blue-600">Fingerprint Attendance</div>
+                <div class="mt-1 flex items-center gap-2 text-[10px] text-slate-400">
+                    <span>School</span>
+                    <i class="mdi mdi-chevron-right text-xs"></i>
+                    <span class="font-semibold text-slate-600">Student Attendance</span>
+                </div>
+                <h1 class="mt-1 text-[18px] font-black text-slate-900">Student Attendance</h1>
+                <p class="mt-1 text-[10px] text-slate-500">Monitor student fingerprint attendance records.</p>
+            </div>
 
-    <div class="fp-card">
-        <div class="fp-card-head">
-            <div><h4><i class="fas fa-filter" style="color:#2563eb;margin-right:7px"></i>Attendance Filter</h4><p>Filter by Class, Group, Section, Session, Month and Year.</p></div>
-        </div>
-        <div class="fp-card-body">
-            <div class="fp-filter-grid">
-                <div class="col-2"><label class="fp-label">Class</label><select class="fp-select"><option>Class 8</option><option>Class 9</option><option>Class 10</option></select></div>
-                <div class="col-2"><label class="fp-label">Group</label><select class="fp-select"><option>Science</option><option>Business Studies</option><option>Humanities</option></select></div>
-                <div class="col-2"><label class="fp-label">Section</label><select class="fp-select"><option>A</option><option>B</option><option>C</option></select></div>
-                <div class="col-2"><label class="fp-label">Session</label><select class="fp-select"><option>2026</option><option>2025</option></select></div>
-                <div class="col-2"><label class="fp-label">Month</label><select class="fp-select"><option>August</option><option>July</option><option>June</option></select></div>
-                <div class="col-1"><label class="fp-label">Year</label><select class="fp-select"><option>2026</option><option>2025</option></select></div>
-                <div class="col-1"><button type="button" id="fpFilterButton" class="fp-btn"><i class="fas fa-search"></i></button></div>
+            <div class="flex items-center gap-2 text-[10px] font-semibold text-emerald-700">
+                <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                Fingerprint Device Online
             </div>
         </div>
-    </div>
 
-    <div class="fp-card">
-        <div class="fp-card-head">
-            <div><h4><i class="fas fa-fingerprint" style="color:#2563eb;margin-right:7px"></i>Student Attendance Report</h4><p>Class-wise fingerprint attendance report.</p></div>
-            <div class="fp-search"><i class="fas fa-search"></i><input id="fpAttendanceSearch" type="text" placeholder="Search student or status..."></div>
+
+        <div class="fp-shell">
+            <div class="border-b border-slate-200 px-3 py-2">
+                <div class="text-[11px] font-black uppercase tracking-wider text-slate-700">Student Attendance</div>
+            </div>
+
+            
+        <div class="flex flex-col gap-2 border-b border-slate-200 px-3 py-2 lg:flex-row lg:items-center lg:justify-between">
+            <div class="fp-search-wrap">
+                <i class="mdi mdi-magnify"></i>
+                <input id="fpSearch" type="text" class="fp-search-input" placeholder="Search...">
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <button type="button" id="fpRestoreBtn" class="fp-toolbar-btn">
+                    <i class="mdi mdi-restore text-sm"></i>
+                    Restore
+                </button>
+
+                <button type="button" id="fpFilterBtn" class="fp-toolbar-btn">
+                    <i class="mdi mdi-filter-variant text-sm"></i>
+                    Filter
+                </button>
+
+                <div class="relative">
+                    <button type="button" id="fpStatusBtn" class="fp-toolbar-btn">
+                        <i class="mdi mdi-list-status text-sm"></i>
+                        <span id="fpStatusLabel">Status</span>
+                        <i class="mdi mdi-chevron-down text-sm"></i>
+                    </button>
+
+                    <div id="fpStatusMenu" class="fp-status-menu">
+                        <button class="fp-menu-btn" data-status="">All Status</button>
+                        <button class="fp-menu-btn" data-status="present">Present</button>
+                        <button class="fp-menu-btn" data-status="absent">Absent</button>
+                        <button class="fp-menu-btn" data-status="late">Late</button>
+                        <button class="fp-menu-btn" data-status="leave">Leave</button>
+                        <button class="fp-menu-btn" data-status="holiday">Holiday</button>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <button type="button" id="fpExportBtn" class="fp-toolbar-btn primary">
+                        <i class="mdi mdi-export-variant text-sm"></i>
+                        Export
+                        <i class="mdi mdi-chevron-down text-sm"></i>
+                    </button>
+
+                    <div id="fpExportMenu" class="fp-export-menu">
+                        <button class="fp-menu-btn"><i class="mdi mdi-file-excel-outline mr-1"></i> Export Excel</button>
+                        <button class="fp-menu-btn"><i class="mdi mdi-file-pdf-box mr-1"></i> Export PDF</button>
+                        <button class="fp-menu-btn"><i class="mdi mdi-printer-outline mr-1"></i> Print</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="fp-table-wrap">
-            <table class="fp-table" id="fpAttendanceTable">
-                <thead>
-                    <tr><th>SL</th><th>Date</th><th>Class</th><th>Group</th><th>Section</th><th>Session</th><th>Student ID</th><th>Student Name</th><th>In Time</th><th>Late Minutes</th><th>Out Time</th><th>Status</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>01</td><td>01 Aug 2026</td><td>Class 8</td><td>Science</td><td>A</td><td>2026</td><td>ST-8001</td><td><div class="fp-person"><div class="fp-avatar">RA</div><div><b>Rahim Ahmed</b><small>Student</small></div></div></td><td>07:52 AM</td><td>0 min</td><td>01:35 PM</td><td><span class="fp-status present">Present</span></td></tr>
-                    <tr><td>02</td><td>01 Aug 2026</td><td>Class 8</td><td>Science</td><td>A</td><td>2026</td><td>ST-8002</td><td><div class="fp-person"><div class="fp-avatar">SK</div><div><b>Sadika Khan</b><small>Student</small></div></div></td><td>08:12 AM</td><td><span class="late-min">12 min</span></td><td>01:32 PM</td><td><span class="fp-status late">Late</span></td></tr>
-                    <tr><td>03</td><td>01 Aug 2026</td><td>Class 8</td><td>Science</td><td>A</td><td>2026</td><td>ST-8003</td><td><div class="fp-person"><div class="fp-avatar">MH</div><div><b>Mahin Hasan</b><small>Student</small></div></div></td><td>—</td><td>—</td><td>—</td><td><span class="fp-status absent">Absent</span></td></tr>
-                    <tr><td>04</td><td>01 Aug 2026</td><td>Class 8</td><td>Science</td><td>A</td><td>2026</td><td>ST-8004</td><td><div class="fp-person"><div class="fp-avatar">NA</div><div><b>Nabila Akter</b><small>Student</small></div></div></td><td>—</td><td>—</td><td>—</td><td><span class="fp-status leave">Leave</span></td></tr>
-                    <tr><td>05</td><td>05 Aug 2026</td><td>Class 8</td><td>Science</td><td>A</td><td>2026</td><td>ST-8001</td><td><div class="fp-person"><div class="fp-avatar">RA</div><div><b>Rahim Ahmed</b><small>Student</small></div></div></td><td>—</td><td>—</td><td>—</td><td><span class="fp-status holiday">Holiday</span></td></tr>
+
+            
+        <div id="fpFilterPanel" class="fp-filter-panel border-b border-slate-200 bg-slate-50/70 px-3 py-3">
+            <div class="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-12">
+                
+        <div class="xl:col-span-2">
+            <label class="mb-1 block text-[9px] font-black uppercase tracking-widest text-slate-500">Class</label>
+            <select data-fp-filter class="fp-filter-select"><option>All Classes</option><option>Class 8</option><option>Class 9</option><option>Class 10</option></select>
+        </div>
+
+        <div class="xl:col-span-2">
+            <label class="mb-1 block text-[9px] font-black uppercase tracking-widest text-slate-500">Group</label>
+            <select data-fp-filter class="fp-filter-select"><option>All Groups</option><option>Science</option><option>Business Studies</option><option>Humanities</option></select>
+        </div>
+
+        <div class="xl:col-span-2">
+            <label class="mb-1 block text-[9px] font-black uppercase tracking-widest text-slate-500">Section</label>
+            <select data-fp-filter class="fp-filter-select"><option>All Sections</option><option>A</option><option>B</option><option>C</option></select>
+        </div>
+
+        <div class="xl:col-span-2">
+            <label class="mb-1 block text-[9px] font-black uppercase tracking-widest text-slate-500">Session</label>
+            <select data-fp-filter class="fp-filter-select"><option>2026</option><option>2025</option></select>
+        </div>
+
+        <div class="xl:col-span-1">
+            <label class="mb-1 block text-[9px] font-black uppercase tracking-widest text-slate-500">Month</label>
+            <select data-fp-filter class="fp-filter-select"><option>August</option><option>July</option><option>June</option></select>
+        </div>
+
+        <div class="xl:col-span-1">
+            <label class="mb-1 block text-[9px] font-black uppercase tracking-widest text-slate-500">Year</label>
+            <select data-fp-filter class="fp-filter-select"><option>2026</option><option>2025</option></select>
+        </div>
+
+                <div class="flex items-end gap-2 xl:col-span-2">
+                    <button type="button" id="fpFilterReset" class="fp-toolbar-btn w-full justify-center">Reset</button>
+                    <button type="button" id="fpFilterApply" class="fp-toolbar-btn primary w-full justify-center">Apply</button>
+                </div>
+            </div>
+        </div>
+
+            
+        <div class="fp-table-scroll">
+            <table id="fpAttendanceTable" class="w-full border-collapse">
+                <thead><tr><th class="h-8 whitespace-nowrap border border-slate-300 bg-slate-100 px-3 text-left text-[9px] font-black uppercase tracking-wide text-slate-500">SL</th><th class="h-8 whitespace-nowrap border border-slate-300 bg-slate-100 px-3 text-left text-[9px] font-black uppercase tracking-wide text-slate-500">Date</th><th class="h-8 whitespace-nowrap border border-slate-300 bg-slate-100 px-3 text-left text-[9px] font-black uppercase tracking-wide text-slate-500">Class</th><th class="h-8 whitespace-nowrap border border-slate-300 bg-slate-100 px-3 text-left text-[9px] font-black uppercase tracking-wide text-slate-500">Group</th><th class="h-8 whitespace-nowrap border border-slate-300 bg-slate-100 px-3 text-left text-[9px] font-black uppercase tracking-wide text-slate-500">Section</th><th class="h-8 whitespace-nowrap border border-slate-300 bg-slate-100 px-3 text-left text-[9px] font-black uppercase tracking-wide text-slate-500">Session</th><th class="h-8 whitespace-nowrap border border-slate-300 bg-slate-100 px-3 text-left text-[9px] font-black uppercase tracking-wide text-slate-500">Student ID</th><th class="h-8 whitespace-nowrap border border-slate-300 bg-slate-100 px-3 text-left text-[9px] font-black uppercase tracking-wide text-slate-500">Student Name</th><th class="h-8 whitespace-nowrap border border-slate-300 bg-slate-100 px-3 text-left text-[9px] font-black uppercase tracking-wide text-slate-500">In Time</th><th class="h-8 whitespace-nowrap border border-slate-300 bg-slate-100 px-3 text-left text-[9px] font-black uppercase tracking-wide text-slate-500">Late Minutes</th><th class="h-8 whitespace-nowrap border border-slate-300 bg-slate-100 px-3 text-left text-[9px] font-black uppercase tracking-wide text-slate-500">Out Time</th><th class="h-8 whitespace-nowrap border border-slate-300 bg-slate-100 px-3 text-left text-[9px] font-black uppercase tracking-wide text-slate-500">Status</th></tr></thead>
+                <tbody id="fpAttendanceBody">
+                    <tr data-status="present"><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">01</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">01-August-2026</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">Class 8</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">Science</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">A</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">2026</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">ST-8001</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">
+        <div class="flex items-center gap-2">
+            <div class="flex h-7 w-7 items-center justify-center rounded bg-slate-100 text-[9px] font-black text-slate-600">RA</div>
+            <div>
+                <div class="text-[10px] font-bold text-slate-800">Rahim Ahmed</div>
+                <div class="text-[8px] text-slate-400">Student</div>
+            </div>
+        </div>
+    </td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">07:52 AM</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">0 min</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">01:35 PM</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 "><span class="fp-status-badge present">Present</span></td></tr><tr data-status="late"><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">02</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">01-August-2026</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">Class 8</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">Science</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">A</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">2026</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">ST-8002</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">
+        <div class="flex items-center gap-2">
+            <div class="flex h-7 w-7 items-center justify-center rounded bg-slate-100 text-[9px] font-black text-slate-600">SK</div>
+            <div>
+                <div class="text-[10px] font-bold text-slate-800">Sadika Khan</div>
+                <div class="text-[8px] text-slate-400">Student</div>
+            </div>
+        </div>
+    </td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">08:12 AM</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 "><span class="font-bold text-orange-600">12 min</span></td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">01:32 PM</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 "><span class="fp-status-badge late">Late</span></td></tr><tr data-status="holiday"><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">03</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">05-August-2026</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">Class 8</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">Science</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">A</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">2026</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">ST-8003</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">
+        <div class="flex items-center gap-2">
+            <div class="flex h-7 w-7 items-center justify-center rounded bg-slate-100 text-[9px] font-black text-slate-600">MH</div>
+            <div>
+                <div class="text-[10px] font-bold text-slate-800">Mahin Hasan</div>
+                <div class="text-[8px] text-slate-400">Student</div>
+            </div>
+        </div>
+    </td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">-</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">-</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 ">-</td><td class="h-9 whitespace-nowrap border border-slate-300 px-3 text-[10px] text-slate-700 "><span class="fp-status-badge holiday">Holiday</span></td></tr>
                 </tbody>
             </table>
         </div>
-        <div class="fp-note"><i class="fas fa-info-circle" style="color:#2563eb"></i> Frontend UI only. Device/database data is not connected yet.</div>
+
+        <div id="fpEmptyState" class="fp-empty hidden">
+            No student attendance found.
+        </div>
+
+        <div class="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-3 py-2">
+            <div class="text-[9px] text-slate-400">
+                Showing frontend demo records
+            </div>
+            <div class="flex items-center gap-1 text-[9px] text-slate-500">
+                <button class="h-6 w-6 border border-slate-300 bg-white"><i class="mdi mdi-chevron-left"></i></button>
+                <button class="h-6 w-6 border border-slate-900 bg-slate-900 text-white">1</button>
+                <button class="h-6 w-6 border border-slate-300 bg-white"><i class="mdi mdi-chevron-right"></i></button>
+            </div>
+        </div>
+
+        </div>
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const search = document.getElementById('fpAttendanceSearch');
-    const rows = document.querySelectorAll('#fpAttendanceTable tbody tr');
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const search = document.getElementById('fpSearch');
+            const filterBtn = document.getElementById('fpFilterBtn');
+            const filterPanel = document.getElementById('fpFilterPanel');
+            const restoreBtn = document.getElementById('fpRestoreBtn');
+            const statusBtn = document.getElementById('fpStatusBtn');
+            const statusMenu = document.getElementById('fpStatusMenu');
+            const statusLabel = document.getElementById('fpStatusLabel');
+            const exportBtn = document.getElementById('fpExportBtn');
+            const exportMenu = document.getElementById('fpExportMenu');
+            const empty = document.getElementById('fpEmptyState');
 
-    search?.addEventListener('keyup', function () {
-        const value = this.value.toLowerCase();
+            let currentStatus = '';
 
-        rows.forEach(function (row) {
-            row.style.display = row.innerText.toLowerCase().includes(value) ? '' : 'none';
-        });
-    });
+            function applyClientFilter() {
+                const q = (search?.value || '').toLowerCase().trim();
+                let visible = 0;
 
-    document.getElementById('fpFilterButton')?.addEventListener('click', function () {
-        if (window.Swal) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Filter Applied',
-                text: 'Frontend demo filter is ready. Backend data can be connected later.',
-                timer: 1500,
-                showConfirmButton: false
+                document.querySelectorAll('#fpAttendanceTable tbody tr').forEach(function (row) {
+                    const matchSearch = row.innerText.toLowerCase().includes(q);
+                    const rowStatus = (row.dataset.status || '').toLowerCase();
+                    const matchStatus = !currentStatus || rowStatus === currentStatus;
+                    const show = matchSearch && matchStatus;
+
+                    row.style.display = show ? '' : 'none';
+                    if (show) visible++;
+                });
+
+                empty?.classList.toggle('hidden', visible !== 0);
+            }
+
+            search?.addEventListener('input', applyClientFilter);
+
+            filterBtn?.addEventListener('click', function () {
+                filterPanel?.classList.toggle('show');
             });
-        } else {
-            alert('Filter Applied - Frontend UI Demo');
-        }
-    });
-});
-</script>
+
+            restoreBtn?.addEventListener('click', function () {
+                if (search) search.value = '';
+                currentStatus = '';
+                if (statusLabel) statusLabel.textContent = 'Status';
+                document.querySelectorAll('[data-fp-filter]').forEach(el => el.selectedIndex = 0);
+                filterPanel?.classList.remove('show');
+                applyClientFilter();
+            });
+
+            statusBtn?.addEventListener('click', function (e) {
+                e.stopPropagation();
+                statusMenu?.classList.toggle('show');
+                exportMenu?.classList.remove('show');
+            });
+
+            exportBtn?.addEventListener('click', function (e) {
+                e.stopPropagation();
+                exportMenu?.classList.toggle('show');
+                statusMenu?.classList.remove('show');
+            });
+
+            document.querySelectorAll('[data-status]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    currentStatus = this.dataset.status || '';
+                    if (statusLabel) statusLabel.textContent = this.textContent.trim();
+                    statusMenu?.classList.remove('show');
+                    applyClientFilter();
+                });
+            });
+
+            document.getElementById('fpFilterApply')?.addEventListener('click', function () {
+                filterPanel?.classList.remove('show');
+                Toastify({
+                    text: 'Filter applied',
+                    duration: 1400,
+                    gravity: 'top',
+                    position: 'right',
+                    style: { background: '#0f172a' }
+                }).showToast();
+            });
+
+            document.getElementById('fpFilterReset')?.addEventListener('click', function () {
+                document.querySelectorAll('[data-fp-filter]').forEach(el => el.selectedIndex = 0);
+            });
+
+            document.addEventListener('click', function () {
+                statusMenu?.classList.remove('show');
+                exportMenu?.classList.remove('show');
+            });
+        });
+    </script>
 
 @endsection
