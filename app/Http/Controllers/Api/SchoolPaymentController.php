@@ -14,6 +14,7 @@ use App\Models\SchoolFeeDiscount;
 use App\Services\ExamDiscountApplicationService;
 use App\Services\FeeStatusSyncService;
 use App\Services\SchoolFeeDiscountService;
+use App\Services\AccountService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -191,20 +192,37 @@ class SchoolPaymentController extends Controller
             $paymentStatus = 'partial';
         }
 
-        $payment = SchoolPayment::create(array_merge($validated, [
-            'school_id'             => $school->id,
-            'school_student_fee_id' => $schoolStudentFeeId,
-            'total_payable'         => $effectiveTotal,
-            'payable_due'           => $dueAmount,
-            'status'                => $paymentStatus,
-            'total_amount'          => $paidAmount,
-            'total_due'             => $dueAmount,
-        ]));
+        $payment = DB::transaction(function () use ($school, $validated, $schoolStudentFeeId, $effectiveTotal, $dueAmount, $paymentStatus, $paidAmount, $feeRecord) {
+            $payment = SchoolPayment::create(array_merge($validated, [
+                'school_id'             => $school->id,
+                'school_student_fee_id' => $schoolStudentFeeId,
+                'total_payable'         => $effectiveTotal,
+                'payable_due'           => $dueAmount,
+                'status'                => $paymentStatus,
+                'total_amount'          => $paidAmount,
+                'total_due'             => $dueAmount,
+            ]));
 
-        // Sync the linked fee record's status using the unified helper
-        if ($feeRecord) {
-            $this->syncFeeStatus($feeRecord);
-        }
+            // Sync the linked fee record's status using the unified helper
+            if ($feeRecord) {
+                $this->syncFeeStatus($feeRecord);
+            }
+
+            // Cash In to the internal System Cash Balance (immutable ledger)
+            app(AccountService::class)->cashIn(
+                $school->id,
+                $paidAmount,
+                AccountService::moduleForFeeType($validated['fees_type'] ?? null),
+                $payment->id,
+                [
+                    'before_discount' => $effectiveTotal,
+                    'after_discount'  => $effectiveTotal,
+                    'remarks'         => ($validated['fees_type'] ?? '') . ' - ' . ($validated['fee_name'] ?? '') . ' | Student #' . $validated['admission_student_id'],
+                ]
+            );
+
+            return $payment;
+        });
 
         return response()->json(['status' => 'success', 'data' => $payment->load('student')], 201);
     }
@@ -285,15 +303,42 @@ class SchoolPaymentController extends Controller
             }
         }
 
-        $payment->update($validated);
+        $payment = DB::transaction(function () use ($school, $payment, $validated) {
+            $oldAmount = (float) $payment->type_amount;
 
-        // Sync the linked fee record's status
-        if ($payment->school_student_fee_id) {
-            $feeRecord = SchoolStudentFee::find($payment->school_student_fee_id);
-            if ($feeRecord) {
-                $this->syncFeeStatus($feeRecord);
+            $payment->update($validated);
+
+            // Sync the linked fee record's status
+            if ($payment->school_student_fee_id) {
+                $feeRecord = SchoolStudentFee::find($payment->school_student_fee_id);
+                if ($feeRecord) {
+                    $this->syncFeeStatus($feeRecord);
+                }
             }
-        }
+
+            // Keep the internal ledger consistent with a Reverse + re-book.
+            $newAmount = (float) $payment->type_amount;
+            if (abs($newAmount - $oldAmount) > 0.0001) {
+                $service = app(AccountService::class);
+                $service->cashOut($school->id, $oldAmount, 'Payment Adjustment', $payment->id, [
+                    'remarks' => 'Reversal of ' . ($payment->fees_type ?? 'fee') . ' payment #' . $payment->id
+                        . ' (amount adjusted ' . number_format($oldAmount, 2) . ' -> ' . number_format($newAmount, 2) . ')',
+                ]);
+                $service->cashIn(
+                    $school->id,
+                    $newAmount,
+                    AccountService::moduleForFeeType($payment->fees_type),
+                    $payment->id,
+                    [
+                        'before_discount' => (float) $payment->total_payable,
+                        'after_discount'  => (float) $payment->total_payable,
+                        'remarks'         => ($payment->fees_type ?? '') . ' - ' . ($payment->fee_name ?? '') . ' (adjusted) | Student #' . $payment->admission_student_id,
+                    ]
+                );
+            }
+
+            return $payment;
+        });
 
         return response()->json([
             'status'  => 'success',
@@ -310,17 +355,31 @@ class SchoolPaymentController extends Controller
         $school = $this->getSchool();
         $payment = SchoolPayment::where('school_id', $school->id)->findOrFail($id);
 
-        // Sync the fee record status before deleting
-        if ($payment->school_student_fee_id) {
-            $feeRecord = SchoolStudentFee::find($payment->school_student_fee_id);
-        }
+        DB::transaction(function () use ($school, $payment) {
+            $amount = (float) $payment->type_amount;
+            $paymentId = $payment->id;
+            $feesType = $payment->fees_type;
+            $studentId = $payment->admission_student_id;
 
-        $payment->delete();
+            // Sync the fee record status before deleting
+            if ($payment->school_student_fee_id) {
+                $feeRecord = SchoolStudentFee::find($payment->school_student_fee_id);
+            }
 
-        // Recalculate the fee record status after payment removal
-        if (isset($feeRecord) && $feeRecord) {
-            $this->syncFeeStatus($feeRecord);
-        }
+            $payment->delete();
+
+            // Recalculate the fee record status after payment removal
+            if (isset($feeRecord) && $feeRecord) {
+                $this->syncFeeStatus($feeRecord);
+            }
+
+            // Reverse the ledger entry — ledger rows are never deleted.
+            if ($amount > 0) {
+                app(AccountService::class)->cashOut($school->id, $amount, 'Payment Adjustment', $paymentId, [
+                    'remarks' => 'Reversal of deleted ' . ($feesType ?? 'fee') . ' payment #' . $paymentId . ' | Student #' . $studentId,
+                ]);
+            }
+        });
 
         return response()->json([
             'status'  => 'success',
@@ -392,11 +451,15 @@ class SchoolPaymentController extends Controller
             }
         }
 
-        // 2. Check for legacy discount (school_fee_discounts) if no new discount found
+        // 2. Check for legacy session-scope discount (school_fee_discounts) if no new discount found.
+        //    Exam-scope discounts are NOT applied here unconditionally — they only take effect
+        //    through applyExamDiscount() once the exam result is published and the student's
+        //    grade meets the minimum qualifying grade.
         if (!$hasDiscount) {
             $legacyDiscount = SchoolFeeDiscount::where('school_id', $school->id)
                 ->where('student_id', $request->admission_id)
                 ->where('fee_name', $request->fee_name)
+                ->where('discount_scope', 'session')
                 ->first();
 
             if ($legacyDiscount) {
@@ -803,25 +866,42 @@ class SchoolPaymentController extends Controller
         $newTotalPaid = $alreadyPaid + $amount;
         $paymentStatus = $newTotalPaid >= $feeAmount ? 'paid' : 'partial';
 
-        $payment = SchoolPayment::create([
-            'school_id'             => $school->id,
-            'school_student_fee_id' => $feeRecord->id,
-            'admission_student_id'  => $studentId,
-            'fees_type'             => $validated['fees_type'],
-            'fee_name'              => $validated['fee_name'],
-            'total_payable'         => $feeAmount,
-            'type_amount'           => $amount,
-            'payable_due'           => max($feeAmount - $newTotalPaid, 0),
-            'total_amount'          => $amount,
-            'total_due'             => max($feeAmount - $newTotalPaid, 0),
-            'pay_date'              => $validated['pay_date'],
-            'for_month'             => $validated['for_month'],
-            'pay_method'            => $validated['pay_method'],
-            'status'                => $paymentStatus,
-        ]);
+        $payment = DB::transaction(function () use ($school, $validated, $studentId, $feeRecord, $feeAmount, $newTotalPaid, $amount, $paymentStatus) {
+            $payment = SchoolPayment::create([
+                'school_id'             => $school->id,
+                'school_student_fee_id' => $feeRecord->id,
+                'admission_student_id'  => $studentId,
+                'fees_type'             => $validated['fees_type'],
+                'fee_name'              => $validated['fee_name'],
+                'total_payable'         => $feeAmount,
+                'type_amount'           => $amount,
+                'payable_due'           => max($feeAmount - $newTotalPaid, 0),
+                'total_amount'          => $amount,
+                'total_due'             => max($feeAmount - $newTotalPaid, 0),
+                'pay_date'              => $validated['pay_date'],
+                'for_month'             => $validated['for_month'],
+                'pay_method'            => $validated['pay_method'],
+                'status'                => $paymentStatus,
+            ]);
 
-        // Sync fee record status using unified helper
-        $this->syncFeeStatus($feeRecord);
+            // Sync fee record status using unified helper
+            $this->syncFeeStatus($feeRecord);
+
+            // Cash In to the internal System Cash Balance (immutable ledger)
+            app(AccountService::class)->cashIn(
+                $school->id,
+                $amount,
+                'Advance Collection',
+                $payment->id,
+                [
+                    'before_discount' => $feeAmount,
+                    'after_discount'  => $feeAmount,
+                    'remarks'         => ($validated['fees_type'] ?? '') . ' - ' . ($validated['fee_name'] ?? '') . ' (Advance) | Student #' . $studentId,
+                ]
+            );
+
+            return $payment;
+        });
 
         return response()->json([
             'status'  => 'success',

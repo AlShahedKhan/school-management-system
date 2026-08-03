@@ -3,7 +3,8 @@
 namespace App\Services;
 
 use App\Models\AdmissionStudent;
-use Illuminate\Support\Facades\DB;
+use App\Models\SchoolExamGrade;
+use App\Models\SchoolExamMark;
 
 class ExamDiscountApplicationService
 {
@@ -18,33 +19,37 @@ class ExamDiscountApplicationService
             return false;
         }
 
-        $minPoint = $this->resolveMinimumPoint($schoolId, $minimumGrade);
-        if ($minPoint === null) {
-            return false;
-        }
-
-        $avgPoint = (float) DB::table('school_exam_marks')
+        $marksQuery = SchoolExamMark::query()
             ->where('school_id', $schoolId)
             ->where('student_id_number', $student->student_id_number)
-            ->where('status', 'published')
-            ->avg('point');
+            ->where('status', 'published');
 
-        return $avgPoint > 0 && $avgPoint >= $minPoint;
+        $avgMark  = (float) $marksQuery->avg('mark');
+        $avgPoint = (float) $marksQuery->avg('point');
+
+        $grade = $this->resolveMinimumGrade($schoolId, $minimumGrade);
+
+
+
+        if ($grade && $grade->mark_from !== null && $grade->mark_from !== '') {
+            return $avgMark > 0 && $avgMark >= (float) $grade->mark_from;
+        }
+
+
+        $minPoint = $grade && $grade->grade_point !== null && $grade->grade_point !== ''
+            ? (float) $grade->grade_point
+            : $this->defaultGradePoint($minimumGrade);
+
+        return $minPoint !== null && $avgPoint > 0 && $avgPoint >= $minPoint;
     }
 
-    private function resolveMinimumPoint(int $schoolId, string $minimumGrade): ?float
+    private function resolveMinimumGrade(int $schoolId, string $minimumGrade): ?SchoolExamGrade
     {
-        $grade = DB::table('school_exam_grades')
+        return SchoolExamGrade::query()
             ->where('school_id', $schoolId)
             ->where('grade_name', $minimumGrade)
             ->orderByDesc('grade_point')
             ->first();
-
-        if ($grade && $grade->grade_point !== null && $grade->grade_point !== '') {
-            return (float) $grade->grade_point;
-        }
-
-        return $this->defaultGradePoint($minimumGrade);
     }
 
     private function defaultGradePoint(string $gradeName): ?float

@@ -25,11 +25,11 @@ class SyncFeeStatusCommand extends Command
             ->whereDate('due_date', '<', $todayStr)
             ->update(['status' => 'due']);
 
-        // 2. Move 'partial_paid' to 'partial_due' if due_date has passed
+        // 2. Move 'partial_paid' to 'due_partial' if due_date has passed
         $partialUpdated = SchoolStudentFee::where('status', 'partial_paid')
             ->whereNotNull('due_date')
             ->whereDate('due_date', '<', $todayStr)
-            ->update(['status' => 'partial_due']);
+            ->update(['status' => 'due_partial']);
 
         // 3. Move 'due' -> 'over_due' when the due_date's month has fully ended
         $dueUpdated = SchoolStudentFee::where('status', 'due')
@@ -42,7 +42,7 @@ class SyncFeeStatusCommand extends Command
             })
             ->update(['status' => 'over_due']);
 
-        $partialDueUpdated = SchoolStudentFee::where('status', 'partial_due')
+        $partialDueUpdated = SchoolStudentFee::where('status', 'due_partial')
             ->whereNotNull('due_date')
             ->where(function ($q) use ($today) {
                 $q->whereMonth('due_date', '<', $today->month)
@@ -50,8 +50,8 @@ class SyncFeeStatusCommand extends Command
                       $q->whereYear('due_date', '<', $today->year);
                   });
             })
-            ->update(['status' => 'partial_over_due']);
+            ->update(['status' => 'over_due_partial']);
 
-        $this->info("Completed: {$unpaidUpdated} -> due, {$partialUpdated} -> partial_due, {$dueUpdated} -> over_due, {$partialDueUpdated} -> partial_over_due.");
+        $this->info("Completed: {$unpaidUpdated} -> due, {$partialUpdated} -> due_partial, {$dueUpdated} -> over_due, {$partialDueUpdated} -> over_due_partial.");
     }
 }

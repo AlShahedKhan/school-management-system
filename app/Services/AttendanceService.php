@@ -15,15 +15,8 @@ use Illuminate\Support\Facades\Log;
 
 class AttendanceService
 {
-    /**
-     * Process and store attendance data from a device, preventing duplicates.
-     *
-     * @param string $idNumber The user ID from the attendance device (can be int or string).
-     * @param string $timestamp The timestamp string from the device.
-     * @param int|null $deviceId The ID of the device that sent the data.
-     * @return Attendance|null
-     */
-    public function processAttendance(string $idNumber, string $timestamp, ?int $deviceId = null): ?Attendance
+
+    public function processAttendance(int $idNumber, string $timestamp): ?Attendance
     {
         $attendable = $this->findAttendable($idNumber);
         if (!$attendable) {
@@ -64,13 +57,8 @@ class AttendanceService
         }
     }
 
-    /**
-     * Find the user (Teacher, Student, or Employee) by their ID number.
-     *
-     * @param string $idNumber
-     * @return Model|null
-     */
-    private function findAttendable(string $idNumber): ?Model
+
+    private function findAttendable(int $idNumber)
     {
 
         $user = Teacher::where('id_number', $idNumber)->first();
