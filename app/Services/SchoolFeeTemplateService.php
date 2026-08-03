@@ -9,9 +9,7 @@ use Exception;
 
 class SchoolFeeTemplateService
 {
-    /**
-     * Create a new fee template with business rules.
-     */
+
     public function createTemplate(array $data)
     {
         $assign = SchoolFeeAssign::findOrFail($data['fee_assign_id']);
@@ -20,7 +18,7 @@ class SchoolFeeTemplateService
             throw new Exception("Cannot create a template for an inactive Fee Assign.");
         }
 
-        // Rule: Only one Admission Fee per Class + Session
+
         if ($assign->name === 'Admission') {
             $exists = SchoolFeeTemplate::where('fee_assign_id', $assign->id)
                 ->where('class_id', $data['class_id'])
@@ -31,7 +29,7 @@ class SchoolFeeTemplateService
             }
         }
 
-        // Rule: Only one Tuition Fee per Class + Session
+
         if ($assign->name === 'Tuition') {
             $exists = SchoolFeeTemplate::where('fee_assign_id', $assign->id)
                 ->where('class_id', $data['class_id'])
@@ -42,7 +40,7 @@ class SchoolFeeTemplateService
             }
         }
 
-        // Rule: Food Name uniqueness within session
+
         if ($assign->name === 'Food Fee') {
             $exists = SchoolFeeTemplate::where('fee_assign_id', $assign->id)
                 ->where('session_id', $data['session_id'])
@@ -53,7 +51,7 @@ class SchoolFeeTemplateService
             }
         }
 
-        // Rule: Exam Fee requires Exam Routine / Exam uniqueness
+
         if ($assign->name === 'Exam Fee') {
             if (empty($data['exam_id'])) {
                 throw new Exception("Exam is required to create an Exam Fee.");
@@ -66,7 +64,7 @@ class SchoolFeeTemplateService
             }
         }
 
-        // Rule: Session Fee uniqueness
+
         if ($assign->name === 'Session Fee') {
             $exists = SchoolFeeTemplate::where('fee_assign_id', $assign->id)
                 ->where('class_id', $data['class_id'])
@@ -82,9 +80,7 @@ class SchoolFeeTemplateService
         });
     }
 
-    /**
-     * Check if an Admission Template exists.
-     */
+
     public function checkAdmissionTemplateExists($classId, $sessionId)
     {
         return SchoolFeeTemplate::whereHas('assign', function ($q) {

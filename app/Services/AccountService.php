@@ -8,14 +8,7 @@ use App\Repositories\SystemCashBalanceRepository;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
-/**
- * AccountService is the single gateway for all cash movements.
- *
- * Every Cash In and Cash Out runs inside DB::transaction() with a
- * pessimistic lock (lockForUpdate) on the school's system_cash_balances
- * row, guaranteeing serialized, race-free balance updates. Controllers
- * must NEVER update balances or write ledger rows directly.
- */
+
 class AccountService
 {
     public const TYPE_CASH_IN  = AccountTransaction::TYPE_CASH_IN;
@@ -23,9 +16,7 @@ class AccountService
 
     public const DEFAULT_CASH_IN_MODULE = 'Student Fee Payment';
 
-    /**
-     * Map a SchoolPayment fees_type label to the ledger Cash In module.
-     */
+
     public const FEE_TYPE_MODULE_MAP = [
         'admission' => 'Admission Fee',
         'promote'   => 'Promote Fee',
@@ -61,19 +52,13 @@ class AccountService
     ) {
     }
 
-    /**
-     * Ensure the school has exactly one cash balance record. Used during
-     * school setup so the row always exists before any financial activity.
-     */
+
     public function ensureBalance(int $schoolId, float $openingBalance = 0.0): void
     {
         $this->balances->ensure($schoolId, $openingBalance);
     }
 
-    /**
-     * Record a Cash In (money received) on the school's balance.
-     * Returns null when the amount is not positive (no ledger entry).
-     */
+
     public function cashIn(
         int $schoolId,
         float $amount,
@@ -84,10 +69,7 @@ class AccountService
         return $this->book($schoolId, self::TYPE_CASH_IN, $amount, $sourceModule, $referenceId, $options);
     }
 
-    /**
-     * Record a Cash Out (money paid) on the school's balance.
-     * Returns null when the amount is not positive (no ledger entry).
-     */
+
     public function cashOut(
         int $schoolId,
         float $amount,
@@ -98,9 +80,7 @@ class AccountService
         return $this->book($schoolId, self::TYPE_CASH_OUT, $amount, $sourceModule, $referenceId, $options);
     }
 
-    /**
-     * Current available balance of the school.
-     */
+
     public function currentBalance(int $schoolId): float
     {
         $balance = $this->balances->forSchool($schoolId);
@@ -108,11 +88,7 @@ class AccountService
         return $balance ? (float) $balance->current_balance : 0.0;
     }
 
-    /**
-     * Ledger-derived report summary for Finance Report, Trial Balance and
-     * Profit & Loss. All figures come from system_cash_balances and
-     * account_transactions — the single source of truth.
-     */
+
     public function reportSummary(int $schoolId, ?string $fromDate = null, ?string $toDate = null, ?int $modulePerPage = null): array
     {
         $balance = $this->balances->forSchool($schoolId);
@@ -156,20 +132,13 @@ class AccountService
         ];
     }
 
-    /**
-     * Paginated immutable ledger history for a school.
-     */
+
     public function ledgerHistory(int $schoolId, array $filters = [], int $perPage = 50)
     {
         return $this->transactions->history($schoolId, $filters, $perPage);
     }
 
-    /**
-     * Trial Balance derived from the ledger. For the single per-school cash
-     * account, the debit side (opening balance + cash in) must equal the
-     * credit side (cash out + current balance). `balanced` flags any
-     * inconsistency in the immutable ledger.
-     */
+
     public function trialBalance(int $schoolId): array
     {
         $summary = $this->reportSummary($schoolId);
@@ -189,21 +158,13 @@ class AccountService
         ];
     }
 
-    /**
-     * Low-level immutable ledger append. Exposed for Reverse / Adjustment
-     * entries and future double-entry integration. Use the dedicated
-     * cashIn/cashOut methods for ordinary receipts and payments.
-     */
+
     public function createTransaction(array $data): AccountTransaction
     {
         return $this->transactions->create($data);
     }
 
-    /**
-     * Core balance operation: lock the school's balance row, compute the
-     * before/after balances, persist the balance and append the ledger
-     * entry inside a single database transaction.
-     */
+
     protected function book(
         int $schoolId,
         string $type,
@@ -217,8 +178,8 @@ class AccountService
         }
 
         return DB::transaction(function () use ($schoolId, $type, $amount, $sourceModule, $referenceId, $options) {
-            // First activity for this school: create the balance row lazily
-            // (normally created during school setup).
+
+
             $balance = $this->balances->forSchool($schoolId, true);
             if (! $balance) {
                 $this->balances->ensure($schoolId, 0.0);
