@@ -791,7 +791,7 @@
                     }
 
                     if (type === 'pdf-mobile') {
-                        generateMobilePreview(res.data.data, res.data.school_info, res.data.routines || [], previewWindow);
+                        generateMobilePreview(res.data.data, res.data.school_info, res.data.routines || [], previewWindow, params);
                     } else {
                         generatePrintLayout(res.data.data, res.data.school_info, res.data.routines || [], previewWindow);
                     }
@@ -1052,7 +1052,7 @@
 
 
 
-        function generateMobilePreview(admitCards, school, routines, previewWindow) {
+        function generateMobilePreview(admitCards, school, routines, previewWindow, exportParams = {}) {
             if (!previewWindow) previewWindow = window.open('', '_blank');
             const address = school?.full_address || [school?.village, school?.upazila, school?.district, school?.division]
                 .filter(Boolean)
@@ -1063,6 +1063,7 @@
             const mm = today.toLocaleString('default', { month: 'short' });
             const yyyy = today.getFullYear();
             const currentDate = `${dd}-${mm}-${yyyy}`;
+            const pdfQuery = new URLSearchParams(Object.entries(exportParams).filter(([, value]) => value !== '' && value != null));
 
             let html = `<!DOCTYPE html><html><head><title>Admit Card PDF</title>
                 <style>${getAdmitCardUtilityStyles()}</style>
@@ -1102,6 +1103,9 @@
                 const cardRoutines = getRoutinesForCard(card, routines);
                 const routineRowsHtml = buildRoutineTableRows(cardRoutines);
                 const printData = getAdmitCardPrintData(card, school, address);
+                const cardPdfQuery = new URLSearchParams(pdfQuery);
+                cardPdfQuery.set('admit_card_id', card.id);
+                const cardDownloadPdfUrl = `${window.location.origin}/api/school-exam-admit-cards/export-pdf?${cardPdfQuery.toString()}`;
 
                 html += `
                                                                                                                 <div class="card-page">
@@ -1197,10 +1201,10 @@
                                                                                                                             </div>
                                                                                                                         </div>
                                                                                                                     </div>
-                                                                                                                    <!-- Print button (hidden on print) -->
+                                                                                                                    <!-- PDF download action (hidden in printed output) -->
                                                                                                                     <div class="no-print flex justify-center mt-4">
-                                                                                                                        <button onclick="window.print()" style="border:2px solid #000;background:#fff;color:#000;padding:8px 24px;font-size:10px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='#fff';this.style.color='#000'">
-                                                                                                                            Download PDF / Print
+                                                                                                                        <button onclick='window.location.href=${JSON.stringify(cardDownloadPdfUrl)}' style="border:2px solid #000;background:#fff;color:#000;padding:8px 24px;font-size:10px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='#fff';this.style.color='#000'">
+                                                                                                                            Download PDF
                                                                                                                         </button>
                                                                                                                     </div>
                                                                                                                 </div>`;

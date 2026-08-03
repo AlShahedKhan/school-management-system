@@ -351,11 +351,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     // School Exam Admit Cards
+    Route::get('/school-exam-admit-cards/export-pdf', [SchoolExamAdmitCardController::class, 'exportPdf']);
     Route::apiResource('school-exam-admit-cards', SchoolExamAdmitCardController::class);
     Route::get('/check-admit-card-prerequisites', [SchoolExamAdmitCardController::class, 'checkPrerequisites']);
     Route::get('/get-students-list', [SchoolExamAdmitCardController::class, 'getStudents']);
 
     // School Exam Seat Plans
+    Route::get('/school-exam-seat-plans/export-pdf', [SchoolExamSeatPlanController::class, 'exportPdf']);
     Route::apiResource('school-exam-seat-plans', SchoolExamSeatPlanController::class);
 
     // Exam Mark Management Routes
