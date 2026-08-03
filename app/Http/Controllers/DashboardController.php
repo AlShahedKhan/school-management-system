@@ -29,6 +29,7 @@ use App\Models\StudentPromotion;
 use App\Models\StudentReadmission;
 use App\Models\Teacher;
 use App\Models\TeacherClassPermission;
+use App\Services\AccountService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -194,6 +195,14 @@ class DashboardController extends Controller
         )->sum('paid_amount');
         $totalIncome = Income::where('school_id', $school->id)->sum('amount');
         $totalExpense = Expense::where('school_id', $school->id)->sum('amount');
+
+        // Ledger-backed finance figures (single source of truth).
+        $accountSummary = app(AccountService::class)->reportSummary($school->id);
+        $collectionTotal = (float) $accountSummary['total_cash_in'];
+        $netProfitLoss = (float) $accountSummary['net'];
+        $profitAmount = max($netProfitLoss, 0.0);
+        $lossAmount = max(-$netProfitLoss, 0.0);
+        $balanceAmount = (float) $accountSummary['current_balance'];
 
         // --- Dynamic Chart Logic (Fixed to start from January) ---
         $months = collect();
@@ -543,6 +552,10 @@ class DashboardController extends Controller
             'totalPayroll',
             'totalIncome',
             'totalExpense',
+            'collectionTotal',
+            'profitAmount',
+            'lossAmount',
+            'balanceAmount',
             'subscription',
             'teachersList',
             'topClasses',
@@ -1143,9 +1156,24 @@ class DashboardController extends Controller
         return view('school.inventory.due_paid');
     }
 
-    public function profitLoss()
+    public function profitLoss(Request $request)
     {
-        return view('school.inventory.profit_loss');
+        $school = School::where('user_id', Auth::id())->first();
+        if (! $school) {
+            return redirect()->back()->with('error', 'School profile not found.');
+        }
+
+        $summary = app(\App\Services\AccountService::class)->reportSummary(
+            $school->id,
+            $request->query('from_date') ?: null,
+            $request->query('to_date') ?: null,
+            (int) $request->query('per_page', 10)
+        );
+
+        return view('school.inventory.profit_loss', [
+            'summary' => $summary,
+            'school'  => $school,
+        ]);
     }
 
     public function addPayment()

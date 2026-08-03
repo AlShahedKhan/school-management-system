@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Income;
 use App\Models\SchoolMembership;
 use App\Services\SmsService;
+use App\Services\AccountService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -107,16 +108,31 @@ class SchoolIncomeController extends Controller
         ]);
 
         try {
-            $income = Income::create([
-                'school_id'     => $school->id,
-                'date'          => $request->date,
-                'income_source' => $request->income_source,
-                'name'          => $request->name,
-                'mobile'        => $request->mobile,
-                'amount'        => $request->amount,
-                'address'       => $request->address,
-                'member_no'     => $request->member_no
-            ]);
+            $income = DB::transaction(function () use ($school, $request) {
+                $income = Income::create([
+                    'school_id'     => $school->id,
+                    'date'          => $request->date,
+                    'income_source' => $request->income_source,
+                    'name'          => $request->name,
+                    'mobile'        => $request->mobile,
+                    'amount'        => $request->amount,
+                    'address'       => $request->address,
+                    'member_no'     => $request->member_no
+                ]);
+
+                // Cash In to the internal System Cash Balance (immutable ledger)
+                app(AccountService::class)->cashIn(
+                    $school->id,
+                    (float) $request->amount,
+                    'Income',
+                    $income->id,
+                    [
+                        'remarks' => ($request->income_source ?? '') . ' | ' . ($request->name ?? ''),
+                    ]
+                );
+
+                return $income;
+            });
 
             // Automatically send SMS on save using the Service
             $smsResponse = $this->sendThankYouSMS($income, $school);
@@ -154,6 +170,7 @@ class SchoolIncomeController extends Controller
     public function update(Request $request, $id)
     {
         $income = Income::findOrFail($id);
+        $school = $this->getSchool($request->user());
         $data = $request->validate([
             'date'          => 'required|date',
             'income_source' => 'required|string',
@@ -164,16 +181,47 @@ class SchoolIncomeController extends Controller
             'member_no'     => 'nullable|string'
         ]);
 
-        $income->update($data);
+        // Keep the internal ledger consistent with immutable Reverse entries.
+        DB::transaction(function () use ($income, $data, $school) {
+            $oldAmount = (float) $income->amount;
+            $income->update($data);
+
+            $newAmount = (float) $data['amount'];
+            if ($school && abs($newAmount - $oldAmount) > 0.0001) {
+                $service = app(AccountService::class);
+                $service->cashOut($school->id, $oldAmount, 'Income Adjustment', $income->id, [
+                    'remarks' => 'Reversal of income #' . $income->id
+                        . ' (amount adjusted ' . number_format($oldAmount, 2) . ' -> ' . number_format($newAmount, 2) . ')',
+                ]);
+                $service->cashIn($school->id, $newAmount, 'Income', $income->id, [
+                    'remarks' => ($data['income_source'] ?? '') . ' | ' . ($data['name'] ?? '') . ' (adjusted)',
+                ]);
+            }
+        });
+
         return response()->json(['message' => 'Updated successfully']);
     }
 
     /**
      * Delete an income
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        Income::findOrFail($id)->delete();
+        $income = Income::findOrFail($id);
+        $school = $this->getSchool($request->user());
+
+        DB::transaction(function () use ($income, $school) {
+            $amount = (float) $income->amount;
+            $incomeId = $income->id;
+            $income->delete();
+
+            if ($school && $amount > 0) {
+                app(AccountService::class)->cashOut($school->id, $amount, 'Income Adjustment', $incomeId, [
+                    'remarks' => 'Reversal of deleted income #' . $incomeId,
+                ]);
+            }
+        });
+
         return response()->json(['message' => 'Deleted successfully']);
     }
 

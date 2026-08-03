@@ -7,8 +7,10 @@ use App\Models\Employee;
 use App\Models\EmployeePayroll;
 use App\Models\School;
 use App\Models\Teacher;
+use App\Services\AccountService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class EmployeePayrollController extends Controller
@@ -198,7 +200,26 @@ class EmployeePayrollController extends Controller
             $validated['salary_type'] = 'partial_paid';
         }
 
-        $payroll = EmployeePayroll::create($validated);
+        $payroll = DB::transaction(function () use ($validated, $school) {
+            $payroll = EmployeePayroll::create($validated);
+
+            $receiveAmount = (float) $validated['receive_amount'];
+            if ($receiveAmount > 0) {
+                // Cash Out from the internal System Cash Balance (immutable ledger)
+                app(AccountService::class)->cashOut(
+                    $school->id,
+                    $receiveAmount,
+                    'Payroll',
+                    $payroll->id,
+                    [
+                        'remarks' => 'Payroll - ' . ($validated['type'] ?? '')
+                            . ' | ' . ($validated['receive_month'] ?? '') . '/' . ($validated['receive_year'] ?? ''),
+                    ]
+                );
+            }
+
+            return $payroll;
+        });
 
         return response()->json([
             'message' => 'Payroll saved successfully',
@@ -218,7 +239,18 @@ class EmployeePayrollController extends Controller
     {
         $school = School::where('user_id', Auth::id())->firstOrFail();
         $payroll = EmployeePayroll::where('school_id', $school->id)->findOrFail($id);
-        $payroll->delete();
+
+        DB::transaction(function () use ($school, $payroll) {
+            $amount = (float) $payroll->receive_amount;
+            $payrollId = $payroll->id;
+            $payroll->delete();
+
+            if ($amount > 0) {
+                app(AccountService::class)->cashIn($school->id, $amount, 'Payroll Adjustment', $payrollId, [
+                    'remarks' => 'Reversal of deleted payroll #' . $payrollId,
+                ]);
+            }
+        });
 
         return response()->json(['message' => 'Payroll record deleted successfully']);
     }
