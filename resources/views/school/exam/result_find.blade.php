@@ -494,7 +494,6 @@
                 gap: 24px;
                 margin-bottom: 12px;
                 padding: 0 6px 12px;
-                border-bottom: 1px solid #dbe3ef;
             }
             .header { text-align: center; margin: 0; }
             .school-logo-frame,
@@ -538,16 +537,22 @@
                 display: grid;
                 grid-template-columns: repeat(3, minmax(0, 1fr));
                 align-items: center;
-                gap: 18px;
-                min-height: 46px;
-                margin: 0 0 14px;
-                padding: 9px 16px;
+                gap: 8px;
+                min-height: 32px;
+                margin: 0 0 10px;
+                padding: 5px 12px;
                 border: 1px solid #8ba0bb;
-                background: #fff;
+                background: #fbfdff;
                 color: #17345f;
-                font-size: 13px;
+                font-size: 10px;
                 font-weight: 600;
                 text-align: center;
+            }
+            .exam-meta > div {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
             .exam-meta strong {
                 color: #102f63;
@@ -693,149 +698,161 @@
             .transcript-summary-cards {
                 display: grid;
                 grid-template-columns: repeat(5, minmax(0, 1fr));
-                gap: 10px;
-                margin: 12px 0 18px;
+                gap: 12px;
+                margin: 14px 0 18px;
                 break-inside: avoid;
                 page-break-inside: avoid;
             }
             .transcript-summary-card {
-                min-height: 128px;
-                border: 1px solid #cbd5e1;
+                min-height: 142px;
+                border: 1px solid #c8d3e0;
                 background: #fff;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                padding: 10px 8px;
+                padding: 12px 8px 10px;
                 text-align: center;
+                box-shadow: 0 1px 2px rgba(23, 52, 95, 0.08);
                 break-inside: avoid;
                 page-break-inside: avoid;
             }
             .transcript-summary-card .card-label {
-                margin-bottom: 8px;
-                color: #111827;
+                margin-bottom: 9px;
+                color: #17345f;
                 font-size: 10px;
-                font-weight: 700;
+                font-weight: 800;
                 text-transform: uppercase;
             }
             .transcript-summary-card .card-value {
-                color: #111827;
-                font-size: 22px;
+                color: #17345f;
+                font-size: 24px;
                 font-weight: 800;
                 line-height: 1;
             }
             .transcript-summary-card .card-note {
-                margin-top: 7px;
-                color: #64748b;
+                margin-top: 8px;
+                color: #263b5e;
                 font-size: 9px;
-                line-height: 1.35;
+                font-weight: 600;
+                line-height: 1.3;
             }
             .transcript-summary-card .card-icon {
-                width: 58px;
-                height: 58px;
-                margin-bottom: 8px;
-                border: 7px solid #d1fae5;
+                width: 64px;
+                height: 64px;
+                margin-bottom: 1px;
+                border: 3px solid #30a765;
                 border-radius: 9999px;
-                color: #16a34a;
+                color: #087b3f;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 16px;
+                background: #fff;
+                font-size: 20px;
                 font-weight: 800;
             }
             .transcript-summary-card.attendance .card-icon {
-                border-color: #fecaca;
+                border-color: #ef5555;
                 color: #dc2626;
             }
             .transcript-summary-card.working-days .card-icon {
+                width: 54px;
+                height: 54px;
                 border: 0;
-                border-radius: 4px;
-                background: #dbeafe;
-                color: #0369a1;
-                font-size: 24px;
+                border-radius: 3px;
+                background: #d8ebfb;
+                color: #0877b9;
+                font-size: 28px;
             }
             .transcript-summary-card.qr-card {
-                padding: 6px;
+                padding: 10px 6px 8px;
             }
             .transcript-summary-card .qr-image {
-                width: 88px;
-                height: 88px;
+                width: 86px;
+                height: 86px;
                 object-fit: contain;
             }
             .transcript-evaluation-cards {
                 display: grid;
                 grid-template-columns: repeat(4, minmax(0, 1fr));
-                gap: 10px;
+                gap: 14px;
                 margin: 0 0 18px;
                 break-inside: avoid;
                 page-break-inside: avoid;
             }
             .transcript-evaluation-card {
-                min-height: 150px;
+                min-height: 142px;
                 overflow: hidden;
-                border: 1px solid #cbd5e1;
+                border: 1px solid #c8d3e0;
                 background: #fff;
+                box-shadow: 0 1px 2px rgba(23, 52, 95, 0.08);
                 break-inside: avoid;
                 page-break-inside: avoid;
             }
             .transcript-evaluation-card .evaluation-heading {
-                padding: 5px 6px;
+                min-height: 26px;
+                padding: 6px 7px;
                 color: #fff;
                 font-size: 9px;
                 font-weight: 800;
-                letter-spacing: .02em;
+                letter-spacing: 0;
                 text-align: center;
                 text-transform: uppercase;
             }
-            .transcript-evaluation-card.behavior .evaluation-heading { background: #047857; }
-            .transcript-evaluation-card.activities .evaluation-heading { background: #1e3a8a; }
-            .transcript-evaluation-card.comments .evaluation-heading { background: #78350f; }
-            .transcript-evaluation-card.failed .evaluation-heading { background: #a21caf; }
+            .transcript-evaluation-card.behavior .evaluation-heading { background: #08724f; }
+            .transcript-evaluation-card.activities .evaluation-heading { background: #0b3478; }
+            .transcript-evaluation-card.comments .evaluation-heading { background: #db6a1f; }
+            .transcript-evaluation-card.failed .evaluation-heading { background: #d51f2a; }
             .evaluation-row {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 gap: 8px;
-                min-height: 26px;
-                padding: 3px 7px;
-                border-bottom: 1px solid #e2e8f0;
-                color: #1f2937;
+                min-height: 28px;
+                padding: 4px 9px;
+                border-bottom: 1px solid #dbe3ed;
+                color: #17345f;
                 font-size: 10px;
+                font-weight: 600;
             }
             .evaluation-row:last-child { border-bottom: 0; }
-            .evaluation-stars { color: #047857; letter-spacing: 1px; white-space: nowrap; }
+            .evaluation-stars { color: #087b62; font-size: 12px; letter-spacing: 1px; white-space: nowrap; }
             .evaluation-stars .muted { color: #cbd5e1; }
             .evaluation-comment {
                 display: flex;
-                min-height: 112px;
-                align-items: center;
-                justify-content: center;
-                padding: 12px;
-                color: #1f2937;
-                font-size: 18px;
-                font-weight: 700;
-                text-align: center;
-                text-transform: uppercase;
-            }
-            .failed-summary {
-                display: flex;
-                min-height: 112px;
+                min-height: 116px;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                gap: 7px;
-                padding: 10px;
+                gap: 8px;
+                padding: 12px 10px;
+                color: #17345f;
+                font-size: 16px;
+                font-weight: 800;
+                text-align: center;
+                text-transform: uppercase;
+            }
+            .evaluation-comment i { color: #2781bf; font-size: 28px; font-weight: 400; }
+            .failed-summary {
+                display: flex;
+                min-height: 116px;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                padding: 11px 10px;
                 text-align: center;
             }
             .failed-summary .failed-count {
-                color: #1f2937;
-                font-size: 17px;
+                color: #17345f;
+                font-size: 16px;
                 font-weight: 800;
                 text-transform: uppercase;
             }
             .failed-summary .failed-list {
-                color: #64748b;
-                font-size: 9px;
+                color: #263b5e;
+                font-size: 10px;
+                font-weight: 600;
                 line-height: 1.35;
             }
             @media (max-width: 760px) {
@@ -855,39 +872,73 @@
                 position: absolute;
                 left: 40px;
                 right: 40px;
-                bottom: 20px;
+                bottom: 34px;
                 display: flex;
-                justify-content: space-between;
+                justify-content: flex-end;
                 align-items: flex-end;
-                gap: 18px;
+                z-index: 3;
             }
-            .footer .date {
-                font-weight: bold;
-                font-size: 11px;
-                margin-bottom: 6px;
+            .footer-wave {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                height: 58px;
+                overflow: hidden;
+                pointer-events: none;
+                z-index: 1;
             }
-            .sig-block.left {
-                text-align: left;
+            .footer-wave::before,
+            .footer-wave::after {
+                content: '';
+                position: absolute;
+                border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+            }
+            .footer-wave::before {
+                bottom: -35px;
+                left: -70px;
+                width: 850px;
+                height: 78px;
+                background: #8ebcf2;
+            }
+            .footer-wave::after {
+                bottom: -40px;
+                left: -82px;
+                width: 825px;
+                height: 74px;
+                background: #2d6fd4;
+            }
+            .footer-wave span {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                height: 6px;
+                background: #0b2f65;
+                z-index: 2;
             }
             .signature-frame {
-                min-height: 54px;
+                min-height: 44px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                margin-bottom: 6px;
+                margin-bottom: 2px;
             }
             .signature-frame img {
-                max-height: 58px;
-                max-width: 180px;
+                max-height: 48px;
+                max-width: 160px;
                 object-fit: contain;
             }
             .sig-line {
-                border-top: 3px solid #5B2C8F;
-                margin-top: 8px;
-                padding-top: 6px;
-                font-weight: bold;
-                font-size: 11.5px;
-                letter-spacing: 0.5px;
+                min-width: 168px;
+                border-top: 1px solid #17345f;
+                margin-top: 2px;
+                padding-top: 4px;
+                color: #17345f;
+                font-weight: 800;
+                font-size: 10px;
+                letter-spacing: 0;
+                text-align: center;
             }
             .subject-summary { margin: 10px 0 8px; display: grid; gap: 4px; font-size: 11px; color: #4b5563; }
             .subject-summary .summary-pill { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
@@ -902,50 +953,60 @@
                 min-width: 760px;
                 table-layout: fixed;
                 border-collapse: collapse;
-                border: 1px solid #777;
+                border: 1px solid #9fb2c9;
                 font-family: Arial, Helvetica, sans-serif;
-                font-size: 10px;
-                line-height: 1.05;
-                color: #111;
+                font-size: 11px;
+                line-height: 1.2;
+                color: #172b4d;
             }
             .reference-result-table th,
             .reference-result-table td {
-                height: 25px;
-                border: 1px solid #777;
-                padding: 3px 5px;
+                height: 30px;
+                border: 1px solid #a9b9cc;
+                padding: 5px 7px;
                 text-align: center;
                 vertical-align: middle;
             }
             .reference-result-table thead tr:first-child th {
-                background: #f2d5a3;
-                font-weight: 700;
+                height: 40px;
+                background: #073b78;
+                color: #fff;
+                font-size: 11px;
+                font-weight: 800;
+                line-height: 1.25;
             }
             .reference-result-table thead .component-heading {
-                background: #dce8bf;
-                color: #2f6c42;
-                font-weight: 700;
+                height: 28px;
+                background: #4f7dab;
+                color: #fff;
+                font-weight: 800;
             }
             .reference-result-table .subject-cell {
-                padding-left: 7px;
+                padding-left: 12px;
                 text-align: left;
-                font-weight: 500;
+                font-weight: 600;
             }
             .reference-result-table tbody tr:nth-child(even) td {
-                background: #fafafa;
+                background: #f8fafc;
             }
             .reference-result-table tfoot td {
-                background: #dcebc4;
-                color: #397349;
-                font-weight: 700;
+                height: 32px;
+                background: #e8eef6;
+                color: #17345f;
+                font-weight: 800;
             }
             .reference-result-table tfoot .exam-total-label {
-                background: #d5d6e7;
-                color: #111;
+                background: #dce6f2;
+                color: #17345f;
                 text-align: center;
             }
-            .reference-result-table .subject-column { width: 28%; }
-            .reference-result-table .mark-column { width: 8%; }
-            .reference-result-table .component-column { width: 6%; }
+            .reference-result-table .subject-column {
+                width: 26%;
+                padding-left: 12px;
+                text-align: left;
+            }
+            .reference-result-table .mark-column { width: 7.5%; }
+            .reference-result-table .component-column { width: 7%; }
             .reference-result-table .result-column { width: 8%; }
             @media print { body { background: #fff; padding: 0; } .transcript-page { box-shadow: none; border: none; width: auto; } }
         </style>
@@ -1107,7 +1168,7 @@
                 </div>
                 <div class="transcript-evaluation-card comments">
                     <div class="evaluation-heading">Comments</div>
-                    <div class="evaluation-comment">${escapeResultHtml((data.subjects || []).some(subject => Number(subject.mark ?? 0) < Number(subject.fail_mark ?? 0)) ? 'Needs Improvement' : (data.grade || 'Excellent'))}</div>
+                    <div class="evaluation-comment"><i class="far fa-comment-dots" aria-hidden="true"></i><span>${escapeResultHtml((data.subjects || []).some(subject => Number(subject.mark ?? 0) < Number(subject.fail_mark ?? 0)) ? 'Needs Improvement' : (data.grade || 'Excellent'))}</span></div>
                 </div>
                 <div class="transcript-evaluation-card failed">
                     <div class="evaluation-heading">Failed Subject(s)</div>
@@ -1118,14 +1179,11 @@
                 </div>
             </div>
 
+            <div class="footer-wave" aria-hidden="true"><span></span></div>
             <div class="footer">
-                <div class="sig-block left">
-                    <div class="date">Date & Time: ${formattedDate}</div>
-                    <div class="sig-line">Publish Date & Time</div>
-                </div>
                 <div class="sig-block">
                     <div class="signature-frame">
-                        ${data.school_info.principal_signature ? `<img src="${data.school_info.principal_signature}" alt="Principal Signature"/>` : '<div class="text-gray-400">No Signature</div>'}
+                        ${data.school_info.principal_signature ? `<img src="${data.school_info.principal_signature}" alt="Principal Signature"/>` : ''}
                     </div>
                     <div class="sig-line">Principal Signature</div>
                 </div>
