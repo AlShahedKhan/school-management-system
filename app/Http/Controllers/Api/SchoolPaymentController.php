@@ -451,11 +451,15 @@ class SchoolPaymentController extends Controller
             }
         }
 
-        // 2. Check for legacy discount (school_fee_discounts) if no new discount found
+        // 2. Check for legacy session-scope discount (school_fee_discounts) if no new discount found.
+        //    Exam-scope discounts are NOT applied here unconditionally — they only take effect
+        //    through applyExamDiscount() once the exam result is published and the student's
+        //    grade meets the minimum qualifying grade.
         if (!$hasDiscount) {
             $legacyDiscount = SchoolFeeDiscount::where('school_id', $school->id)
                 ->where('student_id', $request->admission_id)
                 ->where('fee_name', $request->fee_name)
+                ->where('discount_scope', 'session')
                 ->first();
 
             if ($legacyDiscount) {
