@@ -7,42 +7,65 @@
         <i class="hgi hgi-stroke hgi-rounded hgi-dashboard-browsing w-4"></i>
         Dashboard
     </a>
-    {{-- Fingerprint Attendance --}}
-            <div class="sidebar-group {{ request()->routeIs('school.fingerprint-attendance.*') ? 'open' : '' }}">
+    {{-- =========================================================
+    Fingerprint Attendance
+        ========================================================= --}}
 
-                <div class="sidebar-group-toggle">
+        @php
+            $fingerprintAttendanceOpen =
+                request()->routeIs('school.fingerprint-attendance.teacher') ||
+                request()->routeIs('school.fingerprint-attendance.employee') ||
+                request()->routeIs('school.fingerprint-attendance.student');
+        @endphp
 
-                    <span>
-                        <i class="fas fa-fingerprint"></i>
-                        Fingerprint Attendance
-                    </span>
 
-                    <i class="fas fa-chevron-right text-xs"></i>
+        <div class="sidebar-group {{ $fingerprintAttendanceOpen ? 'open' : '' }}">
 
-         </div>
-                <div class="sidebar-group-content">
+            {{-- Main Menu --}}
+            <div class="sidebar-group-toggle">
 
-                    {{-- Teacher --}}
-                    <a href="{{ route('school.fingerprint-attendance.teacher') }}"
-                    class="sidebar-subitem {{ request()->routeIs('school.fingerprint-attendance.teacher') ? 'active' : '' }}">
+                <span>
+                    <i class="fas fa-fingerprint"></i>
+                    Fingerprint Attendance
+                </span>
 
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        Teacher Attendance
-                    </a>
-                    {{-- Employee --}}
-                    <a href="{{ route('school.fingerprint-attendance.employee') }}"
-                    class="sidebar-subitem {{ request()->routeIs('school.fingerprint-attendance.employee') ? 'active' : '' }}">
-                        <i class="fas fa-user-tie"></i>
-                        Employee Attendance
-                    </a>
-                    {{-- Student --}}
-                    <a href="{{ route('school.fingerprint-attendance.student') }}"
-                    class="sidebar-subitem {{ request()->routeIs('school.fingerprint-attendance.student') ? 'active' : '' }}">
-                        <i class="fas fa-user-graduate"></i>
-                        Student Attendance
-                    </a>
-                </div>
+                <i class="fas fa-chevron-right text-xs"></i>
+
             </div>
+            {{-- Sub Menu --}}
+            <div class="sidebar-group-content">
+
+                {{-- Teacher --}}
+                <a
+                    href="{{ route('school.fingerprint-attendance.teacher') }}"
+                    data-title="Teacher Attendance"
+                    data-link
+                    class="sidebar-subitem
+                    {{ request()->routeIs('school.fingerprint-attendance.teacher') ? 'active' : '' }}">
+
+                    <i class="fas fa-chalkboard-teacher"></i>Teacher Attendance</a>
+
+                {{-- Employee --}}
+                <a
+                    href="{{ route('school.fingerprint-attendance.employee') }}"
+                    data-title="Employee Attendance"
+                    data-link
+                    class="sidebar-subitem
+                    {{ request()->routeIs('school.fingerprint-attendance.employee') ? 'active' : '' }}"  >
+                    <i class="fas fa-user-tie"></i>Employee Attendance</a>       
+                
+                {{-- Student --}}
+                <a
+                    href="{{ route('school.fingerprint-attendance.student') }}"
+                    data-title="Student Attendance"
+                    data-link
+                    class="sidebar-subitem
+                    {{ request()->routeIs('school.fingerprint-attendance.student') ? 'active' : '' }}">
+                    <i class="fas fa-user-graduate"></i>
+                    Student Attendance
+                </a>
+            </div>
+        </div>
 
     {{-- <p class="nav-header">Teacher Management</p> --}}
 
