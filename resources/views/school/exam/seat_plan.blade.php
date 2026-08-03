@@ -1385,7 +1385,7 @@
                                                                         body { background-color: #fff; -webkit-print-color-adjust: exact; }
                                                                         .print-page { box-shadow: none; }
                                                                     }
-                                                                </style></head><body>`;
+                                                                </style><\/head><body>`;
 
             items.forEach((item, index) => {
                 if (index % 10 === 0) html += '<div class="print-page">';
@@ -1431,7 +1431,7 @@
                 }
             });
 
-            html += `<script>window.onload = function() { window.print(); window.close(); };<\/script></body></html>`;
+            html += `<script>window.onload = function() { window.print(); window.close(); };<\/script><\/body></html>`;
             printWindow.document.write(html);
             printWindow.document.close();
         }

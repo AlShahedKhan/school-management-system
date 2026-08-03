@@ -767,14 +767,14 @@
                 // Show basic loader in the new window
                 previewWindow.document.write(`
                     <html>
-                        <head><title>Preparing Admit Cards...</title></head>
+                        <head><title>Preparing Admit Cards...</title><\/head>
                         <body style="display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-family:sans-serif;background:#f8fafc;">
                             <div style="text-align:center;">
                                 <div style="border:4px solid #f3f3f3;border-top:4px solid #2563eb;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 15px;"></div>
                                 <div style="color:#64748b;font-size:14px;font-weight:600;">Generating Admit Cards...</div>
                             </div>
                             <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
-                        </body>
+                        <\/body>
                     </html>
                 `);
 
@@ -1096,7 +1096,7 @@
                         .card-page { min-height: 297mm; width: 210mm; padding: 12mm 15mm; border: none; page-break-after: always; background: #fff; }
                         .card-inner { max-width: 100%; padding: 0; border: 1px solid #1f2937; }
                     }
-                </style></head><body>`;
+                </style><\/head><body>`;
 
             admitCards.forEach(card => {
                 const cardRoutines = getRoutinesForCard(card, routines);
@@ -1206,7 +1206,7 @@
                                                                                                                 </div>`;
             });
 
-            html += `</body></html>`;
+            html += `<\/body></html>`;
             previewWindow.document.open();
             previewWindow.document.write(html);
             previewWindow.document.close();
@@ -1251,7 +1251,7 @@
                                                                                                                             height: 297mm !important;
                                                                                                                         }
                                                                                                                     }
-                                                                                                                </style></head><body>`;
+                                                                                                                </style><\/head><body>`;
 
             admitCards.forEach((card, index) => {
                 if (index % 2 === 0) html += '<div class="print-page">';
@@ -1380,7 +1380,7 @@
                                                                                                                     };
                                                                                                                 });
                                                                                                             <\/script>
-                                                                                                            </body></html>`;
+                                                                                                            <\/body></html>`;
             printWindow.document.open();
             printWindow.document.write(html);
             printWindow.document.close();

@@ -127,12 +127,12 @@
         >
             <x-slot:actions>
                 <x-dropdown button-id="btnResultExport" menu-id="resultExportDropdown" label="Export" align="full">
-                    <x-dropdown.item onclick="window.print()">PDF</x-dropdown.item>
+                    <x-dropdown.item onclick="exportResultPdf()">PDF</x-dropdown.item>
                     <x-dropdown.item onclick="exportToExcel()">Excel</x-dropdown.item>
-                    <x-dropdown.item onclick="window.print()">Print</x-dropdown.item>
+                    <x-dropdown.item onclick="printResult()">Print</x-dropdown.item>
                 </x-dropdown>
 
-                <x-button.primary type="button" onclick="openSearchModal()" class="w-full">
+                <x-button.primary type="button" onclick="document.getElementById('searchModal')?.classList.remove('hidden')" class="w-full">
                     Find Result
                 </x-button.primary>
             </x-slot:actions>
@@ -174,60 +174,32 @@
     fields-class="block"
     onsubmit="event.preventDefault(); executeFind();"
 >
-    <div class="mb-4 grid grid-cols-2 gap-2">
-        <button type="button" onclick="switchSearchTab('single')" id="tab-single" class="search-tab active text-center">
-            Single Result
-        </button>
-        <button type="button" onclick="switchSearchTab('class')" id="tab-class" class="search-tab text-center">
-            Classwise Result
-        </button>
-    </div>
-
-    <div id="single-fields" class="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <div class="relative">
-            <x-input.control id="s_student_id" class="peer placeholder:text-transparent" placeholder=" " />
-            <x-input.floating-label for="s_student_id">Student ID Number</x-input.floating-label>
-        </div>
+    <div id="single-fields" class="grid grid-cols-1 gap-3">
         <div class="relative">
             <x-input.control id="s_admit_no" class="peer placeholder:text-transparent" placeholder=" " />
             <x-input.floating-label for="s_admit_no">Admit Card Number</x-input.floating-label>
         </div>
     </div>
 
-    <div id="class-fields" class="hidden grid grid-cols-1 gap-3 md:grid-cols-2">
-        <div class="relative">
-            <x-input.dropdown-select id="c_class" placeholder="Select Class" :options="[]" />
-            <x-input.floating-label for="c_class" :floating="false">Class</x-input.floating-label>
-        </div>
-        <div class="relative">
-            <x-input.dropdown-select id="c_group" placeholder="Select Group" :options="[]" />
-            <x-input.floating-label for="c_group" :floating="false">Group</x-input.floating-label>
-        </div>
-        <div class="relative">
-            <x-input.dropdown-select id="c_section" placeholder="Select Section" :options="[]" />
-            <x-input.floating-label for="c_section" :floating="false">Section</x-input.floating-label>
-        </div>
-        <div class="relative">
-            <x-input.dropdown-select id="c_session" placeholder="Select Session" :options="[]" />
-            <x-input.floating-label for="c_session" :floating="false">Session</x-input.floating-label>
-        </div>
-        <div class="relative md:col-span-2">
-            <x-input.dropdown-select id="c_exam" placeholder="Select Exam" :options="[]" />
-            <x-input.floating-label for="c_exam" :floating="false">Exam</x-input.floating-label>
-        </div>
-    </div>
-
     <x-slot:footer>
         <div class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
-            <x-button.secondary type="button" onclick="closeSearchModal()" class="w-full">Cancel</x-button.secondary>
+            <x-button.secondary type="button" onclick="document.getElementById('searchModal')?.classList.add('hidden')" class="w-full">Cancel</x-button.secondary>
             <x-button.primary type="submit" class="w-full">Generate</x-button.primary>
         </div>
     </x-slot:footer>
 </x-modal.form>
 
+@push('scripts')
 <script>
-    let searchMode = 'single';
-    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    window.openSearchModal = function () {
+        document.getElementById('searchModal')?.classList.remove('hidden');
+    };
+    window.closeSearchModal = function () {
+        document.getElementById('searchModal')?.classList.add('hidden');
+    };
+
+    let currentResultData = null;
+    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
     axios.defaults.withCredentials = true;
@@ -242,11 +214,6 @@
         }
 
         return Promise.reject(error);
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeResultDropdownEvents();
-        fetchClasses();
     });
 
     function toTitleCase(str) {
@@ -441,31 +408,14 @@
         document.getElementById('searchModal').classList.add('hidden');
     }
 
-    function switchSearchTab(mode) {
-        searchMode = mode;
-        document.getElementById('tab-single').classList.toggle('active', mode === 'single');
-        document.getElementById('tab-class').classList.toggle('active', mode === 'class');
-        document.getElementById('single-fields').classList.toggle('hidden', mode !== 'single');
-        document.getElementById('class-fields').classList.toggle('hidden', mode !== 'class');
-    }
-
     function executeFind() {
-        const payload = searchMode === 'single' ? {
+        const payload = {
             mode: 'single',
-            student_id: document.getElementById('s_student_id').value,
-            admit_no: document.getElementById('s_admit_no').value
-        } : {
-            mode: 'classwise',
-            class: document.getElementById('c_class').value,
-            group: document.getElementById('c_group').value,
-            section: document.getElementById('c_section').value,
-            session: document.getElementById('c_session').value,
-            exam: document.getElementById('c_exam').value
+            admit_no: document.getElementById('s_admit_no').value,
         };
 
         axios.post('/api/school-find-results', payload).then(res => {
-            if (searchMode === 'single') renderSingleResult(res.data);
-            else renderClasswiseTable(res.data);
+            renderSingleResult(res.data);
             closeSearchModal();
         }).catch(err => {
             Swal.fire('Error', err.response?.data?.message || 'Data Fetch Failed', 'error');
@@ -473,6 +423,7 @@
     }
 
     function renderSingleResult(data) {
+        currentResultData = data;
         const container = document.getElementById('resultContainer');
         const gradingScale = data.grading_scale || [];
         const groupedGrades = Object.values(gradingScale.reduce((acc, g) => {
@@ -530,7 +481,69 @@
                 overflow: hidden;
             }
             .watermark { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); opacity: 0.03; width: 420px; pointer-events: none; z-index: 0; }
+            .transcript-header {
+                display: grid;
+                grid-template-columns: 82px minmax(0, 1fr) 82px;
+                align-items: center;
+                gap: 16px;
+                margin-bottom: 8px;
+            }
             .header { text-align: center; margin-bottom: 8px; }
+            .school-logo-frame,
+            .student-photo-frame {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 82px;
+                overflow: hidden;
+                border: 1px solid #d1d5db;
+                border-radius: 9999px;
+                background: #fff;
+            }
+            .school-logo-frame {
+                width: 82px;
+            }
+            .school-logo-frame img {
+                max-width: 68px;
+                max-height: 68px;
+                object-fit: contain;
+            }
+            .student-photo-frame {
+                width: 82px;
+                justify-self: end;
+            }
+            .student-photo-frame img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .student-photo-fallback {
+                color: #9ca3af;
+                font-size: 9px;
+                text-align: center;
+            }
+            .exam-meta {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 12px;
+                margin: 0 0 10px;
+                padding: 6px 10px;
+                border: 1px solid #5B2C8F;
+                background: #fcfbff;
+                color: #374151;
+                font-size: 10px;
+                text-align: center;
+            }
+            .exam-meta strong {
+                color: #5B2C8F;
+                font-weight: 700;
+            }
+            @media (max-width: 640px) {
+                .exam-meta {
+                    grid-template-columns: 1fr;
+                }
+            }
             .school-name { font-family: 'Inter', sans-serif; font-weight: bold; font-size: 22px; color: #5B2C8F; margin: 0 0 2px 0; }
             .address, .transcript-title, .mobile { margin: 2px 0; }
             .address { font-size: 10px; }
@@ -542,8 +555,13 @@
                 border: 1px solid #5B2C8F;
             }
             .mobile { font-size: 10px; font-weight: bold; }
-            .top-row { display: flex; gap: 80px; margin-bottom: 8px; }
-            .box { flex: 1;}
+            .top-row {
+                display: grid;
+                grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.75fr) minmax(0, 1fr);
+                gap: 20px;
+                margin-bottom: 8px;
+            }
+            .box { min-width: 0; }
             .box-header {
                 background: #ededed;
                 color: #5B2C8F;
@@ -592,6 +610,167 @@
                 font-size: 12px;
                 color: #111827;
                 font-weight: 700;
+            }
+            .transcript-summary-cards {
+                display: grid;
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+                gap: 10px;
+                margin: 12px 0 18px;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .transcript-summary-card {
+                min-height: 128px;
+                border: 1px solid #cbd5e1;
+                background: #fff;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 10px 8px;
+                text-align: center;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .transcript-summary-card .card-label {
+                margin-bottom: 8px;
+                color: #111827;
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+            }
+            .transcript-summary-card .card-value {
+                color: #111827;
+                font-size: 22px;
+                font-weight: 800;
+                line-height: 1;
+            }
+            .transcript-summary-card .card-note {
+                margin-top: 7px;
+                color: #64748b;
+                font-size: 9px;
+                line-height: 1.35;
+            }
+            .transcript-summary-card .card-icon {
+                width: 58px;
+                height: 58px;
+                margin-bottom: 8px;
+                border: 7px solid #d1fae5;
+                border-radius: 9999px;
+                color: #16a34a;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+                font-weight: 800;
+            }
+            .transcript-summary-card.attendance .card-icon {
+                border-color: #fecaca;
+                color: #dc2626;
+            }
+            .transcript-summary-card.working-days .card-icon {
+                border: 0;
+                border-radius: 4px;
+                background: #dbeafe;
+                color: #0369a1;
+                font-size: 24px;
+            }
+            .transcript-summary-card.qr-card {
+                padding: 6px;
+            }
+            .transcript-summary-card .qr-image {
+                width: 88px;
+                height: 88px;
+                object-fit: contain;
+            }
+            .transcript-evaluation-cards {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 10px;
+                margin: 0 0 18px;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .transcript-evaluation-card {
+                min-height: 150px;
+                overflow: hidden;
+                border: 1px solid #cbd5e1;
+                background: #fff;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .transcript-evaluation-card .evaluation-heading {
+                padding: 5px 6px;
+                color: #fff;
+                font-size: 9px;
+                font-weight: 800;
+                letter-spacing: .02em;
+                text-align: center;
+                text-transform: uppercase;
+            }
+            .transcript-evaluation-card.behavior .evaluation-heading { background: #047857; }
+            .transcript-evaluation-card.activities .evaluation-heading { background: #1e3a8a; }
+            .transcript-evaluation-card.comments .evaluation-heading { background: #78350f; }
+            .transcript-evaluation-card.failed .evaluation-heading { background: #a21caf; }
+            .evaluation-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                min-height: 26px;
+                padding: 3px 7px;
+                border-bottom: 1px solid #e2e8f0;
+                color: #1f2937;
+                font-size: 10px;
+            }
+            .evaluation-row:last-child { border-bottom: 0; }
+            .evaluation-stars { color: #047857; letter-spacing: 1px; white-space: nowrap; }
+            .evaluation-stars .muted { color: #cbd5e1; }
+            .evaluation-comment {
+                display: flex;
+                min-height: 112px;
+                align-items: center;
+                justify-content: center;
+                padding: 12px;
+                color: #1f2937;
+                font-size: 18px;
+                font-weight: 700;
+                text-align: center;
+                text-transform: uppercase;
+            }
+            .failed-summary {
+                display: flex;
+                min-height: 112px;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 7px;
+                padding: 10px;
+                text-align: center;
+            }
+            .failed-summary .failed-count {
+                color: #1f2937;
+                font-size: 17px;
+                font-weight: 800;
+                text-transform: uppercase;
+            }
+            .failed-summary .failed-list {
+                color: #64748b;
+                font-size: 9px;
+                line-height: 1.35;
+            }
+            @media (max-width: 760px) {
+                .transcript-summary-cards {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+                .transcript-evaluation-cards {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
+            @media print {
+                .transcript-summary-cards { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+                .transcript-summary-card { min-height: 112px; }
+                .transcript-evaluation-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
             }
             .footer {
                 position: absolute;
@@ -694,13 +873,26 @@
 
         <div class="transcript-page">
             ${data.school_info.logo ? `<img src="${data.school_info.logo}" class="watermark" alt="Watermark"/>` : ''}
-            <div class="header">
-                <div class="school-name">${data.school_info.school_name}</div>
-                <div class="mobile">
-                    ${data.school_info?.mobile ? data.school_info.mobile : ''}${data.school_info?.mobile && data.school_info?.email ? ' | ' : ''}${data.school_info?.email ? data.school_info.email : ''}
+            <div class="transcript-header">
+                <div class="school-logo-frame">
+                    ${data.school_info.logo ? `<img src="${escapeResultHtml(data.school_info.logo)}" alt="${escapeResultHtml(data.school_info.school_name)} logo">` : '<span class="student-photo-fallback">No logo</span>'}
                 </div>
-                <div class="address">${address}</div>
-                <div class="transcript-title">Academic Transcript </div>
+                <div class="header">
+                    <div class="school-name">${escapeResultHtml(data.school_info.school_name)}</div>
+                    <div class="address">${escapeResultHtml(address)}</div>
+                    <div class="mobile">
+                        ${data.school_info?.mobile ? escapeResultHtml(data.school_info.mobile) : ''}${data.school_info?.mobile && data.school_info?.email ? ' | ' : ''}${data.school_info?.email ? escapeResultHtml(data.school_info.email) : ''}
+                    </div>
+                    <div class="transcript-title">Academic Transcript</div>
+                </div>
+                <div class="student-photo-frame">
+                    ${data.student_image ? `<img src="${escapeResultHtml(data.student_image)}" alt="${escapeResultHtml(data.student_name)} photo">` : '<span class="student-photo-fallback">No photo</span>'}
+                </div>
+            </div>
+            <div class="exam-meta">
+                <div><strong>Exam Title:</strong> Academic Transcript</div>
+                <div><strong>Exam Name:</strong> ${escapeResultHtml(data.exam_name || 'N/A')}</div>
+                <div><strong>Published:</strong> ${escapeResultHtml(formattedDate)}</div>
             </div>
 
             <div class="top-row">
@@ -708,12 +900,17 @@
                     <table class="info-table">
                         <tr><td class="label">Student ID</td><td>${data.student_id_number}</td></tr>
                         <tr><td class="label">Student Name</td><td>${data.student_name}</td></tr>
-                        <tr><td class="label">Admit Card No</td><td>${data.admit_card_number || 'N/A'}</td></tr>
-                        <tr><td class="label">Class</td><td>${data.class_name}</td></tr>
+                        <tr><td class="label">Father's Name</td><td>${data.father_name || 'N/A'}</td></tr>
+                        <tr><td class="label">Mother's Name</td><td>${data.mother_name || 'N/A'}</td></tr>
+                    </table>
+                </div>
+
+                <div class="box">
+                    <table class="info-table">
+                        <tr><td class="label">Class</td><td>${data.class_name || 'N/A'}</td></tr>
                         <tr><td class="label">Group</td><td>${data.group_name || 'N/A'}</td></tr>
                         <tr><td class="label">Section</td><td>${data.section_name || 'N/A'}</td></tr>
-                        <tr><td class="label">Session</td><td>${data.session_name}</td></tr>
-                        <tr><td class="label">Exam Name</td><td>${data.exam_name} - ${data.session_name}</td></tr>
+                        <tr><td class="label">Session Year</td><td>${data.session_name || 'N/A'}</td></tr>
                     </table>
                 </div>
 
@@ -781,6 +978,66 @@
                 </table>
             </div>
 
+            <div class="transcript-summary-cards">
+                <div class="transcript-summary-card">
+                    <div class="card-label">GPA (Without 4th)</div>
+                    <div class="card-icon">${formatResultNumber(data.gpa_without_fourth ?? data.gpa)}</div>
+                    <div class="card-note">Grade Point Average</div>
+                </div>
+                <div class="transcript-summary-card">
+                    <div class="card-label">Position</div>
+                    <div class="card-icon">${escapeResultHtml(data.position ?? 'N/A')}</div>
+                    <div class="card-note">Out of ${formatResultNumber(data.position_total)} in Section</div>
+                </div>
+                <div class="transcript-summary-card attendance">
+                    <div class="card-label">Attendance</div>
+                    <div class="card-icon">${formatResultNumber(data.attendance?.percentage)}%</div>
+                    <div class="card-note">Present: ${formatResultNumber(data.attendance?.present_days)} Days<br>Absent: ${formatResultNumber(data.attendance?.absent_days)} Days</div>
+                </div>
+                <div class="transcript-summary-card working-days">
+                    <div class="card-label">Working Days</div>
+                    <div class="card-icon"><i class="far fa-calendar-alt" aria-hidden="true"></i></div>
+                    <div class="card-value">${formatResultNumber(data.attendance?.working_days)}</div>
+                    <div class="card-note">Class days excluding holidays</div>
+                </div>
+                <div class="transcript-summary-card qr-card">
+                    <div class="card-label">Verify Result</div>
+                    ${data.qr_code ? `<img class="qr-image" src="${escapeResultHtml(data.qr_code)}" alt="Scan to verify result">` : '<div class="card-note">QR unavailable</div>'}
+                </div>
+            </div>
+
+            <div class="transcript-evaluation-cards">
+                <div class="transcript-evaluation-card behavior">
+                    <div class="evaluation-heading">Moral &amp; Behavior Evaluation</div>
+                    ${[
+                        ['Excellent', 5],
+                        ['Good', 4],
+                        ['Average', 3],
+                        ['Poor', 2],
+                    ].map(([label, rating]) => `<div class="evaluation-row"><span>${label}</span><span class="evaluation-stars">${'★'.repeat(rating)}<span class="muted">${'★'.repeat(5 - rating)}</span></span></div>`).join('')}
+                </div>
+                <div class="transcript-evaluation-card activities">
+                    <div class="evaluation-heading">Co-curricular Activities</div>
+                    ${[
+                        ['Sports', 5],
+                        ['Cultural Function', 4],
+                        ['Scout/BNCC', 3],
+                        ['Math Olympiad', 3],
+                    ].map(([label, rating]) => `<div class="evaluation-row"><span>${label}</span><span class="evaluation-stars">${'★'.repeat(rating)}<span class="muted">${'★'.repeat(5 - rating)}</span></span></div>`).join('')}
+                </div>
+                <div class="transcript-evaluation-card comments">
+                    <div class="evaluation-heading">Comments</div>
+                    <div class="evaluation-comment">${escapeResultHtml((data.subjects || []).some(subject => Number(subject.mark ?? 0) < Number(subject.fail_mark ?? 0)) ? 'Needs Improvement' : (data.grade || 'Excellent'))}</div>
+                </div>
+                <div class="transcript-evaluation-card failed">
+                    <div class="evaluation-heading">Failed Subject(s)</div>
+                    ${(() => {
+                        const failedSubjects = (data.subjects || []).filter(subject => Number(subject.mark ?? 0) < Number(subject.fail_mark ?? 0));
+                        return `<div class="failed-summary"><div class="failed-count">${failedSubjects.length ? `${failedSubjects.length} Subject${failedSubjects.length === 1 ? '' : 's'} Failed` : 'No Subject Failed'}</div><div class="failed-list">${failedSubjects.length ? failedSubjects.map(subject => `${escapeResultHtml(subject.name)} (${formatResultNumber(subject.mark)})`).join(', ') : 'All subjects passed'}</div></div>`;
+                    })()}
+                </div>
+            </div>
+
             <div class="footer">
                 <div class="sig-block left">
                     <div class="date">Date & Time: ${formattedDate}</div>
@@ -840,7 +1097,11 @@
                 
                 .no-print { display: none !important; }
                 .a4-landscape-print { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                .class-result-table-frame { overflow: visible !important; border: 0 !important; }
+                .class-result-table-frame,
+                .class-result-table-frame .school-data-table-scroll {
+                    overflow: visible !important;
+                    border: 0 !important;
+                }
                 #mainResultTable { width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }
                 #mainResultTable .sticky-column { position: static !important; }
                 #mainResultTable .subject-header {
@@ -864,6 +1125,24 @@
                 width: 100%; 
                 font-family: 'Roboto', sans-serif; 
                 color: #000;
+                position: relative;
+            }
+
+            .class-result-watermark {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                z-index: 0;
+                width: min(36%, 360px);
+                transform: translate(-50%, -50%);
+                opacity: 0.055;
+                pointer-events: none;
+                object-fit: contain;
+            }
+
+            .a4-landscape-print > *:not(.class-result-watermark) {
+                position: relative;
+                z-index: 1;
             }
             
             /* Elite Subtle Grey Border Design - No Border Radius */
@@ -900,8 +1179,6 @@
             .class-result-table-frame {
                 width: 100%;
                 margin-top: 10px;
-                overflow-x: auto;
-                border: 1px solid #d1d5db;
                 background: #fff;
                 scrollbar-width: thin;
                 scrollbar-color: #94a3b8 #f1f5f9;
@@ -932,22 +1209,22 @@
             }
             
             #mainResultTable {
-                width: max-content;
-                min-width: 100%;
+                width: 100%;
+                min-width: 1100px;
                 border: 0 !important;
                 border-collapse: collapse;
                 table-layout: fixed;
                 margin: 0;
             }
             #mainResultTable td {
-                height: 34px;
-                font-size: 9px;
-                padding: 5px 6px;
+                height: 32px;
+                font-size: 12px;
+                padding: 8px 12px;
                 text-align: center;
                 white-space: nowrap;
                 overflow: hidden;
             }
-            #mainResultTable th { font-size: 9px; font-weight: 700; padding: 6px; background: #f8fafc; }
+            #mainResultTable th { height: 32px; font-size: 12px; font-weight: 600; padding: 8px 12px; background: #f3f4f6; }
             #mainResultTable tbody tr:nth-child(even) td { background: #f8fafc; }
             #mainResultTable tbody tr:hover td { background: #eff6ff; }
 
@@ -979,6 +1256,7 @@
         </style>
         
         <div class="a4-landscape-print">
+            ${data.school_logo ? `<img src="${escapeResultHtml(data.school_logo)}" class="class-result-watermark" alt="School logo watermark">` : ''}
             <div class="text-center mb-4">
                 <h1 class="text-xl font-black mb-0 capitalize-all">${toTitleCase(data.school_name)}</h1>
                 <p class="text-[10px] font-bold text-gray-500 mb-0.5 capitalize-all">${toTitleCase(data.location || '')}</p>
@@ -1017,8 +1295,9 @@
                 </div>
             </div>
 
-            <div class="class-result-table-frame">
-                <table id="mainResultTable">
+            <div class="school-data-table-frame class-result-table-frame border border-gray-200 bg-white p-2.5 shadow-md sm:p-4">
+                <div class="school-data-table-scroll">
+                <table id="mainResultTable" class="school-data-table border-collapse border border-gray-300 text-xs">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="sticky-column serial-column">Sl</th>
@@ -1033,33 +1312,186 @@
                     </thead>
                     <tbody>
                         ${data.students.map((std, i) => `
-                                    <tr>
-                                        <td class="sticky-column serial-column">${i + 1}</td>
-                                        <td class="sticky-column id-column font-mono">${escapeResultHtml(std.student_id)}</td>
-                                        <td class="sticky-column name-column student-name-cell font-bold" title="${escapeResultHtml(toTitleCase(std.name))}">${escapeResultHtml(toTitleCase(std.name))}</td>
-                                        ${data.subjects_list.map(sub => `<td>${formatResultNumber(std.marks[sub] ?? 0)}</td>`).join('')}
-                                        <td class="font-bold">${formatResultNumber(std.total)}</td>
-                                        <td class="font-black text-blue-800">${formatResultNumber(std.gpa)}</td>
-                                        <td class="font-bold">${escapeResultHtml(std.grade)}</td>
-                                        <td class="no-print">
-                                            <button type="button" title="Delete result" aria-label="Delete result" onclick="confirmDelete(${Number(std.id)})" class="mx-auto flex h-7 w-7 items-center justify-center text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600">
+                                    <tr class="transition-colors hover:bg-gray-50">
+                                        <td class="sticky-column serial-column h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${i + 1}</td>
+                                        <td class="sticky-column id-column h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll font-mono" title="${escapeResultHtml(std.student_id)}">${escapeResultHtml(std.student_id)}</div></td>
+                                        <td class="sticky-column name-column h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll student-name-cell font-bold" title="${escapeResultHtml(toTitleCase(std.name))}">${escapeResultHtml(toTitleCase(std.name))}</div></td>
+                                        ${data.subjects_list.map(sub => `<td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${formatResultNumber(std.marks[sub] ?? 0)}</td>`).join('')}
+                                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-bold">${formatResultNumber(std.total)}</td>
+                                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-black text-blue-800">${formatResultNumber(std.gpa)}</td>
+                                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-bold">${escapeResultHtml(std.grade)}</td>
+                                        <td class="no-print h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
+                                            <button type="button" title="Delete result" aria-label="Delete result" onclick="confirmDelete(${Number(std.id)})" class="mx-auto flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1">
                                                 <i class="far fa-trash-alt" aria-hidden="true"></i>
                                             </button>
                                         </td>
                                     </tr>`).join('')}
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>`;
     }
 
     function exportToExcel() {
+        if (typeof XLSX === 'undefined') {
+            Swal.fire('Export failed', 'The Excel export library could not be loaded. Please refresh and try again.', 'error');
+            return;
+        }
+
+        if (currentResultData?.subjects?.length) {
+            const data = currentResultData;
+            const rows = [
+                ['Academic Result'],
+                ['Student', data.student_name || 'N/A', 'Student ID', data.student_id_number || 'N/A'],
+                ['Admit Card', data.admit_card_number || 'N/A', 'Exam', data.exam_name || 'N/A'],
+                ['Class', data.class_name || 'N/A', 'Session', data.session_name || 'N/A'],
+                [],
+                ['Subject', 'Full Mark', 'Highest Mark', 'Tutorial', 'MCQ', 'Writing', 'Practical', 'Mark', 'Grade', 'Point'],
+                ...data.subjects.map(subject => [
+                    subject.name || 'N/A',
+                    subject.full_mark ?? 0,
+                    subject.highest_mark ?? subject.mark ?? 0,
+                    subject.tutorial_mark ?? 0,
+                    subject.mcq_mark ?? 0,
+                    subject.writing_mark ?? subject.theory_mark ?? 0,
+                    subject.practical_mark ?? 0,
+                    subject.mark ?? 0,
+                    subject.grade || '-',
+                    subject.point ?? 0,
+                ]),
+                [],
+                ['Total Marks', data.total_marks ?? 0, 'GPA', data.gpa ?? '0.00', 'Grade', data.grade || 'N/A', 'Position', data.position || 'N/A'],
+            ];
+            const worksheet = XLSX.utils.aoa_to_sheet(rows);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Academic Result');
+            XLSX.writeFile(workbook, `academic-result-${data.admit_card_number || 'report'}.xlsx`);
+            return;
+        }
+
         const table = document.getElementById('mainResultTable');
-        if (!table || table.rows.length <= 1) return;
+        if (!table || table.rows.length <= 1) {
+            Swal.fire('Find a result first', 'Generate an academic result before exporting it.', 'info');
+            return;
+        }
         const wb = XLSX.utils.table_to_book(table, {
             sheet: "Results"
         });
         XLSX.writeFile(wb, "Exam_Results.xlsx");
+    }
+
+    function printResult() {
+        const resultContainer = document.getElementById('resultContainer');
+
+        if (!currentResultData || !resultContainer?.querySelector('.transcript-page')) {
+            Swal.fire('Find a result first', 'Generate an academic result before printing it.', 'info');
+            return;
+        }
+
+        const printWindow = window.open('', '_blank', 'width=1200,height=900');
+
+        if (!printWindow) {
+            Swal.fire('Print blocked', 'Allow pop-ups for this site, then try printing again.', 'warning');
+            return;
+        }
+
+        const styles = Array.from(document.querySelectorAll('style'))
+            .map(style => style.outerHTML)
+            .join('');
+
+        printWindow.document.write(`
+            <!doctype html>
+            <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>Academic Result</title>
+                    ${styles}
+                    <style>
+                        body { margin: 0; background: #fff; }
+                        .no-print { display: none !important; }
+                    </style>
+                <\/head>
+                <body>${resultContainer.innerHTML}<\/body>
+            </html>
+        `);
+        printWindow.document.close();
+
+        printWindow.addEventListener('load', () => {
+            printWindow.focus();
+            printWindow.print();
+            printWindow.addEventListener('afterprint', () => printWindow.close(), { once: true });
+        }, { once: true });
+    }
+
+    async function exportResultPdf() {
+        const admitNumber = document.getElementById('s_admit_no')?.value?.trim();
+
+        if (!admitNumber) {
+            Swal.fire('Find a result first', 'Enter an admit card number before exporting the PDF.', 'info');
+            return;
+        }
+
+        try {
+            const response = await axios.post('/api/school-find-results/export-pdf', {
+                mode: 'single',
+                admit_no: admitNumber,
+            }, { responseType: 'blob' });
+
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `academic-result-${admitNumber}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            let message = 'Unable to export the academic result.';
+
+            if (error.response?.data instanceof Blob) {
+                try {
+                    const payload = JSON.parse(await error.response.data.text());
+                    message = payload.message || message;
+                } catch (_) {
+                    // Keep the generic message when the server response is not JSON.
+                }
+            } else {
+                message = error.response?.data?.message || message;
+            }
+
+            Swal.fire('PDF export failed', message, 'error');
+        }
+    }
+
+    function initResultExportDropdown() {
+        const button = document.getElementById('btnResultExport');
+        const menu = document.getElementById('resultExportDropdown');
+        if (!button || !menu || button.dataset.dropdownReady === 'true') return;
+
+        button.dataset.dropdownReady = 'true';
+
+        const closeMenu = () => {
+            menu.classList.add('hidden');
+            button.setAttribute('aria-expanded', 'false');
+        };
+
+        button.addEventListener('click', event => {
+            event.stopPropagation();
+            const open = menu.classList.contains('hidden');
+
+            menu.classList.toggle('hidden', !open);
+            button.setAttribute('aria-expanded', String(open));
+        });
+
+        menu.addEventListener('click', closeMenu);
+        document.addEventListener('click', event => {
+            if (!menu.contains(event.target) && event.target !== button) closeMenu();
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeMenu();
+        });
     }
 
     function confirmDelete(id) {
@@ -1072,5 +1504,16 @@
             if (res.isConfirmed) axios.delete(`/api/school-results/${id}`).then(() => executeFind());
         });
     }
+
+    window.openSearchModal = openSearchModal;
+    window.closeSearchModal = closeSearchModal;
+    window.executeFind = executeFind;
+    window.exportToExcel = exportToExcel;
+    window.printResult = printResult;
+    window.exportResultPdf = exportResultPdf;
+    window.confirmDelete = confirmDelete;
+
+    initResultExportDropdown();
 </script>
+@endpush
 @endsection

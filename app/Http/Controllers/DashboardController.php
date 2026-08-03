@@ -1109,6 +1109,11 @@ class DashboardController extends Controller
         return view('school.exam.merit_list');
     }
 
+    public function failList()
+    {
+        return view('school.exam.fail_list');
+    }
+
     // ================= Inventory =================
 
     public function product()
