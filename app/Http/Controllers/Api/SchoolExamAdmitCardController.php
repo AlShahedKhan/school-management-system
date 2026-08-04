@@ -10,9 +10,11 @@ use App\Models\SchoolExamAdmitCard;
 use App\Models\SchoolExamName;
 use App\Models\SchoolExamRoutine;
 use App\Models\SchoolExamSeatPlan;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 
 class SchoolExamAdmitCardController extends Controller
@@ -38,6 +40,10 @@ class SchoolExamAdmitCardController extends Controller
         ])->where('school_id', $schoolId);
 
         // Filters
+        if ($request->filled('admit_card_id')) {
+            $query->whereKey($request->integer('admit_card_id'));
+        }
+
         if ($request->filled('class_name')) {
             $query->where('class_name', $request->class_name);
         }
@@ -219,6 +225,64 @@ class SchoolExamAdmitCardController extends Controller
         }
 
         return response()->json($response);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $response = $this->index($request->merge(['per_page' => 500]));
+        $payload = $response->getData(true);
+
+        if (empty($payload['data'])) {
+            return response()->json(['message' => 'No admit cards found for the selected filters.'], 404);
+        }
+
+        $schoolModel = $this->getSchool();
+        $school = $payload['school_info'] ?? [];
+        $school['logo_data_uri'] = $this->publicImageDataUri($schoolModel?->logo);
+        $school['principal_signature_data_uri'] = $this->publicImageDataUri(
+            Principal::where('school_id', $schoolModel?->id)->value('signature')
+        );
+
+        $cards = collect($payload['data'])->map(function (array $card): array {
+            $card['student_image_data_uri'] = $this->publicImageDataUri(
+                $card['student_image'] ?? null
+            );
+
+            return $card;
+        })->all();
+
+        $filename = count($cards) === 1
+            ? 'admit-card-'.($cards[0]['admit_card_number'] ?? now()->format('Ymd-His')).'.pdf'
+            : 'admit-cards-'.now()->format('Ymd-His').'.pdf';
+
+        return Pdf::loadView('exports.admit_cards_pdf', [
+            'cards' => $cards,
+            'school' => $school,
+            'routines' => $payload['routines'] ?? [],
+        ])
+            ->setPaper('a4', 'portrait')
+            ->download($filename);
+    }
+
+    private function publicImageDataUri(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        $storagePath = preg_replace('#^.*?/storage/#', '', str_replace('\\', '/', $path));
+
+        if (! $storagePath || ! Storage::disk('public')->exists($storagePath)) {
+            return null;
+        }
+
+        $mimeType = Storage::disk('public')->mimeType($storagePath) ?: 'image/png';
+
+        return sprintf(
+            'data:%s;base64,%s',
+            $mimeType,
+            base64_encode(Storage::disk('public')->get($storagePath))
+        );
     }
 
     private function validateAdmitPrerequisites($school_id, $className, $groupName, $sectionName, $sessionName, $examName)

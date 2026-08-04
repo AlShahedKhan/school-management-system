@@ -2495,30 +2495,6 @@
         })();
 
 
-        // Dynamic Logo Setup Script
-        (function() {
-            window.addEventListener('load', function() {
-                const logoImg = document.getElementById('sideSchoolLogo');
-
-                if (!logoImg) return;
-
-                axios.get('/api/dynamic-operation')
-                    .then(res => {
-                        const settings = res.data;
-                        // If the specific dashboard logo exists in the DB
-                        if (settings && settings.school_dashboard_logo) {
-                            // Update src with storage path
-                            logoImg.src = window.location.origin + '/storage/' + settings
-                                .school_dashboard_logo;
-                        }
-                    })
-                    .catch(err => {
-                        console.warn("Dynamic logo fetch failed, using default.");
-                    });
-            });
-        })();
-
-
         // Notification box appearing script(Static)
         document.addEventListener('DOMContentLoaded', function() {
             const notifyBtn = document.getElementById('topbarNotificationBtn');

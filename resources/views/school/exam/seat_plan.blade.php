@@ -1289,14 +1289,37 @@
                     return;
                 }
 
-                // Browsers use the print dialog for both printing and saving a PDF.
-                if (type === 'pdf' || type === 'print') {
+                if (type === 'pdf') {
+                    downloadSeatPlanPdf();
+                    return;
+                }
+
+                if (type === 'print') {
                     generateSeatPrintLayout(items, school);
                 }
             }).catch(err => {
                 console.error('Seat-plan export error', err);
                 Swal.fire('Error', 'Could not export seat plans. Please try again.', 'error');
             });
+        }
+
+        async function downloadSeatPlanPdf() {
+            try {
+                const response = await axios.get('/api/school-exam-seat-plans/export-pdf', {
+                    params: getSeatPlanExportParams(),
+                    responseType: 'blob'
+                });
+                const url = URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `seat-plans-${new Date().toISOString().slice(0, 10)}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                Swal.fire('PDF export failed', 'Could not download the seat plan PDF. Please try again.', 'error');
+            }
         }
 
         function downloadSeatPlanExcel(items) {
@@ -1385,7 +1408,7 @@
                                                                         body { background-color: #fff; -webkit-print-color-adjust: exact; }
                                                                         .print-page { box-shadow: none; }
                                                                     }
-                                                                </style></head><body>`;
+                                                                </style><\/head><body>`;
 
             items.forEach((item, index) => {
                 if (index % 10 === 0) html += '<div class="print-page">';
@@ -1431,7 +1454,7 @@
                 }
             });
 
-            html += `<script>window.onload = function() { window.print(); window.close(); };<\/script></body></html>`;
+            html += `<script>window.onload = function() { window.print(); window.close(); };<\/script><\/body></html>`;
             printWindow.document.write(html);
             printWindow.document.close();
         }

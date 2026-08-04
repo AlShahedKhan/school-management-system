@@ -767,14 +767,14 @@
                 // Show basic loader in the new window
                 previewWindow.document.write(`
                     <html>
-                        <head><title>Preparing Admit Cards...</title></head>
+                        <head><title>Preparing Admit Cards...</title><\/head>
                         <body style="display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-family:sans-serif;background:#f8fafc;">
                             <div style="text-align:center;">
                                 <div style="border:4px solid #f3f3f3;border-top:4px solid #2563eb;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 15px;"></div>
                                 <div style="color:#64748b;font-size:14px;font-weight:600;">Generating Admit Cards...</div>
                             </div>
                             <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
-                        </body>
+                        <\/body>
                     </html>
                 `);
 
@@ -791,7 +791,7 @@
                     }
 
                     if (type === 'pdf-mobile') {
-                        generateMobilePreview(res.data.data, res.data.school_info, res.data.routines || [], previewWindow);
+                        generateMobilePreview(res.data.data, res.data.school_info, res.data.routines || [], previewWindow, params);
                     } else {
                         generatePrintLayout(res.data.data, res.data.school_info, res.data.routines || [], previewWindow);
                     }
@@ -881,7 +881,6 @@
                 principalSignature: escapeAdmitCardHtml(school?.principal_signature || ''),
                 studentName: escapeAdmitCardHtml(card.student_name || '-'),
                 studentId: escapeAdmitCardHtml(card.student_id_number || '-'),
-                seatNumber: escapeAdmitCardHtml(card.seat_number || '-'),
                 fatherName: escapeAdmitCardHtml(card.father_name || '-'),
                 admitCardNumber: escapeAdmitCardHtml(card.admit_card_number || '-'),
                 className: escapeAdmitCardHtml(card.class_name || '-'),
@@ -1049,7 +1048,7 @@
 
 
 
-        function generateMobilePreview(admitCards, school, routines, previewWindow) {
+        function generateMobilePreview(admitCards, school, routines, previewWindow, exportParams = {}) {
             if (!previewWindow) previewWindow = window.open('', '_blank');
             const address = school?.full_address || [school?.village, school?.upazila, school?.district, school?.division]
                 .filter(Boolean)
@@ -1060,6 +1059,7 @@
             const mm = today.toLocaleString('default', { month: 'short' });
             const yyyy = today.getFullYear();
             const currentDate = `${dd}-${mm}-${yyyy}`;
+            const pdfQuery = new URLSearchParams(Object.entries(exportParams).filter(([, value]) => value !== '' && value != null));
 
             let html = `<!DOCTYPE html><html><head><title>Admit Card PDF</title>
                 <style>${getAdmitCardUtilityStyles()}</style>
@@ -1093,12 +1093,15 @@
                         .card-page { min-height: 297mm; width: 210mm; padding: 12mm 15mm; border: none; page-break-after: always; background: #fff; }
                         .card-inner { max-width: 100%; padding: 0; border: 1px solid #1f2937; }
                     }
-                </style></head><body>`;
+                </style><\/head><body>`;
 
             admitCards.forEach(card => {
                 const cardRoutines = getRoutinesForCard(card, routines);
                 const routineRowsHtml = buildRoutineTableRows(cardRoutines);
                 const printData = getAdmitCardPrintData(card, school, address);
+                const cardPdfQuery = new URLSearchParams(pdfQuery);
+                cardPdfQuery.set('admit_card_id', card.id);
+                const cardDownloadPdfUrl = `${window.location.origin}/api/school-exam-admit-cards/export-pdf?${cardPdfQuery.toString()}`;
 
                 html += `
                                                                                                                 <div class="card-page">
@@ -1149,7 +1152,6 @@
                                                                                                                                 <div class="w-[48%] space-y-1 text-left">
                                                                                                                                      <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Student Name</span><span>:</span><span class="font-bold capitalize">${printData.studentName}</span></div>
                                                                                                                                      <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Student ID</span><span>:</span><span class="font-mono font-bold">${printData.studentId}</span></div>
-                                                                                                                                     <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Seat No</span><span>:</span><span class="font-mono">${printData.seatNumber}</span></div>
                                                                                                                                      <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Father's Name</span><span>:</span><span class="capitalize">${printData.fatherName}</span></div>
                                                                                                                                      <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Admit Card No</span><span>:</span><span class="font-mono">${printData.admitCardNumber}</span></div>
                                                                                                                                 </div>
@@ -1194,16 +1196,16 @@
                                                                                                                             </div>
                                                                                                                         </div>
                                                                                                                     </div>
-                                                                                                                    <!-- Print button (hidden on print) -->
+                                                                                                                    <!-- PDF download action (hidden in printed output) -->
                                                                                                                     <div class="no-print flex justify-center mt-4">
-                                                                                                                        <button onclick="window.print()" style="border:2px solid #000;background:#fff;color:#000;padding:8px 24px;font-size:10px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='#fff';this.style.color='#000'">
-                                                                                                                            Download PDF / Print
+                                                                                                                        <button onclick='window.location.href=${JSON.stringify(cardDownloadPdfUrl)}' style="border:2px solid #000;background:#fff;color:#000;padding:8px 24px;font-size:10px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='#fff';this.style.color='#000'">
+                                                                                                                            Download PDF
                                                                                                                         </button>
                                                                                                                     </div>
                                                                                                                 </div>`;
             });
 
-            html += `</body></html>`;
+            html += `<\/body></html>`;
             previewWindow.document.open();
             previewWindow.document.write(html);
             previewWindow.document.close();
@@ -1248,7 +1250,7 @@
                                                                                                                             height: 297mm !important;
                                                                                                                         }
                                                                                                                     }
-                                                                                                                </style></head><body>`;
+                                                                                                                </style><\/head><body>`;
 
             admitCards.forEach((card, index) => {
                 if (index % 2 === 0) html += '<div class="print-page">';
@@ -1310,8 +1312,7 @@
                                                                                                                             <div class="w-[48%] space-y-1 text-left">
                                                                                                                                  <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Student Name</span><span>:</span><span class="font-bold capitalize">${printData.studentName}</span></div>
                                                                                                                                  <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Student ID</span><span>:</span><span class="font-mono font-bold">${printData.studentId}</span></div>
-                                                                                                                                <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Seat No</span><span>:</span><span class="font-mono">${printData.seatNumber}</span></div>
-                                                                                                                                 <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Father's Name</span><span>:</span><span class="capitalize">${printData.fatherName}</span></div>
+                                                                                                                                <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Father's Name</span><span>:</span><span class="capitalize">${printData.fatherName}</span></div>
                                                                                                                                  <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Admit Card No</span><span>:</span><span class="font-mono">${printData.admitCardNumber}</span></div>
                                                                                                                             </div>
 
@@ -1377,7 +1378,7 @@
                                                                                                                     };
                                                                                                                 });
                                                                                                             <\/script>
-                                                                                                            </body></html>`;
+                                                                                                            <\/body></html>`;
             printWindow.document.open();
             printWindow.document.write(html);
             printWindow.document.close();
