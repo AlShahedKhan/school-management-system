@@ -21,11 +21,15 @@
         }
     @endphp
     <style>
-        @page { size: A4 portrait; margin: 20mm; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @page { size: A4 portrait; margin: 25mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'DejaVu Sans', 'Arial', 'Helvetica', sans-serif;
+            font-family: 'Inter', Arial, sans-serif;
             font-size: 11px; color: #1f2937; line-height: 1.4; background: #fff;
+            padding: 1.5rem;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* HEADER */
@@ -39,9 +43,9 @@
             display: inline-block; font-size: 40px; font-weight: 700; color: #154734; line-height: 96px;
             font-family: 'DejaVu Serif', serif;
         }
-        .school-name { font-size: 18px; font-weight: 700; color: #154734; }
-        .address { font-size: 12px; color: #154734; font-weight: 600; margin-top: 8px; }
-        .mobile { font-size: 12px; color: #154734; font-weight: 700; margin-top: 2px; }
+        .school-name { font-size: 18px; font-weight: 700; color: #154734; text-transform: uppercase; }
+        .address { font-size: 12px; color: #154734; font-weight: 600; margin-top: 8px;}
+        .mobile { font-size: 12px; color: #154734; font-weight: 700; margin-top: 2px;}
 
         /* PAYMENT INVOICE banner */
         .banner {
@@ -53,7 +57,7 @@
         .banner span {
             display: inline-block;
             background: #154734; color: #fff;
-            font-size: 11px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase;
+            font-size: 11px; font-weight: 700; letter-spacing: 0.25em;
             padding: 6px 24px;
             position: relative; top: -13px;
             line-height: 1.4;
@@ -79,6 +83,7 @@
             font-size: 9.5px; font-weight: 600;
             padding: 8px 8px; white-space: nowrap;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 10%;
         }
         table.payment-table td {
             padding: 8px 8px; border: 1px solid #f3f4f6;
@@ -87,7 +92,7 @@
         }
         table.payment-table tr { page-break-inside: avoid; }
         table.payment-table tr:nth-child(even) td { background: #f7f8f8; }
-        table.payment-table td.col-sl { width: 24px; }
+        table.payment-table td.col-sl { width: 10%; }
         .text-right { text-align: right !important; }
 
         /* SUMMARY */
@@ -106,9 +111,33 @@
         table.summary td.val { text-align: right; font-weight: 700; color: #111827; }
         .c-emerald { color: #059669 !important; }
         .c-red { color: #dc2626 !important; }
+        .slip-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60%;
+            max-width: 420px;
+            opacity: 0.06;
+            pointer-events: none;
+            z-index: 0;
+            text-align: center;
+        }
+        .slip-watermark img { width: 100%; height: auto; object-fit: contain; }
+        .slip-content-above { position: relative; z-index: 1; }
     </style>
 </head>
 <body>
+
+    <div class="slip-watermark" aria-hidden="true">
+        @if(!empty($school->logo) && file_exists(public_path('storage/' . $school->logo)))
+            <img src="{{ public_path('storage/' . $school->logo) }}" alt="watermark">
+        @else
+            <img src="{{ public_path('images/logo.png') }}" alt="watermark">
+        @endif
+    </div>
+
+    <div class="slip-content-above">
 
     <div class="header">
         <div class="logo-wrap">
@@ -124,12 +153,12 @@
         @endif
         @if(!empty($school->mobile) || !empty($school->email))
             <div class="mobile">
-                Mobile: {{ strtoupper($school->mobile ?? '') }}@if(!empty($school->email)) | Email: {{ $school->email }}@endif
+                Mobile: {{ $school->mobile ?? '' }}@if(!empty($school->email)) | Email: {{ $school->email }}@endif
             </div>
         @endif
     </div>
 
-    <div class="banner"><span>Payment Invoice</span></div>
+    <div class="banner"><span>PAYMENT INVOICE</span></div>
 
     <table class="student-info">
         <tr>
@@ -200,6 +229,7 @@
                     <td class="text-right">{{ number_format($due, 2) }}</td>
                     <td class="text-right" style="color:{{ $isOverdue ? '#dc2626' : '#374151' }};">{{ $isOverdue ? number_format($due, 2) : '0.00' }}</td>
                 </tr>
+                
             @empty
                 <tr>
                     <td colspan="11" style="padding:12px; color:#9ca3af; text-align:center;">No payment records found.</td>
@@ -232,6 +262,9 @@
         </table>
         <div style="clear: both;"></div>
     @endif
+</div>
+
+</div>
 
 </body>
 </html>
