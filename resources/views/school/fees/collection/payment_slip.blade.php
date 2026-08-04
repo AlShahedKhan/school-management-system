@@ -37,8 +37,8 @@
         @media print {
             body { background: #fff !important; }
             .no-print { display: none !important; }
-            .print-container { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; max-width: none !important; }
-            .print-content { padding: 20mm 20mm 0 20mm !important; }
+            .print-container { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; max-width: none !important; height: 297mm !important; }
+            .print-content { padding: 20mm 20mm 0 20mm !important; flex-shrink: 0 !important; }
             .table-scroll { overflow: visible !important; }
             .table-scroll table { min-width: 0 !important; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -53,7 +53,6 @@
             letter-spacing: 0.04em;
         }
         .school-name {
-            font-family: 'Cinzel', serif;
             font-weight: 700;
             letter-spacing: 0.03em;
         }
@@ -112,7 +111,7 @@
     </div>
 
     {{-- Slip Container --}}
-    <div class="print-container relative bg-white w-full max-w-[210mm] min-h-[auto] sm:min-h-[297mm] border shadow-lg flex flex-col justify-between text-[11px] text-gray-800 tracking-tight overflow-hidden">
+    <div class="print-container relative bg-white w-full max-w-[210mm] min-h-[auto] border shadow-lg flex flex-col justify-between text-[11px] text-gray-800 tracking-tight overflow-hidden">
 
         {{-- Watermark --}}
         <div class="slip-watermark" aria-hidden="true">
@@ -137,16 +136,16 @@
                     @endif
                 </div>
                 <h1 class="school-name dropcap-word text-lg sm:text-xl font-bold brand-text whitespace-nowrap">
-                    {{$school->school_name ?? ''}}
+                    {{$school->school_name ?? null}}
                 </h1>
                 <p class="text-[12] mt-2 flex items-center justify-center gap-1 font-semibold espace-nowrap brand-text">
                     <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4.5-4.5-7-8.14-7-11.5a7 7 0 1114 0c0 3.36-2.5 7-7 11.5z"/><circle cx="12" cy="9.5" r="2.25"/></svg>
                     {{ implode(', ', array_filter([$school->village ?? null])) }}
                 </p>
-                @if(!empty($school->mobile))
+                @if(!empty($school->mobile) || !empty($school->email))
                     <p class="text-[12] mt-0.5 flex items-center justify-center gap-1 font-bold whitespace-nowrap brand-text">
                         <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h2.28a1 1 0 01.97.76l1 4a1 1 0 01-.27.95L7.4 10.3a12 12 0 006.3 6.3l1.6-1.58a1 1 0 01.95-.27l4 1a1 1 0 01.76.97V19a2 2 0 01-2 2h-1C10.4 21 3 13.6 3 4.5V5z"/></svg>
-                        Mobile: {{ $school->mobile }}
+                        {{ 'Mobile: ' . strtoupper($school->mobile ?? '') }}@if(!empty($school->email)) | {{ 'Email: ' . ($school->email) }}@endif
                     </p>
                 @endif
             </div>
@@ -213,7 +212,7 @@
             <div class="table-scroll w-full overflow-x-auto">
                 <table class="w-full min-w-[640px] text-left border-collapse table-auto overflow-hidden">
                     <thead>
-                        <tr class="brand-bg text-white text-[9.5px] font-semibold tracking-wide">
+                        <tr class="brand-bg text-white text-[9.5px] font-semibold">
                             <th class="py-2 px-2 whitespace-nowrap w-6 border border-white/10">SL</th>
                             <th class="py-2 px-2 whitespace-nowrap border border-white/10">Pay Date</th>
                             <th class="py-2 px-2 whitespace-nowrap border border-white/10">Receive Month</th>
@@ -314,8 +313,8 @@
                 <span class="w-2 h-2 rotate-45 brand-bg inline-block"></span>
                 <span class="w-2 h-2 rotate-45 brand-bg inline-block"></span>
             </div>
-            <div class="brand-bg text-white text-center py-2.5 text-sm sm:text-base tracking-wide school-name">
-                ASTHA ACADEMICS
+            <div class="brand-bg text-white text-center py-2.5 text-sm sm:text-base">
+                Astha Academics
             </div>
         </div>
 
