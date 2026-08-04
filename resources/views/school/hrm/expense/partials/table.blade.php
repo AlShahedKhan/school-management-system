@@ -1,8 +1,34 @@
-<x-school.data-table
+<style>
+    .donate-cell-scroll { display: block; width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .donate-cell-scroll::-webkit-scrollbar { display: none; }
+    .donate-cell-scroll.is-scrollable { cursor: grab; }
+    .donate-cell-scroll.is-dragging { cursor: grabbing; user-select: none; }
+    .donate-fixed-table { width: 100%; min-width: 1550px; table-layout: fixed; }
+    .donate-table-frame { width: 100%; overflow: hidden; border: 1px solid #d1d5db; background: #fff; }
+    .donate-table-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; background: #fff; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: #e5e7eb transparent; }
+    .donate-table-scroll::-webkit-scrollbar { height: 4px; }
+    .donate-table-scroll::-webkit-scrollbar-track { background: transparent; }
+    .donate-table-scroll::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 9999px; }
+    .donate-table-scroll::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+    @media (min-width: 1024px) { .donate-fixed-table { width: 100%; min-width: 1550px; } .donate-table-scroll { overflow-x: auto; } }
+    @media (max-width: 1023px) { .donate-fixed-table { width: 1550px; min-width: 1550px; } }
+</style>
+
+<x-table
+    unstyled
     :empty="$expenses->isEmpty()"
     :empty-colspan="7"
     empty-message="No expenses found."
+    empty-cell-class="border border-gray-300 px-3 py-10 text-center text-gray-500"
     :show-footer="$expenses->hasPages()"
+    footer-class="w-full border-t border-gray-300 px-0 py-3"
+    scroll-class="donate-table-scroll"
+    table-class="donate-fixed-table border-collapse border border-gray-300 text-xs"
+    head-class="bg-gray-100"
+    tbody-class=""
+    tbody-id="expenseTableBody"
+    class="mb-0 border border-gray-200 bg-white p-2.5 shadow-md sm:p-4"
+    style="border-radius:0;"
 >
     <x-slot:columns>
         <colgroup>
@@ -39,14 +65,14 @@
                 {{ $expense->invoice_no ?? '-' }}
             </x-table.td>
             <x-table.td unstyled class="h-8 border border-gray-300 px-3">
-                <x-school.table-cell-scroll :title="$expense->expense_reason">
+                <div class="donate-cell-scroll" title="{{ $expense->expense_reason }}">
                     {{ $expense->expense_reason }}
-                </x-school.table-cell-scroll>
+                </div>
             </x-table.td>
             <x-table.td unstyled class="h-8 border border-gray-300 px-3">
-                <x-school.table-cell-scroll :title="$expense->details ?? '-'">
+                <div class="donate-cell-scroll" title="{{ $expense->details ?? '-' }}">
                     {{ $expense->details ?? '-' }}
-                </x-school.table-cell-scroll>
+                </div>
             </x-table.td>
             <x-table.td unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-right font-medium">
                 ৳{{ number_format($expense->amount, 2) }}
@@ -68,4 +94,4 @@
     <x-slot:footer>
         {{ $expenses->links() }}
     </x-slot:footer>
-</x-school.data-table>
+</x-table>

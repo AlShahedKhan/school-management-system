@@ -4,15 +4,15 @@
     breadcrumb-current="Expense"
 >
     <x-slot:search>
-        @include('school.finance.expense.partials.search-desktop')
+        @include('school.hrm.expense.partials.search-desktop')
     </x-slot:search>
 
     <x-slot:actions>
-        @include('school.finance.expense.partials.export')
+        @include('school.hrm.expense.partials.export')
     </x-slot:actions>
 
     <x-slot:mobile-search>
-        @include('school.finance.expense.partials.search-mobile')
+        @include('school.hrm.expense.partials.search-mobile')
     </x-slot:mobile-search>
 </x-school.list-header>
 

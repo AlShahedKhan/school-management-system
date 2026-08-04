@@ -7,7 +7,7 @@
         <x-dropdown.item id="exportExcel">Excel</x-dropdown.item>
         <x-dropdown.item id="exportPrint">Print</x-dropdown.item>
     </x-dropdown>
-    <x-button.primary id="openExpenseModal" class="flex-1 lg:flex-none">
+    <x-button.primary id="openExpenseModal">
         Expense
     </x-button.primary>
 </div>
