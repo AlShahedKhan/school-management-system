@@ -34,6 +34,12 @@
     }
 
     function resetPayrollForm() {
+        const payrollIdEl = document.getElementById('payroll_id');
+        if (payrollIdEl) payrollIdEl.value = '';
+
+        const titleEl = document.querySelector('.payroll-register-modal-title');
+        if (titleEl) titleEl.textContent = 'Pay Salary / Payroll';
+
         // Reset radio button to employee
         const employeeRadio = document.querySelector('input[name="type"][value="employee"]');
         if (employeeRadio) {

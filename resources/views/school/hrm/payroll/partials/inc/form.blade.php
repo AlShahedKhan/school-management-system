@@ -32,6 +32,7 @@
 @endphp
 
 <div class="col-span-1 md:col-span-2 space-y-4 w-full">
+    <input type="hidden" id="payroll_id" name="payroll_id" value="">
     <!-- Type Selection (Employee / Teacher) -->
     <div class="flex items-center gap-4 bg-slate-50 p-2.5 border border-slate-200 rounded">
         <label class="text-xs font-semibold text-slate-700">Staff Type:</label>

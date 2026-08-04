@@ -235,6 +235,43 @@ class EmployeePayrollController extends Controller
         return response()->json(['data' => $payroll]);
     }
 
+    public function update(Request $request, $id)
+    {
+        $school = School::where('user_id', Auth::id())->firstOrFail();
+        $payroll = EmployeePayroll::where('school_id', $school->id)->findOrFail($id);
+
+        $type = $request->input('type', $payroll->type ?? 'employee');
+
+        $rules = [
+            'type'           => 'required|in:employee,teacher',
+            'pay_type'       => 'nullable|string',
+            'receive_amount' => 'required|numeric|min:1',
+            'receive_month'  => 'required|integer|between:1,12',
+            'receive_year'   => 'required|integer|min:2020',
+            'receive_date'   => 'required|date',
+            'payment_method' => 'nullable|string',
+            'note'           => 'nullable|string',
+        ];
+
+        if ($type === 'teacher') {
+            $rules['teacher_id'] = 'required|exists:teachers,id';
+        } else {
+            $rules['employee_id'] = 'required|exists:employees,id';
+        }
+
+        $validated = $request->validate($rules);
+        $validated['type'] = $type;
+
+        DB::transaction(function () use ($validated, $payroll) {
+            $payroll->update($validated);
+        });
+
+        return response()->json([
+            'message' => 'Payroll updated successfully',
+            'data'    => $payroll->fresh(['employee', 'teacher']),
+        ]);
+    }
+
     public function destroy($id)
     {
         $school = School::where('user_id', Auth::id())->firstOrFail();
