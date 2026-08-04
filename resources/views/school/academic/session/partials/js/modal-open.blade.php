@@ -213,27 +213,21 @@
         if (classInputId) {
             const classInput = document.getElementById(classInputId);
             if (classInput) {
-                selectedClassId = classInput.dataset.dropdownSelectInput !== undefined
-                    ? getSelectedDataId(classInput)
-                    : classInput.value || null;
+                selectedClassId = classInput.value || null;
             }
         }
 
         if (groupInputId) {
             const groupInput = document.getElementById(groupInputId);
             if (groupInput) {
-                selectedGroupId = groupInput.dataset.dropdownSelectInput !== undefined
-                    ? getSelectedDataId(groupInput)
-                    : groupInput.value || null;
+                selectedGroupId = groupInput.value || null;
             }
         }
 
         if (sectionInputId) {
             const sectionInput = document.getElementById(sectionInputId);
             if (sectionInput) {
-                selectedSectionId = sectionInput.dataset.dropdownSelectInput !== undefined
-                    ? getSelectedDataId(sectionInput)
-                    : sectionInput.value || null;
+                selectedSectionId = sectionInput.value || null;
             }
         }
 

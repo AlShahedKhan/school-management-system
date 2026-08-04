@@ -62,6 +62,17 @@ class TranscriptPdfRenderer
                 '/usr/bin/chromium-browser',
             ];
 
+        // Puppeteer-managed Chrome is common on servers where the distro package
+        // is unavailable (for example, Ubuntu's chromium snap package). Discover
+        // the installed executable without hard-coding Puppeteer's version.
+        if (PHP_OS_FAMILY !== 'Windows') {
+            $candidates = array_merge(
+                glob('/home/*/.cache/puppeteer/chrome/*/chrome-linux*/chrome') ?: [],
+                ['/opt/puppeteer-chrome/chrome'],
+                $candidates
+            );
+        }
+
         foreach ($candidates as $candidate) {
             if (is_file($candidate)) {
                 return $candidate;
