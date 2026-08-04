@@ -8,40 +8,54 @@ use App\Models\SchoolSmsSetting;
 use App\Models\AdminSmsTemplate;
 use App\Models\School;
 use App\Models\Teacher;
+use App\Enums\SmsType;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class SchoolSmsSettingController extends Controller
 {
-    private function getAvailableTypes(): array
+    private array $defaults = [
+        'admission' => [
+            'title' => 'Default Admission',
+            'body' => "Dear {student_name}\n{school_name}\nYour admission has been successful.\nDate : {date}\nClass : {class_name}\nGroup : {group_name}\nSection : {section_name}\nSession : {session_year}\nStudent ID : {student_id}\nAdmission ID : {admission_id}\nPassword : {password}\nAdmission Fee : {fee_amount}\nPlease Do Not Share ID & Password.",
+        ],
+        'readmission' => [
+            'title' => 'Default Readmission',
+            'body' => "Dear {student_name}\n{school_name}\nYour re-admission has been successful.\nDate : {date}\nClass : {class_name}\nGroup : {group_name}\nSection : {section_name}\nSession : {session_year}\nStudent ID : {student_id}\nAdmission ID : {admission_id}\nPassword : {password}\nRe-Admission Fee : {fee_amount}\nPlease Do Not Share ID & Password.",
+        ],
+        'promotion' => [
+            'title' => 'Default Promotion',
+            'body' => "Dear {student_name}\n{school_name}\nYour promote has been successful.\nDate : {date}\nClass : {class_name}\nGroup : {group_name}\nSection : {section_name}\nSession : {session_year}\nStudent ID : {student_id}\nAdmission ID : {admission_id}\nPassword : {password}\nPromote Fee : {fee_amount}\nPlease Do Not Share ID & Password.",
+        ],
+        'teacher_registration' => [
+            'title' => 'Default Teacher registration',
+            'body' => "Welcome! Your registration at {school_name} is confirmed. Teacher ID: {teacher_id}. You can now login to your portal. Regards, {school_name}.",
+        ],
+        'income' => [
+            'title' => 'Default Income',
+            'body' => "জনাব, {student_name}\nআপনি {school_name}-এ {income_source} বাবদ {month} মাস {year} সাল এর {fee_amount} টাকা প্রদান করেছেন। ধন্যবাদ।",
+        ],
+    ];
+
+    private array $placeholdersMap = [
+        'admission' => ['{student_name}', '{school_name}', '{date}', '{class_name}', '{group_name}', '{section_name}', '{session_year}', '{student_id}', '{admission_id}', '{id_number}', '{password}', '{fee_amount}', '{mobile}'],
+        'readmission' => ['{student_name}', '{school_name}', '{date}', '{class_name}', '{group_name}', '{section_name}', '{session_year}', '{student_id}', '{admission_id}', '{id_number}', '{password}', '{fee_amount}', '{mobile}'],
+        'promotion' => ['{student_name}', '{school_name}', '{date}', '{class_name}', '{group_name}', '{section_name}', '{session_year}', '{student_id}', '{admission_id}', '{id_number}', '{password}', '{fee_amount}', '{mobile}'],
+        'teacher_registration' => ['{teacher_name}', '{teacher_id}', '{school_name}', '{mobile}'],
+        'income' => ['{student_name}', '{school_name}', '{income_source}', '{month}', '{year}', '{fee_amount}', '{date}', '{paid_amount}', '{fee_type}', '{receipt_no}'],
+    ];
+
+    private function ensureDefaultTemplatesExist(): void
     {
-        return [
-            'admission' => [
-                'label' => 'Admission Confirmation',
-                'placeholders' => ['{student_name}', '{school_name}', '{admission_id}', '{id_number}', '{class_name}', '{section_name}', '{session_year}', '{mobile}'],
-                'default_body' => 'Welcome {student_name}! Your admission to {school_name} (ID: {student_id_number}) is successful. Class: {class_name}, Section: {section_name}.',
-            ],
-            're_admission' => [
-                'label' => 'Re-Admission',
-                'placeholders' => ['{student_name}', '{school_name}', '{class_name}', '{section_name}', '{session_year}'],
-                'default_body' => 'Dear {student_name}, your re-admission to {school_name} for class {class_name} ({session_year}) is completed successfully.',
-            ],
-            'promote' => [
-                'label' => 'Student Promotion',
-                'placeholders' => ['{student_name}', '{school_name}', '{class_name}', '{section_name}', '{session_year}'],
-                'default_body' => 'Congratulations {student_name}! You have been promoted to class {class_name} ({session_year}) at {school_name}.',
-            ],
-            'teacher_registration' => [
-                'label' => 'Teacher Registration',
-                'placeholders' => ['{teacher_name}', '{teacher_id}', '{school_name}', '{mobile}'],
-                'default_body' => 'Welcome {teacher_name}! Your registration at {school_name} is confirmed. Teacher ID: {teacher_id}.',
-            ],
-            'fee_payment' => [
-                'label' => 'Fee Payment Confirmation',
-                'placeholders' => ['{student_name}', '{paid_amount}', '{fee_type}', '{receipt_no}', '{date}', '{school_name}'],
-                'default_body' => 'Payment Received! Paid Amount: TK {paid_amount} for {student_name} ({fee_type}). Date: {date}. Thank you, {school_name}.',
-            ],
-        ];
+        foreach ($this->defaults as $type => $data) {
+            $enumType = SmsType::tryFrom($type);
+            if ($enumType) {
+                AdminSmsTemplate::firstOrCreate(
+                    ['sms_type' => $enumType, 'is_default' => true],
+                    ['title' => $data['title'], 'template_body' => $data['body']]
+                );
+            }
+        }
     }
 
     public function index(Request $request)
@@ -56,33 +70,49 @@ class SchoolSmsSettingController extends Controller
             default => (School::where('user_id', $user->id)->value('id') ?? $user->id),
         };
 
-        $available = $this->getAvailableTypes();
+        $this->ensureDefaultTemplatesExist();
+
+        $adminTemplates = AdminSmsTemplate::where(function ($query) use ($schoolId) {
+            $query->where('is_default', true)
+                ->orWhere(function ($customQuery) use ($schoolId) {
+                    $customQuery->where('is_default', false)
+                        ->where(function ($sq) use ($schoolId) {
+                            $sq->whereDoesntHave('schools')
+                                ->orWhereHas('schools', function ($schoolRelation) use ($schoolId) {
+                                    $schoolRelation->where('schools.id', $schoolId);
+                                });
+                        });
+                });
+        })->get();
+
         $savedSettings = SchoolSmsSetting::where('school_id', $schoolId)->get()->keyBy('sms_type');
 
         $result = [];
-        foreach ($available as $type => $info) {
-            $saved = $savedSettings->get($type);
+        foreach ($adminTemplates as $template) {
+            $typeKey = $template->sms_type instanceof \BackedEnum ? $template->sms_type->value : (string) $template->sms_type;
 
-            // Fetch admin default template if exists
-            $adminDefault = AdminSmsTemplate::where('sms_type', $type)
-                ->where('is_default', true)
-                ->value('template_body');
+            $saved = $savedSettings->get($typeKey);
 
-            $defaultBody = $adminDefault ?: $info['default_body'];
+            preg_match_all('/\{[a-zA-Z0-9_]+\}/', $template->template_body, $matches);
+            $bodyPlaceholders = $matches[0] ?? [];
+            $basePlaceholders = $this->placeholdersMap[$typeKey] ?? [];
+            $combinedPlaceholders = array_values(array_unique(array_merge($basePlaceholders, $bodyPlaceholders)));
 
-            $result[$type] = [
-                'type' => $type,
-                'label' => $info['label'],
-                'placeholders' => $info['placeholders'],
-                'default_body' => $defaultBody,
-                'current_body' => $saved?->template_body ?? $defaultBody,
+            $result[] = [
+                'id' => $template->id,
+                'type' => $typeKey,
+                'label' => $template->title ?: ucfirst(str_replace('_', ' ', $typeKey)),
+                'placeholders' => $combinedPlaceholders,
+                'default_body' => $template->template_body,
+                'current_body' => $saved?->template_body ?? $template->template_body,
                 'status' => $saved?->status ?? 'Active',
-                'is_customized' => $saved !== null && $saved->template_body !== null,
+                'is_customized' => $saved !== null && !empty($saved->template_body),
+                'is_default' => (bool) $template->is_default,
             ];
         }
 
         return response()->json([
-            'types' => array_values($result),
+            'types' => $result,
         ]);
     }
 
@@ -108,10 +138,17 @@ class SchoolSmsSettingController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        $smsType = match ($request->sms_type) {
+            're_admission' => 'readmission',
+            'promote' => 'promotion',
+            'fee_payment' => 'income',
+            default => $request->sms_type
+        };
+
         $setting = SchoolSmsSetting::updateOrCreate(
             [
                 'school_id' => $schoolId,
-                'sms_type' => $request->sms_type,
+                'sms_type' => $smsType,
             ],
             [
                 'template_body' => $request->template_body,
