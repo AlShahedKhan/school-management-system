@@ -11,6 +11,7 @@ use App\Models\School;
 use App\Models\SchoolPayment;
 use App\Models\SchoolStudentFee;
 use App\Models\SchoolFeeTemplate;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -42,13 +43,36 @@ class SchoolFeeDiscountController extends Controller
         return $validated['student_ids'] ?? [];
     }
 
-    private function applyDiscountToPayments(int $schoolId, int $studentId, string $feeTypeName, string $feeName, float $afterDiscount): void
+    private function applyDiscountToPayments(int $schoolId, int $studentId, string $feeTypeName, string $feeName, float $afterDiscount, ?SchoolFeeTemplate $feeType = null, bool $respectExistingBalance = false): void
     {
+        $studentFees = SchoolStudentFee::where('school_id', $schoolId)
+            ->where('student_id', $studentId)
+            ->where('fee_type_name', $feeTypeName)
+            ->where('fee_name', $feeName)
+            ->get();
+
+        $applicableFeeIds = [];
+        foreach ($studentFees as $studentFee) {
+            if (!$this->shouldApplyDiscountToFee($studentFee, $feeType, $respectExistingBalance)) {
+                continue;
+            }
+
+            $applicableFeeIds[] = $studentFee->id;
+        }
+
+        if (empty($applicableFeeIds)) {
+            return;
+        }
+
         $payments = SchoolPayment::where('school_id', $schoolId)
             ->where('admission_student_id', $studentId)
             ->where('fees_type', $feeTypeName)
             ->where('fee_name', $feeName)
             ->where('status', '!=', 'paid')
+            ->where(function ($query) use ($applicableFeeIds) {
+                $query->whereIn('school_student_fee_id', $applicableFeeIds)
+                    ->orWhereNull('school_student_fee_id');
+            })
             ->get();
 
         foreach ($payments as $payment) {
@@ -72,10 +96,10 @@ class SchoolFeeDiscountController extends Controller
             ]);
         }
 
-        $this->applyDiscountToStudentFees($schoolId, $studentId, $feeTypeName, $feeName, $afterDiscount);
+        $this->applyDiscountToStudentFees($schoolId, $studentId, $feeTypeName, $feeName, $afterDiscount, $feeType, $respectExistingBalance);
     }
 
-    private function applyDiscountToStudentFees(int $schoolId, int $studentId, string $feeTypeName, string $feeName, float $afterDiscount): void
+    private function applyDiscountToStudentFees(int $schoolId, int $studentId, string $feeTypeName, string $feeName, float $afterDiscount, ?SchoolFeeTemplate $feeType = null, bool $respectExistingBalance = false): void
     {
         $studentFees = SchoolStudentFee::where('school_id', $schoolId)
             ->where('student_id', $studentId)
@@ -84,6 +108,10 @@ class SchoolFeeDiscountController extends Controller
             ->get();
 
         foreach ($studentFees as $studentFee) {
+            if (!$this->shouldApplyDiscountToFee($studentFee, $feeType, $respectExistingBalance)) {
+                continue;
+            }
+
             $baseAmount   = (float) $studentFee->base_amount;
             $discount     = max($baseAmount - $afterDiscount, 0);
             $newDue       = max($afterDiscount - (float) $studentFee->paid_amount, 0);
@@ -94,6 +122,30 @@ class SchoolFeeDiscountController extends Controller
                 'due_amount'      => round($newDue, 2),
             ]);
         }
+    }
+
+    private function shouldApplyDiscountToFee(SchoolStudentFee $studentFee, ?SchoolFeeTemplate $feeType, bool $respectExistingBalance): bool
+    {
+        if ((float) $studentFee->paid_amount > 0) {
+            return false;
+        }
+
+        if ($feeType && $feeType->frequency === 'monthly') {
+            $feeDate = $studentFee->pay_date ? Carbon::parse($studentFee->pay_date) : null;
+
+            if (!$feeDate) {
+                return true;
+            }
+
+            $currentMonthStart = Carbon::now()->startOfMonth();
+            return $feeDate->copy()->startOfMonth()->gt($currentMonthStart);
+        }
+
+        if ($respectExistingBalance && ((float) $studentFee->payable_amount > 0 || (float) $studentFee->due_amount > 0)) {
+            return false;
+        }
+
+        return true;
     }
 
     public function index(Request $request)
@@ -245,7 +297,9 @@ class SchoolFeeDiscountController extends Controller
                             $studentId,
                             $feeType->fee_type_name,
                             $feeType->fee_name,
-                            (float) $amounts['after_discount']
+                            (float) $amounts['after_discount'],
+                            $feeType,
+                            true
                         );
                     }
                 }
@@ -411,7 +465,9 @@ class SchoolFeeDiscountController extends Controller
                             $studentId,
                             $feeType->fee_type_name,
                             $feeType->fee_name,
-                            (float) $amounts['after_discount']
+                            (float) $amounts['after_discount'],
+                            $feeType,
+                            true
                         );
                     }
                 }
