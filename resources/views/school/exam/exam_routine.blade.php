@@ -488,6 +488,17 @@
             return dt.getDate() + '-' + months[dt.getMonth()] + '-' + dt.getFullYear();
         }
 
+        function formatDateDDMMYYYY(dateStr) {
+            if (!dateStr) return '';
+
+            const dt = new Date(dateStr);
+            if (isNaN(dt.getTime())) return dateStr;
+
+            const day = String(dt.getDate()).padStart(2, '0');
+            const month = String(dt.getMonth() + 1).padStart(2, '0');
+            return `${day}-${month}-${dt.getFullYear()}`;
+        }
+
         function escapeRoutineHtml(value) {
             return String(value ?? '-').replace(/[&<>"']/g, (character) => ({
                 '&': '&amp;',
@@ -623,7 +634,8 @@
 
             if (el.matches?.('[data-dropdown-select-input]')) {
                 const menu = document.getElementById(`${el.id}Menu`);
-                const selected = menu?.querySelector(`[data-value="${CSS.escape(el.value)}"]`);
+                const selected = Array.from(menu?.querySelectorAll('[data-dropdown-select-option]') || [])
+                    .find(option => String(option.dataset.value || '') === String(el.value || ''));
                 return selected?.dataset.optionId || '';
             }
 
@@ -974,13 +986,19 @@
             tbody.innerHTML = '<tr><td colspan="12" class="loader-row text-center py-4">Loading...</td></tr>';
 
             try {
-                const params = new URLSearchParams({
-                    page: page,
+                const params = new URLSearchParams({ page: String(page) });
+                const filterValues = {
                     class_id: getSelectedDataId('f_class'),
                     group_id: getSelectedDataId('f_group'),
                     section_id: getSelectedDataId('f_section'),
                     session_id: getSelectedDataId('f_session'),
-                    exam_id: getSelectedDataId('f_exam')
+                    exam_id: getSelectedDataId('f_exam'),
+                };
+
+                Object.entries(filterValues).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null && String(value).trim() !== '') {
+                        params.set(key, String(value));
+                    }
                 });
 
                 const res = await axios.get(`/api/school-exam-routines?${params.toString()}`);
