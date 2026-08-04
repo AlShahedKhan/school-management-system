@@ -94,7 +94,7 @@
                         return ($routineGroup === '' || $routineGroup === $normal(data_get($card, 'group_name')))
                             && ($routineSection === '' || $routineSection === $normal(data_get($card, 'section_name')));
                     })->sortBy(fn ($routine) => data_get($routine, 'exam_date').' '.data_get($routine, 'start_time'))->values();
-                    $routineRowCount = min(6, $matching->count());
+                    $routineRowCount = (int) ceil($matching->count() / 3);
                     $routineSpacerHeight = (6 - $routineRowCount) * 5.4;
                 @endphp
                 <section class="card-wrap">
@@ -144,7 +144,7 @@
                                     @for($row = 0; $row < $routineRowCount; $row++)
                                         <tr>
                                             @for($group = 0; $group < 3; $group++)
-                                                @php $routine = $matching->get($row + ($group * 6)); @endphp
+                                                @php $routine = $matching->get(($row * 3) + $group); @endphp
                                                 <td>{{ $routine ? $digits(\Illuminate\Support\Carbon::parse(data_get($routine, 'exam_date'))->format('d-M-y')) : '' }}</td>
                                                 <td>{{ $routine ? data_get($routine, 'subject_name') : '' }}</td>
                                             @endfor

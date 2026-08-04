@@ -16,7 +16,7 @@ class AdmitCardDocumentViewTest extends TestCase
                 : '';
 
             $this->assertSame(
-                min(6, $routineCount),
+                (int) ceil($routineCount / 3),
                 substr_count($bodyRows, '<tr>'),
                 "Unexpected row count for {$routineCount} routines."
             );
