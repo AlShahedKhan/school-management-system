@@ -8,7 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Jobs\GenerateMonthlyFeesForTemplate;
 use App\Models\AdmissionStudent;
 use App\Models\SchoolFeeTemplate;
+use App\Models\SchoolFeeDiscount;
 use App\Models\SchoolFeeType;
+use App\Models\SchoolPayment;
 use App\Models\SchoolStudentFee;
 use App\Models\School;
 use Illuminate\Http\Request;
@@ -379,9 +381,24 @@ class SchoolFeeTemplateController extends Controller
             $school = $this->getSchool($request->user());
             $template = SchoolFeeTemplate::where('school_id', $school->id)->findOrFail($id);
 
+            if (in_array($template->fee_type_name, ['Admission', 'Promote'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Admission and Promote fee templates cannot be deleted.',
+                ], 403);
+            }
+
             DB::transaction(function () use ($template) {
+                $feeIds = SchoolStudentFee::where('fee_template_id', $template->id)
+                    ->pluck('id');
+
+                SchoolPayment::whereIn('school_student_fee_id', $feeIds)
+                    ->delete();
+
+                SchoolFeeDiscount::where('fee_type_id', $template->id)
+                    ->delete();
+
                 SchoolStudentFee::where('fee_template_id', $template->id)
-                    ->where('status', 'pending')
                     ->delete();
 
                 $template->delete();
@@ -389,7 +406,7 @@ class SchoolFeeTemplateController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Fee template deleted successfully.',
+                'message' => 'Fee template and all related student fees, payments and discounts deleted successfully.',
             ]);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
