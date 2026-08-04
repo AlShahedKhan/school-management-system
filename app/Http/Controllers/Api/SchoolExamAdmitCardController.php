@@ -622,8 +622,13 @@ class SchoolExamAdmitCardController extends Controller
 
     public function getStudents(Request $request)
     {
-        $school_id = $this->getSchoolId();
-        $students = AdmissionStudent::where('school_id', $school_id)
+        $school = $this->getSchool();
+        $schoolScopeIds = collect([$school?->id, $school?->user_id])
+            ->filter(fn ($id) => $id !== null)
+            ->unique()
+            ->values();
+
+        $students = AdmissionStudent::whereIn('school_id', $schoolScopeIds)
             // Exclude Inactive students from admit card generation
             ->where('status', '!=', 'Inactive')
             ->where('class', $request->class_name)
