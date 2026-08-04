@@ -215,7 +215,7 @@
             const discType = document.getElementById('discountType')?.value || 'Fixed';
             const discAmt = discType === 'Percentage' ? (base * val / 100) : val;
             document.getElementById('discount_amount').value = discAmt.toFixed(2);
-            document.getElementById('afterDiscount').value = (base - discAmt).toFixed(2);
+            document.getElementById('afterDiscount').value = Math.max(base - discAmt, 0).toFixed(2);
         }
 
         async function loadDiscountClassSelect(selectedId = null) {
