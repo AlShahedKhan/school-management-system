@@ -170,7 +170,7 @@
                 id="payrollPaymentMethod"
                 name="payment_method"
                 placeholder="Payment Method..."
-                :options="['cash' => 'Cash', 'bank' => 'Bank Transfer', 'online' => 'Mobile Banking / Online']"
+                :options="['cash' => 'Cash', 'bank' => 'Bank']"
                 value="cash"
             />
             <x-input.floating-label for="payrollPaymentMethod" :floating="false" class="pointer-events-auto text-slate-500">

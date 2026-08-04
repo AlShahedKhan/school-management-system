@@ -140,4 +140,25 @@
             fetchStaffDetails('teacher', e.target.value);
         });
     }
+
+    // Payment Method validation listener (Gateway Unavailable for Bank)
+    const payMethodInput = document.getElementById('payrollPaymentMethod');
+    if (payMethodInput) {
+        payMethodInput.addEventListener('change', function () {
+            if (this.value === 'bank') {
+                Swal.fire({
+                    title: 'Gateway Unavailable',
+                    text: 'Bank payment is not available right now. Please pay with cash.',
+                    icon: 'info',
+                    confirmButtonColor: '#2563eb',
+                    confirmButtonText: 'Understood'
+                });
+                if (typeof setDropdownValue === 'function') {
+                    setDropdownValue('payrollPaymentMethod', 'cash', 'Cash');
+                } else {
+                    this.value = 'cash';
+                }
+            }
+        });
+    }
 </script>
