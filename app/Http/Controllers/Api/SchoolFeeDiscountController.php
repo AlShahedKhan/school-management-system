@@ -141,8 +141,8 @@ class SchoolFeeDiscountController extends Controller
             return $feeDate->copy()->startOfMonth()->gt($currentMonthStart);
         }
 
-        if ($respectExistingBalance && ((float) $studentFee->payable_amount > 0 || (float) $studentFee->due_amount > 0)) {
-            return false;
+        if ($respectExistingBalance) {
+            return true;
         }
 
         return true;

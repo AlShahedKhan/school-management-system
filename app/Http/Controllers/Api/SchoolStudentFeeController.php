@@ -18,6 +18,21 @@ class SchoolStudentFeeController extends Controller
         return School::where('user_id', $user->id)->first();
     }
 
+    private function resolveEffectiveAmount(SchoolStudentFee $fee): float
+    {
+        $storedPayableAmount = (float) $fee->payable_amount;
+        if ($storedPayableAmount > 0) {
+            return $storedPayableAmount;
+        }
+
+        $storedBaseAmount = (float) $fee->base_amount;
+        if ($storedBaseAmount > 0) {
+            return $storedBaseAmount;
+        }
+
+        return 0.0;
+    }
+
     public function index(Request $request)
     {
         try {
@@ -94,38 +109,10 @@ class SchoolStudentFeeController extends Controller
 
                 $totalPaid = (float) $totalPaid;
 
-                // Find best discount among all active ones for this student + fee template
-                $allDiscounts = DiscountStudent::join('school_discounts', 'discount_students.discount_id', '=', 'school_discounts.id')
-                    ->where('discount_students.student_id', $fee->student_id)
-                    ->where('discount_students.status', 'active')
-                    ->where('school_discounts.is_active', true)
-                    ->where('school_discounts.fee_template_id', $fee->fee_template_id)
-                    ->where('school_discounts.school_id', $fee->school_id)
-                    ->select('discount_students.*', 'school_discounts.discount_type', 'school_discounts.discount_value', 'school_discounts.months')
-                    ->get();
                 $originalAmount = (float) $fee->base_amount;
+                $effectiveAmount = $this->resolveEffectiveAmount($fee);
+                $hasDiscount = $effectiveAmount > 0 && $originalAmount > 0 && $effectiveAmount < $originalAmount;
 
-                $feeMonth = $fee->pay_date ? Carbon::parse($fee->pay_date)->format('Y-m') : null;
-                $bestAmount = $originalAmount;
-                $hasDiscount = false;
-
-                foreach ($allDiscounts as $d) {
-                    $discountMonths = $d->months ? json_decode($d->months, true) : null;
-                    if ($discountMonths && $feeMonth && !in_array($feeMonth, $discountMonths)) {
-                        continue;
-                    }
-
-                    $candidate = $d->discount_type === 'Percentage'
-                        ? $originalAmount - ($originalAmount * (float) $d->discount_value / 100)
-                        : max($originalAmount - (float) $d->discount_value, 0);
-
-                    if ($candidate < $bestAmount) {
-                        $bestAmount = $candidate;
-                        $hasDiscount = true;
-                    }
-                }
-
-                $effectiveAmount = $bestAmount;
                 $fee->has_discount = $hasDiscount;
                 $fee->original_amount = $originalAmount;
 
