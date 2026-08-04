@@ -9,17 +9,17 @@
 
 @section('content')
     <div class="expense-management-page">
-        @include('school.finance.expense.partials.header')
-        @include('school.finance.expense.partials.table')
+        @include('school.hrm.expense.partials.header')
+        @include('school.hrm.expense.partials.table')
     </div>
 
-    @include('school.finance.expense.partials.expense-modal')
-    @include('school.finance.expense.partials.filter')
+    @include('school.hrm.expense.partials.expense-modal')
+    @include('school.hrm.expense.partials.filter')
 @endsection
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    @include('school.finance.expense.partials.js.expense-js')
+    @include('school.hrm.expense.partials.js.expense-js')
 @endpush

@@ -919,7 +919,7 @@ class DashboardController extends Controller
             ->paginate(30)
             ->withQueryString();
 
-        return view('school.finance.expense.index', compact('expenses'));
+        return view('school.hrm.expense.index', compact('expenses'));
     }
 
     public function employee(Request $request)
