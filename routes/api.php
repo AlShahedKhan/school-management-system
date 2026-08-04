@@ -367,6 +367,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // School Exam Seat Plans
     Route::get('/school-exam-seat-plans/export-pdf', [SchoolExamSeatPlanController::class, 'exportPdf']);
+    Route::get('/school-exam-seat-plans/preview', [SchoolExamSeatPlanController::class, 'preview'])->middleware('role:school');
     Route::apiResource('school-exam-seat-plans', SchoolExamSeatPlanController::class);
 
     // Exam Mark Management Routes
@@ -384,6 +385,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/school-merit-list', [SchoolMeritListController::class, 'generate']);
     Route::post('/school-merit-list/export-pdf', [SchoolMeritListController::class, 'exportPdf']);
     Route::post('/school-fail-list', [SchoolFailListController::class, 'generate']);
+    Route::post('/school-fail-list/export-pdf', [SchoolFailListController::class, 'exportPdf']);
     Route::delete('/school-results/{id}', [SchoolExamResultFindController::class, 'destroy']);
 });
 // Modified on 2026-07-09: Made public to prevent guest session cookie overwrite during Axios calls

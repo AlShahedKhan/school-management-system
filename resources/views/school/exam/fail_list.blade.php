@@ -6,6 +6,16 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<style>
+    @media print {
+        body * { visibility: hidden !important; }
+        #failPrintArea, #failPrintArea * { visibility: visible !important; }
+        #failPrintArea { position: absolute; inset: 0; width: 100%; margin: 0; padding: 12px; }
+        #failPrintArea .school-data-table-frame { border: 0 !important; box-shadow: none !important; }
+        #failPrintArea .school-data-table-scroll { overflow: visible !important; }
+        #failPrintArea table { min-width: 0 !important; width: 100% !important; }
+    }
+</style>
 
 <div class="main-view-container grid w-full grid-cols-1 p-3">
     <div class="mx-auto w-full max-w-full">
@@ -17,6 +27,11 @@
                 </div>
             </x-slot:search>
             <x-slot:actions>
+                <x-dropdown button-id="btnFailExport" menu-id="failExportDropdown" label="Export" align="full">
+                    <x-dropdown.item onclick="exportFailList('pdf')">PDF</x-dropdown.item>
+                    <x-dropdown.item onclick="exportFailList('excel')">Excel</x-dropdown.item>
+                    <x-dropdown.item onclick="exportFailList('print')">Print</x-dropdown.item>
+                </x-dropdown>
                 <x-button.primary type="button" onclick="openFailModal()" class="w-full lg:w-auto">
                     Generate Fail List
                 </x-button.primary>
@@ -29,6 +44,7 @@
             </x-slot:mobile-search>
         </x-school.list-header>
 
+        <div id="failPrintArea">
         <div id="failResultSummary" class="mb-3 hidden border border-slate-200 bg-white px-4 py-3 text-[11px] text-slate-600 shadow-sm"></div>
 
         <x-school.data-table :empty="false" :empty-colspan="11" min-width="1320px" tbody-id="failListBody">
@@ -46,6 +62,7 @@
             </x-slot:head>
             <tr><td colspan="11" class="border border-gray-300 px-3 py-10 text-center text-gray-500">Generate a Fail List to view failed students.</td></tr>
         </x-school.data-table>
+        </div>
     </div>
 </div>
 
@@ -136,6 +153,68 @@
         }).join('');
     }
     function restoreFailSearch() { ['failSearch','failSearchMobile'].forEach(id=>{const input=document.getElementById(id); if(input) input.value='';}); renderFailRows(); }
+    function exportFailList(type) {
+        const rows = currentFailRows();
+        if (!rows.length) {
+            Swal.fire({ icon: 'warning', title: 'Nothing to export', text: 'Generate a fail list first.' });
+            return;
+        }
+
+        if (type === 'pdf' || type === 'print') {
+            axios.post('/api/school-fail-list/export-pdf', {
+                class_id: failValue('failClass'), group_id: failValue('failGroup'), section_id: failValue('failSection'),
+                session_id: failValue('failSession'), exam_id: failValue('failExam'), sort_order: failValue('failSortOrder'),
+            }, { responseType: 'blob' }).then(response => {
+                const pdfUrl = URL.createObjectURL(response.data);
+                if (type === 'print') {
+                    window.open(pdfUrl, '_blank');
+                } else {
+                    const link = document.createElement('a');
+                    link.href = pdfUrl;
+                    link.download = `fail-list-${new Date().toISOString().slice(0, 10)}.pdf`;
+                    link.click();
+                }
+                setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000);
+            }).catch(() => Swal.fire({ icon: 'error', title: 'PDF Export Failed', text: 'Unable to generate the fail-list PDF.' }));
+            return;
+        }
+
+        const headings = ['SL', 'Class', 'Group', 'Section', 'Session', 'Exam', 'Student ID', 'Student Name', 'Failed Subjects', 'Subject Name', 'Required to Pass'];
+        const exportRows = rows.map(row => [
+            row.sl, row.class, row.group, row.section, row.session, row.exam, row.student_id, row.student_name,
+            row.failed_subjects,
+            row.subject_details.map(item => `${item.name} (${failNumber(item.mark)})`).join('; '),
+            row.subject_details.map(item => failNumber(item.required_to_pass)).join('; '),
+        ]);
+
+        if (type === 'excel') {
+            const csv = [headings, ...exportRows]
+                .map(row => row.map(value => `"${String(value ?? '').replace(/"/g, '""')}"`).join(','))
+                .join('\n');
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            link.download = `fail-list-${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+            return;
+        }
+
+        window.print();
+    }
+    document.addEventListener('click', event => {
+        const trigger = event.target.closest('#btnFailExport');
+        const menu = document.getElementById('failExportDropdown');
+        if (trigger && menu) {
+            event.stopPropagation();
+            menu.classList.toggle('hidden');
+            trigger.setAttribute('aria-expanded', String(!menu.classList.contains('hidden')));
+            return;
+        }
+        if (!event.target.closest('#failExportDropdown') && menu) {
+            menu.classList.add('hidden');
+            document.getElementById('btnFailExport')?.setAttribute('aria-expanded', 'false');
+        }
+    });
     function validateFailFilters() { const fields=[['failClass','Class'],['failGroup','Group'],['failSection','Section'],['failSession','Session'],['failExam','Exam'],['failSortOrder','Sort Order']]; const missing=fields.find(([id])=>!failValue(id)); if(missing){Swal.fire({icon:'warning',title:'Incomplete filters',text:`${missing[1]} is required.`}); return false;} return true; }
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('failClass')?.addEventListener('change',fetchFailGroups); document.getElementById('failGroup')?.addEventListener('change',fetchFailSections); document.getElementById('failSection')?.addEventListener('change',fetchFailSessions); document.getElementById('failSession')?.addEventListener('change',fetchFailExams); document.getElementById('closeFailListModal')?.addEventListener('click',closeFailModal);
