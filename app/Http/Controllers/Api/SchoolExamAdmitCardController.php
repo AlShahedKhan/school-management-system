@@ -427,8 +427,19 @@ class SchoolExamAdmitCardController extends Controller
     {
         $class = \App\Models\SchoolClass::where('school_id', $school_id)->where('class_name', $className)->first();
         $session = \App\Models\SchoolSession::where('school_id', $school_id)->where('session_year', $sessionName)->first();
-        $group = $groupName ? \App\Models\SchoolGroup::where('school_id', $school_id)->where('group_name', $groupName)->first() : null;
-        $section = $sectionName ? \App\Models\SchoolSection::where('school_id', $school_id)->where('section_name', $sectionName)->first() : null;
+        $group = $groupName
+            ? \App\Models\SchoolGroup::where('school_id', $school_id)
+                ->where('class_id', $class?->id)
+                ->where('group_name', $groupName)
+                ->first()
+            : null;
+        $section = $sectionName
+            ? \App\Models\SchoolSection::where('school_id', $school_id)
+                ->where('class_id', $class?->id)
+                ->when($group, fn ($query) => $query->where('group_id', $group->id))
+                ->where('section_name', $sectionName)
+                ->first()
+            : null;
 
         if (!$class || !$session || ($groupName && !$group) || ($sectionName && !$section)) {
             return [
