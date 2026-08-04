@@ -228,23 +228,23 @@
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50">
-                        <td class="h-8 border border-gray-300 px-3 text-center">${sl}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${dateVal}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-medium">${invoiceNo}</td>
                         <td class="h-8 border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${reason}">${reason}</div>
+                            <div class="school-data-table-cell-scroll" title="${reason}">${reason}</div>
                         </td>
                         <td class="h-8 border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${details}">${details}</div>
+                            <div class="school-data-table-cell-scroll" title="${details}">${details}</div>
                         </td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-right font-medium">৳${amountFormatted}</td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center min-w-[90px]">
-                            <div class="flex h-6 w-full items-center justify-center space-x-1">
-                                <button type="button" onclick="editExpense(${exp.id})" class="text-blue-600 hover:text-blue-800 p-1" title="Edit Expense">
-                                    <i class="far fa-edit text-xs"></i>
+                            <div class="inline-flex h-8 items-center justify-center space-x-1">
+                                <button type="button" onclick="editExpense(${exp.id})" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1" title="Edit Expense" aria-label="Edit Expense">
+                                    <i class="far fa-edit text-sm" aria-hidden="true"></i>
                                 </button>
-                                <button type="button" onclick="deleteExpense(${exp.id})" class="text-red-600 hover:text-red-800 p-1" title="Delete Expense">
-                                    <i class="far fa-trash-alt text-xs"></i>
+                                <button type="button" onclick="deleteExpense(${exp.id})" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1" title="Delete Expense" aria-label="Delete Expense">
+                                    <i class="far fa-trash-alt text-sm" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </td>
@@ -263,6 +263,38 @@
         searchEl.addEventListener('input', function() {
             clearTimeout(searchTimer);
             searchTimer = setTimeout(() => fetchExpenses(1), 400);
+        });
+    }
+
+    // Filter Modal Event Handlers
+    const filterModal = document.getElementById('filterModal');
+    const btnFilter = document.getElementById('btnFilter');
+    const closeFilterModal = document.getElementById('closeFilterModal');
+    const resetFilter = document.getElementById('resetFilter');
+    const applyFilter = document.getElementById('applyFilter');
+    const expenseFilterForm = document.getElementById('expenseFilterForm');
+
+    if (btnFilter && filterModal) {
+        btnFilter.addEventListener('click', () => {
+            filterModal.classList.remove('hidden');
+        });
+    }
+
+    if (closeFilterModal && filterModal) {
+        closeFilterModal.addEventListener('click', () => {
+            filterModal.classList.add('hidden');
+        });
+    }
+
+    if (resetFilter) {
+        resetFilter.addEventListener('click', () => {
+            window.location.href = '{{ route('school.expense') }}';
+        });
+    }
+
+    if (applyFilter && expenseFilterForm) {
+        applyFilter.addEventListener('click', () => {
+            expenseFilterForm.submit();
         });
     }
 </script>

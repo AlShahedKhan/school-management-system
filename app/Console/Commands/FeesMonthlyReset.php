@@ -10,12 +10,15 @@ use Illuminate\Support\Facades\Bus;
 class FeesMonthlyReset extends Command
 {
     protected $signature = 'fees:monthly-reset';
-    protected $description = 'Generate monthly fee records for all active monthly templates';
+    protected $description = 'Generate monthly fee records for active monthly templates due today';
 
     public function handle(): void
     {
+        $todayDay = now()->day;
+
         $templates = SchoolFeeTemplate::whereIn('fee_type_name', ['Tuition', 'Food'])
             ->where('is_active', true)
+            ->where('due_day', $todayDay)
             ->get(['id']);
 
         if ($templates->isEmpty()) {

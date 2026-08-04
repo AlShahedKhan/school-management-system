@@ -491,6 +491,7 @@ body{
     text-align: right;
 }
 
+<<<<<<< HEAD
 /* Teacher-css */
 
         .fp-main-view{padding:18px}
@@ -1074,3 +1075,19 @@ body{
     }
 
   /* Configuration-device-css */
+=======
+
+.status-badge.status-success {
+    background: var(--success-soft);
+    color: var(--success);
+}
+
+.status-badge.status-danger {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+.device-avatar i {
+    font-size: 20px;
+}
+>>>>>>> 54801ac057c531ae489cd8e3fc84b977df61806b

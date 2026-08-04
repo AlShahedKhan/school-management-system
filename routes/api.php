@@ -97,7 +97,8 @@ Route::get('/get-sessions/{school_id}/{class_id}', [AdmissionController::class, 
 Route::get('/get-fees/{school_id}/{class_id}', [AdmissionController::class, 'getFees']);
 
 // ZKTeco Device Attendance Endpoint
-Route::post('/attendance/store', [AttendanceController::class, 'store']);
+Route::post('/iclock/cdata', [AttendanceController::class, 'store']);
+Route::get('/iclock/cdata', [AttendanceController::class, 'handleHeartbeat']);
 
 
 /*
