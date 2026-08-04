@@ -7,7 +7,6 @@ use App\Models\School;
 use App\Models\SchoolPayment;
 use App\Models\SchoolStudentFee;
 use App\Services\FeeStatusSyncService;
-use App\Services\SchoolFeeDiscountService;
 use App\Services\AccountService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -87,15 +86,9 @@ class SchoolDueListController extends Controller
         $paid = (float) SchoolPayment::where('school_student_fee_id', $fee->id)
             ->sum('type_amount');
 
-        $effectiveAmount = app(SchoolFeeDiscountService::class)->effectiveTotal(
-            (int) $fee->school_id,
-            (int) $fee->student_id,
-            (float) $fee->base_amount,
-            $fee->fee_type_name,
-            $fee->fee_name
-        );
-
-        $amount = $effectiveAmount;
+        // Amount comes from the stored fee record (school_student_fees),
+        // which holds the discounted payable after generation/propagation.
+        $amount = (float) ($fee->payable_amount ?: $fee->base_amount);
         $remainingDue = max($amount - $paid, 0);
 
         $payDate = $fee->pay_date ? Carbon::parse($fee->pay_date) : null;
@@ -164,13 +157,7 @@ class SchoolDueListController extends Controller
         $alreadyPaid = (float) SchoolPayment::where('school_student_fee_id', $fee->id)
             ->sum('type_amount');
 
-        $effectiveTotal = app(SchoolFeeDiscountService::class)->effectiveTotal(
-            (int) $fee->school_id,
-            (int) $fee->student_id,
-            (float) $fee->base_amount,
-            $fee->fee_type_name,
-            $fee->fee_name
-        );
+        $effectiveTotal = (float) ($fee->payable_amount ?: $fee->base_amount);
 
         $remainingAfter = max($effectiveTotal - ($alreadyPaid + $validated['type_amount']), 0);
 
