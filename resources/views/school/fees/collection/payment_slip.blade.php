@@ -270,8 +270,8 @@
             </div>
 
             {{-- ══════════ PAYMENT TABLE ══════════ --}}
-            <div class="table">
-                <table class="payment-table text-left">
+            <div class="table-scroll">
+                <table class="payment-table w-full min-w-0 sm:max-w-[900px] text-left border-collapse table-auto overflow-hidden">
                     <thead>
                         <tr class="brand-bg text-white text-[9.5px] font-semibold">
                             <th class="py-2 px-2 whitespace-nowrap w-6 border border-white/10">SL</th>
