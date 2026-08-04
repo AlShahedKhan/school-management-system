@@ -21,6 +21,7 @@ use App\Http\Controllers\Landing\ManagementServiceController;
 use App\Http\Controllers\Landing\PricingController;
 use App\Http\Controllers\Landing\ResultVerificationController;
 use App\Http\Controllers\Landing\SchoolManagementController;
+use App\Http\Controllers\School\ResultPdfPreviewController;
 use App\Models\Package;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -51,6 +52,10 @@ Route::get('/language/{locale}', [LanguageController::class, 'switch'])
 Route::get('/result/verify', ResultVerificationController::class)
     ->middleware('signed')
     ->name('public.result.verify');
+
+Route::get('/internal/result-pdf/{token}', ResultPdfPreviewController::class)
+    ->middleware('signed')
+    ->name('internal.school.result-pdf-preview');
 
 Route::middleware('public.locale')->group(function (): void {
     Route::get('/', [HomeController::class, 'index'])->name('home');

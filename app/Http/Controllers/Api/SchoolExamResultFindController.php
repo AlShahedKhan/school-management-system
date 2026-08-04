@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Support\TranscriptPdfRenderer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\School;
@@ -18,13 +19,14 @@ use Carbon\CarbonPeriod;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\SvgWriter;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\URL;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 class SchoolExamResultFindController extends Controller
 {
-    public function exportPdf(Request $request)
+    public function exportPdf(Request $request, TranscriptPdfRenderer $pdfRenderer)
     {
         $request->merge(['mode' => 'single']);
 
@@ -34,10 +36,40 @@ class SchoolExamResultFindController extends Controller
             return $result;
         }
 
-        return Pdf::loadView('exports.academic_result_pdf', [
-            'school' => School::where('user_id', Auth::id())->first(),
-            'result' => $result->getData(true),
-        ])->download('academic-result-'.now()->format('Ymd-His').'.pdf');
+        $resultData = $result->getData(true);
+        $token = Str::random(64);
+        $cacheKey = 'transcript-pdf:'.$token;
+
+        Cache::put($cacheKey, [
+            'user_id' => Auth::id(),
+            'result' => $resultData,
+        ], now()->addMinutes(2));
+
+        $previewUrl = URL::temporarySignedRoute(
+            'internal.school.result-pdf-preview',
+            now()->addMinutes(2),
+            ['token' => $token]
+        );
+
+        try {
+            $pdf = $pdfRenderer->render($previewUrl);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json([
+                'message' => 'The transcript PDF could not be generated. Please try again.',
+            ], 500);
+        } finally {
+            Cache::forget($cacheKey);
+        }
+
+        $filename = 'academic-result-'.trim((string) $request->input('admit_no')).'.pdf';
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Length' => (string) strlen($pdf),
+        ]);
     }
 
     public function findResult(Request $request)

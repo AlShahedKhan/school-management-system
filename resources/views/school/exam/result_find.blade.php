@@ -194,6 +194,7 @@
             };
 
             let currentResultData = null;
+            const pdfResultData = @json($pdfResultData ?? null);
             const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
             axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
             axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -428,6 +429,7 @@
             function renderSingleResult(data) {
                 currentResultData = data;
                 const container = document.getElementById('resultContainer');
+                container.removeAttribute('data-pdf-ready');
                 const gradingScale = data.grading_scale || [];
                 const groupedGrades = Object.values(gradingScale.reduce((acc, g) => {
                     const gradeName = g.grade_name || g.grade || g.letter_name || 'N/A';
@@ -549,6 +551,10 @@
                 text-align: center;
             }
             .exam-meta > div {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
                 min-width: 0;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -577,17 +583,32 @@
             .address { color: #294a79; font-size: 14px; font-weight: 600; }
             .transcript-title {
                 display: inline-block;
-                margin-top: 5px;
-                padding: 5px 20px;
+                position: relative;
+                width: 210px;
+                height: 30px;
+                min-height: 30px;
+                margin-top: 8px;
+                padding: 0;
                 border: 0;
                 border-radius: 9999px;
                 background: #123a78;
                 color: #fff;
                 font-size: 13px;
                 font-weight: 700;
-                line-height: 1;
+                line-height: normal;
                 letter-spacing: .02em;
                 text-transform: uppercase;
+            }
+            .transcript-title > span {
+                display: block;
+                position: absolute;
+                top: 50%;
+                right: 0;
+                left: 0;
+                width: 100%;
+                line-height: 14px;
+                text-align: center;
+                transform: translateY(-50%);
             }
             .mobile { color: #294a79; font-size: 14px; font-weight: 700; }
             .top-row {
@@ -697,7 +718,7 @@
             }
             .transcript-summary-cards {
                 display: grid;
-                grid-template-columns: repeat(5, minmax(0, 1fr));
+                grid-template-columns: repeat(4, minmax(0, 1fr));
                 gap: 12px;
                 margin: 14px 0 18px;
                 break-inside: avoid;
@@ -764,14 +785,6 @@
                 color: #0877b9;
                 font-size: 28px;
             }
-            .transcript-summary-card.qr-card {
-                padding: 10px 6px 8px;
-            }
-            .transcript-summary-card .qr-image {
-                width: 86px;
-                height: 86px;
-                object-fit: contain;
-            }
             .transcript-evaluation-cards {
                 display: grid;
                 grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -801,8 +814,8 @@
             }
             .transcript-evaluation-card.behavior .evaluation-heading { background: #08724f; }
             .transcript-evaluation-card.activities .evaluation-heading { background: #0b3478; }
-            .transcript-evaluation-card.comments .evaluation-heading { background: #db6a1f; }
             .transcript-evaluation-card.failed .evaluation-heading { background: #d51f2a; }
+            .transcript-evaluation-card.verify .evaluation-heading { background: #0b3478; }
             .evaluation-row {
                 display: flex;
                 align-items: center;
@@ -818,21 +831,18 @@
             .evaluation-row:last-child { border-bottom: 0; }
             .evaluation-stars { color: #087b62; font-size: 12px; letter-spacing: 1px; white-space: nowrap; }
             .evaluation-stars .muted { color: #cbd5e1; }
-            .evaluation-comment {
+            .evaluation-qr {
                 display: flex;
                 min-height: 116px;
-                flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                gap: 8px;
-                padding: 12px 10px;
-                color: #17345f;
-                font-size: 16px;
-                font-weight: 800;
-                text-align: center;
-                text-transform: uppercase;
+                padding: 8px;
             }
-            .evaluation-comment i { color: #2781bf; font-size: 28px; font-weight: 400; }
+            .evaluation-qr .qr-image {
+                width: 88px;
+                height: 88px;
+                object-fit: contain;
+            }
             .failed-summary {
                 display: flex;
                 min-height: 116px;
@@ -864,7 +874,7 @@
                 }
             }
             @media print {
-                .transcript-summary-cards { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+                .transcript-summary-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
                 .transcript-summary-card { min-height: 112px; }
                 .transcript-evaluation-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
             }
@@ -1023,16 +1033,16 @@
                     <div class="mobile">
                         ${data.school_info?.mobile ? escapeResultHtml(data.school_info.mobile) : ''}${data.school_info?.mobile && data.school_info?.email ? ' | ' : ''}${data.school_info?.email ? escapeResultHtml(data.school_info.email) : ''}
                     </div>
-                    <div class="transcript-title">Academic Transcript</div>
+                    <div class="transcript-title"><span>Academic Transcript</span></div>
                 </div>
                 <div class="student-photo-frame">
                     ${data.student_image ? `<img src="${escapeResultHtml(data.student_image)}" alt="${escapeResultHtml(data.student_name)} photo">` : '<span class="student-photo-fallback">No photo</span>'}
                 </div>
             </div>
             <div class="exam-meta">
-                <div><strong>Exam Title:</strong> Academic Transcript</div>
-                <div><strong>Exam Name:</strong> ${escapeResultHtml(data.exam_name || 'N/A')}</div>
-                <div><strong>Published:</strong> ${escapeResultHtml(formattedDate)}</div>
+                <div><strong>Exam Title:</strong><span>Academic Transcript</span></div>
+                <div><strong>Exam Name:</strong><span>${escapeResultHtml(data.exam_name || 'N/A')}</span></div>
+                <div><strong>Published:</strong><span>${escapeResultHtml(formattedDate)}</span></div>
             </div>
 
             <div class="top-row">
@@ -1141,10 +1151,6 @@
                     <div class="card-value">${formatResultNumber(data.attendance?.working_days)}</div>
                     <div class="card-note">Class days excluding holidays</div>
                 </div>
-                <div class="transcript-summary-card qr-card">
-                    <div class="card-label">Verify Result</div>
-                    ${data.qr_code ? `<img class="qr-image" src="${escapeResultHtml(data.qr_code)}" alt="Scan to verify result">` : '<div class="card-note">QR unavailable</div>'}
-                </div>
             </div>
 
             <div class="transcript-evaluation-cards">
@@ -1166,9 +1172,11 @@
                         ['Math Olympiad', 3],
                     ].map(([label, rating]) => `<div class="evaluation-row"><span>${label}</span><span class="evaluation-stars">${'★'.repeat(rating)}<span class="muted">${'★'.repeat(5 - rating)}</span></span></div>`).join('')}
                 </div>
-                <div class="transcript-evaluation-card comments">
-                    <div class="evaluation-heading">Comments</div>
-                    <div class="evaluation-comment"><i class="far fa-comment-dots" aria-hidden="true"></i><span>${escapeResultHtml((data.subjects || []).some(subject => Number(subject.mark ?? 0) < Number(subject.fail_mark ?? 0)) ? 'Needs Improvement' : (data.grade || 'Excellent'))}</span></div>
+                <div class="transcript-evaluation-card verify">
+                    <div class="evaluation-heading">Verify Result</div>
+                    <div class="evaluation-qr">
+                        ${data.qr_code ? `<img class="qr-image" src="${escapeResultHtml(data.qr_code)}" alt="Scan to verify result">` : '<div class="card-note">QR unavailable</div>'}
+                    </div>
                 </div>
                 <div class="transcript-evaluation-card failed">
                     <div class="evaluation-heading">Failed Subject(s)</div>
@@ -1189,6 +1197,13 @@
                 </div>
             </div>
         </div>`;
+                if (pdfResultData) {
+                    document.body.replaceChildren(container);
+                    document.body.style.margin = '0';
+                    document.body.style.background = '#ffffff';
+                }
+
+                container.dataset.pdfReady = 'true';
             }
 
             function getOrdinalSuffix(rank) {
@@ -1574,22 +1589,27 @@
             async function exportResultPdf() {
                 const admitNumber = document.getElementById('s_admit_no')?.value?.trim();
 
-                if (!admitNumber) {
+                if (!admitNumber || !currentResultData) {
                     Swal.fire('Find a result first', 'Enter an admit card number before exporting the PDF.', 'info');
                     return;
                 }
 
                 try {
+                    Swal.fire({
+                        title: 'Generating PDF',
+                        text: 'Preparing the academic transcript...',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading(),
+                    });
+
                     const response = await axios.post('/api/school-find-results/export-pdf', {
                         mode: 'single',
                         admit_no: admitNumber,
                     }, {
-                        responseType: 'blob'
+                        responseType: 'blob',
                     });
 
-                    const blob = new Blob([response.data], {
-                        type: 'application/pdf'
-                    });
+                    const blob = new Blob([response.data], { type: 'application/pdf' });
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url;
@@ -1598,6 +1618,7 @@
                     link.click();
                     link.remove();
                     URL.revokeObjectURL(url);
+                    Swal.close();
                 } catch (error) {
                     let message = 'Unable to export the academic result.';
 
@@ -1606,10 +1627,10 @@
                             const payload = JSON.parse(await error.response.data.text());
                             message = payload.message || message;
                         } catch (_) {
-                            // Keep the generic message when the server response is not JSON.
+                            // Keep the generic message for non-JSON server responses.
                         }
                     } else {
-                        message = error.response?.data?.message || message;
+                        message = error.response?.data?.message || error?.message || message;
                     }
 
                     Swal.fire('PDF export failed', message, 'error');
@@ -1665,6 +1686,10 @@
             window.confirmDelete = confirmDelete;
 
             initResultExportDropdown();
+
+            if (pdfResultData) {
+                renderSingleResult(pdfResultData);
+            }
         </script>
     @endpush
 @endsection
