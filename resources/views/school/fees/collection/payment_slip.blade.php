@@ -60,6 +60,12 @@
         .brand-bg { background-color: var(--brand-green); }
         .brand-text { color: var(--brand-green); }
         .brand-border { border-color: var(--brand-green); }
+        .payment-table th,
+        .payment-table td,
+        .summary-table th,
+        .summary-table td {
+            font-weight: 600;
+        }
         .slip-watermark {
             position: absolute;
             top: 50%;
@@ -89,18 +95,18 @@
 
     {{-- Action Buttons --}}
     <div class="no-print w-full max-w-[210mm] flex flex-wrap justify-end gap-3 mb-4">
-        <a href="{{ route('school.payment') }}" class="bg-gray-500 hover:bg-gray-600 text-white text-xs font-medium py-2 px-4 rounded shadow transition">
+        <a href="{{ route('school.payment') }}" class="bg-gray-500 hover:bg-gray-600 text-white text-xs font-medium py-2 px-4 shadow transition">
             &larr; Back
         </a>
-        <button onclick="window.print()" class="bg-gray-700 hover:bg-gray-800 text-white text-xs font-medium py-2 px-4 rounded shadow transition">
+        <button onclick="window.print()" class="bg-gray-700 hover:bg-gray-800 text-white text-xs font-medium py-2 px-4 shadow transition">
             Print Slip
         </button>
         <button onclick="downloadSlip('pdf')"
-            class="brand-bg hover:opacity-90 text-white text-xs font-medium py-2 px-4 rounded shadow transition">
+            class="brand-bg hover:opacity-90 text-white text-xs font-medium py-2 px-4 shadow transition">
             Download PDF
         </button>
         <button onclick="downloadSlip('excel')"
-            class="bg-green-600 hover:bg-green-700 text-white text-xs font-medium py-2 px-4 rounded shadow transition">
+            class="bg-green-600 hover:bg-green-700 text-white text-xs font-medium py-2 px-4 shadow transition">
             Download Excel
         </button>
     </div>
@@ -121,9 +127,9 @@
 
             {{-- ══════════ HEADER ══════════ --}}
             <div class="flex flex-col items-center text-center mb-5">
-                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 brand-border bg-white flex items-center justify-center overflow-hidden mb-3">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 bg-white flex items-center justify-center overflow-hidden mb-3">
                     @if(!empty($school->logo))
-                        <img src="{{ asset('storage/' . $school->logo) }}" alt="{{ $school->school_name }}" class="w-full h-full object-cover rounded-full">
+                        <img src="{{ asset('storage/' . $school->logo) }}" alt="{{ $school->school_name }}" class="w-full h-full object-cover">
                     @else
                         <svg viewBox="0 0 64 64" class="w-12 h-12 sm:w-14 sm:h-14 brand-text" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path d="M32 4c1.6 0 3 1.3 3 3v3.3c3.4.9 6 4 6 7.7v2h5c2.2 0 4 1.8 4 4v2h-4v6c6.6 2 12 8.6 12 16v6H6v-6c0-7.4 5.4-14 12-16v-6H14v-2c0-2.2 1.8-4 4-4h5v-2c0-3.7 2.6-6.8 6-7.7V7c0-1.7 1.4-3 3-3zm0 8c-1.7 0-3 1.3-3 3v2h6v-2c0-1.7-1.3-3-3-3z"/>
@@ -131,10 +137,7 @@
                     @endif
                 </div>
                 <h1 class="school-name dropcap-word text-lg sm:text-xl font-bold brand-text whitespace-nowrap">
-                    @php $nameWords = preg_split('/\s+/', trim($school->school_name ?? 'School Name')); @endphp
-                    @foreach ($nameWords as $idx => $word)
-                        <span class="cap">{{ mb_strtoupper(mb_substr($word, 0, 1)) }}</span><span class="rest">{{ mb_strtoupper(mb_substr($word, 1)) }}</span>@if(!$loop->last)&nbsp;@endif
-                    @endforeach
+                    {{$school->school_name ?? ''}}
                 </h1>
                 <p class="text-[12] mt-2 flex items-center justify-center gap-1 font-semibold espace-nowrap brand-text">
                     <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4.5-4.5-7-8.14-7-11.5a7 7 0 1114 0c0 3.36-2.5 7-7 11.5z"/><circle cx="12" cy="9.5" r="2.25"/></svg>
@@ -156,7 +159,7 @@
             </div>
 
             {{-- ══════════ STUDENT INFO ══════════ --}}
-            <div class="relative border border-bg rounded mb-5 p-4">
+            <div class="relative border border-bg mb-5 p-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5">
                     <div class="space-y-1.5 sm:pr-6">
                         <div class="flex whitespace-nowrap">
@@ -208,7 +211,7 @@
 
             {{-- ══════════ PAYMENT TABLE ══════════ --}}
             <div class="table-scroll w-full overflow-x-auto">
-                <table class="w-full min-w-[640px] text-left border-collapse table-auto rounded overflow-hidden">
+                <table class="w-full min-w-[640px] text-left border-collapse table-auto overflow-hidden">
                     <thead>
                         <tr class="brand-bg text-white text-[9.5px] font-semibold tracking-wide">
                             <th class="py-2 px-2 whitespace-nowrap w-6 border border-white/10">SL</th>
@@ -224,7 +227,7 @@
                             <th class="py-2 px-2 whitespace-nowrap pr-2 border border-white/10 text-right">Over Due</th>
                         </tr>
                     </thead>
-                    <tbody class="text-gray-700 text-[10.5px]">
+                    <tbody class="text-gray-700 text-[10.5px] font-semibold">
                         @php
                             $shownFees = [];
                             $sumPayable = 0;
@@ -280,19 +283,19 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="py-1.5 px-3 border border-gray-200 text-gray-600 bg-gray-50">Total Payable</td>
+                                <td class="py-1.5 px-3 border border-gray-200 text-gray-600 bg-gray-50 font-semibold">Total Payable</td>
                                 <td class="py-1.5 px-3 border border-gray-200 text-right font-bold text-gray-900">{{ number_format($sumPayable, 2) }}</td>
                             </tr>
                             <tr>
-                                <td class="py-1.5 px-3 border border-gray-200 text-gray-600 bg-gray-50">Paid</td>
+                                <td class="py-1.5 px-3 border border-gray-200 text-gray-600 bg-gray-50 font-semibold">Paid</td>
                                 <td class="py-1.5 px-3 border border-gray-200 text-right font-bold text-emerald-600">{{ number_format($sumPaid, 2) }}</td>
                             </tr>
                             <tr>
-                                <td class="py-1.5 px-3 border border-gray-200 text-gray-600 bg-gray-50">Due</td>
+                                <td class="py-1.5 px-3 border border-gray-200 text-gray-600 bg-gray-50 font-semibold">Due</td>
                                 <td class="py-1.5 px-3 border border-gray-200 text-right font-bold text-red-600">{{ number_format($sumDue, 2) }}</td>
                             </tr>
                             <tr>
-                                <td class="py-1.5 px-3 border border-gray-200 text-gray-600 bg-gray-50">Over Due</td>
+                                <td class="py-1.5 px-3 border border-gray-200 text-gray-600 bg-gray-50 font-semibold">Over Due</td>
                                 <td class="py-1.5 px-3 border border-gray-200 text-right font-bold text-red-600">{{ number_format($sumOverdue, 2) }}</td>
                             </tr>
                         </tbody>
