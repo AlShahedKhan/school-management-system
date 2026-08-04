@@ -343,16 +343,39 @@ class SchoolFeeTemplateController extends Controller
                 ]);
 
                 if ($amountChanged || $payDateChanged) {
-                    $updateData = [];
-                    if ($amountChanged)
-                        $updateData['base_amount'] = $validated['amount'];
-                    if ($payDateChanged)
-                        $updateData['pay_date'] = $validated['pay_date'];
+                    $fees = SchoolStudentFee::where('fee_template_id', $template->id)->get();
 
-                    if (!empty($updateData)) {
-                        SchoolStudentFee::where('fee_template_id', $template->id)
-                            ->whereNotIn('status', ['paid'])
-                            ->update($updateData);
+                    $feeIds = [];
+                    foreach ($fees as $fee) {
+                        // Only sync fees that have NOT been paid yet.
+                        if ((float) $fee->paid_amount > 0) {
+                            continue;
+                        }
+
+                        $feeIds[] = $fee->id;
+
+                        $updateData = [];
+                        if ($amountChanged) {
+                            $updateData['base_amount']    = $validated['amount'];
+                            $updateData['payable_amount'] = $validated['amount'];
+                            $updateData['due_amount']     = $validated['amount'];
+                        }
+                        if ($payDateChanged) {
+                            $updateData['pay_date'] = $validated['pay_date'];
+                        }
+
+                        if (!empty($updateData)) {
+                            $fee->update($updateData);
+                        }
+                    }
+
+                    if ($amountChanged && !empty($feeIds)) {
+                        SchoolPayment::whereIn('school_student_fee_id', $feeIds)
+                            ->where('total_amount', 0)
+                            ->update([
+                                'total_payable' => $validated['amount'],
+                                'payable_due'   => $validated['amount'],
+                            ]);
                     }
                 }
             });
