@@ -5,8 +5,6 @@ namespace App\Services;
 use App\Models\AdmissionStudent;
 use App\Models\SchoolFeeTemplate;
 use Illuminate\Support\Facades\DB;
-use App\Models\SchoolFeeTemplate;
-use App\Models\AdmissionStudent;
 
 class SchoolFeeDiscountService
 {
