@@ -17,7 +17,6 @@ use App\Models\StudentPromotion;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -63,19 +62,6 @@ class RoleUserSeeder extends Seeder
         );
 
         $school = School::firstOrNew(['user_id' => $schoolUser->id]);
-        $schoolLogoPath = 'school_logos/green-valley-school.png';
-        $schoolLogoSource = public_path('images/logo.png');
-
-        if (
-            is_file($schoolLogoSource)
-            && ! Storage::disk('public')->exists($schoolLogoPath)
-        ) {
-            Storage::disk('public')->put(
-                $schoolLogoPath,
-                file_get_contents($schoolLogoSource)
-            );
-        }
-
         $school->school_name = 'Green Valley School';
         $school->division = $school->division ?: 'Dhaka';
         $school->district = $school->district ?: 'Dhaka';
@@ -85,7 +71,6 @@ class RoleUserSeeder extends Seeder
         $school->eiin_number = $school->eiin_number ?: '123456';
         $school->mobile = '2222222222';
         $school->email = 'school@test.com';
-        $school->logo = $school->logo ?: $schoolLogoPath;
         $school->approval_status = 'approved';
         $school->approved_at = now();
         $school->save();

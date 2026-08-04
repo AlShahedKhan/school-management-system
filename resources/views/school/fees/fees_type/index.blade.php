@@ -497,9 +497,11 @@
                                         <button type="button" title="Edit" aria-label="Edit" onclick="editFeeTemplate(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 hover:bg-gray-100 hover:text-blue-600 focus-visible:ring-blue-500">
                                             <i class="far fa-edit text-xs" aria-hidden="true"></i>
                                         </button>
+                                        ${['Admission','Promote'].includes(item.fee_type_name) ? '' : `
                                         <button type="button" title="Delete" aria-label="Delete" onclick="deleteFeeTemplate(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 hover:bg-gray-100 hover:text-red-600 focus-visible:ring-red-500">
                                             <i class="far fa-trash-alt text-xs" aria-hidden="true"></i>
                                         </button>
+                                        `}
                                     </div>
                                 </td>
                             </tr>`;

@@ -98,7 +98,11 @@ class SchoolStudentFeeGenerationService
 
     public function generateMonthlyFees(SchoolFeeTemplate $template, $monthYear)
     {
-        if ($template->assign->payment_type !== 'monthly') {
+        $assign = $template->assign;
+        $isMonthly = ($template->frequency === 'monthly')
+            || ($assign && $assign->payment_type === 'monthly');
+
+        if (!$isMonthly) {
             throw new Exception("Template is not a monthly fee.");
         }
 
@@ -120,7 +124,7 @@ class SchoolStudentFeeGenerationService
 
                 if (!$exists) {
                     $dueDate = Carbon::createFromFormat('Y-m', $monthYear)->day($template->due_day ?? 10);
-                    $this->generateFeeRecord($template, $student, $dueDate, $monthYear);
+                    $this->generateFeeRecord($template, $student, $dueDate, $monthYear, true);
                 }
             }
         });
@@ -129,7 +133,11 @@ class SchoolStudentFeeGenerationService
 
     public function generateOneTimeFee(SchoolFeeTemplate $template, array $studentIds = [])
     {
-        if ($template->assign->payment_type !== 'one_time') {
+        $assign = $template->assign;
+        $isOneTime = in_array($template->frequency, ['one_time', 'exam'])
+            || ($assign && $assign->payment_type === 'one_time');
+
+        if (!$isOneTime) {
             throw new Exception("Template is not a one-time fee.");
         }
 
@@ -152,9 +160,18 @@ class SchoolStudentFeeGenerationService
     }
 
 
-    protected function generateFeeRecord(SchoolFeeTemplate $template, AdmissionStudent $student, Carbon $dueDate, $generationPeriod = 'one_time')
+    protected function generateFeeRecord(SchoolFeeTemplate $template, AdmissionStudent $student, Carbon $dueDate, $generationPeriod = 'one_time', bool $applyDiscount = false)
     {
-        $amounts = $this->discountService->calculatePayableAmount($template, $student);
+        if ($applyDiscount) {
+            $amounts = $this->discountService->calculatePayableAmount($template, $student);
+        } else {
+            $amount = (float) $template->amount;
+            $amounts = [
+                'base_amount'     => $amount,
+                'discount_amount' => 0,
+                'payable_amount'  => $amount,
+            ];
+        }
 
 
         $exists = SchoolStudentFee::where('student_id', $student->id)

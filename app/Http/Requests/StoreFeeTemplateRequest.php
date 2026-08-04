@@ -75,24 +75,29 @@ class StoreFeeTemplateRequest extends FormRequest
                 return;
             }
 
-            $query = \App\Models\SchoolFeeTemplate::where('school_id', $school->id)
-                ->where('session_id', $this->session_id);
+            $match = [
+                'class_id'   => $this->class_id,
+                'group_id'   => $this->group_id ?? null,
+                'section_id' => $this->section_id ?? null,
+                'session_id' => $this->session_id,
+            ];
 
             if ($this->fee_type_name === 'Exams') {
-                $query->where('exam_id', $this->exam_id);
+                $query = \App\Models\SchoolFeeTemplate::where('school_id', $school->id)
+                    ->where($match)
+                    ->where('exam_id', $this->exam_id);
                 if ($query->exists()) {
-                    $validator->errors()->add('exam_id', 'An exam fee already exists for this exam.');
+                    $validator->errors()->add('exam_id', 'An exam fee already exists for this exam in the selected class, group, section and session.');
                     return;
                 }
             }
 
             $query = \App\Models\SchoolFeeTemplate::where('school_id', $school->id)
-                ->where('session_id', $this->session_id)
-                ->where('fee_type_name', $this->fee_type_name)
-                ->where('fee_name', $this->fee_name ?? null);
+                ->where($match)
+                ->where('fee_type_name', $this->fee_type_name);
 
             if ($query->exists()) {
-                $validator->errors()->add('fee_name', 'A fee with this name already exists in the selected session.');
+                $validator->errors()->add('fee_type_name', 'A fee of this type already exists for the selected class, group, section and session.');
             }
         });
     }

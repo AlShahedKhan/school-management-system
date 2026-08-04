@@ -347,6 +347,11 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
        // Student Attendance
         Route::view('/student','school.fingerprint-attendance.student')->name('student');
 
+        // Time Table
+        Route::view('/timetable', 'school.fingerprint-attendance.timetable')->name('timetable');
+
+        
+
     });
 
     // Academic Settings

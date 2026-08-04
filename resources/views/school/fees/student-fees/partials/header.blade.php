@@ -16,6 +16,11 @@
         </div>
         <div class="grid w-full grid-cols-3 gap-2 lg:flex lg:w-auto">
             <x-button.secondary id="btnFilter">Filter</x-button.secondary>
+            <x-dropdown button-id="btnExport" menu-id="exportDropdown" label="Export">
+                <x-dropdown.item id="exportPdf">PDF</x-dropdown.item>
+                <x-dropdown.item id="exportExcel">Excel</x-dropdown.item>
+                <x-dropdown.item id="exportPrint">Print</x-dropdown.item>
+            </x-dropdown>
             <x-dropdown button-id="btnStatusFilter" menu-id="headerStatusFilterMenu" label="Status">
                 <x-dropdown.item id="statusFilterAll">All Status</x-dropdown.item>
                 <x-dropdown.item id="statusFilterPaid">Paid</x-dropdown.item>
@@ -27,11 +32,6 @@
                 <x-dropdown.item id="statusFilterAdvance">Advance</x-dropdown.item>
                 <x-dropdown.item id="statusFilterAdvancePartial">Advance Partial</x-dropdown.item>
                 <x-dropdown.item id="statusFilterPending">Pending</x-dropdown.item>
-            </x-dropdown>
-            <x-dropdown button-id="btnExport" menu-id="exportDropdown" label="Export">
-                <x-dropdown.item id="exportPdf">PDF</x-dropdown.item>
-                <x-dropdown.item id="exportExcel">Excel</x-dropdown.item>
-                <x-dropdown.item id="exportPrint">Print</x-dropdown.item>
             </x-dropdown>
         </div>
     </div>

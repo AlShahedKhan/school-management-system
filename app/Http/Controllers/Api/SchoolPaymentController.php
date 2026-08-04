@@ -46,6 +46,7 @@ class SchoolPaymentController extends Controller
 
         // Use camelCase to match your Model functions
         $query = SchoolPayment::with([
+            'schoolStudentFee',
             'student.schoolClass',
             'student.schoolGroup',
             'student.schoolSection',
@@ -64,7 +65,45 @@ class SchoolPaymentController extends Controller
             });
         }
 
-        return response()->json($query->latest()->paginate(15));
+        $paginated = $query->latest()->paginate(15);
+
+        $paginated->getCollection()->transform(function ($payment) use ($school) {
+            $this->applyFeeRecordAmounts($payment, $school);
+            return $payment;
+        });
+
+        return response()->json($paginated);
+    }
+
+    /**
+     * Override a payment's displayed payable/due to come from the stored
+     * school_student_fees record (the source of truth for discounted amounts).
+     */
+    private function applyFeeRecordAmounts(SchoolPayment $payment, School $school): void
+    {
+        $fee = $payment->schoolStudentFee;
+
+        if (!$fee) {
+            $fee = SchoolStudentFee::where('school_id', $school->id)
+                ->where('student_id', $payment->admission_student_id)
+                ->where('fee_type_name', $payment->fees_type)
+                ->where('fee_name', $payment->fee_name)
+                ->latest('id')
+                ->first();
+        }
+
+        if (!$fee) {
+            return;
+        }
+
+        $payable = (float) ($fee->payable_amount ?: $fee->base_amount);
+        $paid = (float) SchoolPayment::where('school_student_fee_id', $fee->id)
+            ->sum('type_amount');
+        $due = max($payable - $paid, 0);
+
+        $payment->setAttribute('total_payable', round($payable, 2));
+        $payment->setAttribute('payable_due', round($due, 2));
+        $payment->setAttribute('total_due', round($due, 2));
     }
 
     /**
@@ -233,6 +272,7 @@ class SchoolPaymentController extends Controller
 
         // Use camelCase to match your Student model methods
         $payment = SchoolPayment::with([
+            'schoolStudentFee',
             'student.schoolClass',
             'student.schoolGroup',
             'student.schoolSection',
@@ -240,6 +280,8 @@ class SchoolPaymentController extends Controller
         ])
             ->where('school_id', $school->id)
             ->findOrFail($id);
+
+        $this->applyFeeRecordAmounts($payment, $school);
 
         return response()->json($payment);
     }
@@ -401,137 +443,49 @@ class SchoolPaymentController extends Controller
 
         $school = $this->getSchool();
 
-        $fee = null;
-        $hasDiscount = false;
-        $effectiveAmount = 0;
-
-        // Load the student fee record to get the original amount
+        // Source of truth: the student's stored fee record (school_student_fees),
+        // which already holds the discounted payable / due after generation and
+        // discount propagation.
         $studentFee = SchoolStudentFee::where('school_id', $school->id)
             ->where('student_id', $request->admission_id)
             ->where('fee_type_name', $request->fees_type)
             ->where('fee_name', $request->fee_name)
+            ->latest('id')
             ->first();
 
-        // 1. Check for active new-system discounts (discount_students) — pick best
-        $newDiscount = null;
         if ($studentFee) {
-            $allDiscounts = DB::table('discount_students')
-                ->join('school_discounts', 'discount_students.discount_id', '=', 'school_discounts.id')
-                ->where('discount_students.student_id', $request->admission_id)
-                ->where('discount_students.status', 'active')
-                ->where('school_discounts.is_active', true)
-                ->where('school_discounts.school_id', $school->id)
-                ->where('school_discounts.fee_template_id', $studentFee->fee_template_id)
-                ->select('discount_students.*', 'school_discounts.discount_type', 'school_discounts.discount_value', 'school_discounts.months')
-                ->get();
-
-            $baseAmount = (float) $studentFee->base_amount;
-            $feeMonth = $studentFee->pay_date ? Carbon::parse($studentFee->pay_date)->format('Y-m') : null;
-            $bestAmount = $baseAmount;
-
-            foreach ($allDiscounts as $d) {
-                $discountMonths = $d->months ? json_decode($d->months, true) : null;
-                if ($discountMonths && $feeMonth && !in_array($feeMonth, $discountMonths)) {
-                    continue;
-                }
-
-                $candidate = $d->discount_type === 'Percentage'
-                    ? $baseAmount - ($baseAmount * (float) $d->discount_value / 100)
-                    : max($baseAmount - (float) $d->discount_value, 0);
-
-                if ($candidate < $bestAmount) {
-                    $bestAmount = $candidate;
-                    $newDiscount = $d;
-                }
-            }
-
-            if ($newDiscount) {
-                $effectiveAmount = $bestAmount;
-                $hasDiscount = true;
-            }
-        }
-
-        // 2. Check for legacy session-scope discount (school_fee_discounts) if no new discount found.
-        //    Exam-scope discounts are NOT applied here unconditionally — they only take effect
-        //    through applyExamDiscount() once the exam result is published and the student's
-        //    grade meets the minimum qualifying grade.
-        if (!$hasDiscount) {
-            $legacyDiscount = SchoolFeeDiscount::where('school_id', $school->id)
-                ->where('student_id', $request->admission_id)
-                ->where('fee_name', $request->fee_name)
-                ->where('discount_scope', 'session')
-                ->first();
-
-            if ($legacyDiscount) {
-                $effectiveAmount = (float) $legacyDiscount->after_discount;
-                $hasDiscount = true;
-            }
-        }
-
-        // Exam-based discount applied on top of the effective total
-        if ($hasDiscount) {
-            $effectiveAmount = $this->applyExamDiscount(
-                $school->id,
-                (int) $request->admission_id,
-                $effectiveAmount,
-                $request->fees_type,
-                $request->fee_name ?? null
-            );
-        }
-
-        if ($hasDiscount) {
-            $alreadyPaid = SchoolPayment::where('school_id', $school->id)
-                ->where('admission_student_id', $request->admission_id)
-                ->where('fees_type', $request->fees_type)
-                ->where('fee_name', $request->fee_name)
-                ->sum('type_amount');
-
-            $remainingDue = max($effectiveAmount - (float) $alreadyPaid, 0);
+            $totalPayable = (float) ($studentFee->payable_amount ?: $studentFee->base_amount);
+            $remainingDue = (float) ($studentFee->due_amount ?: $totalPayable);
 
             return response()->json([
-                'total_payable' => $effectiveAmount,
-                'remaining_due' => $remainingDue,
-                'has_discount'  => true,
+                'total_payable' => round($totalPayable, 2),
+                'remaining_due' => round(max($remainingDue, 0), 2),
+                'has_discount'  => (float) $studentFee->discount_amount > 0,
             ]);
         }
 
-        // 3. Fallback to standard fee amount — check student fees first, then templates
-        if ($studentFee) {
-            $fee = $studentFee;
-        } else {
-            $fee = SchoolFeeTemplate::where('school_id', $school->id)
-                ->where('fee_type_name', $request->fees_type)
-                ->where('fee_name', $request->fee_name)
-                ->first();
-        }
+        // No fee record yet — fall back to the template amount.
+        $template = SchoolFeeTemplate::where('school_id', $school->id)
+            ->where('fee_type_name', $request->fees_type)
+            ->where('fee_name', $request->fee_name)
+            ->first();
 
-        if (!$fee) {
+        if (!$template) {
             return response()->json(['message' => 'Fee configuration not found.'], 404);
         }
 
-        $paymentRecord = SchoolPayment::where('school_id', $school->id)
-            ->where('school_id', $school->id)
+        $totalPayable = (float) $template->amount;
+
+        $alreadyPaid = (float) SchoolPayment::where('school_id', $school->id)
             ->where('admission_student_id', $request->admission_id)
             ->where('fees_type', $request->fees_type)
             ->where('fee_name', $request->fee_name)
             ->sum('type_amount');
 
-        $baseAmount = (float) $fee->base_amount;
-
-        // Exam-based discount applied to the standard fee amount
-        $discountedTotal = $this->applyExamDiscount(
-            $school->id,
-            (int) $request->admission_id,
-            $baseAmount,
-            $request->fees_type,
-            $request->fee_name ?? null
-        );
-        $amountToBePaid = max($discountedTotal - (float) $paymentRecord, 0);
-
         return response()->json([
-            'total_payable' => $discountedTotal,
-            'remaining_due' => $amountToBePaid,
-            'has_discount'  => $discountedTotal < $baseAmount,
+            'total_payable' => round($totalPayable, 2),
+            'remaining_due' => round(max($totalPayable - $alreadyPaid, 0), 2),
+            'has_discount'  => false,
         ]);
     }
 
