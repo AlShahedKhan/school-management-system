@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\DeviceStatus;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,6 +35,7 @@ class Device extends Model
         'firmware_version',
         'device_password',
         'status',
+        'last_heartbeat_at',
     ];
 
     /**
@@ -47,6 +49,7 @@ class Device extends Model
         'sync_interval' => 'integer',
         'heartbeat_time' => 'integer',
         'connection_timeout' => 'integer',
+        'last_heartbeat_at' => 'datetime',
     ];
 
     /**
@@ -56,4 +59,39 @@ class Device extends Model
     {
         return $this->belongsTo(School::class);
     }
+
+    /**
+     * Determine the device's connection status based on the last heartbeat.
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    protected function connectionStatus(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+
+                if (!$this->last_heartbeat_at || $this->last_heartbeat_at->diffInMinutes(now()) > 5) {
+                    return ['status' => 'Offline', 'color' => 'danger'];
+                }
+
+                return ['status' => 'Online', 'color' => 'success'];
+            }
+        );
+    }
+
+
+    /**
+     * Get the appropriate icon for the communication type.
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    protected function communicationIcon(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->communication_type === 'WiFi'
+                ? 'bi-wifi'
+                : 'bi-router'
+        );
+    }
 }
+

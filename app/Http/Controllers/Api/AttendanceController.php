@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Device;
 use App\Services\AttendanceService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
 {
@@ -21,53 +21,110 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Store attendance data from a device.
-     * This endpoint is designed to be hit by the ZKTeco device.
+     * Store attendance data from a ZKTeco device.
+     * This endpoint is designed to handle multiple data formats from devices.
+     *
+     * @param Request $request
+     * @return Response
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request): Response
     {
-        // ZKTeco devices often send data in a non-standard format.
-        // We will try to get the raw content and parse it.
         $payload = $request->getContent();
-        Log::info('Attendance Payload Received: ' . $payload);
+        parse_str($payload, $data);
 
-        // Basic validation for incoming data.
-        // This might need adjustment based on the actual payload from the device.
-        $validator = Validator::make($request->all(), [
-            'id_number' => 'required|integer',
-            'timestamp' => 'required|date',
-        ]);
 
-        if ($validator->fails()) {
-            // Log the validation failure with the payload for debugging
-            Log::warning('Invalid attendance data received.', [
-                'errors' => $validator->errors(),
-                'payload' => $payload
-            ]);
-            return response()->json(['errors' => $validator->errors()], 422);
+        $serialNumber = $request->query('SN') ?? $data['SN'] ?? null;
+
+        if (!$serialNumber) {
+            Log::channel('attendance')->error('Request received without a device serial number (SN) in query or body.');
+            return response("ERROR: SN NOT FOUND", 400);
         }
 
-        try {
-            $idNumber = (int) $request->input('id_number');
-            $timestamp = $request->input('timestamp');
+        $device = Device::where('serial_number', $serialNumber)->first();
 
-            $attendance = $this->attendanceService->processAttendance($idNumber, $timestamp);
+        if (!$device) {
+            Log::channel('attendance')->error("Device with SN '{$serialNumber}' not found in the database.");
+            return response("ERROR: DEVICE NOT REGISTERED", 404);
+        }
 
-            if (!$attendance) {
-                return response()->json(['message' => 'Failed to process attendance. User not found or error occurred.'], 400);
+        $recordsProcessed = 0;
+
+
+        if (isset($data['USERID']) && isset($data['CHECKTIME'])) {
+            Log::channel('attendance')->info("Processing as 'key=value' format for SN: {$serialNumber}");
+
+            $idNumber = $data['USERID'];
+            $timestamp = $data['CHECKTIME'];
+
+            $this->processRecord($idNumber, $timestamp, $device->id);
+            $recordsProcessed++;
+
+        } else {
+
+            Log::channel('attendance')->info("Processing as 'tab-separated' format for SN: {$serialNumber}");
+            $lines = explode("\n", $payload);
+
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if (empty($line)) continue;
+
+                $parts = explode("\t", $line);
+                if (count($parts) < 2) {
+                    Log::channel('attendance')->warning("Skipping malformed line: " . $line);
+                    continue;
+                }
+
+                $idNumber = $parts[0];
+                $timestamp = $parts[1];
+
+                $this->processRecord($idNumber, $timestamp, $device->id);
+                $recordsProcessed++;
             }
-
-            return response()->json([
-                'message' => 'Attendance recorded successfully.',
-                'attendance' => $attendance,
-            ], 201);
-
-        } catch (\Throwable $e) {
-            Log::error('Attendance Store Error: ' . $e->getMessage(), ['payload' => $payload]);
-            return response()->json([
-                'errors' => ['exception' => [$e->getMessage()]],
-                'message' => 'An unexpected error occurred while recording attendance.',
-            ], 500);
         }
+
+        Log::channel('attendance')->info("Successfully processed {$recordsProcessed} records for device SN '{$serialNumber}'.");
+
+        // The device expects an "OK" response
+        return response("OK", 200);
+    }
+
+    /**
+     * A helper method to call the attendance service.
+     * It handles both integer and string PINs.
+     */
+    private function processRecord(string $idNumber, string $timestamp, int $deviceId): void
+    {
+        $this->attendanceService->processAttendance($idNumber, $timestamp, $deviceId);
+    }
+
+
+    /**
+     * Handle heartbeat pings from a ZKTeco device.
+     * This method updates the device's 'last_heartbeat_at' timestamp.
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function handleHeartbeat(Request $request): Response
+    {
+        $serialNumber = $request->query('SN');
+        if (!$serialNumber) {
+            Log::channel('attendance')->warning('Heartbeat received without a serial number (SN).');
+            return response("ERROR", 400);
+        }
+
+        $device = Device::where('serial_number', $serialNumber)->first();
+
+        if ($device) {
+            $device->last_heartbeat_at = now();
+            $device->save();
+            Log::channel('attendance')->info("Heartbeat received from device SN: {$serialNumber}");
+        } else {
+            Log::channel('attendance')->error("Heartbeat from unregistered device SN: {$serialNumber}");
+        }
+
+        return response("OK", 200);
     }
 }
+
+
