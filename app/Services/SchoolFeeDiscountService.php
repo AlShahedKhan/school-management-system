@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\AdmissionStudent;
+use App\Models\SchoolFeeTemplate;
 use Illuminate\Support\Facades\DB;
 
 class SchoolFeeDiscountService
@@ -90,6 +92,26 @@ class SchoolFeeDiscountService
             : $value;
 
         return max($amount - $discountAmount, 0);
+    }
+
+    public function calculatePayableAmount(SchoolFeeTemplate $template, AdmissionStudent $student): array
+    {
+        $baseAmount = (float) $template->amount;
+        $effectiveAmount = $this->effectiveTotal(
+            (int) $template->school_id,
+            (int) $student->id,
+            $baseAmount,
+            $template->fee_type_name,
+            $template->fee_name
+        );
+
+        $discountAmount = max($baseAmount - $effectiveAmount, 0);
+
+        return [
+            'base_amount' => round($baseAmount, 2),
+            'discount_amount' => round($discountAmount, 2),
+            'payable_amount' => round($effectiveAmount, 2),
+        ];
     }
 
     private function feeTemplate(int $id): ?object
