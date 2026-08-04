@@ -33,8 +33,11 @@ class GenerateMonthlyFeesCommand extends Command
 
         // Fetch active templates assigned to monthly billing
         $templates = SchoolFeeTemplate::where('is_active', true)
-            ->whereHas('assign', function ($q) {
-                $q->where('payment_type', 'monthly');
+            ->where(function ($q) {
+                $q->where('frequency', 'monthly')
+                  ->orWhereHas('assign', function ($q) {
+                      $q->where('payment_type', 'monthly');
+                  });
             })
             ->get();
 
