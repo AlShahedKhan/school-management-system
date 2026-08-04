@@ -170,9 +170,10 @@
 
         function formatDate(dateString) {
             if (!dateString) return '-';
-            const parts = dateString.split('-');
-            if (parts.length !== 3) return dateString;
-            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            const d = new Date(dateString);
+            if (isNaN(d.getTime())) return dateString;
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            return d.getDate() + '-' + months[d.getMonth()] + '-' + d.getFullYear();
         }
 
         function loadExamFilterGroupByClass(classId) {

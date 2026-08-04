@@ -7,13 +7,14 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    if (typeof openSmsSettingsModal === 'function') {
-        openSmsSettingsModal();
-    } else {
-        const modal = document.getElementById('smsSettingsModal');
-        if (modal) {
-            modal.classList.remove('hidden');
-        }
+    const modal = document.getElementById('smsSettingsModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+    if (typeof window.openSmsSettingsModal === 'function') {
+        window.openSmsSettingsModal();
+    } else if (typeof window.loadSmsSettingsData === 'function') {
+        window.loadSmsSettingsData();
     }
 });
 </script>

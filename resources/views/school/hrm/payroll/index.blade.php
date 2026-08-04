@@ -7,6 +7,7 @@
         </div>
     </div>
     @include('school.hrm.payroll.partials.payroll-modal')
+    @include('school.hrm.payroll.partials.filter')
     @include('school.hrm.payroll.partials.js.modal-open')
     @include('school.hrm.payroll.partials.js.error-validation')
     @include('school.hrm.payroll.partials.js.modal-submit')

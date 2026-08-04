@@ -150,8 +150,8 @@ class SmsService
                 ];
             }
 
-            // 1. Check School-specific SMS Setting first
-            $schoolSetting = \App\Models\SchoolSmsSetting::where('school_id', $schoolInternalId)
+
+            $schoolSetting = \App\Models\SchoolSmsSetting::where('school_id', $school->id)
                 ->where('sms_type', $resolvedType)
                 ->first();
 

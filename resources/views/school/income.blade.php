@@ -583,8 +583,10 @@
 
         function formatDate(dateStr) {
             if (!dateStr) return '—';
-            const [year, month, day] = dateStr.split('-');
-            return `${day}/${month}/${year}`;
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            return d.getDate() + '-' + months[d.getMonth()] + '-' + d.getFullYear();
         }
 
         function renderPagination(meta) {

@@ -5,7 +5,7 @@
     close-button-id="closeExpenseModal"
     title-class="expense-register-modal-title m-0 text-center font-semibold leading-tight text-slate-800"
 >
-    @include('school.finance.expense.partials.inc.form')
+    @include('school.hrm.expense.partials.inc.form')
 
     <x-slot:footer>
         <div id="expenseModalFooter" class="grid grid-cols-2 gap-3 border-slate-200 bg-white px-6 pt-3 pb-4">

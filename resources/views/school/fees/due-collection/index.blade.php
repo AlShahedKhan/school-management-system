@@ -33,6 +33,7 @@
         <div class="max-w-full mx-auto w-full">
             @include('school.fees.due-collection.partials.header')
             @include('school.fees.due-collection.partials.table')
+            @include('school.partials.export-dropdown')
         </div>
     </div>
 
@@ -194,7 +195,7 @@
                     (currentFilters.student === '' || record.student_id == currentFilters.student);
             });
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="17" class="text-center py-10 text-gray-400 font-bold">No Records Found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="17" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No dues found.</td></tr>';
                 document.getElementById('paginationInfo').innerText = '0 of 0';
                 const container = document.getElementById('paginationControls');
                 container.innerHTML = '';
@@ -213,24 +214,46 @@
                     overdueDisplay = `<span class="text-gray-300">৳0</span>`;
                 }
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="text-gray-400">${sl}</td>
-                        <td class="font-medium text-[10px] tracking-wider" style="color: ${FEE_STATUS_MAP[record.status]?.hex || '#9ca3af'} !important">${FEE_STATUS_MAP[record.status]?.label || record.status}</td>
-                        <td class="text-gray-400">${record.display_pay_date}</td>
-                        <td class="text-gray-600">${toTitleCase(record.class)}</td>
-                        <td class="text-gray-500">${toTitleCase(record.group)}</td>
-                        <td class="text-gray-500">${toTitleCase(record.section)}</td>
-                        <td class="text-gray-500">${record.session || 'N/A'}</td>
-                        <td class="text-gray-600">${record.student_id_number}</td>
-                        <td class="text-gray-700">${toTitleCase(record.student_name)}</td>
-                        <td class="text-gray-500">${toTitleCase(record.fees_type)}</td>
-                        <td class="text-gray-500">${toTitleCase(record.fee_name)}</td>
-                        <td class="text-gray-600">৳${parseFloat(record.total_payable).toLocaleString()}</td>
-                        <td class="text-gray-600">৳${parseFloat(record.total_amount).toLocaleString()}</td>
-                        <td class="text-gray-700 font-semibold">৳${due.toLocaleString()}</td>
-                        <td class="text-gray-600">${overdueDisplay}</td>
-                        <td class="text-gray-400">${record.display_last_pay_date}</td>
-                        <td class="text-center no-print">
+                    <tr class="hover:bg-gray-50">
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                            <div class="donate-cell-scroll" title="${record.student_id_number}">${record.student_id_number}</div>
+                        </td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                            <div class="donate-cell-scroll" title="${toTitleCase(record.student_name)}">${toTitleCase(record.student_name)}</div>
+                        </td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                            <div class="donate-cell-scroll" title="${toTitleCase(record.class)}">${toTitleCase(record.class)}</div>
+                        </td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                            <div class="donate-cell-scroll" title="${toTitleCase(record.group)}">${toTitleCase(record.group)}</div>
+                        </td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                            <div class="donate-cell-scroll" title="${toTitleCase(record.section)}">${toTitleCase(record.section)}</div>
+                        </td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                            <div class="donate-cell-scroll" title="${record.session || 'N/A'}">${record.session || 'N/A'}</div>
+                        </td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                            <div class="donate-cell-scroll" title="${toTitleCase(record.fees_type)}">${toTitleCase(record.fees_type)}</div>
+                        </td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                            <div class="donate-cell-scroll" title="${toTitleCase(record.fee_name)}">${toTitleCase(record.fee_name)}</div>
+                        </td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">৳${parseFloat(record.total_payable).toLocaleString()}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">৳${parseFloat(record.total_amount).toLocaleString()}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 font-semibold">৳${due.toLocaleString()}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${overdueDisplay}</td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                            <div class="donate-cell-scroll" title="${record.display_last_pay_date}">${record.display_last_pay_date}</div>
+                        </td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                            <div class="donate-cell-scroll" title="${record.display_due_date}">${record.display_due_date}</div>
+                        </td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                            <span class="status-badge status-${record.status}">${FEE_STATUS_MAP[record.status]?.label || record.status}</span>
+                        </td>
+                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center no-print">
                             <div class="flex justify-center items-center">
                                 <button type="button" onclick='openPayModal(${JSON.stringify(record).replace(/'/g, "&#39;")})' class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600">
                                     <i class="far fa-credit-card text-xs"></i>
@@ -276,6 +299,34 @@
             currentFilters.session = document.getElementById('sessionFilter').value;
             currentFilters.student = document.getElementById('studentFilter').value;
             currentFilters.status = document.getElementById('statusFilter').value;
+            updateStatusFilterButton(currentFilters.status);
+            renderTable({
+                current_page: currentPage, per_page: masterRecords.length,
+                to: masterRecords.length, total: masterRecords.length, last_page: 1
+            });
+        }
+
+        const STATUS_FILTER_LABEL = {
+            '': 'Status',
+            'due': 'Due',
+            'due_partial': 'Due Partial',
+            'over_due': 'Over Due',
+            'over_due_partial': 'Over Due Partial',
+        };
+
+        function updateStatusFilterButton(status) {
+            const label = document.querySelector('#btnStatusFilter [data-dropdown-label], #btnStatusFilter span');
+            const text = STATUS_FILTER_LABEL[status] || 'Status';
+            if (label) {
+                label.textContent = text;
+                if (status && status !== '') label.classList.add('text-gray-900');
+                else label.classList.remove('text-gray-900');
+            }
+        }
+
+        function applyHeaderStatusFilter(status) {
+            currentFilters.status = status || '';
+            updateStatusFilterButton(currentFilters.status);
             renderTable({
                 current_page: currentPage, per_page: masterRecords.length,
                 to: masterRecords.length, total: masterRecords.length, last_page: 1
@@ -290,6 +341,7 @@
             setDropdownValue('sessionFilter', '', 'Select Session');
             setDropdownValue('studentFilter', '', 'Select Student');
             setDropdownValue('statusFilter', '', 'All Statuses');
+            updateStatusFilterButton('');
             populateDropdown('groupFilterMenu', [], 'id', 'group_name');
             populateDropdown('sectionFilterMenu', [], 'id', 'section_name');
             populateDropdown('sessionFilterMenu', [], 'id', 'session_year');
@@ -450,6 +502,17 @@
                 populateFilterOptions(masterRecords);
                 toggleModal('filterModal', true);
             });
+
+            const headerStatusMap = {
+                statusFilterAll: '',
+                statusFilterDue: 'due',
+                statusFilterDuePartial: 'due_partial',
+                statusFilterOverDue: 'over_due',
+                statusFilterOverDuePartial: 'over_due_partial',
+            };
+            Object.entries(headerStatusMap).forEach(([id, value]) => {
+                document.getElementById(id)?.addEventListener('click', () => applyHeaderStatusFilter(value));
+            });
             document.getElementById('resetFilter')?.addEventListener('click', () => {
                 resetClientFilters();
                 toggleModal('filterModal', false);
@@ -458,21 +521,6 @@
                 applyClientFilters();
                 toggleModal('filterModal', false);
             });
-            const exportBtn = document.getElementById('btnExport1');
-            const exportDropdown = document.getElementById('exportDropdown');
-            if (exportBtn && exportDropdown) {
-                exportBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const isOpen = exportBtn.getAttribute('aria-expanded') === 'true';
-                    exportBtn.setAttribute('aria-expanded', String(!isOpen));
-                    exportDropdown.classList.toggle('hidden', isOpen);
-                });
-                document.addEventListener('click', () => {
-                    exportBtn.setAttribute('aria-expanded', 'false');
-                    exportDropdown.classList.add('hidden');
-                });
-                exportDropdown.addEventListener('click', (e) => e.stopPropagation());
-            }
 
             document.getElementById('exportPdf')?.addEventListener('click', () => {
                 window.open('/school/due-list/pdf', '_blank');

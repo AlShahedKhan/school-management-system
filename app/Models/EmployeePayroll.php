@@ -11,7 +11,9 @@ class EmployeePayroll extends Model
 {
     protected $fillable = [
         'school_id',
+        'type',
         'employee_id',
+        'teacher_id',
         'salary_type',
         'receive_amount',
         'receive_month',
@@ -38,5 +40,10 @@ class EmployeePayroll extends Model
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function teacher(): BelongsTo
+    {
+        return $this->belongsTo(Teacher::class);
     }
 }

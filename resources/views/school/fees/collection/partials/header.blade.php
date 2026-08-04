@@ -16,7 +16,7 @@
         </div>
         <div class="grid w-full grid-cols-3 gap-2 lg:flex lg:w-auto">
             <x-button.secondary id="btnFilter">Filter</x-button.secondary>
-            <x-button.secondary id="btnPaymentSlip">Payment Slip</x-button.secondary>
+            <x-button.secondary id="btnPaymentSlip">Statement</x-button.secondary>
             <x-button.primary id="openCollectionModalBtn" class="flex-1 lg:flex-none">Collect Fee</x-button.primary>
         </div>
     </div>

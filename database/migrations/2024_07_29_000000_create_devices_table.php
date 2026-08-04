@@ -28,7 +28,8 @@ return new class extends Migration
             $table->string('firmware_version')->nullable();
             $table->string('device_password')->nullable();
             $table->string('status')->default('active');
-            $table->timestamps();
+            $table->string('last_heartbeat_at')->nullable();
+                        $table->timestamps();
         });
     }
 

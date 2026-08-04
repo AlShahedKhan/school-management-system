@@ -140,22 +140,23 @@
                 ['label' => 'Employee', 'value' => $employeesCount, 'icon' => 'fa-users', 'icon_style' => 'bg-orange-50 text-orange-600'],
                 ['label' => 'Admission', 'value' => $admissionsCount, 'icon' => 'fa-user-plus', 'icon_style' => 'bg-cyan-50 text-cyan-600'],
                 ['label' => 'Promote', 'value' => $promotionsCount, 'icon' => 'fa-level-up-alt', 'icon_style' => 'bg-violet-50 text-violet-600'],
-                ['label' => 'Tuition', 'value' => $totalTuitionFees, 'icon' => 'fa-book', 'icon_style' => 'bg-green-50 text-green-600'],
-                ['label' => 'Food', 'value' => $totalFoodFees, 'icon' => 'fa-utensils', 'icon_style' => 'bg-amber-50 text-amber-600'],
-                ['label' => 'Fine', 'value' => $totalFineFees, 'icon' => 'fa-exclamation-circle', 'icon_style' => 'bg-red-50 text-red-600'],
-                ['label' => 'Session', 'value' => $sessionsCount, 'icon' => 'fa-calendar-alt', 'icon_style' => 'bg-sky-50 text-sky-600'],
-                ['label' => 'Exam', 'value' => $examsCount, 'icon' => 'fa-clipboard-list', 'icon_style' => 'bg-pink-50 text-pink-600'],
+                ['label' => 'Admission Fee', 'value' => $totalAdmissionFees, 'icon' => 'fa-file-invoice-dollar', 'icon_style' => 'bg-cyan-50 text-cyan-700'],
+                ['label' => 'Promote Fee', 'value' => $totalPromoteFees, 'icon' => 'fa-file-invoice-dollar', 'icon_style' => 'bg-violet-50 text-violet-700'],
+                ['label' => 'Tuition Fee', 'value' => $totalTuitionFees, 'icon' => 'fa-book', 'icon_style' => 'bg-green-50 text-green-600'],
+                ['label' => 'Food Fee', 'value' => $totalFoodFees, 'icon' => 'fa-utensils', 'icon_style' => 'bg-amber-50 text-amber-600'],
+                ['label' => 'Exam Fee', 'value' => $totalExamFees, 'icon' => 'fa-clipboard-list', 'icon_style' => 'bg-pink-50 text-pink-600'],
+                ['label' => 'Session Fee', 'value' => $totalSessionFees, 'icon' => 'fa-calendar-alt', 'icon_style' => 'bg-sky-50 text-sky-600'],
                 ['label' => 'Total Fee', 'value' => $totalFees, 'icon' => 'fa-file-invoice-dollar', 'icon_style' => 'bg-orange-50 text-orange-600'],
-                ['label' => 'Collection', 'value' => 5000, 'icon' => 'fa-hand-holding-usd', 'icon_style' => 'bg-emerald-50 text-emerald-600'],
+                ['label' => 'Collection', 'value' => $collectionTotal, 'icon' => 'fa-hand-holding-usd', 'icon_style' => 'bg-emerald-50 text-emerald-600'],
                 ['label' => 'Due', 'value' => $totalDue, 'icon' => 'fa-hourglass-half', 'icon_style' => 'bg-yellow-50 text-yellow-600'],
                 ['label' => 'Overdue', 'value' => $overdueAmount, 'icon' => 'fa-calendar-times', 'icon_style' => 'bg-rose-50 text-rose-600'],
                 ['label' => 'Payroll', 'value' => $totalPayroll, 'icon' => 'fa-money-check-alt', 'icon_style' => 'bg-cyan-50 text-cyan-700'],
                 ['label' => 'Expense', 'value' => $totalExpense, 'icon' => 'fa-receipt', 'icon_style' => 'bg-fuchsia-50 text-fuchsia-600'],
                 ['label' => 'Cash', 'value' => $totalCash, 'icon' => 'fa-money-bill-wave', 'icon_style' => 'bg-teal-50 text-teal-600'],
                 ['label' => 'Bank', 'value' => $totalBank, 'icon' => 'fa-university', 'icon_style' => 'bg-blue-50 text-blue-700'],
-                ['label' => 'Profit', 'value' => 5000, 'icon' => 'fa-chart-line', 'icon_style' => 'bg-lime-50 text-lime-700'],
-                ['label' => 'Loss', 'value' => 5000, 'icon' => 'fa-chart-line fa-flip-vertical', 'icon_style' => 'bg-red-50 text-red-700'],
-                ['label' => 'Balance', 'value' => 5000, 'icon' => 'fa-balance-scale', 'icon_style' => 'bg-violet-50 text-violet-700'],
+                ['label' => 'Profit', 'value' => $profitAmount, 'icon' => 'fa-chart-line', 'icon_style' => 'bg-lime-50 text-lime-700'],
+                ['label' => 'Loss', 'value' => $lossAmount, 'icon' => 'fa-chart-line fa-flip-vertical', 'icon_style' => 'bg-red-50 text-red-700'],
+                ['label' => 'Balance', 'value' => $balanceAmount, 'icon' => 'fa-balance-scale', 'icon_style' => 'bg-violet-50 text-violet-700'],
             ];
 
         @endphp
@@ -327,15 +328,11 @@
             };
 
             const formatDate = (value) => {
-                if (!value) {
-                    return 'Select';
-                }
-
-                return new Intl.DateTimeFormat('en-GB', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: '2-digit',
-                }).format(new Date(`${value}T00:00:00`));
+                if (!value) return 'Select';
+                const d = new Date(`${value}T00:00:00`);
+                if (isNaN(d.getTime())) return value;
+                const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                return d.getDate() + '-' + months[d.getMonth()] + '-' + d.getFullYear();
             };
 
             startDate.addEventListener('change', () => {

@@ -7,6 +7,65 @@
         <i class="hgi hgi-stroke hgi-rounded hgi-dashboard-browsing w-4"></i>
         Dashboard
     </a>
+    {{-- =========================================================
+    Fingerprint Attendance
+        ========================================================= --}}
+
+        @php
+            $fingerprintAttendanceOpen =
+                request()->routeIs('school.fingerprint-attendance.teacher') ||
+                request()->routeIs('school.fingerprint-attendance.employee') ||
+                request()->routeIs('school.fingerprint-attendance.student');
+        @endphp
+
+
+        <div class="sidebar-group {{ $fingerprintAttendanceOpen ? 'open' : '' }}">
+
+            {{-- Main Menu --}}
+            <div class="sidebar-group-toggle">
+
+                <span>
+                    <i class="fas fa-fingerprint"></i>
+                    Fingerprint Attendance
+                </span>
+
+                <i class="fas fa-chevron-right text-xs"></i>
+
+            </div>
+            {{-- Sub Menu --}}
+            <div class="sidebar-group-content">
+
+                {{-- Teacher --}}
+                <a
+                    href="{{ route('school.fingerprint-attendance.teacher') }}"
+                    data-title="Teacher Attendance"
+                    data-link
+                    class="sidebar-subitem
+                    {{ request()->routeIs('school.fingerprint-attendance.teacher') ? 'active' : '' }}">
+
+                    <i class="fas fa-chalkboard-teacher"></i>Teacher Attendance</a>
+
+                {{-- Employee --}}
+                <a
+                    href="{{ route('school.fingerprint-attendance.employee') }}"
+                    data-title="Employee Attendance"
+                    data-link
+                    class="sidebar-subitem
+                    {{ request()->routeIs('school.fingerprint-attendance.employee') ? 'active' : '' }}"  >
+                    <i class="fas fa-user-tie"></i>Employee Attendance</a>       
+                
+                {{-- Student --}}
+                <a
+                    href="{{ route('school.fingerprint-attendance.student') }}"
+                    data-title="Student Attendance"
+                    data-link
+                    class="sidebar-subitem
+                    {{ request()->routeIs('school.fingerprint-attendance.student') ? 'active' : '' }}">
+                    <i class="fas fa-user-graduate"></i>
+                    Student Attendance
+                </a>
+            </div>
+        </div>
 
     {{-- <p class="nav-header">Teacher Management</p> --}}
 
@@ -354,10 +413,10 @@
                 <i class="hgi hgi-stroke hgi-rounded hgi-wallet-02"></i>
                 Collection
             </a>
-            <a href="{{ route('school.expense') }}" data-title="Expense" data-link
+            <a href="{{ route('school.profit-loss') }}" data-title="Profit Loss" data-link
                 class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-money-send-01"></i>
-                Expense
+                <i class="hgi hgi-stroke hgi-rounded hgi-chart-line-data-01"></i>
+                Profit & Loss
             </a>
         </div>
     </div>
@@ -414,20 +473,20 @@
         </div>
 
         <div class="sidebar-group-content">
-            <a href="{{ route('school.hrm-employee-coming-soon') }}" data-title="Employee" data-link
+            <a href="{{ route('school.employee') }}" data-title="Employee" data-link
                 class="sidebar-subitem">
                 <i class="hgi hgi-stroke hgi-rounded hgi-briefcase-01"></i>
                 Employee
             </a>
 
-            <a href="{{ route('school.hrm-payroll-coming-soon') }}" data-title="Payroll" data-link
+            <a href="{{ route('school.payroll') }}" data-title="Payroll" data-link
                 class="sidebar-subitem">
                 <i class="hgi hgi-stroke hgi-rounded hgi-dollar-circle"></i>
                 Payroll
             </a>
 
-            <a href="{{ route('school.hrm-expense-coming-soon') }}" data-title="expense" data-link class="sidebar-subitem">
-                <i class="hgi hgi-stroke hgi-rounded hgi-dollar-circle"></i>
+            <a href="{{ route('school.expense') }}" data-title="Expense" data-link class="sidebar-subitem">
+                <i class="hgi hgi-stroke hgi-rounded hgi-money-send-01"></i>
                 Expense
             </a>
         </div>

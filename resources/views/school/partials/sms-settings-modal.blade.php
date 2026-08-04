@@ -43,10 +43,10 @@
 
     <!-- Status Selector -->
     <div class="relative">
-        <x-input.dropdown-select id="sms_template_status" name="status" placeholder="Select Status...">
-            <option value="Active">Active (SMS পাঠানো চালু থাকবে)</option>
-            <option value="Inactive">Inactive (SMS পাঠানো বন্ধ থাকবে)</option>
-        </x-input.dropdown-select>
+        <x-input.dropdown-select id="sms_template_status" name="status" placeholder="Select Status..." :options="[
+            'Active' => 'Active (SMS পাঠানো চালু থাকবে)',
+            'Inactive' => 'Inactive (SMS পাঠানো বন্ধ থাকবে)',
+        ]" />
         <x-input.floating-label for="sms_template_status" :floating="false">Sending Status</x-input.floating-label>
     </div>
 

@@ -121,8 +121,8 @@
                     <td>{{ $record->section_name }}</td>
                     <td>{{ $record->session_name }}</td>
                     <td>{{ $record->exam_name }}</td>
-                    <td>{{ $record->exam_start_date?->format('d/m/Y') ?? '-' }}</td>
-                    <td>{{ $record->exam_end_date?->format('d/m/Y') ?? '-' }}</td>
+                    <td>{{ $record->exam_start_date?->format('j-F-Y') ?? '-' }}</td>
+                    <td>{{ $record->exam_end_date?->format('j-F-Y') ?? '-' }}</td>
                 </tr>
             @endforeach
         </tbody>

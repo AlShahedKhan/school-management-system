@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminDemoRequestController;
 use App\Http\Controllers\Admin\AboutPageSettingController;
 use App\Http\Controllers\Admin\AboutPersonController as AdminAboutPersonController;
+use App\Http\Controllers\Admin\AdminDeviceController;
 use App\Http\Controllers\Admin\BlogController as AdminBlogController;
 use App\Http\Controllers\Admin\DashboardNewsController as AdminDashboardNewsController;
 use App\Http\Controllers\Admin\FeatureController as AdminFeatureController;
@@ -224,6 +225,23 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('admin/showcases', PageShowcaseController::class)
         ->names('admin.showcases');
 
+
+    // Device routes
+    Route::prefix('admin/configuration/devices')->name('admin.configuration.devices.')->group(function () {
+        Route::get('/', [AdminDeviceController::class, 'index'])->name('index');
+
+        Route::get('/{device}/details', [AdminDeviceController::class, 'showPage'])->name('show.page');
+
+        Route::post('/store', [AdminDeviceController::class, 'store'])->name('store');
+        Route::get('/{device}', [AdminDeviceController::class, 'show'])->name('show');
+        Route::put('/{device}', [AdminDeviceController::class, 'update'])->name('update');
+        Route::delete('/{device}', [AdminDeviceController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::get('/admin/configuration/teachers', function () {
+        return view('admin.configuration.teacher.index');
+    })->name('admin.configuration.teachers');
+
     // Admin SMS Settings and Activations
     Route::get('/admin/sms-credentials', [\App\Http\Controllers\Admin\AdminSmsCredentialController::class, 'index'])->name('admin.sms-credentials');
     Route::post('/admin/sms-credentials', [\App\Http\Controllers\Admin\AdminSmsCredentialController::class, 'update'])->name('admin.sms-credentials.update');
@@ -308,6 +326,23 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
         ->name('school.student-id-card');
     Route::get('/school/student-attendance', [DashboardController::class, 'underConstruction'])
         ->name('school.student-attendance');
+   
+
+        Route::prefix('school/fingerprint-attendance')
+    ->name('school.fingerprint-attendance.')
+    ->group(function () {
+
+        // Teacher Attendance
+        Route::view('/teacher','school.fingerprint-attendance.teacher')->name('teacher');
+
+
+        // Employee Attendance
+        Route::view( '/employee', 'school.fingerprint-attendance.employee')->name('employee');
+
+       // Student Attendance
+        Route::view('/student','school.fingerprint-attendance.student')->name('student');
+
+    });
 
     // Academic Settings
     Route::get('/school/classes', [DashboardController::class, 'classes'])->name('school.classes');
@@ -412,7 +447,7 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
     Route::get('/school/create-holiday', [DashboardController::class, 'createHoliday'])
         ->name('school.create-holiday');
 
-       
+
      // ================= Notification =================
      Route::get('/school/notice', [DashboardController::class, 'notice'])->name('school.notice');
      Route::get('/school/holiday', [DashboardController::class, 'holiday'])->name('school.holiday');

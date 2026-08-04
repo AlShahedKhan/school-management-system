@@ -63,7 +63,7 @@ class AdminSmSRequestApproveController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => "Bundle Activated! Valid until " . $expiryDate->format('d M, Y'),
+                'message' => "Bundle Activated! Valid until " . $expiryDate->format('j-F-Y'),
                 'expiry_date' => $expiryDate->toDateTimeString(),
                 'new_balance' => $school->sms_balance // Refreshed balance
             ]);

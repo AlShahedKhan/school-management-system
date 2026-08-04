@@ -275,12 +275,10 @@
             // Simple date formatter helper
             function formatDate(dateString) {
                 if (!dateString) return '<span class="text-gray-300">---</span>';
-                const date = new Date(dateString);
-                return date.toLocaleDateString('en-GB', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric'
-                });
+                const d = new Date(dateString);
+                if (isNaN(d.getTime())) return '<span class="text-gray-300">---</span>';
+                const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                return d.getDate() + '-' + months[d.getMonth()] + '-' + d.getFullYear();
             }
 
             window.loadRequests = function() {

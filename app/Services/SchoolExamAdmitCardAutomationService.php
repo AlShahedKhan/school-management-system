@@ -17,9 +17,7 @@ use Illuminate\Support\Facades\Log;
 
 class SchoolExamAdmitCardAutomationService
 {
-    /**
-     * Create the student's admit card for every matching exam that has not ended.
-     */
+
     public function generateForStudent(AdmissionStudent $student, ?Carbon $today = null): int
     {
         if (! $this->isEligibleStudent($student)) {
@@ -41,7 +39,7 @@ class SchoolExamAdmitCardAutomationService
             ->where('school_id', $schoolId)
             ->where('class_id', $placement['class']->id)
             ->where('session_id', $placement['session']->id)
-            // The final exam date remains eligible for the whole day.
+
             ->whereDate('exam_end_date', '>=', $currentDate)
             ->where(function ($query) use ($placement) {
                 $query->where('group_id', $placement['group']?->id);

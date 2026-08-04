@@ -15,6 +15,16 @@
     .pagination-btn { padding: 6px 12px; border: 1px solid #e2e8f0; background: #fff; color: #64748b; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; min-width: 35px; border-radius: 0; }
     .pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .pagination-btn.active { background: #2563eb; border-color: #2563eb; color: #fff; }
+    .status-badge { padding: 2px 8px; font-size: 10px; font-weight: 700; border-radius: 2px; text-transform: uppercase; }
+    .status-paid { background: #d1fae5; color: #059669; }
+    .status-partial_paid { background: #dbeafe; color: #2563eb; }
+    .status-due { background: #fef3c7; color: #d97706; }
+    .status-due_partial { background: #fef3c7; color: #d97706; }
+    .status-over_due { background: #fee2e2; color: #dc2626; }
+    .status-over_due_partial { background: #fee2e2; color: #dc2626; }
+    .status-advance { background: #d1fae5; color: #059669; }
+    .status-advance_partial { background: #dbeafe; color: #2563eb; }
+    .status-pending { background: #f3f4f6; color: #6b7280; }
 </style>
 <x-table
     unstyled :empty="false" empty-message="No dues found."
@@ -31,21 +41,21 @@
     </x-slot:columns>
     <x-slot:head>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">Sl</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Status</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Due Date</x-table.th>
+        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Student Id</x-table.th>
+        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Student Name</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Class</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Group</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Section</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Session</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Student Id</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Student Name</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Fee Type</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Fee Name</x-table.th>
-        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Total Fee</x-table.th>
+        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Payable</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Paid Fee</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Due Fee</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Overdue Fee</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Last Date</x-table.th>
+        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Due Date</x-table.th>
+        <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-left font-semibold">Status</x-table.th>
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold">Action</x-table.th>
     </x-slot:head>
 

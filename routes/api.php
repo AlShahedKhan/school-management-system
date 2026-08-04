@@ -98,7 +98,8 @@ Route::get('/get-sessions/{school_id}/{class_id}', [AdmissionController::class, 
 Route::get('/get-fees/{school_id}/{class_id}', [AdmissionController::class, 'getFees']);
 
 // ZKTeco Device Attendance Endpoint
-Route::post('/attendance/store', [AttendanceController::class, 'store']);
+Route::post('/iclock/cdata', [AttendanceController::class, 'store']);
+Route::get('/iclock/cdata', [AttendanceController::class, 'handleHeartbeat']);
 
 
 /*
@@ -227,6 +228,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Finance (Expense)
     Route::apiResource('expenses', ExpenseController::class);
+
+    // HRM (Employee & Payroll)
+    Route::apiResource('employees', EmployeeController::class);
+    Route::get('payrolls/staff-details', [\App\Http\Controllers\Api\EmployeePayrollController::class, 'staffDetails']);
+    Route::apiResource('payrolls', \App\Http\Controllers\Api\EmployeePayrollController::class);
 
     //School Membership
     Route::get('/memberships', [SchoolMembershipController::class, 'index']);

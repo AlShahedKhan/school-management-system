@@ -7,9 +7,12 @@ use App\Models\School;
 use App\Models\SchoolPayment;
 use App\Models\SchoolStudentFee;
 use App\Services\FeeStatusSyncService;
+use App\Services\SchoolFeeDiscountService;
+use App\Services\AccountService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class SchoolDueListController extends Controller
 {
@@ -83,7 +86,16 @@ class SchoolDueListController extends Controller
     {
         $paid = (float) SchoolPayment::where('school_student_fee_id', $fee->id)
             ->sum('type_amount');
-        $amount = (float) $fee->base_amount;
+
+        $effectiveAmount = app(SchoolFeeDiscountService::class)->effectiveTotal(
+            (int) $fee->school_id,
+            (int) $fee->student_id,
+            (float) $fee->base_amount,
+            $fee->fee_type_name,
+            $fee->fee_name
+        );
+
+        $amount = $effectiveAmount;
         $remainingDue = max($amount - $paid, 0);
 
         $payDate = $fee->pay_date ? Carbon::parse($fee->pay_date) : null;
@@ -106,8 +118,9 @@ class SchoolDueListController extends Controller
         $record = (object) [
             'payment_id'          => $fee->id,
             'status'              => $displayStatus,
-            'display_pay_date'    => $payDate ? $payDate->format('d/m/Y') : 'N/A',
-            'display_last_pay_date' => $payDate ? $payDate->format('d/m/Y') : 'N/A',
+            'display_pay_date'    => $payDate ? $payDate->format('j-F-Y') : 'N/A',
+            'display_last_pay_date' => $payDate ? $payDate->format('j-F-Y') : 'N/A',
+            'display_due_date'    => $fee->due_date ? Carbon::parse($fee->due_date)->format('j-F-Y') : 'N/A',
             'pay_method'          => '—',
             'total_payable'       => $amount,
             'total_amount'        => $paid,
@@ -151,27 +164,52 @@ class SchoolDueListController extends Controller
         $alreadyPaid = (float) SchoolPayment::where('school_student_fee_id', $fee->id)
             ->sum('type_amount');
 
-        $remainingAfter = max($fee->base_amount - ($alreadyPaid + $validated['type_amount']), 0);
+        $effectiveTotal = app(SchoolFeeDiscountService::class)->effectiveTotal(
+            (int) $fee->school_id,
+            (int) $fee->student_id,
+            (float) $fee->base_amount,
+            $fee->fee_type_name,
+            $fee->fee_name
+        );
 
-        SchoolPayment::create([
-            'school_id'             => $schoolId,
-            'school_student_fee_id' => $fee->id,
-            'admission_student_id'  => $fee->student_id,
-            'fees_type'             => $fee->fee_type_name,
-            'fee_name'              => $fee->fee_name,
-            'total_payable'         => $fee->base_amount,
-            'payable_due'           => $remainingAfter,
-            'status'                => 'paid',
-            'total_amount'          => $validated['type_amount'],
-            'total_due'             => $remainingAfter,
-            'pay_type'              => 'Payable',
-            'type_amount'           => $validated['type_amount'],
-            'pay_date'              => $validated['pay_date'],
-            'for_month'             => $forMonth,
-            'pay_method'            => $validated['pay_method'],
-        ]);
+        $remainingAfter = max($effectiveTotal - ($alreadyPaid + $validated['type_amount']), 0);
 
-        app(FeeStatusSyncService::class)->syncSingle($fee);
+        $payment = DB::transaction(function () use ($schoolId, $fee, $effectiveTotal, $remainingAfter, $forMonth, $validated) {
+            $payment = SchoolPayment::create([
+                'school_id'             => $schoolId,
+                'school_student_fee_id' => $fee->id,
+                'admission_student_id'  => $fee->student_id,
+                'fees_type'             => $fee->fee_type_name,
+                'fee_name'              => $fee->fee_name,
+                'total_payable'         => $effectiveTotal,
+                'payable_due'           => $remainingAfter,
+                'status'                => 'paid',
+                'total_amount'          => $validated['type_amount'],
+                'total_due'             => $remainingAfter,
+                'pay_type'              => 'Payable',
+                'type_amount'           => $validated['type_amount'],
+                'pay_date'              => $validated['pay_date'],
+                'for_month'             => $forMonth,
+                'pay_method'            => $validated['pay_method'],
+            ]);
+
+            app(FeeStatusSyncService::class)->syncSingle($fee);
+
+            // Cash In to the internal System Cash Balance (immutable ledger)
+            app(AccountService::class)->cashIn(
+                $schoolId,
+                (float) $validated['type_amount'],
+                AccountService::moduleForFeeType($fee->fee_type_name),
+                $payment->id,
+                [
+                    'before_discount' => (float) $fee->base_amount,
+                    'after_discount'  => $effectiveTotal,
+                    'remarks'         => ($fee->fee_type_name ?? '') . ' - ' . ($fee->fee_name ?? '') . ' | Student #' . $fee->student_id,
+                ]
+            );
+
+            return $payment;
+        });
 
         return response()->json([
             'message' => 'Payment successful',
@@ -206,14 +244,31 @@ class SchoolDueListController extends Controller
             $status = 'unpaid';
         }
 
-        $payment->update([
-            'total_amount' => $newPaidTotal,
-            'total_due' => $newDue,
-            'payable_due' => $newDue,
-            'status' => $status,
-            'pay_method' => $request->pay_method,
-            'pay_date' => $request->pay_date ?? now()->format('Y-m-d')
-        ]);
+        $payment = DB::transaction(function () use ($payment, $newPaidTotal, $newDue, $status, $request, $paying, $schoolId) {
+            $payment->update([
+                'total_amount' => $newPaidTotal,
+                'total_due' => $newDue,
+                'payable_due' => $newDue,
+                'status' => $status,
+                'pay_method' => $request->pay_method,
+                'pay_date' => $request->pay_date ?? now()->format('Y-m-d')
+            ]);
+
+            // Cash In the additional amount to the internal System Cash Balance
+            if ($paying > 0) {
+                app(AccountService::class)->cashIn(
+                    $schoolId,
+                    $paying,
+                    AccountService::moduleForFeeType($payment->fees_type),
+                    $payment->id,
+                    [
+                        'before_discount' => (float) $payment->total_payable,
+                        'after_discount'  => (float) $payment->total_payable,
+                        'remarks'         => ($payment->fees_type ?? '') . ' - ' . ($payment->fee_name ?? '') . ' (additional due payment) | Student #' . $payment->admission_student_id,
+                    ]
+                );
+            }
+        });
 
         return response()->json(['message' => 'Payment Updated Successfully']);
     }

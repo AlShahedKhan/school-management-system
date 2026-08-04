@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Expense;
 use App\Models\School;
+use App\Services\AccountService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
@@ -80,17 +82,34 @@ class ExpenseController extends Controller
             $year = $year ?: $parsedDate->format('Y');
         }
 
-        $expense = Expense::create([
-            'school_id' => $schoolId,
-            'invoice_no' => $request->invoice_no,
-            'date' => $request->date,
-            'expense_reason' => $request->expense_reason,
-            'details' => $request->details,
-            'month' => $month,
-            'year' => $year,
-            'name' => $request->expense_reason,
-            'amount' => $request->amount,
-        ]);
+        // Persist the expense and cash out of the internal System Cash Balance
+        // atomically. If the ledger update fails, the expense rolls back.
+        $expense = DB::transaction(function () use ($schoolId, $request, $month, $year) {
+            $expense = Expense::create([
+                'school_id' => $schoolId,
+                'invoice_no' => $request->invoice_no,
+                'date' => $request->date,
+                'expense_reason' => $request->expense_reason,
+                'details' => $request->details,
+                'month' => $month,
+                'year' => $year,
+
+                'name' => $request->expense_reason,
+                'amount' => $request->amount,
+            ]);
+
+            app(AccountService::class)->cashOut(
+                $schoolId,
+                (float) $expense->amount,
+                'Expense',
+                $expense->id,
+                [
+                    'remarks' => $expense->expense_reason . ($expense->details ? ' | ' . $expense->details : ''),
+                ]
+            );
+
+            return $expense;
+        });
 
         return response()->json([
             'message' => 'Expense registered successfully',
@@ -135,16 +154,33 @@ class ExpenseController extends Controller
             $year = $year ?: $parsedDate->format('Y');
         }
 
-        $expense->update([
-            'invoice_no' => $request->invoice_no,
-            'date' => $request->date,
-            'expense_reason' => $request->expense_reason,
-            'details' => $request->details,
-            'month' => $month,
-            'year' => $year,
-            'name' => $request->expense_reason,
-            'amount' => $request->amount,
-        ]);
+        // Keep the internal ledger consistent with immutable Reverse entries.
+        DB::transaction(function () use ($schoolId, $expense, $request, $month, $year) {
+            $oldAmount = (float) $expense->amount;
+
+            $expense->update([
+                'invoice_no' => $request->invoice_no,
+                'date' => $request->date,
+                'expense_reason' => $request->expense_reason,
+                'details' => $request->details,
+                'month' => $month,
+                'year' => $year,
+                'name' => $request->expense_reason,
+                'amount' => $request->amount,
+            ]);
+
+            $newAmount = (float) $expense->amount;
+            if (abs($newAmount - $oldAmount) > 0.0001) {
+                $service = app(AccountService::class);
+                $service->cashIn($schoolId, $oldAmount, 'Expense Adjustment', $expense->id, [
+                    'remarks' => 'Reversal of expense #' . $expense->id
+                        . ' (amount adjusted ' . number_format($oldAmount, 2) . ' -> ' . number_format($newAmount, 2) . ')',
+                ]);
+                $service->cashOut($schoolId, $newAmount, 'Expense', $expense->id, [
+                    'remarks' => $expense->expense_reason . ' (adjusted)',
+                ]);
+            }
+        });
 
         return response()->json([
             'message' => 'Expense updated successfully',
@@ -156,7 +192,18 @@ class ExpenseController extends Controller
     {
         $schoolId = $this->getSchoolId();
         $expense = Expense::where('school_id', $schoolId)->findOrFail($id);
-        $expense->delete();
+
+        DB::transaction(function () use ($schoolId, $expense) {
+            $amount = (float) $expense->amount;
+            $expenseId = $expense->id;
+            $expense->delete();
+
+            if ($amount > 0) {
+                app(AccountService::class)->cashIn($schoolId, $amount, 'Expense Adjustment', $expenseId, [
+                    'remarks' => 'Reversal of deleted expense #' . $expenseId,
+                ]);
+            }
+        });
 
         return response()->json([
             'message' => 'Expense deleted successfully'
