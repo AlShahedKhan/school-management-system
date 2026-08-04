@@ -8,9 +8,11 @@
 @endpush
 
 @section('content')
-    <div class="expense-management-page">
-        @include('school.hrm.expense.partials.header')
-        @include('school.hrm.expense.partials.table')
+    <div class="main-view-container">
+        <div class="max-w-full mx-auto w-full">
+            @include('school.hrm.expense.partials.header')
+            @include('school.hrm.expense.partials.table')
+        </div>
     </div>
 
     @include('school.hrm.expense.partials.expense-modal')
