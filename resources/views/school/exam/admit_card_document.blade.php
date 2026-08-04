@@ -40,7 +40,7 @@
         .footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; padding: 0 5mm; font-size: 7.8px; }
         .footer-instructions { flex: 1; max-width: 126mm; margin-left: -5mm; padding-right: 5mm; }
         .footer-instructions .instructions-title { margin: 0 0 .5mm; text-align: center; font-size: 10px; font-weight: 800; }
-        .footer-instructions ol { margin: 0; padding-left: 0; font-size: 7.4px; line-height: 1.25; font-weight: 600; list-style-position: inside; }
+        .footer-instructions ol { margin: 0; padding-left: 0; font-size: 7.4px; line-height: 1.25; font-weight: 600; list-style: none; }
         .signature-block { width: 34mm; text-align: center; }
         .signature-image { display: block; width: 25mm; height: 8mm; margin: 0 auto .5mm; object-fit: contain; }
         .signature-space { height: 8.5mm; }

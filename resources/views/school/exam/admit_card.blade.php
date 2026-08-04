@@ -253,19 +253,6 @@
             <x-input.floating-label for="generate_type_display" :floating="false">Generate For</x-input.floating-label>
         </div>
 
-        <div class="relative">
-            <x-input.dropdown-select
-                id="bulk_language"
-                placeholder="Select Language"
-                value="en"
-                :options="[
-                    ['value' => 'en', 'label' => 'English'],
-                    ['value' => 'bn', 'label' => 'Bangla'],
-                ]"
-            />
-            <x-input.floating-label for="bulk_language" :floating="false">Document Language</x-input.floating-label>
-        </div>
-
         <div
             id="admitPrerequisiteWarning"
             class="hidden border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] leading-4 text-amber-700 md:col-span-2"
@@ -331,24 +318,12 @@
         panel-style="border-radius:4px; max-height:min(620px, calc(100dvh - 2.5rem));"
         fields-class="grid grid-cols-1 gap-3 md:grid-cols-2"
     >
-        <div class="space-y-3">
-            <p class="text-[10px] font-bold uppercase tracking-wide text-slate-600">English</p>
-            @for($i = 0; $i < 3; $i++)
-                <div class="relative">
-                    <x-input.control id="instruction_en_{{ $i }}" maxlength="300" required />
-                    <x-input.floating-label for="instruction_en_{{ $i }}" :floating="false">Instruction {{ $i + 1 }}</x-input.floating-label>
-                </div>
-            @endfor
-        </div>
-        <div class="space-y-3">
-            <p class="text-[10px] font-bold uppercase tracking-wide text-slate-600">Bangla</p>
-            @for($i = 0; $i < 3; $i++)
-                <div class="relative">
-                    <x-input.control id="instruction_bn_{{ $i }}" maxlength="300" required />
-                    <x-input.floating-label for="instruction_bn_{{ $i }}" :floating="false">নির্দেশনা {{ $i + 1 }}</x-input.floating-label>
-                </div>
-            @endfor
-        </div>
+        @for($i = 0; $i < 3; $i++)
+            <div class="relative">
+                <x-input.control id="instruction_en_{{ $i }}" maxlength="300" required />
+                <x-input.floating-label for="instruction_en_{{ $i }}" :floating="false">Instruction {{ $i + 1 }}</x-input.floating-label>
+            </div>
+        @endfor
         <x-slot:footer>
             <div class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
                 <x-button.secondary id="closeAdmitSettings" type="button" onclick="closeAdmitSettingsModal()" class="w-full">Cancel</x-button.secondary>
@@ -786,7 +761,7 @@
                 session_name: document.getElementById('filter_session_name').value,
                 exam_name: document.getElementById('filter_exam_name').value,
                 search: document.getElementById('header_search').value,
-                language: document.getElementById('bulk_language')?.value || 'en',
+                language: 'en',
                 export: type
             };
 
@@ -938,14 +913,15 @@
             window.location.href = `/api/school-exam-admit-cards/export-pdf?${params.toString()}`;
         }
 
+        let savedBanglaInstructions = [];
+
         async function openAdmitSettings() {
             try {
                 const response = await axios.get('/api/school-exam-admit-card-settings');
-                ['en', 'bn'].forEach(language => {
-                    (response.data[`instructions_${language}`] || []).forEach((instruction, index) => {
-                        const input = document.getElementById(`instruction_${language}_${index}`);
-                        if (input) input.value = instruction;
-                    });
+                savedBanglaInstructions = response.data.instructions_bn || [];
+                (response.data.instructions_en || []).forEach((instruction, index) => {
+                    const input = document.getElementById(`instruction_en_${index}`);
+                    if (input) input.value = instruction;
                 });
                 document.getElementById('admitSettingsModal').classList.remove('hidden');
             } catch (error) {
@@ -961,12 +937,10 @@
             event.preventDefault();
             const button = document.getElementById('saveAdmitSettings');
             button.disabled = true;
-            const payload = { instructions_en: [], instructions_bn: [] };
-            ['en', 'bn'].forEach(language => {
-                for (let index = 0; index < 3; index++) {
-                    payload[`instructions_${language}`].push(document.getElementById(`instruction_${language}_${index}`).value.trim());
-                }
-            });
+            const payload = { instructions_en: [], instructions_bn: savedBanglaInstructions };
+            for (let index = 0; index < 3; index++) {
+                payload.instructions_en.push(document.getElementById(`instruction_en_${index}`).value.trim());
+            }
 
             try {
                 const response = await axios.put('/api/school-exam-admit-card-settings', payload);
@@ -1133,7 +1107,6 @@
             setDropdownValue('section_name', '', 'Select Section');
             setDropdownValue('session_name', '', 'Select Session');
             setDropdownValue('exam_name', '', 'Select Exam');
-            setDropdownValue('bulk_language', 'en', 'English');
             document.getElementById('studentStatusBox').classList.remove('hidden');
             document.getElementById('admitModal').classList.remove('hidden');
         }
