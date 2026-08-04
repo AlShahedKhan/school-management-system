@@ -232,6 +232,27 @@ class SchoolExamAdmitCardController extends Controller
         return response()->json($response);
     }
 
+    /**
+     * Return one admit card for edit/details requests made by the resource route.
+     */
+    public function show(int $id)
+    {
+        $schoolId = $this->getSchoolId();
+
+        $admitCard = SchoolExamAdmitCard::with('student:student_id_number,student_name,father_name,image')
+            ->where('school_id', $schoolId)
+            ->findOrFail($id);
+
+        $payload = $admitCard->toArray();
+        $student = $admitCard->student;
+        $payload['student_name'] = $student?->student_name;
+        $payload['father_name'] = $student?->father_name;
+        $payload['student_image'] = $student?->image;
+        unset($payload['student']);
+
+        return response()->json($payload);
+    }
+
     public function preview(Request $request)
     {
         $payload = $this->documentPayload($request);

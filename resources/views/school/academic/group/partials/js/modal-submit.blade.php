@@ -15,7 +15,6 @@
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json',
-                'Content-Type': 'multipart/form-data'
             }
         })
         .then((response) => {
