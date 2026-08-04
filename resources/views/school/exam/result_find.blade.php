@@ -428,6 +428,8 @@
 
             function renderSingleResult(data) {
                 currentResultData = data;
+                const tableSubjects = [...(data.subjects || [])];
+                const missingSubjectRows = Math.max(0, 18 - tableSubjects.length);
                 const container = document.getElementById('resultContainer');
                 container.removeAttribute('data-pdf-ready');
                 const gradingScale = data.grading_scale || [];
@@ -999,6 +1001,13 @@
             .reference-result-table tbody tr:nth-child(even) td {
                 background: #f8fafc;
             }
+            .reference-result-table tbody tr.blank-subject-row td {
+                border-color: transparent;
+                background: transparent;
+            }
+            .reference-result-table tbody tr.blank-subject-row:last-child td {
+                border-bottom-color: #9fb2cc;
+            }
             .reference-result-table tfoot td {
                 height: 32px;
                 background: #e8eef6;
@@ -1102,18 +1111,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        ${data.subjects.map(subject => `
+                        ${tableSubjects.map(subject => `
                                     <tr>
-                                        <td class="subject-cell">${escapeResultHtml(subject.name || '-')}</td>
-                                        <td>${formatResultNumber(subject.full_mark ?? 0)}</td>
-                                        <td>${formatResultNumber(subject.highest_mark ?? subject.mark ?? 0)}</td>
-                                        <td>${formatResultComponent(subject.tutorial_mark)}</td>
-                                        <td>${formatResultComponent(subject.mcq_mark)}</td>
-                                        <td>${formatResultComponent(subject.writing_mark ?? subject.theory_mark)}</td>
-                                        <td>${formatResultComponent(subject.practical_mark)}</td>
-                                        <td>${formatResultNumber(subject.mark ?? 0)}</td>
-                                        <td>${escapeResultHtml(subject.grade ?? '-')}</td>
-                                        <td>${formatResultNumber(subject.point ?? 0)}</td>
+                                        <td class="subject-cell">${subject ? escapeResultHtml(subject.name || '-') : ''}</td>
+                                        <td>${subject ? formatResultNumber(subject.full_mark ?? 0) : ''}</td>
+                                        <td>${subject ? formatResultNumber(subject.highest_mark ?? subject.mark ?? 0) : ''}</td>
+                                        <td>${subject ? formatResultComponent(subject.tutorial_mark) : ''}</td>
+                                        <td>${subject ? formatResultComponent(subject.mcq_mark) : ''}</td>
+                                        <td>${subject ? formatResultComponent(subject.writing_mark ?? subject.theory_mark) : ''}</td>
+                                        <td>${subject ? formatResultComponent(subject.practical_mark) : ''}</td>
+                                        <td>${subject ? formatResultNumber(subject.mark ?? 0) : ''}</td>
+                                        <td>${subject ? escapeResultHtml(subject.grade ?? '-') : ''}</td>
+                                        <td>${subject ? formatResultNumber(subject.point ?? 0) : ''}</td>
                                     </tr>`).join('')}
                     </tbody>
                     <tfoot>
@@ -1127,6 +1136,7 @@
                         </tr>
                     </tfoot>
                 </table>
+                <div class="reference-result-spacer" style="height:${missingSubjectRows * 30}px"></div>
             </div>
 
             <div class="transcript-summary-cards">

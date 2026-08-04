@@ -14,9 +14,17 @@ use App\Models\SchoolSession;
 use App\Models\SchoolSubject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Browsershot\Browsershot;
 
 class SchoolFailListController extends Controller
 {
+    public function exportPdf(Request $request)
+    {
+        $request->merge(['format' => 'pdf']);
+
+        return $this->generate($request);
+    }
+
     public function generate(Request $request)
     {
         $school = School::where('user_id', Auth::id())->first();
@@ -163,6 +171,44 @@ class SchoolFailListController extends Controller
                 'subject_details' => $student['subject_details'],
             ];
         })->values();
+
+        if ($request->input('format') === 'pdf') {
+            $html = view('exports.fail_list_pdf', [
+                'school' => $school,
+                'filters' => [
+                    'class' => $class->class_name,
+                    'group' => $group->group_name,
+                    'section' => $section->section_name,
+                    'session' => (string) $session->session_year,
+                    'exam' => $exam->exam_name,
+                ],
+                'rows' => $rows,
+            ])->render();
+
+            $browser = Browsershot::html($html)
+                ->setNodeModulePath(base_path('node_modules'))
+                ->format('A4')
+                ->landscape()
+                ->showBackground()
+                ->margins(10, 10, 10, 10)
+                ->timeout(120);
+            if ($nodeBinary = config('services.browsershot.node_binary')) $browser->setNodeBinary($nodeBinary);
+            $chromePath = config('services.browsershot.chrome_path');
+            if (! $chromePath && PHP_OS_FAMILY === 'Windows') {
+                foreach (['C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'] as $candidate) {
+                    if (is_file($candidate)) { $chromePath = $candidate; break; }
+                }
+            }
+            if ($chromePath) $browser->setChromePath($chromePath);
+            if (config('services.browsershot.no_sandbox', false)) $browser->noSandbox();
+            $pdf = $browser->pdf();
+
+            return response($pdf, 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="fail-list-'.now()->format('Ymd-His').'.pdf"',
+                'Content-Length' => (string) strlen($pdf),
+            ]);
+        }
 
         return response()->json([
             'filters' => [

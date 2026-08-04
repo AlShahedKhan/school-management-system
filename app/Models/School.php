@@ -44,6 +44,11 @@ class School extends Model
             ->latest();
     }
 
+    public function admitCardSetting()
+    {
+        return $this->hasOne(SchoolAdmitCardSetting::class);
+    }
+
     public function incomes()
     {
         return $this->hasMany(Income::class);

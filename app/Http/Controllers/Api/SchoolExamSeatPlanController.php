@@ -194,6 +194,31 @@ class SchoolExamSeatPlanController extends Controller
         return $pdf->download('seat-plans-'.now()->format('Ymd-His').'.pdf');
     }
 
+    public function preview(Request $request)
+    {
+        $school = $this->getSchool();
+        abort_unless($school, 403, 'School profile not found.');
+
+        $seat = SchoolExamSeatPlan::with('student:id,student_id_number,student_name')
+            ->where('school_id', $school->id)
+            ->findOrFail($request->integer('seat_plan_id'));
+
+        return view('exports.seat_plan_pdf', [
+            'school' => $school,
+            'items' => collect([[
+                'student_id_number' => $seat->student_id_number,
+                'student_name' => optional($seat->student)->student_name,
+                'seat_number' => $seat->seat_number,
+                'class_name' => $seat->class_name,
+                'group_name' => $seat->group_name,
+                'section_name' => $seat->section_name,
+                'session_name' => $seat->session_name,
+                'exam_name' => $seat->exam_name,
+            ]]),
+            'preview' => true,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $school = $this->getSchool();
