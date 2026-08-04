@@ -14,6 +14,8 @@ class SchoolFeeDiscountService
 
     private array $templateCache = [];
 
+    private array $templateDiscountCache = [];
+
 
     public function effectiveTotal(int $schoolId, int $studentId, float $amount, ?string $feesType, ?string $feeName): float
     {
@@ -40,7 +42,33 @@ class SchoolFeeDiscountService
             }
         }
 
-        return $amount;
+        return $this->applyTemplateSessionDiscount($schoolId, $amount, $feeName);
+    }
+
+    private function applyTemplateSessionDiscount(int $schoolId, float $amount, ?string $feeName): float
+    {
+        if ($feeName === null || $feeName === '') {
+            return $amount;
+        }
+
+        $key = $schoolId . ':' . $feeName;
+
+        if (!array_key_exists($key, $this->templateDiscountCache)) {
+            $this->templateDiscountCache[$key] = DB::table('school_fee_discounts')
+                ->where('school_id', $schoolId)
+                ->where('fee_name', $feeName)
+                ->where('discount_scope', 'session')
+                ->orderByDesc('id')
+                ->first();
+        }
+
+        $templateDiscount = $this->templateDiscountCache[$key];
+
+        if (!$templateDiscount || $templateDiscount->after_discount === null) {
+            return $amount;
+        }
+
+        return (float) $templateDiscount->after_discount;
     }
 
     private function applyExamDiscount(int $schoolId, int $studentId, float $amount, ?string $feesType, ?string $feeName): float
