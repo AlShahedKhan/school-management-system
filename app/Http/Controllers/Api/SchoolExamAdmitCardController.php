@@ -426,7 +426,6 @@ class SchoolExamAdmitCardController extends Controller
     private function validateAdmitPrerequisites($school_id, $className, $groupName, $sectionName, $sessionName, $examName)
     {
         $class = \App\Models\SchoolClass::where('school_id', $school_id)->where('class_name', $className)->first();
-        $session = \App\Models\SchoolSession::where('school_id', $school_id)->where('session_year', $sessionName)->first();
         $group = $groupName
             ? \App\Models\SchoolGroup::where('school_id', $school_id)
                 ->where('class_id', $class?->id)
@@ -440,6 +439,12 @@ class SchoolExamAdmitCardController extends Controller
                 ->where('section_name', $sectionName)
                 ->first()
             : null;
+        $session = \App\Models\SchoolSession::where('school_id', $school_id)
+            ->where('class_id', $class?->id)
+            ->when($group, fn ($query) => $query->where('group_id', $group->id))
+            ->when($section, fn ($query) => $query->where('section_id', $section->id))
+            ->where('session_year', $sessionName)
+            ->first();
 
         if (!$class || !$session || ($groupName && !$group) || ($sectionName && !$section)) {
             return [
