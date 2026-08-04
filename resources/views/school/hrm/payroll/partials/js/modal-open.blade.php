@@ -34,6 +34,12 @@
     }
 
     function resetPayrollForm() {
+        const payrollIdEl = document.getElementById('payroll_id');
+        if (payrollIdEl) payrollIdEl.value = '';
+
+        const titleEl = document.querySelector('.payroll-register-modal-title');
+        if (titleEl) titleEl.textContent = 'Pay Salary / Payroll';
+
         // Reset radio button to employee
         const employeeRadio = document.querySelector('input[name="type"][value="employee"]');
         if (employeeRadio) {
@@ -132,6 +138,59 @@
     if (teachInput) {
         teachInput.addEventListener('change', (e) => {
             fetchStaffDetails('teacher', e.target.value);
+        });
+    }
+
+    // Payment Method validation listener (Gateway Unavailable for Bank)
+    const payMethodInput = document.getElementById('payrollPaymentMethod');
+    if (payMethodInput) {
+        payMethodInput.addEventListener('change', function () {
+            if (this.value === 'bank') {
+                Swal.fire({
+                    title: 'Gateway Unavailable',
+                    text: 'Bank payment is not available right now. Please pay with cash.',
+                    icon: 'info',
+                    confirmButtonColor: '#2563eb',
+                    confirmButtonText: 'Understood'
+                });
+                if (typeof setDropdownValue === 'function') {
+                    setDropdownValue('payrollPaymentMethod', 'cash', 'Cash');
+                } else {
+                    this.value = 'cash';
+                }
+            }
+        });
+    }
+
+    // Filter Modal Event Handlers
+    const filterModal = document.getElementById('filterModal');
+    const btnFilter = document.getElementById('btnFilter');
+    const closeFilterModal = document.getElementById('closeFilterModal');
+    const applyFilter = document.getElementById('applyFilter');
+    const resetFilter = document.getElementById('resetFilter');
+    const payrollFilterForm = document.getElementById('payrollFilterForm');
+
+    if (btnFilter && filterModal) {
+        btnFilter.addEventListener('click', () => {
+            filterModal.classList.remove('hidden');
+        });
+    }
+
+    if (closeFilterModal && filterModal) {
+        closeFilterModal.addEventListener('click', () => {
+            filterModal.classList.add('hidden');
+        });
+    }
+
+    if (applyFilter && payrollFilterForm) {
+        applyFilter.addEventListener('click', () => {
+            payrollFilterForm.submit();
+        });
+    }
+
+    if (resetFilter) {
+        resetFilter.addEventListener('click', () => {
+            window.location.href = '{{ route('school.payroll') }}';
         });
     }
 </script>

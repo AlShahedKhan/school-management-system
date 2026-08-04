@@ -3,6 +3,8 @@
     :empty-colspan="7"
     empty-message="No expenses found."
     :show-footer="$expenses->hasPages()"
+    tbody-id="expenseTableBody"
+    minWidth="1000px"
 >
     <x-slot:columns>
         <colgroup>
@@ -26,7 +28,6 @@
         <x-table.th unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center font-semibold min-w-[90px]">Action</x-table.th>
     </x-slot:head>
 
-    <tbody id="expenseTableBody">
     @foreach ($expenses as $expense)
         <x-table.row unstyled class="hover:bg-gray-50">
             <x-table.td unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
@@ -39,31 +40,34 @@
                 {{ $expense->invoice_no ?? '-' }}
             </x-table.td>
             <x-table.td unstyled class="h-8 border border-gray-300 px-3">
-                <x-school.table-cell-scroll :title="$expense->expense_reason">
+                <div class="school-data-table-cell-scroll" title="{{ $expense->expense_reason }}">
                     {{ $expense->expense_reason }}
-                </x-school.table-cell-scroll>
+                </div>
             </x-table.td>
             <x-table.td unstyled class="h-8 border border-gray-300 px-3">
-                <x-school.table-cell-scroll :title="$expense->details ?? '-'">
+                <div class="school-data-table-cell-scroll" title="{{ $expense->details ?? '-' }}">
                     {{ $expense->details ?? '-' }}
-                </x-school.table-cell-scroll>
+                </div>
             </x-table.td>
             <x-table.td unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-right font-medium">
                 ৳{{ number_format($expense->amount, 2) }}
             </x-table.td>
             <x-table.td unstyled class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center min-w-[90px]">
-                <div class="flex h-6 w-full items-center justify-center space-x-1">
-                    <button type="button" onclick="editExpense({{ $expense->id }})" class="text-blue-600 hover:text-blue-800 p-1" title="Edit Expense">
-                        <i class="far fa-edit text-xs"></i>
-                    </button>
-                    <button type="button" onclick="deleteExpense({{ $expense->id }})" class="text-red-600 hover:text-red-800 p-1" title="Delete Expense">
-                        <i class="far fa-trash-alt text-xs"></i>
-                    </button>
-                </div>
+                <x-action.group>
+                    <x-action.button
+                        variant="edit"
+                        label="Edit Expense"
+                        onclick="editExpense({{ $expense->id }})"
+                    />
+                    <x-action.button
+                        variant="delete"
+                        label="Delete Expense"
+                        onclick="deleteExpense({{ $expense->id }})"
+                    />
+                </x-action.group>
             </x-table.td>
         </x-table.row>
     @endforeach
-    </tbody>
 
     <x-slot:footer>
         {{ $expenses->links() }}
