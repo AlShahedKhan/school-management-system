@@ -31,4 +31,9 @@ class SchoolPayment extends Model
     {
         return $this->belongsTo(AdmissionStudent::class, 'admission_student_id');
     }
+
+    public function schoolStudentFee()
+    {
+        return $this->belongsTo(SchoolStudentFee::class, 'school_student_fee_id');
+    }
 }

@@ -76,6 +76,19 @@ class SchoolFeeDiscountController extends Controller
             ->get();
 
         foreach ($payments as $payment) {
+            if ($payment->school_student_fee_id === null) {
+                $matchedFee = SchoolStudentFee::where('school_id', $schoolId)
+                    ->where('student_id', $studentId)
+                    ->where('fee_type_name', $feeTypeName)
+                    ->where('fee_name', $feeName)
+                    ->orderByDesc('id')
+                    ->first();
+
+                if (!$matchedFee || !$this->shouldApplyDiscountToFee($matchedFee, $feeType, $respectExistingBalance)) {
+                    continue;
+                }
+            }
+
             $alreadyPaid  = (float) $payment->total_amount;
             $newPayable   = $afterDiscount;
             $newDue       = max($newPayable - $alreadyPaid, 0);
@@ -126,26 +139,50 @@ class SchoolFeeDiscountController extends Controller
 
     private function shouldApplyDiscountToFee(SchoolStudentFee $studentFee, ?SchoolFeeTemplate $feeType, bool $respectExistingBalance): bool
     {
-        if ((float) $studentFee->paid_amount > 0) {
+        // Students who already paid must never have invoices/history modified.
+        $paidAmount = (float) SchoolPayment::where('school_student_fee_id', $studentFee->id)
+            ->sum('type_amount');
+
+        if ($paidAmount > 0) {
             return false;
         }
 
-        if ($feeType && $feeType->frequency === 'monthly') {
-            $feeDate = $studentFee->pay_date ? Carbon::parse($studentFee->pay_date) : null;
+        $feeType = $feeType ?: ($studentFee->feeTemplate ?: null);
+        $feeTypeName = strtolower((string) ($feeType ? $feeType->fee_type_name : $studentFee->fee_type_name));
+        $frequency = strtolower((string) ($feeType ? $feeType->frequency : null));
 
-            if (!$feeDate) {
+        // Tuition / Food (or any monthly frequency) deferred to next billing month.
+        $isMonthly = in_array($feeTypeName, ['tuition', 'food']) || $frequency === 'monthly';
+
+        if ($isMonthly) {
+            $billingMonth = $this->feeBillingMonth($studentFee);
+
+            if (!$billingMonth) {
                 return true;
             }
 
-            $currentMonthStart = Carbon::now()->startOfMonth();
-            return $feeDate->copy()->startOfMonth()->gt($currentMonthStart);
+            return $billingMonth->copy()->startOfMonth()->gt(Carbon::now()->startOfMonth());
         }
 
-        if ($respectExistingBalance && ((float) $studentFee->payable_amount > 0 || (float) $studentFee->due_amount > 0)) {
-            return false;
+        // One-time types (Admission, Promote, Session, Exam) apply immediately.
+        if ($respectExistingBalance) {
+            return true;
         }
 
         return true;
+    }
+
+    private function feeBillingMonth(SchoolStudentFee $studentFee): ?Carbon
+    {
+        if ($studentFee->generation_period && preg_match('/^\d{4}-\d{2}$/', $studentFee->generation_period)) {
+            return Carbon::createFromFormat('Y-m', $studentFee->generation_period);
+        }
+
+        if ($studentFee->pay_date) {
+            return Carbon::parse($studentFee->pay_date);
+        }
+
+        return null;
     }
 
     public function index(Request $request)

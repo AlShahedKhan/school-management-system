@@ -22,9 +22,7 @@ class FeeStatusSyncService
 
         $query->chunk(100, function ($fees) use (&$updated) {
             foreach ($fees as $fee) {
-                $newStatus = $this->computeStatus($fee);
-                if ($fee->status !== $newStatus) {
-                    $fee->update(['status' => $newStatus]);
+                if ($this->syncSingle($fee)) {
                     $updated++;
                 }
             }
@@ -33,12 +31,36 @@ class FeeStatusSyncService
         return $updated;
     }
 
-    public function syncSingle(SchoolStudentFee $fee): void
+    public function syncSingle(SchoolStudentFee $fee): bool
     {
+        $paid = (float) SchoolPayment::where('school_student_fee_id', $fee->id)
+            ->sum('type_amount');
+
+        $updates = [];
+
+        $newPaid = round($paid, 2);
+        if (abs($newPaid - (float) $fee->paid_amount) > 0.004) {
+            $updates['paid_amount'] = $newPaid;
+        }
+
+        $amount = (float) ($fee->payable_amount ?: $fee->base_amount);
+        $newDue = max($amount - $newPaid, 0);
+        if (abs($newDue - (float) $fee->due_amount) > 0.004) {
+            $updates['due_amount'] = $newDue;
+        }
+
         $newStatus = $this->computeStatus($fee);
         if ($fee->status !== $newStatus) {
-            $fee->update(['status' => $newStatus]);
+            $updates['status'] = $newStatus;
         }
+
+        if (!empty($updates)) {
+            $fee->update($updates);
+
+            return true;
+        }
+
+        return false;
     }
 
     private function computeStatus(SchoolStudentFee $fee): string
