@@ -1,55 +1,64 @@
+@php
+    $currentYear = (int) date('Y');
+    $months = [
+        '1' => 'January',
+        '2' => 'February',
+        '3' => 'March',
+        '4' => 'April',
+        '5' => 'May',
+        '6' => 'June',
+        '7' => 'July',
+        '8' => 'August',
+        '9' => 'September',
+        '10' => 'October',
+        '11' => 'November',
+        '12' => 'December',
+    ];
+
+    $yearOptions = [];
+    for ($y = $currentYear; $y >= 2020; $y--) {
+        $yearOptions[(string)$y] = (string)$y;
+    }
+@endphp
+
 <x-modal.form
     id="filterModal"
     form-id="expenseFilterForm"
     title="Expense Filter"
-    close-button-id="resetFilter"
+    close-button-id="closeFilterModal"
     action="{{ route('school.expense') }}"
     method="GET"
     :enctype="null"
     class="expense-filter-modal"
     panel-class="custom-scrollbar mx-auto my-auto w-full max-w-[288px] overflow-visible border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)] md:max-w-[480px]"
+    fields-class="grid grid-cols-1 gap-3 md:grid-cols-2"
 >
     <div class="relative">
-        <x-input.select
+        <x-input.dropdown-select
             id="expenseFilterMonth"
             name="month"
+            placeholder="Select Month..."
+            :options="$months"
             :value="request('month')"
-        >
-            <option value="">Select Month</option>
-            <option value="1" @selected(request('month') == 1)>January</option>
-            <option value="2" @selected(request('month') == 2)>February</option>
-            <option value="3" @selected(request('month') == 3)>March</option>
-            <option value="4" @selected(request('month') == 4)>April</option>
-            <option value="5" @selected(request('month') == 5)>May</option>
-            <option value="6" @selected(request('month') == 6)>June</option>
-            <option value="7" @selected(request('month') == 7)>July</option>
-            <option value="8" @selected(request('month') == 8)>August</option>
-            <option value="9" @selected(request('month') == 9)>September</option>
-            <option value="10" @selected(request('month') == 10)>October</option>
-            <option value="11" @selected(request('month') == 11)>November</option>
-            <option value="12" @selected(request('month') == 12)>December</option>
-        </x-input.select>
-        <x-input.floating-label for="expenseFilterMonth">
+        />
+        <x-input.floating-label for="expenseFilterMonth" :floating="false" class="pointer-events-auto text-slate-500">
             Select Month
         </x-input.floating-label>
     </div>
+
     <div class="relative">
-        <x-input.select
+        <x-input.dropdown-select
             id="expenseFilterYear"
             name="year"
+            placeholder="Select Year..."
+            :options="$yearOptions"
             :value="request('year')"
-        >
-            <option value="">Select Year</option>
-            @for ($year = now()->year; $year >= 2020; $year--)
-                <option value="{{ $year }}" @selected(request('year') == $year)>
-                    {{ $year }}
-                </option>
-            @endfor
-        </x-input.select>
-        <x-input.floating-label for="expenseFilterYear">
+        />
+        <x-input.floating-label for="expenseFilterYear" :floating="false" class="pointer-events-auto text-slate-500">
             Select Year
         </x-input.floating-label>
     </div>
+
     <x-slot:footer>
         <div class="grid grid-cols-2 gap-3 border-slate-200 bg-white px-6 py-3">
             <x-button.secondary
