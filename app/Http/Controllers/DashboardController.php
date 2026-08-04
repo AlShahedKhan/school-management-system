@@ -895,8 +895,26 @@ class DashboardController extends Controller
                         ->orWhere('date', 'like', "%{$search}%");
                 });
             })
-            ->when($month !== '', fn ($query) => $query->where('month', $month))
-            ->when($year !== '', fn ($query) => $query->where('year', $year))
+            ->when($month !== '', function ($query) use ($month) {
+                $monthName = is_numeric($month) && (int) $month >= 1 && (int) $month <= 12
+                    ? Carbon::create()->month((int) $month)->format('F')
+                    : $month;
+                $query->where(function ($q) use ($month, $monthName) {
+                    $q->where('month', $month)
+                      ->orWhere('month', $monthName);
+                    if (is_numeric($month)) {
+                        $q->orWhereMonth('date', (int) $month);
+                    }
+                });
+            })
+            ->when($year !== '', function ($query) use ($year) {
+                $query->where(function ($q) use ($year) {
+                    $q->where('year', $year);
+                    if (is_numeric($year)) {
+                        $q->orWhereYear('date', (int) $year);
+                    }
+                });
+            })
             ->orderBy('date', 'desc')
             ->paginate(30)
             ->withQueryString();
@@ -986,8 +1004,26 @@ class DashboardController extends Controller
                     });
                 });
             })
-            ->when($month !== '', fn ($query) => $query->where('receive_month', $month))
-            ->when($year !== '', fn ($query) => $query->where('receive_year', $year))
+            ->when($month !== '', function ($query) use ($month) {
+                $monthName = is_numeric($month) && (int) $month >= 1 && (int) $month <= 12
+                    ? Carbon::create()->month((int) $month)->format('F')
+                    : $month;
+                $query->where(function ($q) use ($month, $monthName) {
+                    $q->where('receive_month', $month)
+                      ->orWhere('receive_month', $monthName);
+                    if (is_numeric($month)) {
+                        $q->orWhereMonth('receive_date', (int) $month);
+                    }
+                });
+            })
+            ->when($year !== '', function ($query) use ($year) {
+                $query->where(function ($q) use ($year) {
+                    $q->where('receive_year', $year);
+                    if (is_numeric($year)) {
+                        $q->orWhereYear('receive_date', (int) $year);
+                    }
+                });
+            })
             ->orderBy('id', 'desc')
             ->paginate(30)
             ->withQueryString();

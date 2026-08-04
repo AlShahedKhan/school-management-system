@@ -265,4 +265,36 @@
             searchTimer = setTimeout(() => fetchExpenses(1), 400);
         });
     }
+
+    // Filter Modal Event Handlers
+    const filterModal = document.getElementById('filterModal');
+    const btnFilter = document.getElementById('btnFilter');
+    const closeFilterModal = document.getElementById('closeFilterModal');
+    const resetFilter = document.getElementById('resetFilter');
+    const applyFilter = document.getElementById('applyFilter');
+    const expenseFilterForm = document.getElementById('expenseFilterForm');
+
+    if (btnFilter && filterModal) {
+        btnFilter.addEventListener('click', () => {
+            filterModal.classList.remove('hidden');
+        });
+    }
+
+    if (closeFilterModal && filterModal) {
+        closeFilterModal.addEventListener('click', () => {
+            filterModal.classList.add('hidden');
+        });
+    }
+
+    if (resetFilter) {
+        resetFilter.addEventListener('click', () => {
+            window.location.href = '{{ route('school.expense') }}';
+        });
+    }
+
+    if (applyFilter && expenseFilterForm) {
+        applyFilter.addEventListener('click', () => {
+            expenseFilterForm.submit();
+        });
+    }
 </script>

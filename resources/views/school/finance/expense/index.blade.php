@@ -14,6 +14,7 @@
     </div>
 
     @include('school.finance.expense.partials.expense-modal')
+    @include('school.finance.expense.partials.filter')
 @endsection
 
 @push('scripts')

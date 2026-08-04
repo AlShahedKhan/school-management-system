@@ -161,4 +161,36 @@
             }
         });
     }
+
+    // Filter Modal Event Handlers
+    const filterModal = document.getElementById('filterModal');
+    const btnFilter = document.getElementById('btnFilter');
+    const closeFilterModal = document.getElementById('closeFilterModal');
+    const applyFilter = document.getElementById('applyFilter');
+    const resetFilter = document.getElementById('resetFilter');
+    const payrollFilterForm = document.getElementById('payrollFilterForm');
+
+    if (btnFilter && filterModal) {
+        btnFilter.addEventListener('click', () => {
+            filterModal.classList.remove('hidden');
+        });
+    }
+
+    if (closeFilterModal && filterModal) {
+        closeFilterModal.addEventListener('click', () => {
+            filterModal.classList.add('hidden');
+        });
+    }
+
+    if (applyFilter && payrollFilterForm) {
+        applyFilter.addEventListener('click', () => {
+            payrollFilterForm.submit();
+        });
+    }
+
+    if (resetFilter) {
+        resetFilter.addEventListener('click', () => {
+            window.location.href = '{{ route('school.payroll') }}';
+        });
+    }
 </script>
