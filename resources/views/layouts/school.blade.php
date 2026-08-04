@@ -16,6 +16,8 @@
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/pages/expense.css'])
+     <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ asset('css/school/custom.css') }}">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
 

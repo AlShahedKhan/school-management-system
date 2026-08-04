@@ -491,151 +491,6 @@ body{
     text-align: right;
 }
 
-<<<<<<< HEAD
-/* Teacher-css */
-
-        .fp-main-view{padding:18px}
-        .fp-shell{background:#fff;border:1px solid #e2e8f0;box-shadow:0 8px 24px rgba(15,23,42,.04)}
-        .fp-toolbar-btn{
-            height:34px;padding:0 11px;border:1px solid #cbd5e1;background:#fff;color:#475569;
-            font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:.18s;
-        }
-        .fp-toolbar-btn:hover{background:#f8fafc;color:#0f172a}
-        .fp-toolbar-btn.primary{background:#0f172a;border-color:#0f172a;color:#fff}
-        .fp-toolbar-btn.primary:hover{background:#1e293b}
-        .fp-search-wrap{position:relative;min-width:230px}
-        .fp-search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:#94a3b8}
-        .fp-search-input{
-            width:100%;height:34px;border:1px solid #cbd5e1;background:#fff;padding:0 10px 0 32px;
-            font-size:10px;color:#334155;outline:none;
-        }
-        .fp-search-input:focus{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.08)}
-        .fp-status-badge{
-            display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:66px;
-            padding:4px 8px;border-radius:999px;font-size:9px;font-weight:800;border:1px solid transparent;
-        }
-        .fp-status-badge:before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
-        .present{background:#ecfdf5;color:#15803d;border-color:#bbf7d0}
-        .absent{background:#fef2f2;color:#dc2626;border-color:#fecaca}
-        .late{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
-        .leave{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
-        .holiday{background:#faf5ff;color:#7e22ce;border-color:#e9d5ff}
-        .fp-table-scroll{overflow:auto;scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
-        .fp-table-scroll::-webkit-scrollbar{height:5px;width:5px}
-        .fp-table-scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
-        .fp-empty{padding:38px 16px;text-align:center;color:#94a3b8;font-size:11px}
-        .fp-filter-panel{display:none}
-        .fp-filter-panel.show{display:block}
-        .fp-status-menu,.fp-export-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:50;width:160px;border:1px solid #e2e8f0;background:#fff;box-shadow:0 12px 30px rgba(15,23,42,.12)}
-        .fp-status-menu.show,.fp-export-menu.show{display:block}
-        .fp-menu-btn{width:100%;padding:8px 10px;text-align:left;font-size:10px;color:#475569;background:#fff;border:0}
-        .fp-menu-btn:hover{background:#f8fafc;color:#0f172a}
-        .fp-filter-select{
-            width:100%;height:34px;border:1px solid #cbd5e1;background:#fff;padding:0 9px;font-size:10px;color:#475569;outline:none
-        }
-        .fp-filter-select:focus{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.08)}
-        @media(max-width:900px){
-            .fp-main-view{padding:12px}
-            .fp-search-wrap{width:100%;min-width:0}
-        }
-
-
-        /* student-css */
-      
-    
-        .fp-main-view{padding:18px}
-        .fp-shell{background:#fff;border:1px solid #e2e8f0;box-shadow:0 8px 24px rgba(15,23,42,.04)}
-        .fp-toolbar-btn{
-            height:34px;padding:0 11px;border:1px solid #cbd5e1;background:#fff;color:#475569;
-            font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:.18s;
-        }
-        .fp-toolbar-btn:hover{background:#f8fafc;color:#0f172a}
-        .fp-toolbar-btn.primary{background:#0f172a;border-color:#0f172a;color:#fff}
-        .fp-toolbar-btn.primary:hover{background:#1e293b}
-        .fp-search-wrap{position:relative;min-width:230px}
-        .fp-search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:#94a3b8}
-        .fp-search-input{
-            width:100%;height:34px;border:1px solid #cbd5e1;background:#fff;padding:0 10px 0 32px;
-            font-size:10px;color:#334155;outline:none;
-        }
-        .fp-search-input:focus{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.08)}
-        .fp-status-badge{
-            display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:66px;
-            padding:4px 8px;border-radius:999px;font-size:9px;font-weight:800;border:1px solid transparent;
-        }
-        .fp-status-badge:before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
-        .present{background:#ecfdf5;color:#15803d;border-color:#bbf7d0}
-        .absent{background:#fef2f2;color:#dc2626;border-color:#fecaca}
-        .late{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
-        .leave{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
-        .holiday{background:#faf5ff;color:#7e22ce;border-color:#e9d5ff}
-        .fp-table-scroll{overflow:auto;scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
-        .fp-table-scroll::-webkit-scrollbar{height:5px;width:5px}
-        .fp-table-scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
-        .fp-empty{padding:38px 16px;text-align:center;color:#94a3b8;font-size:11px}
-        .fp-filter-panel{display:none}
-        .fp-filter-panel.show{display:block}
-        .fp-status-menu,.fp-export-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:50;width:160px;border:1px solid #e2e8f0;background:#fff;box-shadow:0 12px 30px rgba(15,23,42,.12)}
-        .fp-status-menu.show,.fp-export-menu.show{display:block}
-        .fp-menu-btn{width:100%;padding:8px 10px;text-align:left;font-size:10px;color:#475569;background:#fff;border:0}
-        .fp-menu-btn:hover{background:#f8fafc;color:#0f172a}
-        .fp-filter-select{
-            width:100%;height:34px;border:1px solid #cbd5e1;background:#fff;padding:0 9px;font-size:10px;color:#475569;outline:none
-        }
-        .fp-filter-select:focus{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.08)}
-        @media(max-width:900px){
-            .fp-main-view{padding:12px}
-            .fp-search-wrap{width:100%;min-width:0}
-        }
-    
-
-
-/* employee-css */
-        .fp-main-view{padding:18px}
-        .fp-shell{background:#fff;border:1px solid #e2e8f0;box-shadow:0 8px 24px rgba(15,23,42,.04)}
-        .fp-toolbar-btn{
-            height:34px;padding:0 11px;border:1px solid #cbd5e1;background:#fff;color:#475569;
-            font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:.18s;
-        }
-        .fp-toolbar-btn:hover{background:#f8fafc;color:#0f172a}
-        .fp-toolbar-btn.primary{background:#0f172a;border-color:#0f172a;color:#fff}
-        .fp-toolbar-btn.primary:hover{background:#1e293b}
-        .fp-search-wrap{position:relative;min-width:230px}
-        .fp-search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:#94a3b8}
-        .fp-search-input{
-            width:100%;height:34px;border:1px solid #cbd5e1;background:#fff;padding:0 10px 0 32px;
-            font-size:10px;color:#334155;outline:none;
-        }
-        .fp-search-input:focus{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.08)}
-        .fp-status-badge{
-            display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:66px;
-            padding:4px 8px;border-radius:999px;font-size:9px;font-weight:800;border:1px solid transparent;
-        }
-        .fp-status-badge:before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
-        .present{background:#ecfdf5;color:#15803d;border-color:#bbf7d0}
-        .absent{background:#fef2f2;color:#dc2626;border-color:#fecaca}
-        .late{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
-        .leave{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
-        .holiday{background:#faf5ff;color:#7e22ce;border-color:#e9d5ff}
-        .fp-table-scroll{overflow:auto;scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
-        .fp-table-scroll::-webkit-scrollbar{height:5px;width:5px}
-        .fp-table-scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
-        .fp-empty{padding:38px 16px;text-align:center;color:#94a3b8;font-size:11px}
-        .fp-filter-panel{display:none}
-        .fp-filter-panel.show{display:block}
-        .fp-status-menu,.fp-export-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:50;width:160px;border:1px solid #e2e8f0;background:#fff;box-shadow:0 12px 30px rgba(15,23,42,.12)}
-        .fp-status-menu.show,.fp-export-menu.show{display:block}
-        .fp-menu-btn{width:100%;padding:8px 10px;text-align:left;font-size:10px;color:#475569;background:#fff;border:0}
-        .fp-menu-btn:hover{background:#f8fafc;color:#0f172a}
-        .fp-filter-select{
-            width:100%;height:34px;border:1px solid #cbd5e1;background:#fff;padding:0 9px;font-size:10px;color:#475569;outline:none
-        }
-        .fp-filter-select:focus{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.08)}
-        @media(max-width:900px){
-            .fp-main-view{padding:12px}
-            .fp-search-wrap{width:100%;min-width:0}
-        }
-    
 
         /* Configuration-teacher-css */
         
@@ -1075,7 +930,6 @@ body{
     }
 
   /* Configuration-device-css */
-=======
 
 .status-badge.status-success {
     background: var(--success-soft);
@@ -1090,4 +944,4 @@ body{
 .device-avatar i {
     font-size: 20px;
 }
->>>>>>> 54801ac057c531ae489cd8e3fc84b977df61806b
+
