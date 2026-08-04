@@ -13,7 +13,7 @@
         <x-school.list-header title="Merit List" breadcrumb-current="Merit List" keep-title>
             <x-slot:search>
                 <div class="flex items-center gap-2">
-                    <x-input.search id="meritSearch" placeholder="Search merit list..." class="w-72" oninput="renderMeritRows()" />
+                    <x-input.search id="meritSearch" placeholder="Search merit list..." class="w-72" />
                     <x-button.secondary type="button" onclick="restoreMeritSearch()">Restore</x-button.secondary>
                 </div>
             </x-slot:search>
@@ -31,7 +31,7 @@
 
             <x-slot:mobile-search>
                 <div class="col-span-3 grid grid-cols-3 gap-2">
-                    <x-input.search id="meritSearchMobile" placeholder="Search merit list..." class="col-span-2 min-w-0" oninput="document.getElementById('meritSearch').value = this.value; renderMeritRows();" />
+                    <x-input.search id="meritSearchMobile" placeholder="Search merit list..." class="col-span-2 min-w-0" />
                     <x-button.secondary type="button" onclick="restoreMeritSearch()" class="w-full">Restore</x-button.secondary>
                 </div>
             </x-slot:mobile-search>
@@ -299,7 +299,9 @@
     }
 
     function currentMeritRows() {
-        const query = (document.getElementById('meritSearch')?.value || '').trim().toLowerCase();
+        const desktopQuery = document.getElementById('meritSearch')?.value || '';
+        const mobileQuery = document.getElementById('meritSearchMobile')?.value || '';
+        const query = (desktopQuery || mobileQuery).trim().replace(/\s+/g, ' ').toLowerCase();
         const rows = meritPayload?.rows || [];
 
         if (!query) return rows;
@@ -349,6 +351,19 @@
             if (input) input.value = '';
         });
         renderMeritRows();
+    }
+
+    let meritSearchTimer;
+
+    function handleMeritSearchInput(event) {
+        const value = event.target.value;
+        const otherId = event.target.id === 'meritSearch' ? 'meritSearchMobile' : 'meritSearch';
+        const otherInput = document.getElementById(otherId);
+
+        if (otherInput) otherInput.value = value;
+
+        window.clearTimeout(meritSearchTimer);
+        meritSearchTimer = window.setTimeout(renderMeritRows, 150);
     }
 
     function exportMeritList(format) {
@@ -448,8 +463,13 @@
         });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    const initMeritListPage = () => {
+        if (document.body.dataset.meritListReady === 'true') return;
+        document.body.dataset.meritListReady = 'true';
+
         initMeritExportDropdown();
+        document.getElementById('meritSearch')?.addEventListener('input', handleMeritSearchInput);
+        document.getElementById('meritSearchMobile')?.addEventListener('input', handleMeritSearchInput);
         document.getElementById('meritClass')?.addEventListener('change', handleMeritClassChange);
         document.getElementById('meritGroup')?.addEventListener('change', handleMeritGroupChange);
         document.getElementById('meritSection')?.addEventListener('change', handleMeritSectionChange);
@@ -486,6 +506,12 @@
                 button.textContent = 'Generate Merit List';
             });
         });
-    });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMeritListPage, { once: true });
+    } else {
+        initMeritListPage();
+    }
 </script>
 @endsection

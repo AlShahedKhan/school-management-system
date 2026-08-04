@@ -3,16 +3,75 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Support\TranscriptPdfRenderer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\School;
 use App\Models\SchoolExamSchedule;
 use App\Models\SchoolSubject;
 use App\Models\Principal;
+use App\Models\SchoolSession;
+use App\Models\SchoolHoliday;
+use App\Models\AdmissionStudent;
+use App\Models\Attendance;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\SvgWriter;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 class SchoolExamResultFindController extends Controller
 {
+    public function exportPdf(Request $request, TranscriptPdfRenderer $pdfRenderer)
+    {
+        $request->merge(['mode' => 'single']);
+
+        $result = $this->findResult($request);
+
+        if (! $result instanceof JsonResponse || $result->getStatusCode() >= 400) {
+            return $result;
+        }
+
+        $resultData = $result->getData(true);
+        $token = Str::random(64);
+        $cacheKey = 'transcript-pdf:'.$token;
+
+        Cache::put($cacheKey, [
+            'user_id' => Auth::id(),
+            'result' => $resultData,
+        ], now()->addMinutes(2));
+
+        $previewUrl = URL::temporarySignedRoute(
+            'internal.school.result-pdf-preview',
+            now()->addMinutes(2),
+            ['token' => $token]
+        );
+
+        try {
+            $pdf = $pdfRenderer->render($previewUrl);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json([
+                'message' => 'The transcript PDF could not be generated. Please try again.',
+            ], 500);
+        } finally {
+            Cache::forget($cacheKey);
+        }
+
+        $filename = 'academic-result-'.trim((string) $request->input('admit_no')).'.pdf';
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Length' => (string) strlen($pdf),
+        ]);
+    }
+
     public function findResult(Request $request)
     {
         $school = School::where('user_id', Auth::id())->first();
@@ -21,21 +80,27 @@ class SchoolExamResultFindController extends Controller
             return response()->json(['message' => 'School context not found'], 404);
         }
 
+        if ($request->input('mode') !== 'single') {
+            return response()->json([
+                'message' => 'Results can only be searched with an Admit Card Number.',
+            ], 422);
+        }
+
         // --- MODE: SINGLE RESULT (Transcript) ---
         if ($request->mode === 'single') {
             $request->validate([
-                'student_id' => 'required',
                 'admit_no'   => 'required',
             ]);
 
             $admitCard = DB::table('school_exam_admit_cards as ac')
                 ->join('admission_students as s', 'ac.student_id_number', '=', 's.student_id_number')
                 ->where('ac.school_id', $school->id)
-                ->where('ac.student_id_number', $request->student_id)
                 ->where('ac.admit_card_number', $request->admit_no)
                 ->select(
                     's.student_name',
                     's.father_name',
+                    's.mother_name',
+                    's.image',
                     'ac.student_id_number',
                     'ac.class_name',
                     'ac.group_name',
@@ -47,8 +112,10 @@ class SchoolExamResultFindController extends Controller
                 ->first();
 
             if (!$admitCard) {
-                return response()->json(['message' => 'Invalid Student ID or Admit Card Number'], 422);
+                return response()->json(['message' => 'Invalid Admit Card Number'], 422);
             }
+
+            $studentId = $admitCard->student_id_number;
 
             // Check publication based on admit card details
             $scheduled = SchoolExamSchedule::where('school_id', $school->id)
@@ -83,7 +150,7 @@ class SchoolExamResultFindController extends Controller
 
             $marks = DB::table('school_exam_marks')
                 ->where('school_id', $school->id)
-                ->where('student_id_number', $request->student_id)
+                ->where('student_id_number', $studentId)
                 ->where('exam_name', $admitCard->exam_name)
                 ->get();
 
@@ -161,7 +228,7 @@ class SchoolExamResultFindController extends Controller
                     $rank = $previousRank;
                 }
 
-                if ($row->student_id_number === $request->student_id) {
+                if ($row->student_id_number === $studentId) {
                     $position = $rank;
                     break;
                 }
@@ -205,6 +272,9 @@ class SchoolExamResultFindController extends Controller
                     'full_mark'     => $fullMark,
                     'highest_mark'  => $highestMarks->get($m->subject_name, $m->mark),
                     'mark'          => $m->mark,
+                    'fail_mark'     => is_numeric($subjectDefinition?->fail_mark)
+                        ? (float) $subjectDefinition->fail_mark
+                        : (float) ($subjectDefinition?->grade_type?->mark_from ?? 0),
                     'tutorial_mark' => $tutorialMark,
                     'mcq_mark'      => $mcqMark,
                     'writing_mark'  => $writingMark,
@@ -217,10 +287,25 @@ class SchoolExamResultFindController extends Controller
 
             $avgPoint = $subjectDetails->avg('point');
             $finalGrade = $this->calculateFinalGrade($avgPoint, $gradingScale);
+            $attendanceSummary = $this->attendanceSummary($school, $admitCard, $studentId);
+            $verificationUrl = URL::temporarySignedRoute(
+                'public.result.verify',
+                now()->addYear(),
+                [
+                    'school' => $school->id,
+                    'student' => $studentId,
+                    'admit_no' => $admitCard->admit_card_number,
+                    'exam' => $admitCard->exam_name,
+                    'session' => $admitCard->session_name,
+                ]
+            );
+            $qrCode = (new SvgWriter())->write(new QrCode($verificationUrl))->getDataUri();
 
             return response()->json([
                 'student_name'      => $admitCard->student_name,
+                'student_image'    => $admitCard->image ? asset('storage/' . $admitCard->image) : null,
                 'father_name'       => $admitCard->father_name,
+                'mother_name'      => $admitCard->mother_name,
                 'student_id_number' => $admitCard->student_id_number,
                 'class_name'        => $admitCard->class_name,
                 'group_name'        => $admitCard->group_name,
@@ -242,8 +327,13 @@ class SchoolExamResultFindController extends Controller
                 ],
                 'total_marks'       => $marks->sum('mark'),
                 'gpa'               => number_format($avgPoint, 2),
+                'gpa_without_fourth' => number_format($avgPoint, 2),
                 'grade'             => $finalGrade,
                 'position'          => $position,
+                'position_total'    => $positionList->count(),
+                'attendance'        => $attendanceSummary,
+                'verification_url'  => $verificationUrl,
+                'qr_code'           => $qrCode,
                 'subjects'          => $subjectDetails,
                 'grading_scale'     => $gradingScale,
                 'publish_datetime'  => $publishDateTime,
@@ -342,6 +432,99 @@ class SchoolExamResultFindController extends Controller
                 'grading_scale' => $gradingScale
             ]);
         }
+    }
+
+    private function attendanceSummary(School $school, object $admitCard, string $studentId): array
+    {
+        $session = SchoolSession::query()
+            ->where('school_id', $school->id)
+            ->where('session_year', $admitCard->session_name)
+            ->whereHas('schoolClass', fn ($query) => $query->where('class_name', $admitCard->class_name))
+            ->when($admitCard->group_name, fn ($query) => $query->whereHas(
+                'schoolGroup',
+                fn ($groupQuery) => $groupQuery->where('group_name', $admitCard->group_name)
+            ))
+            ->when($admitCard->section_name, fn ($query) => $query->whereHas(
+                'schoolSection',
+                fn ($sectionQuery) => $sectionQuery->where('section_name', $admitCard->section_name)
+            ))
+            ->first();
+
+        if (! $session || ! $session->start_date || ! $session->end_date) {
+            return [
+                'present_days' => 0,
+                'absent_days' => 0,
+                'working_days' => 0,
+                'percentage' => 0,
+            ];
+        }
+
+        $start = Carbon::parse($session->start_date)->startOfDay();
+        $end = Carbon::parse($session->end_date)->startOfDay();
+        $sessionDates = collect(CarbonPeriod::create($start, $end));
+        $holidayDates = collect();
+
+        SchoolHoliday::query()
+            ->where('school_id', $school->id)
+            ->whereDate('end_date', '>=', $start->toDateString())
+            ->whereDate('start_date', '<=', $end->toDateString())
+            ->where(function ($query) use ($admitCard) {
+                $query->where('type', 'General')
+                    ->orWhere(function ($classWiseQuery) use ($admitCard) {
+                        $classWiseQuery->where('type', 'Class Wise')
+                            ->where('class_name', $admitCard->class_name)
+                            ->when($admitCard->group_name, fn ($q) => $q->where('group_name', $admitCard->group_name))
+                            ->when($admitCard->section_name, fn ($q) => $q->where('section_name', $admitCard->section_name))
+                            ->where(function ($sessionQuery) use ($admitCard) {
+                                $sessionQuery->whereNull('session')
+                                    ->orWhere('session', $admitCard->session_name);
+                            });
+                    });
+            })
+            ->get(['start_date', 'end_date'])
+            ->each(function ($holiday) use ($start, $end, $holidayDates): void {
+                $holidayStart = Carbon::parse($holiday->start_date)->startOfDay()->max($start);
+                $holidayEnd = Carbon::parse($holiday->end_date)->startOfDay()->min($end);
+
+                if ($holidayStart->lte($holidayEnd)) {
+                    foreach (CarbonPeriod::create($holidayStart, $holidayEnd) as $date) {
+                        $holidayDates->push($date->toDateString());
+                    }
+                }
+            });
+
+        $workingDays = $sessionDates
+            ->map(fn (Carbon $date) => $date->toDateString())
+            ->diff($holidayDates->unique())
+            ->count();
+
+        $student = AdmissionStudent::query()
+            ->where('school_id', $school->user_id)
+            ->where('student_id_number', $studentId)
+            ->first();
+
+        $presentDays = $student
+            ? Attendance::query()
+                ->where('attendable_type', AdmissionStudent::class)
+                ->where('attendable_id', $student->id)
+                ->whereBetween('timestamp', [$start, $end->copy()->endOfDay()])
+                ->whereRaw('LOWER(status) = ?', ['present'])
+                ->get(['timestamp'])
+                ->map(fn ($attendance) => Carbon::parse($attendance->timestamp)->toDateString())
+                ->unique()
+                ->count()
+            : 0;
+
+        $absentDays = max(0, $workingDays - $presentDays);
+
+        return [
+            'present_days' => $presentDays,
+            'absent_days' => $absentDays,
+            'working_days' => $workingDays,
+            'percentage' => $workingDays > 0
+                ? round(($presentDays / $workingDays) * 100, 1)
+                : 0,
+        ];
     }
 
     private function calculateFinalGrade($gpa, $grades = null)
