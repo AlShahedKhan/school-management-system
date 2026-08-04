@@ -126,7 +126,10 @@ class SchoolFeeDiscountController extends Controller
 
     private function shouldApplyDiscountToFee(SchoolStudentFee $studentFee, ?SchoolFeeTemplate $feeType, bool $respectExistingBalance): bool
     {
-        if ((float) $studentFee->paid_amount > 0) {
+        $paidAmount = (float) SchoolPayment::where('school_student_fee_id', $studentFee->id)
+            ->sum('type_amount');
+
+        if ($paidAmount > 0) {
             return false;
         }
 
