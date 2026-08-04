@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use App\Services\AccountService;
 
 class SchoolFeeTemplateController extends Controller
 {
@@ -392,8 +393,27 @@ class SchoolFeeTemplateController extends Controller
                 $feeIds = SchoolStudentFee::where('fee_template_id', $template->id)
                     ->pluck('id');
 
-                SchoolPayment::whereIn('school_student_fee_id', $feeIds)
-                    ->delete();
+                $payments = SchoolPayment::whereIn('school_student_fee_id', $feeIds)->get();
+
+                $service = app(AccountService::class);
+                foreach ($payments as $payment) {
+                    $amount = (float) $payment->total_amount;
+                    if ($amount <= 0) {
+                        continue;
+                    }
+                    $service->cashOut(
+                        $template->school_id,
+                        $amount,
+                        AccountService::moduleForFeeType($payment->fees_type),
+                        $payment->id,
+                        [
+                            'allow_negative' => true,
+                            'remarks'        => 'Reversal - fee template #' . $template->id . ' deletion',
+                        ]
+                    );
+                }
+
+                $payments->each->delete();
 
                 SchoolFeeDiscount::where('fee_type_id', $template->id)
                     ->delete();
