@@ -6,14 +6,12 @@ enum PaymentMethodEnum: string
 {
     case CASH = 'cash';
     case BANK = 'bank';
-    case ONLINE = 'online';
 
     public function label(): string
     {
         return match ($this) {
             self::CASH => 'Cash',
-            self::BANK => 'Bank Transfer',
-            self::ONLINE => 'Mobile Banking / Online',
+            self::BANK => 'Bank',
         };
     }
 
