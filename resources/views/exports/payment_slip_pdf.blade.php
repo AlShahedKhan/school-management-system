@@ -12,7 +12,7 @@
             $isOverdue = $d && $due > 0 && $d->copy()->startOfDay()->lt($today);
             if ((float)$paid >= (float)$total && (float)$total > 0) return $isFuture ? ['Advance', '#2563eb'] : ['Paid', '#059669'];
             if ((float)$paid > 0 && (float)$paid < (float)$total) {
-                if ($isFuture) return ['Advance Partial', '#06b6d4'];
+                if ($isFuture) return ['Advance Partial', '#0891b2'];
                 if ($isOverdue) return ['Over Due Partial', '#9333ea'];
                 return ['Partial Paid', '#d97706'];
             }
@@ -21,81 +21,129 @@
         }
     @endphp
     <style>
-        @page { margin: 15mm; size: A4 portrait; }
+        @page { size: A4 portrait; margin: 20mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'DejaVu Sans', 'Arial', 'Helvetica', sans-serif;
             font-size: 11px; color: #1f2937; line-height: 1.4; background: #fff;
-            padding: 10mm;
         }
 
-        .header { text-align: center; margin-bottom: 8px; }
-        .header .school-name { font-size: 17px; font-weight: 700; color: #0f766e; letter-spacing: 0.02em; }
-        .header .school-info { font-size: 10px; color: #6b7280; margin-top: 2px; }
-        .header .badge {
-            display: inline-block; margin-top: 6px; border: 1px solid #14b8a6; color: #0d9488;
-            font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em;
-            padding: 2px 14px; border-radius: 999px;
+        /* HEADER */
+        .header { text-align: center; margin-bottom: 20px; }
+        .logo-wrap {
+            width: 96px; height: 96px; margin: 0 auto 12px auto;
+            background: #fff; overflow: hidden; line-height: 96px; text-align: center;
         }
-        .divider { border: none; border-top: 1px solid #e5e7eb; margin: 10px 0 12px 0; }
+        .logo-wrap img { width: 96px; height: 96px; }
+        .logo-wrap .no-logo {
+            display: inline-block; font-size: 40px; font-weight: 700; color: #154734; line-height: 96px;
+            font-family: 'DejaVu Serif', serif;
+        }
+        .school-name { font-size: 18px; font-weight: 700; color: #154734; }
+        .address { font-size: 12px; color: #154734; font-weight: 600; margin-top: 8px; }
+        .mobile { font-size: 12px; color: #154734; font-weight: 700; margin-top: 2px; }
 
-        table.student-info { width: 100%; border-collapse: collapse; font-size: 10.5px; margin-bottom: 14px; }
-        table.student-info td { padding: 1.5px 0; vertical-align: top; }
-        table.student-info .col { width: 50%; }
-        table.student-info .lbl { color: #6b7280; }
-        table.student-info .lbl.w24 { display: inline-block; width: 96px; }
-        table.student-info .lbl.w20 { display: inline-block; width: 80px; }
-        table.student-info .colon { color: #9ca3af; margin-right: 6px; }
+        /* PAYMENT INVOICE banner */
+        .banner {
+            border-top: 2px solid #154734;
+            margin: 20px 0;
+            text-align: center;
+            line-height: 0;
+        }
+        .banner span {
+            display: inline-block;
+            background: #154734; color: #fff;
+            font-size: 11px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase;
+            padding: 6px 24px;
+            position: relative; top: -13px;
+            line-height: 1.4;
+        }
+
+        /* STUDENT INFO */
+        table.student-info {
+            width: 100%; border: 2px solid #154734; border-collapse: collapse;
+            margin-bottom: 20px; font-size: 11px;
+        }
+        table.student-info td { padding: 16px 12px; vertical-align: top; }
+        table.student-info td.divider { border-left: 2px solid #154734; }
+        table.student-info .row { margin-bottom: 6px; white-space: nowrap; }
+        table.student-info .lbl { font-weight: 600; color: #111827; }
+        table.student-info .colon { color: #9ca3af; margin: 0 6px; }
         table.student-info .val { font-weight: 600; color: #111827; }
 
-        table.payment-table { width: 100%; border-collapse: collapse; font-size: 9.5px; }
+        /* PAYMENT TABLE */
+        table.payment-table { width: 100%; border-collapse: collapse; }
+        table.payment-table thead { display: table-header-group; }
         table.payment-table th {
-            background: #f9fafb; color: #6b7280; font-weight: 600; padding: 6px 5px;
-            border: 1px solid #e5e7eb; font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.04em;
+            background: #154734; color: #fff;
+            font-size: 9.5px; font-weight: 600;
+            padding: 8px 8px; white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        table.payment-table td { padding: 5px; border: 1px solid #f3f4f6; vertical-align: top; }
-        table.payment-table tr:nth-child(even) td { background: #fafafa; }
+        table.payment-table td {
+            padding: 8px 8px; border: 1px solid #f3f4f6;
+            font-size: 10.5px; font-weight: 600; color: #374151;
+            vertical-align: top; white-space: nowrap;
+        }
+        table.payment-table tr { page-break-inside: avoid; }
+        table.payment-table tr:nth-child(even) td { background: #f7f8f8; }
+        table.payment-table td.col-sl { width: 24px; }
+        .text-right { text-align: right !important; }
 
-        .text-right { text-align: right; }
-        .text-center { text-align: center; }
-
-        .summary { float: right; width: 256px; margin-top: 14px; border-collapse: collapse; font-size: 10.5px; }
-        .summary td { padding: 6px 10px; border: 1px solid #e5e7eb; }
-        .summary td.lbl { background: #f9fafb; color: #6b7280; }
-        .summary td.val { text-align: right; font-weight: 700; color: #111827; }
-        .c-emerald { color: #059669; }
-        .c-red { color: #dc2626; }
+        /* SUMMARY */
+        table.summary {
+            float: right; width: 256px;
+            border: 2px solid #154734; border-collapse: collapse;
+            font-size: 11px; margin-top: 20px;
+        }
+        table.summary th {
+            background: #154734; color: #fff;
+            font-size: 10px; font-weight: 700; letter-spacing: 0.15em;
+            padding: 6px 12px; border: 1px solid #154734;
+        }
+        table.summary td { padding: 6px 12px; border: 1px solid #e5e7eb; }
+        table.summary td.lbl { background: #f9fafb; color: #6b7280; font-weight: 600; }
+        table.summary td.val { text-align: right; font-weight: 700; color: #111827; }
+        .c-emerald { color: #059669 !important; }
+        .c-red { color: #dc2626 !important; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="school-name">{{ $school->school_name ?? 'School Name' }}</div>
-        <div class="school-info">
-            @if(!empty($school->village) || !empty($school->upazila) || !empty($school->district))
-                <div>{{ implode(', ', array_filter([$school->village, $school->upazila, $school->district ?? null])) }}</div>
-            @endif
-            @if(!empty($school->mobile))
-                <div>Mobile: {{ $school->mobile }}</div>
+        <div class="logo-wrap">
+            @if(!empty($school->logo) && file_exists(public_path('storage/' . $school->logo)))
+                <img src="{{ public_path('storage/' . $school->logo) }}" alt="{{ $school->school_name }}">
+            @else
+                <span class="no-logo">{{ mb_strtoupper(mb_substr($school->school_name ?? 'S', 0, 1)) }}</span>
             @endif
         </div>
-        <span class="badge">Payment Invoice</span>
+        <div class="school-name">{{ $school->school_name ?? 'School Name' }}</div>
+        @if(!empty($school->village))
+            <div class="address">{{ $school->village }}</div>
+        @endif
+        @if(!empty($school->mobile) || !empty($school->email))
+            <div class="mobile">
+                Mobile: {{ strtoupper($school->mobile ?? '') }}@if(!empty($school->email)) | Email: {{ $school->email }}@endif
+            </div>
+        @endif
     </div>
-    <hr class="divider">
+
+    <div class="banner"><span>Payment Invoice</span></div>
 
     <table class="student-info">
         <tr>
-            <td class="col">
-                <div><span class="lbl w24">Student Id</span><span class="colon">:</span><span class="val">{{ $student->student_id_number }}</span></div>
-                <div><span class="lbl w24">Student Name</span><span class="colon">:</span><span class="val">{{ $student->student_name }}</span></div>
-                <div><span class="lbl w24">Duration</span><span class="colon">:</span><span class="val">{{ $duration }}</span></div>
-                <div><span class="lbl w24">Print Date</span><span class="colon">:</span><span class="val">{{ $printDate }}</span></div>
+            <td width="50%">
+                <div class="row"><span class="lbl">Student Id</span><span class="colon">:</span><span class="val">{{ $student->student_id_number }}</span></div>
+                <div class="row"><span class="lbl">Student Name</span><span class="colon">:</span><span class="val">{{ $student->student_name }}</span></div>
+                <div class="row"><span class="lbl">Duration</span><span class="colon">:</span><span class="val">{{ $duration }}</span></div>
+                <div class="row"><span class="lbl">Print Date</span><span class="colon">:</span><span class="val">{{ $printDate }}</span></div>
             </td>
-            <td class="col">
-                <div><span class="lbl w20">Class</span><span class="colon">:</span><span class="val">{{ $student->schoolClass->class_name ?? '—' }}</span></div>
-                <div><span class="lbl w20">Group</span><span class="colon">:</span><span class="val">{{ $student->schoolGroup->group_name ?? '—' }}</span></div>
-                <div><span class="lbl w20">Section</span><span class="colon">:</span><span class="val">{{ $student->schoolSection->section_name ?? '—' }}</span></div>
-                <div><span class="lbl w20">Session</span><span class="colon">:</span><span class="val">{{ $student->schoolSession->session_year ?? '—' }}</span></div>
+            <td class="divider" width="50%">
+                <div class="row"><span class="lbl">Class</span><span class="colon">:</span><span class="val">{{ $student->schoolClass->class_name ?? '—' }}</span></div>
+                <div class="row"><span class="lbl">Group</span><span class="colon">:</span><span class="val">{{ $student->schoolGroup->group_name ?? '—' }}</span></div>
+                <div class="row"><span class="lbl">Section</span><span class="colon">:</span><span class="val">{{ $student->schoolSection->section_name ?? '—' }}</span></div>
+                <div class="row"><span class="lbl">Session</span><span class="colon">:</span><span class="val">{{ $student->schoolSession->session_year ?? '—' }}</span></div>
             </td>
         </tr>
     </table>
@@ -103,7 +151,7 @@
     <table class="payment-table">
         <thead>
             <tr>
-                <th width="5%">Sl</th>
+                <th class="col-sl">SL</th>
                 <th>Pay Date</th>
                 <th>Receive Month</th>
                 <th>Method</th>
@@ -140,21 +188,21 @@
                     [$statusText, $statusColor] = pdfSlipStatus($p->pay_date, $total, $paid);
                 @endphp
                 <tr>
-                    <td class="text-center">{{ $i + 1 }}</td>
-                    <td class="text-center">{{ $p->pay_date ? \Carbon\Carbon::parse($p->pay_date)->format('d-M-y') : '-' }}</td>
-                    <td class="text-center" style="font-weight:600; color:#111827;">{{ $receiveMonth }}</td>
-                    <td class="text-center">{{ $p->pay_method ?? '-' }}</td>
-                    <td class="text-center" style="font-weight:600; color:{{ $statusColor }};">{{ $statusText }}</td>
+                    <td>{{ $i + 1 }}</td>
+                    <td>{{ $p->pay_date ? \Carbon\Carbon::parse($p->pay_date)->format('d-M-y') : '-' }}</td>
+                    <td style="color:#111827;">{{ $receiveMonth }}</td>
+                    <td>{{ $p->pay_method ?? '-' }}</td>
+                    <td style="color:{{ $statusColor }};">{{ $statusText }}</td>
                     <td>{{ $p->fees_type ?? '-' }}</td>
                     <td>{{ $p->fee_name ?? '-' }}</td>
                     <td class="text-right">{{ $showTotal ? number_format($total, 2) : '-' }}</td>
                     <td class="text-right">{{ number_format($paid, 2) }}</td>
                     <td class="text-right">{{ number_format($due, 2) }}</td>
-                    <td class="text-right">{{ $isOverdue ? number_format($due, 2) : '0.00' }}</td>
+                    <td class="text-right" style="color:{{ $isOverdue ? '#dc2626' : '#374151' }};">{{ $isOverdue ? number_format($due, 2) : '0.00' }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="11" class="text-center" style="padding:12px; color:#9ca3af;">No payment records found.</td>
+                    <td colspan="11" style="padding:12px; color:#9ca3af; text-align:center;">No payment records found.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -162,6 +210,9 @@
 
     @if(count($payments))
         <table class="summary">
+            <tr>
+                <th colspan="2">SUMMARY</th>
+            </tr>
             <tr>
                 <td class="lbl">Total Payable</td>
                 <td class="val">{{ number_format($sumPayable, 2) }}</td>
@@ -179,6 +230,7 @@
                 <td class="val c-red">{{ number_format($sumOverdue, 2) }}</td>
             </tr>
         </table>
+        <div style="clear: both;"></div>
     @endif
 
 </body>

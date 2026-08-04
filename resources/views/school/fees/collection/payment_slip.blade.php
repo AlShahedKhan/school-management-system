@@ -33,16 +33,55 @@
             --brand-green: #154734;
             --brand-green-dark: #0f3626;
         }
-        @page { size: A4; margin: 0; }
+
+        @page { size: A4; margin: 20mm; }
+
         @media print {
-            body { background: #fff !important; }
+            body { background: #fff !important; padding: 0 !important; }
             .no-print { display: none !important; }
-            .print-container { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; max-width: none !important; height: 297mm !important; }
-            .print-content { padding: 20mm 20mm 0 20mm !important; flex-shrink: 0 !important; }
+
+            /*
+              FIX 1: was height:297mm + overflow-hidden -> clipped everything
+              past one page. Now auto height + visible overflow lets the
+              browser paginate naturally across multiple pages.
+            */
+            .print-container {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: none !important;
+                height: auto !important;
+                min-height: auto !important;
+                overflow: visible !important;
+                /* FIX 2: kill flex so justify-between can't squeeze/clip footer
+                   on multi-page content */
+                display: block !important;
+            }
+
+            .print-content {
+                padding: 0 !important;
+                flex-shrink: 0 !important;
+            }
+
             .table-scroll { overflow: visible !important; }
             .table-scroll table { min-width: 0 !important; }
+
+            /* FIX 3: repeat table header on every printed page */
+            .payment-table thead { display: table-header-group; }
+
+            /* FIX 4: never split a data row across a page break */
+            .payment-table tr { page-break-inside: avoid; break-inside: avoid; }
+
+            /* keep the summary box intact (not split) */
+            .summary-box {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
+
         body, .print-container { font-family: 'Inter', sans-serif; }
 
         .dropcap-word .cap {
@@ -65,6 +104,9 @@
         .summary-table td {
             font-weight: 600;
         }
+        .payment-table th {
+            width: 10%;
+        }
         .slip-watermark {
             position: absolute;
             top: 50%;
@@ -84,6 +126,19 @@
         .slip-content-above {
             position: relative;
             z-index: 1;
+        }
+        .table-scroll {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .table-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+        .table-scroll::-webkit-scrollbar-thumb {
+            background: #154734;
+            border-radius: 4px;
         }
         .border-bg{
             border: 2px solid rgb(21 71 52);
@@ -111,7 +166,13 @@
     </div>
 
     {{-- Slip Container --}}
-    <div class="print-container relative bg-white w-full max-w-[210mm] min-h-[auto] border shadow-lg flex flex-col justify-between text-[11px] text-gray-800 tracking-tight overflow-hidden">
+    {{--
+        NOTE: overflow-hidden removed from this element (screen version).
+        It served no real purpose here (watermark is absolutely positioned
+        and self-clips via its own box), but combined with the old print
+        height rule it was the main cause of clipped print content.
+    --}}
+    <div class="print-container relative bg-white w-full max-w-[210mm] min-h-[auto] border shadow-lg flex flex-col justify-between text-[11px] text-gray-800 tracking-tight">
 
         {{-- Watermark --}}
         <div class="slip-watermark" aria-hidden="true">
@@ -122,7 +183,7 @@
             @endif
         </div>
 
-        <div class="print-content slip-content-above px-4 sm:px-10 pt-4 sm:pt-10">
+        <div class="print-content slip-content-above p-4 sm:p-10">
 
             {{-- ══════════ HEADER ══════════ --}}
             <div class="flex flex-col items-center text-center mb-5">
@@ -209,8 +270,8 @@
             </div>
 
             {{-- ══════════ PAYMENT TABLE ══════════ --}}
-            <div class="table-scroll w-full overflow-x-auto">
-                <table class="w-full min-w-[640px] text-left border-collapse table-auto overflow-hidden">
+            <div class="table">
+                <table class="payment-table text-left">
                     <thead>
                         <tr class="brand-bg text-white text-[9.5px] font-semibold">
                             <th class="py-2 px-2 whitespace-nowrap w-6 border border-white/10">SL</th>
@@ -273,8 +334,8 @@
 
             {{-- ══════════ SUMMARY BOX ══════════ --}}
             @if(count($payments))
-                <div class="flex justify-end mt-5">
-                    <table class="text-[11px] border-collapse w-64 border border-bg">
+                <div class="summary-box flex justify-end mt-5">
+                    <table class="summary-table text-[11px] border-collapse w-64 border border-bg">
                         <thead>
                             <tr>
                                 <th colspan="2" class="brand-bg text-white text-center py-1.5 tracking-[0.15em] text-[10px] font-bold">SUMMARY</th>
@@ -302,20 +363,6 @@
                 </div>
             @endif
 
-        </div>
-
-        {{-- ══════════ FOOTER ══════════ --}}
-        <div class="slip-content-above mt-6">
-            <div class="flex items-center justify-center gap-2 text-gray-400 text-[10.5px] py-2">
-                <span class="w-2 h-2 rotate-45 brand-bg inline-block"></span>
-                <span class="w-2 h-2 rotate-45 brand-bg inline-block"></span>
-                <span class="text-gray-600">Thank you for your feedback!</span>
-                <span class="w-2 h-2 rotate-45 brand-bg inline-block"></span>
-                <span class="w-2 h-2 rotate-45 brand-bg inline-block"></span>
-            </div>
-            <div class="brand-bg text-white text-center py-2.5 text-sm sm:text-base">
-                Astha Academics
-            </div>
         </div>
 
     </div>
