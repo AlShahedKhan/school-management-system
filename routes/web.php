@@ -23,6 +23,7 @@ use App\Http\Controllers\Landing\PricingController;
 use App\Http\Controllers\Landing\ResultVerificationController;
 use App\Http\Controllers\Landing\SchoolManagementController;
 use App\Http\Controllers\School\ResultPdfPreviewController;
+use App\Http\Controllers\School\AdmitCardPreviewController;
 use App\Models\Package;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -57,6 +58,10 @@ Route::get('/result/verify', ResultVerificationController::class)
 Route::get('/internal/result-pdf/{token}', ResultPdfPreviewController::class)
     ->middleware('signed')
     ->name('internal.school.result-pdf-preview');
+
+Route::get('/internal/admit-card-preview/{token}', AdmitCardPreviewController::class)
+    ->middleware('signed')
+    ->name('internal.school.admit-card-preview');
 
 Route::middleware('public.locale')->group(function (): void {
     Route::get('/', [HomeController::class, 'index'])->name('home');

@@ -88,6 +88,10 @@
                 </x-slot:search>
 
                 <x-slot:actions>
+                    <x-button.secondary type="button" onclick="openAdmitSettings()" class="w-full">
+                        Settings
+                    </x-button.secondary>
+
                     <x-button.secondary type="button" onclick="toggleFilterModal()" class="w-full">
                         Filter
                     </x-button.secondary>
@@ -249,6 +253,19 @@
             <x-input.floating-label for="generate_type_display" :floating="false">Generate For</x-input.floating-label>
         </div>
 
+        <div class="relative">
+            <x-input.dropdown-select
+                id="bulk_language"
+                placeholder="Select Language"
+                value="en"
+                :options="[
+                    ['value' => 'en', 'label' => 'English'],
+                    ['value' => 'bn', 'label' => 'Bangla'],
+                ]"
+            />
+            <x-input.floating-label for="bulk_language" :floating="false">Document Language</x-input.floating-label>
+        </div>
+
         <div
             id="admitPrerequisiteWarning"
             class="hidden border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] leading-4 text-amber-700 md:col-span-2"
@@ -305,6 +322,64 @@
         </x-slot:footer>
     </x-modal.form>
 
+    <x-modal.form
+        id="admitSettingsModal"
+        form-id="admitSettingsForm"
+        title="Admit Card Instructions"
+        close-button-id="closeAdmitSettings"
+        panel-class="custom-scrollbar mx-auto my-auto w-full max-w-[288px] overflow-y-auto border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)] md:max-w-[640px]"
+        panel-style="border-radius:4px; max-height:min(620px, calc(100dvh - 2.5rem));"
+        fields-class="grid grid-cols-1 gap-3 md:grid-cols-2"
+    >
+        <div class="space-y-3">
+            <p class="text-[10px] font-bold uppercase tracking-wide text-slate-600">English</p>
+            @for($i = 0; $i < 3; $i++)
+                <div class="relative">
+                    <x-input.control id="instruction_en_{{ $i }}" maxlength="300" required />
+                    <x-input.floating-label for="instruction_en_{{ $i }}" :floating="false">Instruction {{ $i + 1 }}</x-input.floating-label>
+                </div>
+            @endfor
+        </div>
+        <div class="space-y-3">
+            <p class="text-[10px] font-bold uppercase tracking-wide text-slate-600">Bangla</p>
+            @for($i = 0; $i < 3; $i++)
+                <div class="relative">
+                    <x-input.control id="instruction_bn_{{ $i }}" maxlength="300" required />
+                    <x-input.floating-label for="instruction_bn_{{ $i }}" :floating="false">নির্দেশনা {{ $i + 1 }}</x-input.floating-label>
+                </div>
+            @endfor
+        </div>
+        <x-slot:footer>
+            <div class="grid grid-cols-2 gap-3 bg-white px-6 pb-4 pt-3">
+                <x-button.secondary id="closeAdmitSettings" type="button" onclick="closeAdmitSettingsModal()" class="w-full">Cancel</x-button.secondary>
+                <x-button.primary type="submit" id="saveAdmitSettings" class="w-full">Save</x-button.primary>
+            </div>
+        </x-slot:footer>
+    </x-modal.form>
+
+    <x-modal.form
+        id="admitPreviewModal"
+        form-id="admitPreviewForm"
+        title="Admit Card Preview"
+        close-button-id="closeAdmitPreview"
+        panel-class="mx-auto my-auto flex w-full max-w-[1100px] flex-col overflow-hidden border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)]"
+        panel-style="border-radius:4px; width:min(1100px, calc(100vw - 2rem)); height:calc(100dvh - 2rem); max-height:760px;"
+        header-class="flex h-14 shrink-0 items-center justify-center border-b border-slate-200 bg-white px-4"
+        form-class="m-0 flex min-h-0 flex-1 flex-col overflow-hidden"
+        body-class="flex min-h-0 flex-1 bg-slate-100 px-3 pb-3 pt-2"
+        fields-class="flex min-h-0 flex-1 flex-col gap-2"
+    >
+        <input type="hidden" id="preview_admit_id">
+        <iframe id="admitPreviewFrame" title="Admit card preview" class="min-h-0 w-full flex-1 border border-slate-300 bg-white"></iframe>
+        <x-slot:footer>
+            <div class="grid shrink-0 grid-cols-3 gap-3 border-t border-slate-200 bg-white px-6 py-3">
+                <x-button.secondary id="closeAdmitPreview" type="button" onclick="closeAdmitPreviewModal()" class="w-full">Close</x-button.secondary>
+                <x-button.secondary type="button" onclick="printAdmitPreview()" class="w-full">Print</x-button.secondary>
+                <x-button.primary type="button" onclick="downloadAdmitPreview()" class="w-full">Download PDF</x-button.primary>
+            </div>
+        </x-slot:footer>
+    </x-modal.form>
+
     {{-- Quick-create modals shared with the Exam Routine form. --}}
     @include('school.academic.class.partials.class-modal')
     @include('school.academic.group.partials.group-modal')
@@ -333,6 +408,7 @@
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
         let studentsList = [];
+        let admitPreviewRequestId = 0;
 
         function populateDropdown(menuId, data, valueField, labelField) {
             const menu = document.getElementById(menuId);
@@ -691,6 +767,7 @@
                         <td class="h-8 border border-gray-300 px-3"><div class="school-data-table-cell-scroll" title="${cell(item.admit_card_number)}">${cell(item.admit_card_number)}</div></td>
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
                             <div class="flex h-8 items-center justify-center space-x-1 mx-auto">
+                                <button type="button" title="View admit card" aria-label="View admit card" onclick="openAdmitPreview(${item.id})" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-1"><i class="far fa-eye text-sm" aria-hidden="true"></i></button>
                                 <button type="button" title="Edit admit card" aria-label="Edit admit card" onclick='editAdmit(${itemJson})' class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"><i class="far fa-edit text-sm" aria-hidden="true"></i></button>
                                 <button type="button" title="Delete admit card" aria-label="Delete admit card" onclick="deleteAdmit(${item.id})" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1"><i class="far fa-trash-alt text-sm" aria-hidden="true"></i></button>
                             </div>
@@ -709,6 +786,7 @@
                 session_name: document.getElementById('filter_session_name').value,
                 exam_name: document.getElementById('filter_exam_name').value,
                 search: document.getElementById('header_search').value,
+                language: document.getElementById('bulk_language')?.value || 'en',
                 export: type
             };
 
@@ -778,82 +856,128 @@
                     </html>
                 `);
 
-                axios.get('/api/school-exam-admit-cards', {
-                    params: {
-                        ...params,
-                        per_page: 500
-                    }
-                }).then(res => {
-                    if (!res.data.data || res.data.data.length === 0) {
-                        previewWindow.close();
-                        Swal.fire('Info', 'No admit cards found for current filters.', 'info');
-                        return;
-                    }
+                if (type === 'pdf-mobile') {
+                    previewWindow.location.href = `/api/school-exam-admit-cards/export-pdf?${new URLSearchParams(params).toString()}`;
+                    return;
+                }
 
-                    if (type === 'pdf-mobile') {
-                        generateMobilePreview(res.data.data, res.data.school_info, res.data.routines || [], previewWindow, params);
-                    } else {
-                        generatePrintLayout(res.data.data, res.data.school_info, res.data.routines || [], previewWindow);
-                    }
+                axios.get('/api/school-exam-admit-cards/preview', { params }).then(res => {
+                    previewWindow.location.href = res.data.url;
+                    previewWindow.addEventListener('load', () => setTimeout(() => previewWindow.print(), 500), { once: true });
                 }).catch(err => {
                     previewWindow.close();
-                    console.error(err);
-                    Swal.fire('Error', 'Failed to fetch data. Please try again.', 'error');
+                    Swal.fire('Error', err.response?.data?.message || firstValidationMessage(err) || 'Failed to prepare admit cards.', 'error');
                 });
             }
         }
 
-        function getRoutinesForCard(card, allRoutines) {
-            const norm = (v) => {
-                if (!v || v === '-' || v === 'null' || v === 'undefined') return '';
-                return v.toString().trim().toLowerCase();
-            };
-
-            const cardClass = norm(card.class_name);
-            const cardSession = norm(card.session_name);
-            const cardExam = norm(card.exam_name);
-            const cardGroup = norm(card.group_name);
-            const cardSection = norm(card.section_name);
-
-            // Filter routines by class, session, and exam name
-            let candidates = allRoutines.filter(r =>
-                norm(r.class_name) === cardClass &&
-                norm(r.session_name) === cardSession &&
-                norm(r.exam_name) === cardExam
-            );
-
-            if (candidates.length === 0) return [];
-
-            // Try to match specific group AND section
-            let matchGroupAndSection = candidates.filter(r =>
-                norm(r.group_name) === cardGroup &&
-                norm(r.section_name) === cardSection
-            );
-            if (matchGroupAndSection.length > 0) return matchGroupAndSection;
-
-            // Try to match specific group and ANY section (meaning routine section is empty/null/'-')
-            let matchGroupAnySection = candidates.filter(r =>
-                norm(r.group_name) === cardGroup &&
-                (norm(r.section_name) === '')
-            );
-            if (matchGroupAnySection.length > 0) return matchGroupAnySection;
-
-            // Try to match ANY group and specific section
-            let matchAnyGroupSpecificSection = candidates.filter(r =>
-                (norm(r.group_name) === '') &&
-                norm(r.section_name) === cardSection
-            );
-            if (matchAnyGroupSpecificSection.length > 0) return matchAnyGroupSpecificSection;
-
-            // Fallback to general class routine (group and section are empty/null/'-')
-            let generalClassRoutine = candidates.filter(r =>
-                (norm(r.group_name) === '') &&
-                (norm(r.section_name) === '')
-            );
-            if (generalClassRoutine.length > 0) return generalClassRoutine;
-
-            return candidates;
+        function firstValidationMessage(error) {
+            const errors = error.response?.data?.errors;
+            if (!errors) return '';
+            const first = Object.values(errors).flat()[0];
+            return first || '';
         }
+
+        async function loadAdmitPreview() {
+            const id = document.getElementById('preview_admit_id').value;
+            const frame = document.getElementById('admitPreviewFrame');
+            if (!id || !frame) return;
+
+            const requestId = ++admitPreviewRequestId;
+
+            frame.removeAttribute('src');
+            frame.srcdoc = '<div style="font:600 13px Arial;padding:32px;text-align:center;color:#64748b">Preparing admit card...</div>';
+
+            try {
+                const response = await axios.get('/api/school-exam-admit-cards/preview', {
+                    params: { admit_card_id: id, language: 'en' }
+                });
+                if (requestId !== admitPreviewRequestId) return;
+                frame.removeAttribute('srcdoc');
+                frame.onload = () => {
+                    try {
+                        frame.contentWindow.scrollTo(0, 0);
+                    } catch (error) {
+                        // The signed preview is same-origin, but scrolling is non-critical.
+                    }
+                };
+                frame.src = response.data.url;
+            } catch (error) {
+                if (requestId !== admitPreviewRequestId) return;
+                frame.srcdoc = `<div style="font:600 13px Arial;padding:32px;text-align:center;color:#b91c1c">${escapeAdmitCardHtml(firstValidationMessage(error) || error.response?.data?.message || 'Unable to load preview.')}</div>`;
+            }
+        }
+
+        function openAdmitPreview(id) {
+            document.getElementById('preview_admit_id').value = id;
+            document.getElementById('admitPreviewModal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            loadAdmitPreview();
+        }
+
+        function closeAdmitPreviewModal() {
+            admitPreviewRequestId++;
+            document.getElementById('admitPreviewModal').classList.add('hidden');
+            const frame = document.getElementById('admitPreviewFrame');
+            frame.removeAttribute('srcdoc');
+            frame.src = 'about:blank';
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        function printAdmitPreview() {
+            const frame = document.getElementById('admitPreviewFrame');
+            frame?.contentWindow?.focus();
+            frame?.contentWindow?.print();
+        }
+
+        function downloadAdmitPreview() {
+            const params = new URLSearchParams({
+                admit_card_id: document.getElementById('preview_admit_id').value,
+                language: 'en',
+            });
+            window.location.href = `/api/school-exam-admit-cards/export-pdf?${params.toString()}`;
+        }
+
+        async function openAdmitSettings() {
+            try {
+                const response = await axios.get('/api/school-exam-admit-card-settings');
+                ['en', 'bn'].forEach(language => {
+                    (response.data[`instructions_${language}`] || []).forEach((instruction, index) => {
+                        const input = document.getElementById(`instruction_${language}_${index}`);
+                        if (input) input.value = instruction;
+                    });
+                });
+                document.getElementById('admitSettingsModal').classList.remove('hidden');
+            } catch (error) {
+                Swal.fire('Error', 'Unable to load admit card settings.', 'error');
+            }
+        }
+
+        function closeAdmitSettingsModal() {
+            document.getElementById('admitSettingsModal').classList.add('hidden');
+        }
+
+        document.getElementById('admitSettingsForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const button = document.getElementById('saveAdmitSettings');
+            button.disabled = true;
+            const payload = { instructions_en: [], instructions_bn: [] };
+            ['en', 'bn'].forEach(language => {
+                for (let index = 0; index < 3; index++) {
+                    payload[`instructions_${language}`].push(document.getElementById(`instruction_${language}_${index}`).value.trim());
+                }
+            });
+
+            try {
+                const response = await axios.put('/api/school-exam-admit-card-settings', payload);
+                closeAdmitSettingsModal();
+                Toastify({ text: response.data.message, style: { background: '#10b981' } }).showToast();
+            } catch (error) {
+                Swal.fire('Warning', firstValidationMessage(error) || 'Unable to save settings.', 'warning');
+            } finally {
+                button.disabled = false;
+            }
+        });
 
         function escapeAdmitCardHtml(value) {
             return String(value ?? '')
@@ -864,532 +988,12 @@
                 .replace(/'/g, '&#039;');
         }
 
-        function getAdmitCardPrintData(card, school, address) {
-            const rawStudentImage = card.student_image
-                ? (String(card.student_image).startsWith('http')
-                    ? String(card.student_image)
-                    : `${window.location.origin}/storage/${card.student_image}`)
-                : '';
-
-            return {
-                logo: escapeAdmitCardHtml(school?.logo || ''),
-                schoolName: escapeAdmitCardHtml(school?.school_name || 'School Name'),
-                mobile: escapeAdmitCardHtml(school?.mobile || ''),
-                email: escapeAdmitCardHtml(school?.email || ''),
-                address: escapeAdmitCardHtml(address || ''),
-                studentImage: escapeAdmitCardHtml(rawStudentImage),
-                principalSignature: escapeAdmitCardHtml(school?.principal_signature || ''),
-                studentName: escapeAdmitCardHtml(card.student_name || '-'),
-                studentId: escapeAdmitCardHtml(card.student_id_number || '-'),
-                fatherName: escapeAdmitCardHtml(card.father_name || '-'),
-                admitCardNumber: escapeAdmitCardHtml(card.admit_card_number || '-'),
-                className: escapeAdmitCardHtml(card.class_name || '-'),
-                groupName: escapeAdmitCardHtml(card.group_name || '-'),
-                sectionName: escapeAdmitCardHtml(card.section_name || '-'),
-                sessionName: escapeAdmitCardHtml(card.session_name || '-'),
-                examName: escapeAdmitCardHtml(card.exam_name || '-'),
-            };
-        }
-
-        function getAdmitCardUtilityStyles() {
-            return `
-                .relative { position: relative; }
-                .absolute { position: absolute; }
-                .inset-0 { inset: 0; }
-                .flex { display: flex; }
-                .flex-col { flex-direction: column; }
-                .flex-grow { flex-grow: 1; min-width: 0; }
-                .flex-shrink-0 { flex-shrink: 0; }
-                .items-center { align-items: center; }
-                .items-start { align-items: flex-start; }
-                .items-end { align-items: flex-end; }
-                .items-baseline { align-items: baseline; }
-                .justify-between { justify-content: space-between; }
-                .justify-center { justify-content: center; }
-                .justify-end { justify-content: flex-end; }
-                .justify-start { justify-content: flex-start; }
-                .h-full { height: 100%; }
-                .h-9 { height: 36px; }
-                .h-14 { height: 56px; }
-                .h-16 { height: 64px; }
-                .w-full { width: 100%; }
-                .w-16 { width: 64px; }
-                .w-32 { width: 128px; }
-                .w-64 { width: 256px; }
-                .w-\\[48\\%\\] { width: 48%; }
-                .max-h-9 { max-height: 36px; }
-                .max-w-\\[95px\\] { max-width: 95px; }
-                .gap-1 { gap: 4px; }
-                .gap-4 { gap: 16px; }
-                .space-y-1 > * + * { margin-top: 4px; }
-                .p-1 { padding: 4px; }
-                .p-1\\.5 { padding: 6px; }
-                .p-5 { padding: 20px; }
-                .px-2 { padding-left: 8px; padding-right: 8px; }
-                .px-4 { padding-left: 16px; padding-right: 16px; }
-                .py-0\\.5 { padding-top: 2px; padding-bottom: 2px; }
-                .pb-2 { padding-bottom: 8px; }
-                .pt-0\\.5 { padding-top: 2px; }
-                .mb-0\\.5 { margin-bottom: 2px; }
-                .mb-3 { margin-bottom: 12px; }
-                .mt-0\\.5 { margin-top: 2px; }
-                .mt-2 { margin-top: 8px; }
-                .mt-4 { margin-top: 16px; }
-                .text-center { text-align: center; }
-                .text-left { text-align: left; }
-                .text-xl { font-size: 20px; }
-                .text-xs { font-size: 12px; }
-                .text-gray-900 { color: #111827; }
-                .text-gray-800 { color: #1f2937; }
-                .text-gray-650 { color: #475569; }
-                .text-gray-600 { color: #4b5563; }
-                .text-gray-500 { color: #6b7280; }
-                .text-gray-400 { color: #9ca3af; }
-                .text-slate-800 { color: #1e293b; }
-                .text-slate-700 { color: #334155; }
-                .text-slate-500 { color: #64748b; }
-                .text-blue-900 { color: #1e3a8a; }
-                .font-bold { font-weight: 700; }
-                .font-semibold { font-weight: 600; }
-                .font-medium { font-weight: 500; }
-                .font-mono { font-family: Consolas, 'Courier New', monospace; }
-                .uppercase { text-transform: uppercase; }
-                .capitalize { text-transform: capitalize; }
-                .tracking-wide { letter-spacing: .025em; }
-                .tracking-wider { letter-spacing: .05em; }
-                .leading-tight { line-height: 1.25; }
-                .leading-relaxed { line-height: 1.625; }
-                .whitespace-nowrap { white-space: nowrap; }
-                .overflow-hidden { overflow: hidden; }
-                .pointer-events-none { pointer-events: none; }
-                .z-0 { z-index: 0; }
-                .z-10 { z-index: 10; }
-                .opacity-\\[0\\.06\\] { opacity: .06; }
-                .object-cover { object-fit: cover; }
-                .object-contain { object-fit: contain; }
-                .border { border: 1px solid #d1d5db; }
-                .border-b { border-bottom-width: 1px; border-bottom-style: solid; }
-                .border-t { border-top-width: 1px; border-top-style: solid; }
-                .border-gray-800 { border-color: #1f2937; }
-                .border-gray-400 { border-color: #9ca3af; }
-                .border-gray-300 { border-color: #d1d5db; }
-                .border-slate-800 { border-color: #1e293b; }
-                .border-dashed { border-style: dashed; }
-                .bg-gray-100 { background-color: #f3f4f6; }
-                .bg-gray-50 { background-color: #f9fafb; }
-                .shrink-0 { flex-shrink: 0; }
-                .routine-table { width: 100%; table-layout: fixed; border-collapse: collapse; }
-                .routine-table th, .routine-table td { border: 1px solid #1e293b; padding: 6px; }
-                .routine-table th { background: #f3f4f6; font-weight: 700; white-space: nowrap; }
-                .routine-table .routine-date { width: 18%; text-align: center; white-space: nowrap; }
-                .routine-table .routine-time { width: 27%; text-align: center; white-space: nowrap; }
-                .routine-table .routine-duration { width: 20%; text-align: center; white-space: nowrap; }
-                .routine-table .routine-subject { width: 35%; text-align: left; overflow-wrap: anywhere; word-break: break-word; }
-                .flex.items-baseline > span:last-child { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
-                [class~="text-[9px]"] { font-size: 9px; }
-                [class~="text-[9.5px]"] { font-size: 9.5px; }
-                [class~="text-[10px]"] { font-size: 10px; }
-                [class~="text-[11px]"] { font-size: 11px; }
-            `;
-        }
-
-        function buildRoutineTableRows(cardRoutines) {
-            let rowsHtml = '';
-            const formatDate = (dateStr) => {
-                if (!dateStr) return '';
-                const d = new Date(dateStr);
-                const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-                return d.getDate() + '-' + months[d.getMonth()] + '-' + d.getFullYear();
-            };
-            const formatTime = (timeStr) => {
-                if (!timeStr) return '-';
-
-                const rawTime = String(timeStr).trim();
-                if (/\b(?:AM|PM)\b/i.test(rawTime)) return rawTime;
-
-                const [rawHour, rawMinute] = rawTime.split(':');
-                const hour = Number(rawHour);
-                const minute = Number(rawMinute);
-                if (!Number.isInteger(hour) || !Number.isInteger(minute)) return rawTime;
-
-                const period = hour >= 12 ? 'PM' : 'AM';
-                const displayHour = hour % 12 || 12;
-                return `${displayHour}:${String(minute).padStart(2, '0')} ${period}`;
-            };
-
-            if (!cardRoutines || cardRoutines.length === 0) {
-                return `
-                                                                                                                <tr>
-                                                                                                                    <td class="border border-slate-800 p-1.5 font-mono text-center">-</td>
-                                                                                                                    <td class="border border-slate-800 p-1.5 font-mono text-center">-</td>
-                                                                                                                     <td class="border border-slate-800 p-1.5 font-mono text-center">-</td>
-                                                                                                                    <td class="border border-slate-800 p-1.5 text-left px-2 font-semibold">-</td>
-                                                                                                                </tr>
-                                                                                                            `;
-            }
-
-            for (const item of cardRoutines) {
-                const date = escapeAdmitCardHtml(formatDate(item.exam_date));
-                const time = escapeAdmitCardHtml(`${formatTime(item.start_time)} - ${formatTime(item.end_time)}`);
-                const duration = escapeAdmitCardHtml(item.total_hours || '-');
-                const subject = escapeAdmitCardHtml(item.subject_name || '-');
-                rowsHtml += `
-                    <tr>
-                        <td class="routine-date font-mono">${date}</td>
-                        <td class="routine-time font-mono">${time}</td>
-                        <td class="routine-duration font-mono">${duration}</td>
-                        <td class="routine-subject font-semibold">${subject}</td>
-                    </tr>
-                `;
-            }
-
-            return rowsHtml;
-        }
-
-
-
-        function generateMobilePreview(admitCards, school, routines, previewWindow, exportParams = {}) {
-            if (!previewWindow) previewWindow = window.open('', '_blank');
-            const address = school?.full_address || [school?.village, school?.upazila, school?.district, school?.division]
-                .filter(Boolean)
-                .join(', ');
-
-            const today = new Date();
-            const dd = String(today.getDate()).padStart(2, '0');
-            const mm = today.toLocaleString('default', { month: 'short' });
-            const yyyy = today.getFullYear();
-            const currentDate = `${dd}-${mm}-${yyyy}`;
-            const pdfQuery = new URLSearchParams(Object.entries(exportParams).filter(([, value]) => value !== '' && value != null));
-
-            let html = `<!DOCTYPE html><html><head><title>Admit Card PDF</title>
-                <style>${getAdmitCardUtilityStyles()}</style>
-                <style>
-                    @page { size: A4 portrait; margin: 0; }
-                    * { border-radius: 0 !important; font-family: Arial, Helvetica, sans-serif; box-sizing: border-box; }
-                    body { margin: 0; padding: 0; background: #f3f4f6; }
-                    .card-page {
-                        width: 100vw;
-                        min-height: 100vh;
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        padding: 20px;
-                        border-bottom: 2px dashed #d1d5db;
-                        background: #f3f4f6;
-                    }
-                    .card-inner {
-                        width: 100%;
-                        max-width: 650px;
-                        background: white;
-                        padding: 20px;
-                        position: relative;
-                        border: 1px solid #1f2937;
-                    }
-                    .no-print { display: block; }
-                    @media print {
-                        body { background: #fff; -webkit-print-color-adjust: exact; }
-                        .no-print { display: none !important; }
-                        .card-page { min-height: 297mm; width: 210mm; padding: 12mm 15mm; border: none; page-break-after: always; background: #fff; }
-                        .card-inner { max-width: 100%; padding: 0; border: 1px solid #1f2937; }
-                    }
-                </style><\/head><body>`;
-
-            admitCards.forEach(card => {
-                const cardRoutines = getRoutinesForCard(card, routines);
-                const routineRowsHtml = buildRoutineTableRows(cardRoutines);
-                const printData = getAdmitCardPrintData(card, school, address);
-                const cardPdfQuery = new URLSearchParams(pdfQuery);
-                cardPdfQuery.set('admit_card_id', card.id);
-                const cardDownloadPdfUrl = `${window.location.origin}/api/school-exam-admit-cards/export-pdf?${cardPdfQuery.toString()}`;
-
-                html += `
-                                                                                                                <div class="card-page">
-                                                                                                                    <div class="card-inner">
-                                                                                                                        <!-- Watermark -->
-                                                                                                                        ${printData.logo ? `
-                                                                                                                           <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.06] z-0">
-                                                                                                                                <img src="${printData.logo}" class="w-64 h-64 object-contain" alt="">
-                                                                                                                            </div>
-                                                                                                                        ` : ''}
-
-                                                                                                                        <div class="relative z-10 flex flex-col justify-between h-full w-full">
-                                                                                                                            <!-- Header -->
-                                                                                                                            <div class="border-b border-gray-400 pb-2 mb-3">
-                                                                                                                                <div class="flex justify-between items-center gap-4">
-                                                                                                                                    <!-- Left: School logo -->
-                                                                                                                                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-start">
-                                                                                                                                        ${printData.logo ? `<img src="${printData.logo}" class="h-16 w-16 object-cover border border-gray-300" alt="School logo" style="border-radius: 50% !important;">` : `
-                                                                                                                                            <div class="h-16 w-16 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400" style="border-radius: 50% !important;">Logo</div>
-                                                                                                                                        `}
-                                                                                                                                    </div>
-
-                                                                                                                                    <!-- Middle: School details -->
-                                                                                                                                    <div class="text-center flex-grow px-2">
-                                                                                                                                        <h1 class="text-xl font-bold text-gray-900 tracking-wide uppercase leading-tight">${printData.schoolName}</h1>
-                                                                                                                                        <p class="text-xs text-gray-650 font-bold mt-0.5">
-                                                                                                                                            ${printData.mobile} ${printData.mobile && printData.email ? ' | ' : ''} ${printData.email}
-                                                                                                                                        </p>
-                                                                                                                                        <p class="text-xs text-gray-500 font-semibold leading-tight">${printData.address}</p>
-                                                                                                                                    </div>
-
-                                                                                                                                    <!-- Right: Student Photo -->
-                                                                                                                                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-end">
-                                                                                                                                        ${printData.studentImage ? `
-                                                                                                                                            <img src="${printData.studentImage}" class="w-16 h-16 border border-slate-800 object-cover" alt="Student photo" style="border-radius: 50% !important;">
-                                                                                                                                        ` : `
-                                                                                                                                            <div class="w-16 h-16 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400 bg-gray-50" style="border-radius: 50% !important;">Photo</div>
-                                                                                                                                        `}
-                                                                                                                                    </div>
-                                                                                                                                </div>
-                                                                                                                                <div class="text-center mt-2">
-                                                                                                                                    <span class="border border-gray-800 bg-gray-100 text-gray-900 text-xs font-bold px-4 py-0.5 tracking-wider uppercase">ADMIT CARD</span>
-                                                                                                                                </div>
-                                                                                                                            </div>
-
-                                                                                                                            <!-- Student Info -->
-                                                                                                                            <div class="flex justify-between items-start text-[11px] text-gray-900 mb-3 leading-relaxed">
-                                                                                                                                <div class="w-[48%] space-y-1 text-left">
-                                                                                                                                     <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Student Name</span><span>:</span><span class="font-bold capitalize">${printData.studentName}</span></div>
-                                                                                                                                     <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Student ID</span><span>:</span><span class="font-mono font-bold">${printData.studentId}</span></div>
-                                                                                                                                     <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Father's Name</span><span>:</span><span class="capitalize">${printData.fatherName}</span></div>
-                                                                                                                                     <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display:inline-block;width:110px;">Admit Card No</span><span>:</span><span class="font-mono">${printData.admitCardNumber}</span></div>
-                                                                                                                                </div>
-                                                                                                                                <div class="w-[48%] space-y-1 text-right">
-                                                                                                                                     <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Class</span><span>:</span><span class="font-bold capitalize text-left flex-grow">${printData.className}</span></div>
-                                                                                                                                     <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Group</span><span>:</span><span class="font-semibold text-slate-800 capitalize text-left flex-grow">${printData.groupName}</span></div>
-                                                                                                                                     <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Section</span><span>:</span><span class="font-semibold text-slate-800 capitalize text-left flex-grow">${printData.sectionName}</span></div>
-                                                                                                                                     <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Session</span><span>:</span><span class="font-mono text-left flex-grow">${printData.sessionName}</span></div>
-                                                                                                                                     <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display:inline-block;width:115px;">Exam Name</span><span>:</span><span class="font-bold text-blue-900 capitalize text-left flex-grow">${printData.examName}</span></div>
-                                                                                                                                </div>
-                                                                                                                            </div>
-
-                                                                                                                            <!-- Routine Table -->
-                                                                                                                            <div class="overflow-hidden">
-                                                                                                                                <table class="routine-table text-center border border-slate-800 text-[9.5px]">
-                                                                                                                                    <thead>
-                                                                                                                                        <tr class="bg-gray-100 font-bold text-gray-800 whitespace-nowrap">
-                                                                                                                                            <th class="routine-date">Date</th>
-                                                                                                                                            <th class="routine-time">Time</th>
-                                                                                                                                            <th class="routine-duration">Duration</th>
-                                                                                                                                            <th class="routine-subject">Subject</th>
-                                                                                                                                        </tr>
-                                                                                                                                    </thead>
-                                                                                                                                    <tbody class="font-medium text-gray-900 whitespace-nowrap">
-                                                                                                                                        ${routineRowsHtml}
-                                                                                                                                    </tbody>
-                                                                                                                                </table>
-                                                                                                                            </div>
-
-                                                                                                                            <!-- Footer -->
-                                                                                                                            <div class="flex justify-between items-end text-[10px] font-semibold text-slate-700 mt-4 mb-0.5">
-                                                                                                                                <div class="text-center w-32 flex flex-col items-center justify-end h-14">
-                                                                                                                                    <p class="font-mono text-slate-900 mb-0.5 text-[9px]">${currentDate}</p>
-                                                                                                                                    <p class="border-t border-slate-800 pt-0.5 w-full text-[9px] text-slate-500 font-bold">Issue Date</p>
-                                                                                                                                </div>
-                                                                                                                                <div class="text-center w-32 flex flex-col items-center justify-end h-14">
-                                                                                                                                        ${printData.principalSignature ? `
-                                                                                                                                            <img src="${printData.principalSignature}" class="max-h-9 max-w-[95px] object-contain mb-0.5" alt="Principal signature">
-                                                                                                                                    ` : `<div class="h-9"></div>`}
-                                                                                                                                    <p class="border-t border-slate-800 pt-0.5 w-full text-[9px] text-slate-500 font-bold">Principal</p>
-                                                                                                                                </div>
-                                                                                                                            </div>
-                                                                                                                        </div>
-                                                                                                                    </div>
-                                                                                                                    <!-- PDF download action (hidden in printed output) -->
-                                                                                                                    <div class="no-print flex justify-center mt-4">
-                                                                                                                        <button onclick='window.location.href=${JSON.stringify(cardDownloadPdfUrl)}' style="border:2px solid #000;background:#fff;color:#000;padding:8px 24px;font-size:10px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='#fff';this.style.color='#000'">
-                                                                                                                            Download PDF
-                                                                                                                        </button>
-                                                                                                                    </div>
-                                                                                                                </div>`;
-            });
-
-            html += `<\/body></html>`;
-            previewWindow.document.open();
-            previewWindow.document.write(html);
-            previewWindow.document.close();
-        }
-
-        function generatePrintLayout(admitCards, school, routines, printWindow) {
-            if (!printWindow) printWindow = window.open('', '_blank');
-            const address = school?.full_address || [school?.village, school?.upazila, school?.district, school?.division]
-                .filter(Boolean)
-                .join(', ');
-
-            const today = new Date();
-            const dd = String(today.getDate()).padStart(2, '0');
-            const mm = today.toLocaleString('default', { month: 'short' });
-            const yyyy = today.getFullYear();
-            const currentDate = `${dd}-${mm}-${yyyy}`;
-
-            let html = `<html><head><title>Print Admit Cards</title>
-                                                                                                                <style>${getAdmitCardUtilityStyles()}</style>
-                                                                                                                <style>
-                                                                                                                    @page { size: A4; margin: 0; }
-                                                                                                                    * { border-radius: 0 !important; font-family: Arial, Helvetica, sans-serif; box-sizing: border-box; }
-                                                                                                                    body { margin: 0; padding: 0; background: #fff; }
-                                                                                                                    .print-page {
-                                                                                                                        width: 210mm;
-                                                                                                                        height: 297mm;
-                                                                                                                        background: white;
-                                                                                                                        padding: 12mm 15mm;
-                                                                                                                        box-sizing: border-box;
-                                                                                                                        display: flex;
-                                                                                                                        flex-direction: column;
-                                                                                                                        justify-content: space-between;
-                                                                                                                        page-break-after: always;
-                                                                                                                    }
-                                                                                                                    @media print {
-                                                                                                                        body { -webkit-print-color-adjust: exact; background-color: #ffffff; }
-                                                                                                                        .print-page {
-                                                                                                                            box-shadow: none !important;
-                                                                                                                            margin: 0 !important;
-                                                                                                                            padding: 12mm 15mm !important;
-                                                                                                                            width: 210mm !important;
-                                                                                                                            height: 297mm !important;
-                                                                                                                        }
-                                                                                                                    }
-                                                                                                                </style><\/head><body>`;
-
-            admitCards.forEach((card, index) => {
-                if (index % 2 === 0) html += '<div class="print-page">';
-
-                const cardRoutines = getRoutinesForCard(card, routines);
-                const routineRowsHtml = buildRoutineTableRows(cardRoutines);
-                const printData = getAdmitCardPrintData(card, school, address);
-
-                html += `
-                                                                                                                <div class="relative flex flex-col justify-between overflow-hidden p-5" style="height: 133mm; border: 1px solid #1f2937; box-sizing: border-box;">
-                                                                                                                    <!-- Watermark -->
-                                                                                                                     ${printData.logo ? `
-                                                                                                                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.06] z-0">
-                                                                                                                             <img src="${printData.logo}" class="w-64 h-64 object-contain" alt="">
-                                                                                                                        </div>
-                                                                                                                    ` : ''}
-
-                                                                                                                    <div class="relative z-10 flex flex-col justify-between h-full w-full">
-                                                                                                                        <!-- Upper Header Section with school logo left, centered details, student photo right -->
-                                                                                                                        <div class="border-b border-gray-400 pb-2 mb-3">
-                                                                                                                            <div class="flex justify-between items-center gap-4">
-                                                                                                                                <!-- Left: School logo -->
-                                                                                                                                <div class="w-16 h-16 flex-shrink-0 flex items-center justify-start">
-                                                                                                                                     ${printData.logo ? `<img src="${printData.logo}" class="h-16 w-16 object-cover border border-gray-300" alt="School logo" style="border-radius: 50% !important;">` : `
-                                                                                                                                        <div class="h-16 w-16 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400" style="border-radius: 50% !important;">Logo</div>
-                                                                                                                                    `}
-                                                                                                                                </div>
-
-                                                                                                                                <!-- Middle: Center School details & Badge -->
-                                                                                                                                <div class="text-center flex-grow px-2">
-                                                                                                                                     <h1 class="text-xl font-bold text-gray-900 tracking-wide uppercase leading-tight">${printData.schoolName}</h1>
-                                                                                                                                    <p class="text-xs text-gray-650 font-bold mt-0.5">
-                                                                                                                                         ${printData.mobile} ${printData.mobile && printData.email ? ' | ' : ''} ${printData.email}
-                                                                                                                                    </p>
-                                                                                                                                     <p class="text-xs text-gray-500 font-semibold leading-tight">${printData.address}</p>
-                                                                                                                                </div>
-
-                                                                                                                                <!-- Right: Student Photo (Upper Right) -->
-                                                                                                                                <div class="w-16 h-16 flex-shrink-0 flex items-center justify-end">
-                                                                                                                                     ${printData.studentImage ? `
-                                                                                                                                         <img src="${printData.studentImage}" class="w-16 h-16 border border-slate-800 object-cover" alt="Student photo" style="border-radius: 50% !important;">
-                                                                                                                                    ` : `
-                                                                                                                                        <div class="w-16 h-16 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400 bg-gray-50" style="border-radius: 50% !important;">
-                                                                                                                                            Photo
-                                                                                                                                        </div>
-                                                                                                                                    `}
-                                                                                                                                </div>
-                                                                                                                            </div>
-                                                                                                                            <div class="text-center mt-2">
-                                                                                                                                <span class="border border-gray-800 bg-gray-100 text-gray-900 text-xs font-bold px-4 py-0.5 tracking-wider uppercase">
-                                                                                                                                    ADMIT CARD
-                                                                                                                                </span>
-                                                                                                                            </div>
-                                                                                                                        </div>
-
-                                                                                                                        <!-- Student Info: 2-column layout (Left/Right both left-aligned) -->
-                                                                                                                        <div class="flex justify-between items-start text-[11px] text-gray-900 mb-3 leading-relaxed">
-                                                                                                                            <!-- Left Info (48%) -->
-                                                                                                                            <div class="w-[48%] space-y-1 text-left">
-                                                                                                                                 <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Student Name</span><span>:</span><span class="font-bold capitalize">${printData.studentName}</span></div>
-                                                                                                                                 <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Student ID</span><span>:</span><span class="font-mono font-bold">${printData.studentId}</span></div>
-                                                                                                                                <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Father's Name</span><span>:</span><span class="capitalize">${printData.fatherName}</span></div>
-                                                                                                                                 <div class="flex items-baseline gap-1"><span class="font-semibold text-gray-600 shrink-0" style="display: inline-block; width: 110px;">Admit Card No</span><span>:</span><span class="font-mono">${printData.admitCardNumber}</span></div>
-                                                                                                                            </div>
-
-                                                                                                                            <!-- Right Info (48%) -->
-                                                                                                                            <div class="w-[48%] space-y-1 text-right">
-                                                                                                                                 <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Class</span><span>:</span><span class="font-bold capitalize text-left flex-grow">${printData.className}</span></div>
-                                                                                                                                 <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Group</span><span>:</span><span class="font-semibold text-slate-800 capitalize text-left flex-grow">${printData.groupName}</span></div>
-                                                                                                                                 <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Section</span><span>:</span><span class="font-semibold text-slate-800 capitalize text-left flex-grow">${printData.sectionName}</span></div>
-                                                                                                                                 <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Session</span><span>:</span><span class="font-mono text-left flex-grow">${printData.sessionName}</span></div>
-                                                                                                                                 <div class="flex items-baseline justify-end gap-1"><span class="font-semibold text-gray-600 shrink-0 text-left" style="display: inline-block; width: 115px;">Exam Name</span><span>:</span><span class="font-bold text-blue-900 capitalize text-left flex-grow">${printData.examName}</span></div>
-                                                                                                                            </div>
-                                                                                                                        </div>
-
-                                                                                                                        <!-- Routine Table -->
-                                                                                                                        <div class="overflow-hidden">
-                                                                                                                                <table class="routine-table text-center border border-slate-800 text-[9.5px]">
-                                                                                                                                <thead>
-                                                                                                                                    <tr class="bg-gray-100 font-bold  text-gray-800 whitespace-nowrap">
-                                                                                                                                        <th class="routine-date">Date</th>
-                                                                                                                                        <th class="routine-time">Time</th>
-                                                                                                                                       <th class="routine-duration">Duration</th>
-                                                                                                                                        <th class="routine-subject">Subject</th>
-                                                                                                                                    </tr>
-                                                                                                                                </thead>
-                                                                                                                                <tbody class="font-medium text-gray-900 whitespace-nowrap">
-                                                                                                                                ${routineRowsHtml}
-                                                                                                                                </tbody>
-                                                                                                                            </table>
-                                                                                                                        </div>
-
-                                                                                                                        <!-- Footer Signature & Current Date -->
-                                                                                                                        <div class="flex justify-between items-end text-[10px] font-semibold text-slate-700 mt-4 mb-0.5">
-                                                                                                                            <div class="text-center w-32 flex flex-col items-center justify-end h-14">
-                                                                                                                                <p class="font-mono text-slate-900 mb-0.5 text-[9px]">${currentDate}</p>
-                                                                                                                                <p class="border-t border-slate-800 pt-0.5 w-full text-[9px] text-slate-500 font-bold">Issue Date</p>
-                                                                                                                            </div>
-                                                                                                                            <div class="text-center w-32 flex flex-col items-center justify-end h-14">
-                                                                                                                                 ${printData.principalSignature ? `
-                                                                                                                                     <img src="${printData.principalSignature}" class="max-h-9 max-w-[95px] object-contain mb-0.5" alt="Principal signature">
-                                                                                                                                ` : `
-                                                                                                                                    <div class="h-9"></div>
-                                                                                                                                `}
-                                                                                                                                <p class="border-t border-slate-800 pt-0.5 w-full text-[9px] text-slate-500 font-bold">Principal</p>
-                                                                                                                            </div>
-                                                                                                                        </div>
-                                                                                                                    </div>
-                                                                                                                </div>`;
-
-                if ((index + 1) % 2 === 0 || index === admitCards.length - 1) {
-                    html += '</div>';
-                }
-            });
-
-            html += `
-                                                                                                            <script>
-                                                                                                                window.addEventListener('load', function() {
-                                                                                                                    setTimeout(() => {
-                                                                                                                        window.print();
-                                                                                                                    }, 800);
-
-                                                                                                                    window.onafterprint = function() {
-                                                                                                                        window.close();
-                                                                                                                    };
-                                                                                                                });
-                                                                                                            <\/script>
-                                                                                                            <\/body></html>`;
-            printWindow.document.open();
-            printWindow.document.write(html);
-            printWindow.document.close();
-        }
-
         async function editAdmit(item) {
             openAdmitModal();
             const modalTitle = document.getElementById('admitModalTitle');
             if (modalTitle) modalTitle.innerText = 'Edit Individual Admit Card';
             document.getElementById('admit_edit_id').value = item.id;
-            document.getElementById('submitBtn').innerText = 'Update Admit Card';
+            document.getElementById('btnText').innerText = 'Update Admit Card';
             document.getElementById('submitBtn').disabled = false;
             document.getElementById('studentStatusBox').classList.add('hidden');
 
@@ -1529,6 +1133,7 @@
             setDropdownValue('section_name', '', 'Select Section');
             setDropdownValue('session_name', '', 'Select Session');
             setDropdownValue('exam_name', '', 'Select Exam');
+            setDropdownValue('bulk_language', 'en', 'English');
             document.getElementById('studentStatusBox').classList.remove('hidden');
             document.getElementById('admitModal').classList.remove('hidden');
         }

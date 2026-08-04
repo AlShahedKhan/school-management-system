@@ -357,6 +357,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     // School Exam Admit Cards
+    Route::get('/school-exam-admit-cards/preview', [SchoolExamAdmitCardController::class, 'preview'])->middleware('role:school');
+    Route::get('/school-exam-admit-card-settings', [SchoolExamAdmitCardController::class, 'settings'])->middleware('role:school');
+    Route::put('/school-exam-admit-card-settings', [SchoolExamAdmitCardController::class, 'updateSettings'])->middleware('role:school');
     Route::get('/school-exam-admit-cards/export-pdf', [SchoolExamAdmitCardController::class, 'exportPdf']);
     Route::apiResource('school-exam-admit-cards', SchoolExamAdmitCardController::class);
     Route::get('/check-admit-card-prerequisites', [SchoolExamAdmitCardController::class, 'checkPrerequisites']);
