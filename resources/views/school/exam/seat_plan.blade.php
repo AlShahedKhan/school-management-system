@@ -125,7 +125,7 @@
                             id="header_search"
                             placeholder="Search ID or Name..."
                             class="w-72"
-                            oninput="document.getElementById('header_search_mobile').value = this.value"
+                            oninput="queueSeatPlanSearch(this.value, 'header_search_mobile')"
                         />
                         <x-button.secondary type="button" onclick="restoreSeatPlanSearch()">
                             Restore
@@ -160,7 +160,7 @@
                             id="header_search_mobile"
                             placeholder="Search ID or Name..."
                             class="col-span-2 min-w-0"
-                            oninput="document.getElementById('header_search').value = this.value"
+                            oninput="queueSeatPlanSearch(this.value, 'header_search')"
                         />
                         <x-button.secondary type="button" onclick="restoreSeatPlanSearch()" class="w-full">
                             Restore
@@ -480,6 +480,7 @@
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
         let studentsList = [];
+        let seatSearchTimer = null;
         let activeGenerationMode = 'single';
 
         function setDropdownValue(id, value, label, shouldNotify = false) {
@@ -1025,7 +1026,7 @@
                 section_name: document.getElementById('filter_section_name').value,
                 session_name: document.getElementById('filter_session_name').value,
                 exam_name: document.getElementById('filter_exam_name').value,
-                search: document.getElementById('header_search').value
+                search: document.getElementById('header_search').value.trim()
             };
 
             axios.get('/api/school-exam-seat-plans', {
@@ -1227,6 +1228,13 @@
             if (mobileSearch) mobileSearch.value = '';
 
             fetchTable(1);
+        }
+
+        function queueSeatPlanSearch(value, mirrorId) {
+            const mirror = document.getElementById(mirrorId);
+            if (mirror) mirror.value = value;
+            window.clearTimeout(seatSearchTimer);
+            seatSearchTimer = window.setTimeout(() => fetchTable(1), 350);
         }
 
         function resetFilters() {
