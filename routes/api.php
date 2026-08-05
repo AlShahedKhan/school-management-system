@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\SchoolExamMarkSubmitController;
 use App\Http\Controllers\Api\SchoolExamNameController;
 use App\Http\Controllers\Api\SchoolExamResultFindController;
 use App\Http\Controllers\Api\SchoolMeritListController;
+use App\Http\Controllers\Api\SchoolFailListController;
 use App\Http\Controllers\Api\SchoolExamRoutineController;
 use App\Http\Controllers\Api\SchoolExamScheduleController;
 use App\Http\Controllers\Api\SchoolExamSeatPlanController;
@@ -356,11 +357,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     // School Exam Admit Cards
+    Route::get('/school-exam-admit-cards/preview', [SchoolExamAdmitCardController::class, 'preview'])->middleware('role:school');
+    Route::get('/school-exam-admit-card-settings', [SchoolExamAdmitCardController::class, 'settings'])->middleware('role:school');
+    Route::put('/school-exam-admit-card-settings', [SchoolExamAdmitCardController::class, 'updateSettings'])->middleware('role:school');
+    Route::get('/school-exam-admit-cards/export-pdf', [SchoolExamAdmitCardController::class, 'exportPdf']);
     Route::apiResource('school-exam-admit-cards', SchoolExamAdmitCardController::class);
     Route::get('/check-admit-card-prerequisites', [SchoolExamAdmitCardController::class, 'checkPrerequisites']);
     Route::get('/get-students-list', [SchoolExamAdmitCardController::class, 'getStudents']);
 
     // School Exam Seat Plans
+    Route::get('/school-exam-seat-plans/export-pdf', [SchoolExamSeatPlanController::class, 'exportPdf']);
+    Route::get('/school-exam-seat-plans/preview', [SchoolExamSeatPlanController::class, 'preview'])->middleware('role:school');
     Route::apiResource('school-exam-seat-plans', SchoolExamSeatPlanController::class);
 
     // Exam Mark Management Routes
@@ -374,8 +381,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Exam Result Find Routes
     Route::post('/school-find-results', [SchoolExamResultFindController::class, 'findResult']);
+    Route::post('/school-find-results/export-pdf', [SchoolExamResultFindController::class, 'exportPdf']);
     Route::post('/school-merit-list', [SchoolMeritListController::class, 'generate']);
     Route::post('/school-merit-list/export-pdf', [SchoolMeritListController::class, 'exportPdf']);
+    Route::post('/school-fail-list', [SchoolFailListController::class, 'generate']);
+    Route::post('/school-fail-list/export-pdf', [SchoolFailListController::class, 'exportPdf']);
     Route::delete('/school-results/{id}', [SchoolExamResultFindController::class, 'destroy']);
 });
 // Modified on 2026-07-09: Made public to prevent guest session cookie overwrite during Axios calls

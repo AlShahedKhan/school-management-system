@@ -64,6 +64,14 @@
                     <i class="fas fa-user-graduate"></i>
                     Student Attendance
                 </a>
+
+                {{-- Time Table --}}
+                    <a href="{{ route('school.fingerprint-attendance.timetable') }}"
+                       class="sidebar-subitem {{ request()->routeIs('school.fingerprint-attendance.timetable') ? 'active' : '' }}">
+                        <i class="fas fa-clock"></i>
+                        Time Table
+                    </a>
+                    
             </div>
         </div>
 
@@ -300,7 +308,7 @@
             <a href="{{ route('school.seat-plan') }}" data-title="Seat Number" data-link
                 class="sidebar-subitem">
                 <i class="hgi hgi-stroke hgi-rounded hgi-chair-01"></i>
-                Set Number
+                Seat Number
             </a>
 
             <!-- Mark Entry -->

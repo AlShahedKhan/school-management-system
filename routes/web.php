@@ -20,7 +20,10 @@ use App\Http\Controllers\Landing\HomeController;
 use App\Http\Controllers\Landing\LanguageController;
 use App\Http\Controllers\Landing\ManagementServiceController;
 use App\Http\Controllers\Landing\PricingController;
+use App\Http\Controllers\Landing\ResultVerificationController;
 use App\Http\Controllers\Landing\SchoolManagementController;
+use App\Http\Controllers\School\ResultPdfPreviewController;
+use App\Http\Controllers\School\AdmitCardPreviewController;
 use App\Models\Package;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -47,6 +50,18 @@ Route::get('/refresh', function () {
 */
 Route::get('/language/{locale}', [LanguageController::class, 'switch'])
     ->name('public.language.switch');
+
+Route::get('/result/verify', ResultVerificationController::class)
+    ->middleware('signed')
+    ->name('public.result.verify');
+
+Route::get('/internal/result-pdf/{token}', ResultPdfPreviewController::class)
+    ->middleware('signed')
+    ->name('internal.school.result-pdf-preview');
+
+Route::get('/internal/admit-card-preview/{token}', AdmitCardPreviewController::class)
+    ->middleware('signed')
+    ->name('internal.school.admit-card-preview');
 
 Route::middleware('public.locale')->group(function (): void {
     Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -331,6 +346,11 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
        // Student Attendance
         Route::view('/student','school.fingerprint-attendance.student')->name('student');
 
+        // Time Table
+        Route::view('/timetable', 'school.fingerprint-attendance.timetable')->name('timetable');
+
+        
+
     });
 
     // Academic Settings
@@ -467,7 +487,7 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
 
     Route::get('/school/admit-card', [DashboardController::class, 'admitCard'])
         ->name('school.admit-card');
-
+    
     Route::get('/school/seat-plan', [DashboardController::class, 'seatPlan'])
         ->name('school.seat-plan');
 
@@ -483,7 +503,7 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
     Route::get('/school/merit-list', [DashboardController::class, 'meritList'])
         ->name('school.merit-list');
 
-    Route::get('/school/fail-list', [DashboardController::class, 'underConstruction'])
+    Route::get('/school/fail-list', [DashboardController::class, 'failList'])
         ->name('school.fail-list');
 
     Route::get('/school/certificate', [DashboardController::class, 'underConstruction'])

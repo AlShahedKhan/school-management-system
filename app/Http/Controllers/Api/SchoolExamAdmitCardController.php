@@ -6,14 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Models\AdmissionStudent;
 use App\Models\Principal;
 use App\Models\School;
+use App\Models\SchoolAdmitCardSetting;
 use App\Models\SchoolExamAdmitCard;
 use App\Models\SchoolExamName;
 use App\Models\SchoolExamRoutine;
 use App\Models\SchoolExamSeatPlan;
+use App\Http\Requests\UpdateSchoolAdmitCardSettingRequest;
+use App\Support\AdmitCardPdfRenderer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class SchoolExamAdmitCardController extends Controller
 {
@@ -38,6 +45,10 @@ class SchoolExamAdmitCardController extends Controller
         ])->where('school_id', $schoolId);
 
         // Filters
+        if ($request->filled('admit_card_id')) {
+            $query->whereKey($request->integer('admit_card_id'));
+        }
+
         if ($request->filled('class_name')) {
             $query->where('class_name', $request->class_name);
         }
@@ -221,12 +232,219 @@ class SchoolExamAdmitCardController extends Controller
         return response()->json($response);
     }
 
+    /**
+     * Return one admit card for edit/details requests made by the resource route.
+     */
+    public function show(int $id)
+    {
+        $schoolId = $this->getSchoolId();
+
+        $admitCard = SchoolExamAdmitCard::with('student:student_id_number,student_name,father_name,image')
+            ->where('school_id', $schoolId)
+            ->findOrFail($id);
+
+        $payload = $admitCard->toArray();
+        $student = $admitCard->student;
+        $payload['student_name'] = $student?->student_name;
+        $payload['father_name'] = $student?->father_name;
+        $payload['student_image'] = $student?->image;
+        unset($payload['student']);
+
+        return response()->json($payload);
+    }
+
+    public function preview(Request $request)
+    {
+        $payload = $this->documentPayload($request);
+
+        if ($payload instanceof \Illuminate\Http\JsonResponse) {
+            return $payload;
+        }
+
+        $token = Str::random(64);
+        Cache::put('admit-card-preview:'.$token, $payload + [
+            'user_id' => Auth::id(),
+            'showToolbar' => false,
+        ], now()->addMinutes(2));
+
+        return response()->json([
+            'url' => URL::temporarySignedRoute(
+                'internal.school.admit-card-preview',
+                now()->addMinutes(2),
+                ['token' => $token]
+            ),
+        ]);
+    }
+
+    public function settings()
+    {
+        $school = $this->getSchool();
+        abort_unless($school, 404);
+
+        return response()->json(SchoolAdmitCardSetting::forSchool($school->id));
+    }
+
+    public function updateSettings(UpdateSchoolAdmitCardSettingRequest $request)
+    {
+        $school = $this->getSchool();
+        abort_unless($school, 404);
+
+        $settings = SchoolAdmitCardSetting::forSchool($school->id);
+        $settings->update($request->validated());
+
+        return response()->json(['message' => 'Admit card instructions updated successfully.', 'data' => $settings->fresh()]);
+    }
+
+    public function exportPdf(Request $request, AdmitCardPdfRenderer $pdfRenderer)
+    {
+        $payload = $this->documentPayload($request);
+
+        if ($payload instanceof \Illuminate\Http\JsonResponse) {
+            return $payload;
+        }
+
+        $token = Str::random(64);
+        $cacheKey = 'admit-card-preview:'.$token;
+        Cache::put($cacheKey, $payload + ['user_id' => Auth::id(), 'showToolbar' => false], now()->addMinutes(2));
+        $previewUrl = URL::temporarySignedRoute(
+            'internal.school.admit-card-preview',
+            now()->addMinutes(2),
+            ['token' => $token]
+        );
+
+        try {
+            $pdf = $pdfRenderer->render($previewUrl);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json(['message' => 'The admit-card PDF could not be generated. Please try again.'], 500);
+        } finally {
+            Cache::forget($cacheKey);
+        }
+
+        $cards = $payload['cards'];
+        $filename = count($cards) === 1
+            ? 'admit-card-'.($cards[0]['admit_card_number'] ?? now()->format('Ymd-His')).'.pdf'
+            : 'admit-cards-'.now()->format('Ymd-His').'.pdf';
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Length' => (string) strlen($pdf),
+        ]);
+    }
+
+    private function documentPayload(Request $request): array|\Illuminate\Http\JsonResponse
+    {
+        $language = $request->input('language', 'en');
+        if (! in_array($language, ['en', 'bn'], true)) {
+            throw ValidationException::withMessages(['language' => 'Language must be English or Bangla.']);
+        }
+
+        $response = $this->index($request->merge(['per_page' => 500]));
+        $data = $response->getData(true);
+
+        if (empty($data['data'])) {
+            return response()->json(['message' => 'No admit cards found for the selected filters.'], 404);
+        }
+
+        $schoolModel = $this->getSchool();
+        $school = $data['school_info'] ?? [];
+        $school['logo_data_uri'] = $this->publicImageDataUri($schoolModel?->logo);
+        $school['principal_signature_data_uri'] = $this->publicImageDataUri(
+            Principal::where('school_id', $schoolModel?->id)->value('signature')
+        );
+
+        $cards = collect($data['data'])->map(function (array $card): array {
+            $card['student_image_data_uri'] = $this->publicImageDataUri($card['student_image'] ?? null);
+            return $card;
+        })->all();
+        $routines = collect($data['routines'] ?? [])->sortBy([
+            ['exam_date', 'asc'], ['start_time', 'asc'],
+        ])->values()->all();
+
+        foreach ($cards as $card) {
+            $count = $this->matchingRoutines($card, $routines)->count();
+            if ($count > 18) {
+                throw ValidationException::withMessages([
+                    'routines' => "The admit card for {$card['student_name']} has {$count} routines. This design supports a maximum of 18.",
+                ]);
+            }
+        }
+
+        $settings = SchoolAdmitCardSetting::forSchool($schoolModel->id);
+
+        return [
+            'cards' => $cards,
+            'school' => $school,
+            'routines' => $routines,
+            'language' => $language,
+            'instructions' => $language === 'bn' ? $settings->instructions_bn : $settings->instructions_en,
+        ];
+    }
+
+    private function matchingRoutines(array $card, array $routines)
+    {
+        $normal = static fn ($value) => strtolower(trim((string) ($value ?? '')));
+
+        return collect($routines)->filter(function ($routine) use ($card, $normal) {
+            if ($normal(data_get($routine, 'class_name')) !== $normal($card['class_name'] ?? null)
+                || $normal(data_get($routine, 'session_name')) !== $normal($card['session_name'] ?? null)
+                || $normal(data_get($routine, 'exam_name')) !== $normal($card['exam_name'] ?? null)) {
+                return false;
+            }
+
+            $group = $normal(data_get($routine, 'group_name'));
+            $section = $normal(data_get($routine, 'section_name'));
+
+            return ($group === '' || $group === $normal($card['group_name'] ?? null))
+                && ($section === '' || $section === $normal($card['section_name'] ?? null));
+        });
+    }
+
+    private function publicImageDataUri(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        $storagePath = preg_replace('#^.*?/storage/#', '', str_replace('\\', '/', $path));
+
+        if (! $storagePath || ! Storage::disk('public')->exists($storagePath)) {
+            return null;
+        }
+
+        $mimeType = Storage::disk('public')->mimeType($storagePath) ?: 'image/png';
+
+        return sprintf(
+            'data:%s;base64,%s',
+            $mimeType,
+            base64_encode(Storage::disk('public')->get($storagePath))
+        );
+    }
+
     private function validateAdmitPrerequisites($school_id, $className, $groupName, $sectionName, $sessionName, $examName)
     {
         $class = \App\Models\SchoolClass::where('school_id', $school_id)->where('class_name', $className)->first();
-        $session = \App\Models\SchoolSession::where('school_id', $school_id)->where('session_year', $sessionName)->first();
-        $group = $groupName ? \App\Models\SchoolGroup::where('school_id', $school_id)->where('group_name', $groupName)->first() : null;
-        $section = $sectionName ? \App\Models\SchoolSection::where('school_id', $school_id)->where('section_name', $sectionName)->first() : null;
+        $group = $groupName
+            ? \App\Models\SchoolGroup::where('school_id', $school_id)
+                ->where('class_id', $class?->id)
+                ->where('group_name', $groupName)
+                ->first()
+            : null;
+        $section = $sectionName
+            ? \App\Models\SchoolSection::where('school_id', $school_id)
+                ->where('class_id', $class?->id)
+                ->when($group, fn ($query) => $query->where('group_id', $group->id))
+                ->where('section_name', $sectionName)
+                ->first()
+            : null;
+        $session = \App\Models\SchoolSession::where('school_id', $school_id)
+            ->where('class_id', $class?->id)
+            ->when($group, fn ($query) => $query->where('group_id', $group->id))
+            ->when($section, fn ($query) => $query->where('section_id', $section->id))
+            ->where('session_year', $sessionName)
+            ->first();
 
         if (!$class || !$session || ($groupName && !$group) || ($sectionName && !$section)) {
             return [
@@ -404,8 +622,13 @@ class SchoolExamAdmitCardController extends Controller
 
     public function getStudents(Request $request)
     {
-        $school_id = $this->getSchoolId();
-        $students = AdmissionStudent::where('school_id', $school_id)
+        $school = $this->getSchool();
+        $schoolScopeIds = collect([$school?->id, $school?->user_id])
+            ->filter(fn ($id) => $id !== null)
+            ->unique()
+            ->values();
+
+        $students = AdmissionStudent::whereIn('school_id', $schoolScopeIds)
             // Exclude Inactive students from admit card generation
             ->where('status', '!=', 'Inactive')
             ->where('class', $request->class_name)

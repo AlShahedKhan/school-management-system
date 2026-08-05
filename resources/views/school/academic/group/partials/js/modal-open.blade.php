@@ -64,9 +64,11 @@
         if (sourceClassInputId) {
             const sourceClassInput = document.getElementById(sourceClassInputId);
             if (sourceClassInput) {
-                selectedClassId = sourceClassInput.dataset.dropdownSelectInput !== undefined
-                    ? getSelectedDataId(sourceClassInput)
-                    : sourceClassInput.value || null;
+                // dropdown-select stores its selected database ID directly in
+                // the hidden input value.  Do not try to resolve a separate
+                // option data attribute here: Exam Name builds its options
+                // dynamically and only guarantees this value.
+                selectedClassId = sourceClassInput.value || null;
             }
         }
 

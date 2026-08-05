@@ -10,6 +10,7 @@ use App\Models\SchoolGroup;
 use App\Models\SchoolSection;
 use App\Models\SchoolSession;
 use App\Services\SeatPlanGenerator;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -92,51 +93,33 @@ class SchoolExamSeatPlanController extends Controller
         return !in_array($status, $ineligible, true);
     }
 
+    private function filteredQuery(Request $request, School $school)
+    {
+        return SchoolExamSeatPlan::with([
+            'student:id,student_id_number,student_name'
+        ])
+            ->where('school_id', $school->id)
+            ->when($request->filled('class_name'), fn ($q) => $q->where('class_name', $request->class_name))
+            ->when($request->filled('group_name'), fn ($q) => $q->where('group_name', $request->group_name))
+            ->when($request->filled('section_name'), fn ($q) => $q->where('section_name', $request->section_name))
+            ->when($request->filled('session_name'), fn ($q) => $q->where('session_name', $request->session_name))
+            ->when($request->filled('exam_name'), fn ($q) => $q->where('exam_name', $request->exam_name))
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $search = '%'.$request->string('search')->trim().'%';
+
+                $q->where(function ($query) use ($search) {
+                    $query->where('student_id_number', 'like', $search)
+                        ->orWhereHas('student', fn ($student) => $student->where('student_name', 'like', $search));
+                });
+            })
+            ->orderBy('seat_number');
+    }
+
 
     public function index(Request $request)
     {
         $school = $this->getSchool();
-        $schoolId = $school?->id;
-
-        $query = SchoolExamSeatPlan::with([
-            'student:id,student_id_number,student_name'
-        ])
-            ->where('school_id', $schoolId);
-
-        // Filters
-        $query->when($request->filled('class_name'), function ($q) use ($request) {
-            $q->where('class_name', $request->class_name);
-        });
-
-        $query->when($request->filled('group_name'), function ($q) use ($request) {
-            $q->where('group_name', $request->group_name);
-        });
-
-        $query->when($request->filled('section_name'), function ($q) use ($request) {
-            $q->where('section_name', $request->section_name);
-        });
-
-        $query->when($request->filled('session_name'), function ($q) use ($request) {
-            $q->where('session_name', $request->session_name);
-        });
-
-        $query->when($request->filled('exam_name'), function ($q) use ($request) {
-            $q->where('exam_name', $request->exam_name);
-        });
-
-        // Search
-        $query->when($request->filled('search'), function ($q) use ($request) {
-            $search = "%{$request->search}%";
-
-            $q->where(function ($query) use ($search) {
-                $query->where('student_id_number', 'like', $search)
-                    ->orWhereHas('student', function ($student) use ($search) {
-                        $student->where('student_name', 'like', $search);
-                    });
-            });
-        });
-
-        $query->orderBy('seat_number');
+        $query = $school ? $this->filteredQuery($request, $school) : SchoolExamSeatPlan::query()->whereKey(0);
 
         // Print Data
         if ($request->boolean('all')) {
@@ -182,6 +165,58 @@ class SchoolExamSeatPlanController extends Controller
         });
 
         return response()->json($data);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $school = $this->getSchool();
+
+        abort_unless($school, 403, 'School profile not found.');
+
+        $items = $this->filteredQuery($request, $school)->get()->map(function ($seat) {
+            return [
+                'student_id_number' => $seat->student_id_number,
+                'student_name' => optional($seat->student)->student_name,
+                'seat_number' => $seat->seat_number,
+                'class_name' => $seat->class_name,
+                'group_name' => $seat->group_name,
+                'section_name' => $seat->section_name,
+                'session_name' => $seat->session_name,
+                'exam_name' => $seat->exam_name,
+            ];
+        });
+
+        $pdf = Pdf::loadView('exports.seat_plan_pdf', [
+            'school' => $school,
+            'items' => $items,
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->download('seat-plans-'.now()->format('Ymd-His').'.pdf');
+    }
+
+    public function preview(Request $request)
+    {
+        $school = $this->getSchool();
+        abort_unless($school, 403, 'School profile not found.');
+
+        $seat = SchoolExamSeatPlan::with('student:id,student_id_number,student_name')
+            ->where('school_id', $school->id)
+            ->findOrFail($request->integer('seat_plan_id'));
+
+        return view('exports.seat_plan_pdf', [
+            'school' => $school,
+            'items' => collect([[
+                'student_id_number' => $seat->student_id_number,
+                'student_name' => optional($seat->student)->student_name,
+                'seat_number' => $seat->seat_number,
+                'class_name' => $seat->class_name,
+                'group_name' => $seat->group_name,
+                'section_name' => $seat->section_name,
+                'session_name' => $seat->session_name,
+                'exam_name' => $seat->exam_name,
+            ]]),
+            'preview' => true,
+        ]);
     }
 
     public function store(Request $request)

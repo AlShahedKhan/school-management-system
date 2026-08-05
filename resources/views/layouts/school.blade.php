@@ -16,6 +16,8 @@
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/pages/expense.css'])
+     <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ asset('css/school/custom.css') }}">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
 
@@ -2488,30 +2490,6 @@
                     })
                     .catch(() => {
                         // Keep the static subscription preview when live data is unavailable.
-                    });
-            });
-        })();
-
-
-        // Dynamic Logo Setup Script
-        (function() {
-            window.addEventListener('load', function() {
-                const logoImg = document.getElementById('sideSchoolLogo');
-
-                if (!logoImg) return;
-
-                axios.get('/api/dynamic-operation')
-                    .then(res => {
-                        const settings = res.data;
-                        // If the specific dashboard logo exists in the DB
-                        if (settings && settings.school_dashboard_logo) {
-                            // Update src with storage path
-                            logoImg.src = window.location.origin + '/storage/' + settings
-                                .school_dashboard_logo;
-                        }
-                    })
-                    .catch(err => {
-                        console.warn("Dynamic logo fetch failed, using default.");
                     });
             });
         })();

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\AdmissionStudent;
+use App\Models\SchoolFeeTemplate;
 use Illuminate\Support\Facades\DB;
 
 class SchoolFeeDiscountService
@@ -12,7 +14,10 @@ class SchoolFeeDiscountService
 
     private array $templateCache = [];
 
-
+    /**
+     * Compute the effective payable amount for a student + fee, applying the
+     * same session-scope then exam-scope discounts used during payment.
+     */
     public function effectiveTotal(int $schoolId, int $studentId, float $amount, ?string $feesType, ?string $feeName): float
     {
         $total = $this->applySessionDiscount($schoolId, $studentId, $amount, $feeName);
@@ -38,7 +43,33 @@ class SchoolFeeDiscountService
             }
         }
 
-        return $amount;
+        return $this->applyTemplateSessionDiscount($schoolId, $amount, $feeName);
+    }
+
+    private function applyTemplateSessionDiscount(int $schoolId, float $amount, ?string $feeName): float
+    {
+        if ($feeName === null || $feeName === '') {
+            return $amount;
+        }
+
+        $key = $schoolId . ':' . $feeName;
+
+        if (!array_key_exists($key, $this->templateDiscountCache)) {
+            $this->templateDiscountCache[$key] = DB::table('school_fee_discounts')
+                ->where('school_id', $schoolId)
+                ->where('fee_name', $feeName)
+                ->where('discount_scope', 'session')
+                ->orderByDesc('id')
+                ->first();
+        }
+
+        $templateDiscount = $this->templateDiscountCache[$key];
+
+        if (!$templateDiscount || $templateDiscount->after_discount === null) {
+            return $amount;
+        }
+
+        return (float) $templateDiscount->after_discount;
     }
 
     private function applyExamDiscount(int $schoolId, int $studentId, float $amount, ?string $feesType, ?string $feeName): float
@@ -60,8 +91,8 @@ class SchoolFeeDiscountService
             return $amount;
         }
 
-
-
+        // Match the discount's fee type against the fee being processed.
+        // Legacy exam discounts without a fee type apply to all fees.
         if ($examDiscount->fee_type_id) {
             $discountFeeType = $this->feeTemplate($examDiscount->fee_type_id);
 
@@ -90,6 +121,26 @@ class SchoolFeeDiscountService
             : $value;
 
         return max($amount - $discountAmount, 0);
+    }
+
+    public function calculatePayableAmount(SchoolFeeTemplate $template, AdmissionStudent $student): array
+    {
+        $baseAmount = (float) $template->amount;
+        $effectiveAmount = $this->effectiveTotal(
+            (int) $template->school_id,
+            (int) $student->id,
+            $baseAmount,
+            $template->fee_type_name,
+            $template->fee_name
+        );
+
+        $discountAmount = max($baseAmount - $effectiveAmount, 0);
+
+        return [
+            'base_amount' => round($baseAmount, 2),
+            'discount_amount' => round($discountAmount, 2),
+            'payable_amount' => round($effectiveAmount, 2),
+        ];
     }
 
     private function feeTemplate(int $id): ?object

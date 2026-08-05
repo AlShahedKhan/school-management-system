@@ -349,7 +349,11 @@
                                class="sidebar-subitem {{ request()->routeIs('admin.configuration.devices.*') ? 'active' : '' }}">
                                 <i class="fas fa-microchip"></i>Device
                             </a>
-
+                         {{-- Teacher --}}
+                            <a href="{{ route('admin.configuration.teachers') }}" data-title="Teacher" data-link
+                               class="sidebar-subitem {{ request()->routeIs('admin.configuration.teachers.') ? 'active' : '' }}">
+                                <i class="fas fa-chalkboard-teacher"></i> Teacher
+                            </a>
                         </div>
 
                     </div>

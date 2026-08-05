@@ -491,7 +491,6 @@ body{
     text-align: right;
 }
 
-
 /* Teacher-css */
 
         .fp-main-view{padding:18px}
@@ -1075,7 +1074,6 @@ body{
     }
 
   /* Configuration-device-css */
-
 
 .status-badge.status-success {
     background: var(--success-soft);

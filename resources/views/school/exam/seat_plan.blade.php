@@ -125,7 +125,7 @@
                             id="header_search"
                             placeholder="Search ID or Name..."
                             class="w-72"
-                            oninput="document.getElementById('header_search_mobile').value = this.value"
+                            oninput="queueSeatPlanSearch(this.value, 'header_search_mobile')"
                         />
                         <x-button.secondary type="button" onclick="restoreSeatPlanSearch()">
                             Restore
@@ -160,7 +160,7 @@
                             id="header_search_mobile"
                             placeholder="Search ID or Name..."
                             class="col-span-2 min-w-0"
-                            oninput="document.getElementById('header_search').value = this.value"
+                            oninput="queueSeatPlanSearch(this.value, 'header_search')"
                         />
                         <x-button.secondary type="button" onclick="restoreSeatPlanSearch()" class="w-full">
                             Restore
@@ -431,6 +431,26 @@
         </x-slot:footer>
     </x-modal.form>
 
+    <x-modal.form
+        id="seatPreviewModal"
+        form-id="seatPreviewForm"
+        title="Seat Number Preview"
+        close-button-id="closeSeatPreview"
+        panel-class="mx-auto my-auto flex w-full max-w-[520px] flex-col overflow-hidden border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.24)]"
+        panel-style="border-radius:4px; width:min(520px, calc(100vw - 2rem)); height:calc(100dvh - 2rem); max-height:520px;"
+        header-class="flex h-14 shrink-0 items-center justify-center border-b border-slate-200 bg-white px-4"
+        form-class="m-0 flex min-h-0 flex-1 flex-col overflow-hidden"
+        body-class="flex min-h-0 flex-1 bg-slate-100 p-3"
+        fields-class="flex min-h-0 flex-1"
+    >
+        <iframe id="seatPreviewFrame" title="Seat number preview" class="h-full w-full border border-slate-300 bg-white"></iframe>
+        <x-slot:footer>
+            <div class="bg-white px-6 pb-4 pt-3">
+                <x-button.secondary id="closeSeatPreviewFooter" type="button" onclick="hideSeatPreviewModal()" class="w-full">Close</x-button.secondary>
+            </div>
+        </x-slot:footer>
+    </x-modal.form>
+
     {{-- Quick-create modals shared with the Exam Routine and Admit Card forms. --}}
     @include('school.academic.class.partials.class-modal')
     @include('school.academic.group.partials.group-modal')
@@ -460,6 +480,7 @@
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
         let studentsList = [];
+        let seatSearchTimer = null;
         let activeGenerationMode = 'single';
 
         function setDropdownValue(id, value, label, shouldNotify = false) {
@@ -1005,7 +1026,7 @@
                 section_name: document.getElementById('filter_section_name').value,
                 session_name: document.getElementById('filter_session_name').value,
                 exam_name: document.getElementById('filter_exam_name').value,
-                search: document.getElementById('header_search').value
+                search: document.getElementById('header_search').value.trim()
             };
 
             axios.get('/api/school-exam-seat-plans', {
@@ -1038,6 +1059,9 @@
                         ${seatPlanTableCell(item.seat_number)}
                         <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
                             <div class="mx-auto flex h-8 items-center justify-center space-x-1">
+                                <button type="button" title="Preview seat number" aria-label="Preview seat number" onclick="previewSeat(${item.id})" class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1">
+                                    <i class="far fa-eye text-sm" aria-hidden="true"></i>
+                                </button>
                                 <button type="button" title="Edit seat plan" aria-label="Edit seat plan" onclick='editSingleSeat(${itemJson})' class="flex h-8 w-7 items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1">
                                     <i class="far fa-edit text-sm" aria-hidden="true"></i>
                                 </button>
@@ -1050,6 +1074,16 @@
                 });
                 renderPagination(meta);
             });
+        }
+
+        function previewSeat(id) {
+            document.getElementById('seatPreviewFrame').src = `/api/school-exam-seat-plans/preview?seat_plan_id=${encodeURIComponent(id)}`;
+            document.getElementById('seatPreviewModal').classList.remove('hidden');
+        }
+
+        function hideSeatPreviewModal() {
+            document.getElementById('seatPreviewModal').classList.add('hidden');
+            document.getElementById('seatPreviewFrame').src = 'about:blank';
         }
 
         function editSingleSeat(item) {
@@ -1196,6 +1230,13 @@
             fetchTable(1);
         }
 
+        function queueSeatPlanSearch(value, mirrorId) {
+            const mirror = document.getElementById(mirrorId);
+            if (mirror) mirror.value = value;
+            window.clearTimeout(seatSearchTimer);
+            seatSearchTimer = window.setTimeout(() => fetchTable(1), 350);
+        }
+
         function resetFilters() {
             const dropdowns = {
                 filter_class_name: 'Select Class',
@@ -1289,14 +1330,37 @@
                     return;
                 }
 
-                // Browsers use the print dialog for both printing and saving a PDF.
-                if (type === 'pdf' || type === 'print') {
+                if (type === 'pdf') {
+                    downloadSeatPlanPdf();
+                    return;
+                }
+
+                if (type === 'print') {
                     generateSeatPrintLayout(items, school);
                 }
             }).catch(err => {
                 console.error('Seat-plan export error', err);
                 Swal.fire('Error', 'Could not export seat plans. Please try again.', 'error');
             });
+        }
+
+        async function downloadSeatPlanPdf() {
+            try {
+                const response = await axios.get('/api/school-exam-seat-plans/export-pdf', {
+                    params: getSeatPlanExportParams(),
+                    responseType: 'blob'
+                });
+                const url = URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `seat-plans-${new Date().toISOString().slice(0, 10)}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                Swal.fire('PDF export failed', 'Could not download the seat plan PDF. Please try again.', 'error');
+            }
         }
 
         function downloadSeatPlanExcel(items) {
@@ -1385,7 +1449,7 @@
                                                                         body { background-color: #fff; -webkit-print-color-adjust: exact; }
                                                                         .print-page { box-shadow: none; }
                                                                     }
-                                                                </style></head><body>`;
+                                                                </style><\/head><body>`;
 
             items.forEach((item, index) => {
                 if (index % 10 === 0) html += '<div class="print-page">';
@@ -1431,7 +1495,7 @@
                 }
             });
 
-            html += `<script>window.onload = function() { window.print(); window.close(); };<\/script></body></html>`;
+            html += `<script>window.onload = function() { window.print(); window.close(); };<\/script><\/body></html>`;
             printWindow.document.write(html);
             printWindow.document.close();
         }

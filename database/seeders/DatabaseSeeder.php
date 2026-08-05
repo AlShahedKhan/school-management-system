@@ -30,6 +30,10 @@ class DatabaseSeeder extends Seeder
             EmployeeSeeder::class,
             EmployeePayrollSeeder::class,
             AdminSmsTemplateSeeder::class,
+            SchoolAdmitCardSettingSeeder::class,
+            SchoolExpenseSeeder::class,
+            SchoolPayrollSeeder::class,
+            SchoolPaymentSeeder::class,
         ]);
     }
 }

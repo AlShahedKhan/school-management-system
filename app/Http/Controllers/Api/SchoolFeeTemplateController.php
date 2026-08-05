@@ -8,7 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Jobs\GenerateMonthlyFeesForTemplate;
 use App\Models\AdmissionStudent;
 use App\Models\SchoolFeeTemplate;
+use App\Models\SchoolFeeDiscount;
 use App\Models\SchoolFeeType;
+use App\Models\SchoolPayment;
 use App\Models\SchoolStudentFee;
 use App\Models\School;
 use Illuminate\Http\Request;
@@ -18,6 +20,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use App\Services\AccountService;
 
 class SchoolFeeTemplateController extends Controller
 {
@@ -340,16 +343,39 @@ class SchoolFeeTemplateController extends Controller
                 ]);
 
                 if ($amountChanged || $payDateChanged) {
-                    $updateData = [];
-                    if ($amountChanged)
-                        $updateData['base_amount'] = $validated['amount'];
-                    if ($payDateChanged)
-                        $updateData['pay_date'] = $validated['pay_date'];
+                    $fees = SchoolStudentFee::where('fee_template_id', $template->id)->get();
 
-                    if (!empty($updateData)) {
-                        SchoolStudentFee::where('fee_template_id', $template->id)
-                            ->whereNotIn('status', ['paid'])
-                            ->update($updateData);
+                    $feeIds = [];
+                    foreach ($fees as $fee) {
+                        // Only sync fees that have NOT been paid yet.
+                        if ((float) $fee->paid_amount > 0) {
+                            continue;
+                        }
+
+                        $feeIds[] = $fee->id;
+
+                        $updateData = [];
+                        if ($amountChanged) {
+                            $updateData['base_amount']    = $validated['amount'];
+                            $updateData['payable_amount'] = $validated['amount'];
+                            $updateData['due_amount']     = $validated['amount'];
+                        }
+                        if ($payDateChanged) {
+                            $updateData['pay_date'] = $validated['pay_date'];
+                        }
+
+                        if (!empty($updateData)) {
+                            $fee->update($updateData);
+                        }
+                    }
+
+                    if ($amountChanged && !empty($feeIds)) {
+                        SchoolPayment::whereIn('school_student_fee_id', $feeIds)
+                            ->where('total_amount', 0)
+                            ->update([
+                                'total_payable' => $validated['amount'],
+                                'payable_due'   => $validated['amount'],
+                            ]);
                     }
                 }
             });
@@ -379,9 +405,43 @@ class SchoolFeeTemplateController extends Controller
             $school = $this->getSchool($request->user());
             $template = SchoolFeeTemplate::where('school_id', $school->id)->findOrFail($id);
 
+            if (in_array($template->fee_type_name, ['Admission', 'Promote'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Admission and Promote fee templates cannot be deleted.',
+                ], 403);
+            }
+
             DB::transaction(function () use ($template) {
+                $feeIds = SchoolStudentFee::where('fee_template_id', $template->id)
+                    ->pluck('id');
+
+                $payments = SchoolPayment::whereIn('school_student_fee_id', $feeIds)->get();
+
+                $service = app(AccountService::class);
+                foreach ($payments as $payment) {
+                    $amount = (float) $payment->total_amount;
+                    if ($amount <= 0) {
+                        continue;
+                    }
+                    $service->cashOut(
+                        $template->school_id,
+                        $amount,
+                        AccountService::moduleForFeeType($payment->fees_type),
+                        $payment->id,
+                        [
+                            'allow_negative' => true,
+                            'remarks'        => 'Reversal - fee template #' . $template->id . ' deletion',
+                        ]
+                    );
+                }
+
+                $payments->each->delete();
+
+                SchoolFeeDiscount::where('fee_type_id', $template->id)
+                    ->delete();
+
                 SchoolStudentFee::where('fee_template_id', $template->id)
-                    ->where('status', 'pending')
                     ->delete();
 
                 $template->delete();
@@ -389,7 +449,7 @@ class SchoolFeeTemplateController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Fee template deleted successfully.',
+                'message' => 'Fee template and all related student fees, payments and discounts deleted successfully.',
             ]);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {

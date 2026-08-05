@@ -481,8 +481,12 @@
                 .catch(err => {
                     Swal.close();
                     let errorMsg = 'Failed to create fee template.';
-                    if (err.response && err.response.data.message) {
-                        errorMsg = err.response.data.message;
+                    const errData = err.response && err.response.data;
+                    if (errData && errData.errors) {
+                        const firstKey = Object.keys(errData.errors)[0];
+                        if (firstKey) errorMsg = errData.errors[firstKey][0];
+                    } else if (errData && errData.message) {
+                        errorMsg = errData.message;
                     }
                     Swal.fire({
                         icon: 'error',
