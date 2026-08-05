@@ -125,6 +125,12 @@ Route::get('/say-hello', function () {
     return "Hello, World!";
 })->name('say-hello');
 
+// Legacy result view URL retained for compatibility. The destructive POST
+// endpoint is intentionally not registered.
+Route::get('/find-resullts', function () {
+    return view('school.exam.resullt');
+})->name('legacy.result.view');
+
 
 /*
 |--------------------------------------------------------------------------
