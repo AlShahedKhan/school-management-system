@@ -54,9 +54,6 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
-    
-    'nuke_token' => '70c8130aeecf7b21cf71635aa1760ea9836edae5cf4ac83a529a3235e62f9e73',
-
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
