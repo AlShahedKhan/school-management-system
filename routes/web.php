@@ -488,7 +488,7 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
 
     Route::get('/school/admit-card', [DashboardController::class, 'admitCard'])
         ->name('school.admit-card');
-
+    
     Route::get('/school/seat-plan', [DashboardController::class, 'seatPlan'])
         ->name('school.seat-plan');
 
