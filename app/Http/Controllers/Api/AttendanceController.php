@@ -10,6 +10,7 @@ use App\Services\AttendanceService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Jmrashed\Zkteco\Lib\ZKTeco;
 
 class AttendanceController extends Controller
 {
@@ -125,6 +126,8 @@ class AttendanceController extends Controller
 
         return response("OK", 200);
     }
+
+
 }
 
 

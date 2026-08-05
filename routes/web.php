@@ -283,7 +283,6 @@ Route::middleware(['auth', 'role:admin'])
         Route::post('/home-page-settings', [AdminHomePageSettingController::class, 'update']);
     });
 
-
 /*
 |--------------------------------------------------------------------------
 | School Routes
@@ -331,7 +330,7 @@ Route::middleware(['auth:sanctum', 'role:school'])->group(function () {
         ->name('school.student-id-card');
     Route::get('/school/student-attendance', [DashboardController::class, 'underConstruction'])
         ->name('school.student-attendance');
-   
+
 
         Route::prefix('school/fingerprint-attendance')
     ->name('school.fingerprint-attendance.')

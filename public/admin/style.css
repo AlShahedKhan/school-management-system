@@ -540,8 +540,8 @@ body{
 
 
         /* student-css */
-      
-    
+
+
         .fp-main-view{padding:18px}
         .fp-shell{background:#fff;border:1px solid #e2e8f0;box-shadow:0 8px 24px rgba(15,23,42,.04)}
         .fp-toolbar-btn{
@@ -586,7 +586,7 @@ body{
             .fp-main-view{padding:12px}
             .fp-search-wrap{width:100%;min-width:0}
         }
-    
+
 
 
 /* employee-css */
@@ -634,10 +634,10 @@ body{
             .fp-main-view{padding:12px}
             .fp-search-wrap{width:100%;min-width:0}
         }
-    
+
 
         /* Configuration-teacher-css */
-        
+
 
     .teacher-config-page {
         padding: 8px 0 30px;

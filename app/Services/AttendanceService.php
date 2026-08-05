@@ -15,8 +15,15 @@ use Illuminate\Support\Facades\Log;
 
 class AttendanceService
 {
-
-    public function processAttendance(int $idNumber, string $timestamp): ?Attendance
+    /**
+     * Process and store attendance data.
+     *
+     * @param string   $idNumber  The user ID from the device (can be string or int).
+     * @param string   $timestamp The timestamp string from the device.
+     * @param int|null $deviceId  The ID of the device that sent the data.
+     * @return Attendance|null
+     */
+    public function processAttendance(string $idNumber, string $timestamp, ?int $deviceId = null): ?Attendance
     {
         $attendable = $this->findAttendable($idNumber);
         if (!$attendable) {
@@ -28,17 +35,17 @@ class AttendanceService
         $carbonTimestamp = Carbon::parse($timestamp);
 
         try {
-
+            // Check for duplicates
             $existingAttendance = $attendable->attendances()
                 ->where('timestamp', $carbonTimestamp)
                 ->first();
 
             if ($existingAttendance) {
-
                 Log::info("Duplicate attendance record skipped for user ID {$idNumber} at {$timestamp}.");
-                return $existingAttendance; // Return the existing record
+                return $existingAttendance;
             }
 
+            // Create new record
             $attendance = DB::transaction(function () use ($attendable, $carbonTimestamp, $deviceId) {
                 return $attendable->attendances()->create([
                     'device_id' => $deviceId,
@@ -57,16 +64,23 @@ class AttendanceService
         }
     }
 
-
-    private function findAttendable(int $idNumber)
+    /**
+     * Find the user model by their ID number.
+     *
+     * @param string $idNumber
+     * @return Model|null
+     */
+    private function findAttendable(string $idNumber): ?Model
     {
-
+        // 1. Search for a Teacher
         $user = Teacher::where('id_number', $idNumber)->first();
 
+        // 2. If not found, search for a Student
         if (!$user) {
             $user = User::where('role', 'student')->where('id_number', $idNumber)->first();
         }
 
+        // 3. If still not found, search for an Employee
         if (!$user) {
             $user = Employee::where('employee_no', $idNumber)->first();
         }
