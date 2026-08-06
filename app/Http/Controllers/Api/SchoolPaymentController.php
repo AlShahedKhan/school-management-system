@@ -65,6 +65,23 @@ class SchoolPaymentController extends Controller
             });
         }
 
+        // Filter by the student's placement (values come from the shared filter modal).
+        if ($request->filled('class_id')) {
+            $query->whereHas('student', fn ($q) => $q->where('class_id', $request->class_id));
+        }
+        if ($request->filled('group_id')) {
+            $query->whereHas('student', fn ($q) => $q->where('group_id', $request->group_id));
+        }
+        if ($request->filled('section_id')) {
+            $query->whereHas('student', fn ($q) => $q->where('section_id', $request->section_id));
+        }
+        if ($request->filled('session_id')) {
+            $query->whereHas('student', fn ($q) => $q->where('session_id', $request->session_id));
+        }
+        if ($request->filled('student')) {
+            $query->where('admission_student_id', $request->student);
+        }
+
         $paginated = $query->latest()->paginate(15);
 
         $paginated->getCollection()->transform(function ($payment) use ($school) {
