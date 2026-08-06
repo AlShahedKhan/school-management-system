@@ -207,7 +207,7 @@
                 const student = allStudents.find(s => String(s.student_id_number) === sid);
                 if (!student) {
                     errEl.classList.remove('hidden');
-                    exportPopulate('exportClassFilter',   allClasses, 'All Classes');
+                    exportPopulate('exportClassFilter',   allClasses.map(c => c.class_name), 'All Classes');
                     exportPopulate('exportGroupFilter',   [], 'All Groups');
                     exportPopulate('exportSectionFilter', [], 'All Sections');
                     exportPopulate('exportSessionFilter', [], 'All Sessions');
@@ -219,7 +219,7 @@
                     return;
                 }
                 errEl.classList.add('hidden');
-                exportPopulate('exportClassFilter', allClasses, 'All Classes');
+                exportPopulate('exportClassFilter', allClasses.map(c => c.class_name), 'All Classes');
                 document.getElementById('exportClassFilter').value = student.class_name;
                 const groups = [...new Set(allStudents.filter(s => s.class_name === student.class_name).map(s => s.group_name))].filter(Boolean);
                 exportPopulate('exportGroupFilter', groups, 'All Groups');
@@ -807,7 +807,7 @@
         }
 
         function feePopulateCascades() {
-            populateDropdown('feeClassFilterMenu', allClasses.map(c => ({ id: c, class_name: c })), 'id', 'class_name');
+            populateDropdown('feeClassFilterMenu', allClasses, 'class_name', 'class_name');
             populateDropdown('feeGroupFilterMenu', [], 'id', 'group_name');
             populateDropdown('feeSectionFilterMenu', [], 'id', 'section_name');
             populateDropdown('feeSessionFilterMenu', [], 'id', 'session_year');
@@ -1294,7 +1294,7 @@
             }
 
             document.getElementById('btnPaymentSlip').addEventListener('click', function() {
-                populateDropdown('slipClassFilterMenu', allClasses.map(c => ({ id: c, class_name: c })), 'id', 'class_name');
+                populateDropdown('slipClassFilterMenu', allClasses, 'class_name', 'class_name');
                 resetSlipCascades();
                 document.getElementById('slipFromDate').value = '';
                 document.getElementById('slipToDate').value = '';
