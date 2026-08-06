@@ -377,9 +377,8 @@
                 if (sectionId) params.section_id = sectionId;
                 const sessionRes = await axios.get('/api/school-sessions', { params });
                 const sessions = sessionRes.data.data || [];
-                const uniqueYears = [...new Set(sessions.map(s => s.session_year).filter(Boolean))];
-                const yearItems = uniqueYears.map(y => ({ id: y, session_year: y }));
-                populateDropdown('feeSessionFilterMenu', yearItems, 'id', 'session_year');
+                const sessionItems = sessions.map(s => ({ id: s.id, session_year: s.session_year }));
+                populateDropdown('feeSessionFilterMenu', sessionItems, 'id', 'session_year');
             } catch (err) {
                 console.error('Failed to load session filter options:', err);
             }
@@ -471,28 +470,16 @@
                         const sl = meta.from ? meta.from + index : index + 1;
                         tbody.innerHTML += `
                             <tr class="hover:bg-gray-50">
-                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
-                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                    <div class="donate-cell-scroll" title="${item.school_class ? item.school_class.class_name : '-'}">${item.school_class ? item.school_class.class_name : '-'}</div>
-                                </td>
-                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                    <div class="donate-cell-scroll" title="${item.school_group ? item.school_group.group_name : 'General'}">${item.school_group ? item.school_group.group_name : 'General'}</div>
-                                </td>
-                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                    <div class="donate-cell-scroll" title="${item.school_section ? item.school_section.section_name : '-'}">${item.school_section ? item.school_section.section_name : '-'}</div>
-                                </td>
-                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                    <div class="donate-cell-scroll" title="${item.school_session ? item.school_session.session_year : '-'}">${item.school_session ? item.school_session.session_year : '-'}</div>
-                                </td>
-                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                    <div class="donate-cell-scroll" title="${item.fee_type_name || '-'}">${item.fee_type_name || '-'}</div>
-                                </td>
-                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                    <div class="donate-cell-scroll" title="${item.fee_name || '-'}">${item.fee_name || '-'}</div>
-                                </td>
-                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.amount || 0}</td>
-                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.pay_date ? formatDate(item.pay_date) : (item.due_day ? 'Every&nbspMonth&nbspDay&nbsp;' + item.due_day : '-')}</td>
-                                <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
+                                <td class="h-8 border border-gray-300 px-3 text-center">${sl}</td>
+                                <td class="h-8 border border-gray-300 px-3">${item.school_class ? item.school_class.class_name : '-'}</td>
+                                <td class="h-8 border border-gray-300 px-3">${item.school_group ? item.school_group.group_name : 'General'}</td>
+                                <td class="h-8 border border-gray-300 px-3">${item.school_section ? item.school_section.section_name : '-'}</td>
+                                <td class="h-8 border border-gray-300 px-3">${item.school_session ? item.school_session.session_year : '-'}</td>
+                                <td class="h-8 border border-gray-300 px-3">${item.fee_type_name || '-'}</td>
+                                <td class="h-8 border border-gray-300 px-3">${item.fee_name || '-'}</td>
+                                <td class="h-8 border border-gray-300 px-3">${item.amount || 0}</td>
+                                <td class="h-8 border border-gray-300 px-3">${item.pay_date ? formatDate(item.pay_date) : (item.due_day ? 'Every&nbspMonth&nbspDay&nbsp;' + item.due_day : '-')}</td>
+                                <td class="h-8 border border-gray-300 px-3 text-center">
                                     <div class="flex h-6 w-full items-center justify-center -space-x-[3px]">
                                         <button type="button" title="Edit" aria-label="Edit" onclick="editFeeTemplate(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 hover:bg-gray-100 hover:text-blue-600 focus-visible:ring-blue-500">
                                             <i class="far fa-edit text-xs" aria-hidden="true"></i>

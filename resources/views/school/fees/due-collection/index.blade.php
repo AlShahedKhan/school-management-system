@@ -112,7 +112,15 @@
             const search = document.getElementById('masterSearch').value;
             const tbody = document.getElementById('masterLedgerBody');
             try {
-                const response = await axios.get(`${API_URL}?search=${search}&page=${page}`);
+                const params = { search, page };
+                if (currentFilters.class) params.class = currentFilters.class;
+                if (currentFilters.group) params.group = currentFilters.group;
+                if (currentFilters.section) params.section = currentFilters.section;
+                if (currentFilters.session) params.session = currentFilters.session;
+                if (currentFilters.student) params.student = currentFilters.student;
+                if (currentFilters.status) params.status = currentFilters.status;
+
+                const response = await axios.get(API_URL, { params });
                 const result = response.data;
                 masterRecords = result.data || [];
                 populateFilterOptions(masterRecords);
@@ -185,15 +193,7 @@
         function renderTable(apiResult) {
             const tbody = document.getElementById('masterLedgerBody');
             tbody.innerHTML = '';
-            const filtered = masterRecords.filter(record => {
-                const statusMatch = !currentFilters.status || currentFilters.status === record.status;
-                return statusMatch &&
-                    (currentFilters.class === '' || record.class === currentFilters.class) &&
-                    (currentFilters.group === '' || record.group === currentFilters.group) &&
-                    (currentFilters.section === '' || record.section === currentFilters.section) &&
-                    (currentFilters.session === '' || record.session === currentFilters.session) &&
-                    (currentFilters.student === '' || record.student_id == currentFilters.student);
-            });
+            const filtered = masterRecords;
             if (filtered.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="17" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No dues found.</td></tr>';
                 document.getElementById('paginationInfo').innerText = '0 of 0';
@@ -215,45 +215,25 @@
                 }
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50">
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${record.student_id_number}">${record.student_id_number}</div>
-                        </td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${toTitleCase(record.student_name)}">${toTitleCase(record.student_name)}</div>
-                        </td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${toTitleCase(record.class)}">${toTitleCase(record.class)}</div>
-                        </td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${toTitleCase(record.group)}">${toTitleCase(record.group)}</div>
-                        </td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${toTitleCase(record.section)}">${toTitleCase(record.section)}</div>
-                        </td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${record.session || 'N/A'}">${record.session || 'N/A'}</div>
-                        </td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${toTitleCase(record.fees_type)}">${toTitleCase(record.fees_type)}</div>
-                        </td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${toTitleCase(record.fee_name)}">${toTitleCase(record.fee_name)}</div>
-                        </td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">৳${parseFloat(record.total_payable).toLocaleString()}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">৳${parseFloat(record.total_amount).toLocaleString()}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 font-semibold">৳${due.toLocaleString()}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${overdueDisplay}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${record.display_last_pay_date}">${record.display_last_pay_date}</div>
-                        </td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                            <div class="donate-cell-scroll" title="${record.display_due_date}">${record.display_due_date}</div>
-                        </td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                        <td class="h-8 border border-gray-300 px-3 text-center">${sl}</td>
+                        <td class="h-8 border border-gray-300 px-3">${record.student_id_number}</td>
+                        <td class="h-8 border border-gray-300 px-3">${toTitleCase(record.student_name)}</td>
+                        <td class="h-8 border border-gray-300 px-3">${toTitleCase(record.class)}</td>
+                        <td class="h-8 border border-gray-300 px-3">${toTitleCase(record.group)}</td>
+                        <td class="h-8 border border-gray-300 px-3">${toTitleCase(record.section)}</td>
+                        <td class="h-8 border border-gray-300 px-3">${record.session || 'N/A'}</td>
+                        <td class="h-8 border border-gray-300 px-3">${toTitleCase(record.fees_type)}</td>
+                        <td class="h-8 border border-gray-300 px-3">${toTitleCase(record.fee_name)}</td>
+                        <td class="h-8 border border-gray-300 px-3">৳${parseFloat(record.total_payable).toLocaleString()}</td>
+                        <td class="h-8 border border-gray-300 px-3">৳${parseFloat(record.total_amount).toLocaleString()}</td>
+                        <td class="h-8 border border-gray-300 px-3 font-semibold">৳${due.toLocaleString()}</td>
+                        <td class="h-8 border border-gray-300 px-3">${overdueDisplay}</td>
+                        <td class="h-8 border border-gray-300 px-3">${record.display_last_pay_date}</td>
+                        <td class="h-8 border border-gray-300 px-3">${record.display_due_date}</td>
+                        <td class="h-8 border border-gray-300 px-3">
                             <span class="status-badge status-${record.status}">${FEE_STATUS_MAP[record.status]?.label || record.status}</span>
                         </td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center no-print">
+                        <td class="h-8 border border-gray-300 px-3 text-center no-print">
                             <div class="flex justify-center items-center">
                                 <button type="button" onclick='openPayModal(${JSON.stringify(record).replace(/'/g, "&#39;")})' class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600">
                                     <i class="far fa-credit-card text-xs"></i>
@@ -300,10 +280,7 @@
             currentFilters.student = document.getElementById('studentFilter').value;
             currentFilters.status = document.getElementById('statusFilter').value;
             updateStatusFilterButton(currentFilters.status);
-            renderTable({
-                current_page: currentPage, per_page: masterRecords.length,
-                to: masterRecords.length, total: masterRecords.length, last_page: 1
-            });
+            loadLedger(1);
         }
 
         const STATUS_FILTER_LABEL = {
@@ -327,10 +304,7 @@
         function applyHeaderStatusFilter(status) {
             currentFilters.status = status || '';
             updateStatusFilterButton(currentFilters.status);
-            renderTable({
-                current_page: currentPage, per_page: masterRecords.length,
-                to: masterRecords.length, total: masterRecords.length, last_page: 1
-            });
+            loadLedger(1);
         }
 
         function resetClientFilters() {

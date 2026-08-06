@@ -1,8 +1,4 @@
 <style>
-    .donate-cell-scroll { display: block; width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-    .donate-cell-scroll::-webkit-scrollbar { display: none; }
-    .donate-cell-scroll.is-scrollable { cursor: grab; }
-    .donate-cell-scroll.is-dragging { cursor: grabbing; user-select: none; }
     .donate-fixed-table { width: 100%; min-width: 1500px; table-layout: fixed; }
     .donate-table-frame { width: 100%; overflow: hidden; border: 1px solid #d1d5db; background: #fff; }
     .donate-table-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; background: #fff; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: #e5e7eb transparent; }

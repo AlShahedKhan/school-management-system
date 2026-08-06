@@ -151,7 +151,9 @@ class SchoolFeeDiscountController extends Controller
         $feeTypeName = strtolower((string) ($feeType ? $feeType->fee_type_name : $studentFee->fee_type_name));
         $frequency = strtolower((string) ($feeType ? $feeType->frequency : null));
 
-        // Tuition / Food (or any monthly frequency) deferred to next billing month.
+        // Tuition / Food (or any monthly frequency):
+        // previous months never change; current month applies only when unpaid
+        // (paid_amount > 0 already returned above); future months apply.
         $isMonthly = in_array($feeTypeName, ['tuition', 'food']) || $frequency === 'monthly';
 
         if ($isMonthly) {
@@ -161,7 +163,7 @@ class SchoolFeeDiscountController extends Controller
                 return true;
             }
 
-            return $billingMonth->copy()->startOfMonth()->gt(Carbon::now()->startOfMonth());
+            return $billingMonth->copy()->startOfMonth()->gte(Carbon::now()->startOfMonth());
         }
 
         // One-time types (Admission, Promote, Session, Exam) apply immediately.

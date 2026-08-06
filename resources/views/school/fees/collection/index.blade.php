@@ -523,7 +523,7 @@
 
         // --- Filter Logic ---
         function setupFilterListeners() {
-            populateDropdown('classFilterMenu', allClasses.map(c => ({ id: c, class_name: c })), 'id', 'class_name');
+            populateDropdown('classFilterMenu', allClasses, 'id', 'class_name');
 
             document.getElementById('classFilter').addEventListener('change', function() {
                 const selectedClass = this.value;
@@ -536,9 +536,12 @@
                 populateDropdown('sessionFilterMenu', [], 'id', 'session_year');
                 populateDropdown('studentFilterMenu', [], 'id', 'student_name');
                 if (selectedClass) {
-                    const filteredStudents = allStudents.filter(s => s.class_name === selectedClass);
-                    const groups = [...new Set(filteredStudents.map(s => s.group_name))].filter(Boolean);
-                    populateDropdown('groupFilterMenu', groups.map(g => ({ id: g, group_name: g })), 'id', 'group_name');
+                    const filteredStudents = allStudents.filter(s => String(s.class_id) === String(selectedClass));
+                    const groupMap = new Map();
+                    filteredStudents.forEach(s => {
+                        if (s.group_id != null && s.group_name) groupMap.set(String(s.group_id), { id: s.group_id, group_name: s.group_name });
+                    });
+                    populateDropdown('groupFilterMenu', [...groupMap.values()], 'id', 'group_name');
                 }
             });
 
@@ -553,10 +556,13 @@
                 populateDropdown('studentFilterMenu', [], 'id', 'student_name');
                 if (selectedClass && selectedGroup) {
                     const filteredStudents = allStudents.filter(s =>
-                        s.class_name === selectedClass && s.group_name === selectedGroup
+                        String(s.class_id) === String(selectedClass) && String(s.group_id) === String(selectedGroup)
                     );
-                    const sections = [...new Set(filteredStudents.map(s => s.section_name))].filter(Boolean);
-                    populateDropdown('sectionFilterMenu', sections.map(s => ({ id: s, section_name: s })), 'id', 'section_name');
+                    const sectionMap = new Map();
+                    filteredStudents.forEach(s => {
+                        if (s.section_id != null && s.section_name) sectionMap.set(String(s.section_id), { id: s.section_id, section_name: s.section_name });
+                    });
+                    populateDropdown('sectionFilterMenu', [...sectionMap.values()], 'id', 'section_name');
                 }
             });
 
@@ -570,12 +576,15 @@
                 populateDropdown('studentFilterMenu', [], 'id', 'student_name');
                 if (selectedClass && selectedGroup && selectedSection) {
                     const filteredStudents = allStudents.filter(s =>
-                        s.class_name === selectedClass &&
-                        s.group_name === selectedGroup &&
-                        s.section_name === selectedSection
+                        String(s.class_id) === String(selectedClass) &&
+                        String(s.group_id) === String(selectedGroup) &&
+                        String(s.section_id) === String(selectedSection)
                     );
-                    const sessions = [...new Set(filteredStudents.map(s => s.session_year))].filter(Boolean);
-                    populateDropdown('sessionFilterMenu', sessions.map(s => ({ id: s, session_year: s })), 'id', 'session_year');
+                    const sessionMap = new Map();
+                    filteredStudents.forEach(s => {
+                        if (s.session_id != null && s.session_year) sessionMap.set(String(s.session_id), { id: s.session_id, session_year: s.session_year });
+                    });
+                    populateDropdown('sessionFilterMenu', [...sessionMap.values()], 'id', 'session_year');
                 }
             });
 
@@ -588,10 +597,10 @@
                 populateDropdown('studentFilterMenu', [], 'id', 'student_name');
                 if (selectedClass && selectedGroup && selectedSection && selectedSession) {
                     const sortedStudents = allStudents.filter(s =>
-                        s.class_name === selectedClass &&
-                        s.group_name === selectedGroup &&
-                        s.section_name === selectedSection &&
-                        s.session_year === selectedSession
+                        String(s.class_id) === String(selectedClass) &&
+                        String(s.group_id) === String(selectedGroup) &&
+                        String(s.section_id) === String(selectedSection) &&
+                        String(s.session_id) === String(selectedSession)
                     ).sort((a, b) => a.student_name.localeCompare(b.student_name));
                     const items = sortedStudents.map(s => ({ id: s.id, student_name: s.student_id_number + ' - ' + s.student_name }));
                     populateDropdown('studentFilterMenu', items, 'id', 'student_name');
@@ -666,10 +675,12 @@
             try {
                 const res = await axios.get('/api/classes');
                 const classesData = Array.isArray(res.data) ? res.data : res.data.data;
-                allClasses = classesData.map(c => c.class_name).filter(Boolean);
+                allClasses = classesData
+                    .map(c => ({ id: c.id, class_name: c.class_name }))
+                    .filter(c => c.class_name);
                 allClasses.sort((a, b) => {
-                    const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
-                    const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+                    const numA = parseInt(String(a.class_name).replace(/\D/g, ''), 10) || 0;
+                    const numB = parseInt(String(b.class_name).replace(/\D/g, ''), 10) || 0;
                     return numA - numB;
                 });
             } catch (e) {
@@ -950,24 +961,20 @@
             const search = document.getElementById('paySearch')?.value || document.getElementById('paySearchMobile')?.value || '';
 
             try {
-                const res = await axios.get(`/api/school/payments?page=${page}&search=${search}`);
+                const params = { page, search };
+                if (activeFilters.class) params.class_id = activeFilters.class;
+                if (activeFilters.group) params.group_id = activeFilters.group;
+                if (activeFilters.section) params.section_id = activeFilters.section;
+                if (activeFilters.session) params.session_id = activeFilters.session;
+                if (activeFilters.student) params.student = activeFilters.student;
+
+                const res = await axios.get('/api/school/payments', { params });
                 const tbody = document.getElementById('paymentTableBody');
                 tbody.innerHTML = '';
 
+                // Server already applied the class/group/section/session/student filters.
                 const rawData = res.data.data;
-                const filteredData = rawData.filter(p => {
-                    const className = p.student?.school_class?.class_name || 'N/A';
-                    const groupName = p.student?.school_group?.group_name || 'N/A';
-                    const sectionName = p.student?.school_section?.section_name || 'N/A';
-                    const sessionYear = p.student?.school_session?.session_year || 'N/A';
-                    const studentId = p.student?.id;
-
-                    return (!activeFilters.class || className === activeFilters.class) &&
-                        (!activeFilters.group || groupName === activeFilters.group) &&
-                        (!activeFilters.section || sectionName === activeFilters.section) &&
-                        (!activeFilters.session || sessionYear === activeFilters.session) &&
-                        (!activeFilters.student || studentId == activeFilters.student);
-                });
+                const filteredData = rawData;
 
                 if (filteredData.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="15" class="border border-gray-300 px-3 py-10 text-center text-gray-500">No collections found.</td></tr>';
@@ -993,21 +1000,21 @@
 
                     tbody.innerHTML += `
                     <tr>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${res.data.from + i}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${p.student?.student_id_number || '---'}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${p.student?.student_name || 'Unknown'}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${className}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${groupName}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${sectionName}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${sessionYear}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${p.fees_type}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${p.fee_name || '---'}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${p.total_payable}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${p.type_amount}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${dueDisplay}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${p.pay_method}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${formattedDate}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
+                        <td class="h-8 border border-gray-300 px-3 text-center">${res.data.from + i}</td>
+                        <td class="h-8 border border-gray-300 px-3">${p.student?.student_id_number || '---'}</td>
+                        <td class="h-8 border border-gray-300 px-3">${p.student?.student_name || 'Unknown'}</td>
+                        <td class="h-8 border border-gray-300 px-3">${className}</td>
+                        <td class="h-8 border border-gray-300 px-3">${groupName}</td>
+                        <td class="h-8 border border-gray-300 px-3">${sectionName}</td>
+                        <td class="h-8 border border-gray-300 px-3">${sessionYear}</td>
+                        <td class="h-8 border border-gray-300 px-3">${p.fees_type}</td>
+                        <td class="h-8 border border-gray-300 px-3">${p.fee_name || '---'}</td>
+                        <td class="h-8 border border-gray-300 px-3">${p.total_payable}</td>
+                        <td class="h-8 border border-gray-300 px-3">${p.type_amount}</td>
+                        <td class="h-8 border border-gray-300 px-3">${dueDisplay}</td>
+                        <td class="h-8 border border-gray-300 px-3">${p.pay_method}</td>
+                        <td class="h-8 border border-gray-300 px-3">${formattedDate}</td>
+                        <td class="h-8 border border-gray-300 px-3 text-center">
                             <div class="flex h-6 w-full items-center justify-center -space-x-[3px]">
                                 <button type="button" title="Edit" onclick="editPayment(${p.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-blue-600"><i class="far fa-edit text-xs"></i></button>
                                 <button type="button" title="Delete" onclick="deletePayment(${p.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 hover:text-red-600"><i class="far fa-trash-alt text-xs"></i></button>

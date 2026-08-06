@@ -53,6 +53,43 @@ class SchoolDueListController extends Controller
             });
         }
 
+        // Filter by the student's placement (values come from the shared filter modal).
+        if ($request->filled('class_id')) {
+            $query->whereHas('student', fn ($q) => $q->where('class_id', $request->class_id));
+        }
+        if ($request->filled('group_id')) {
+            $query->whereHas('student', fn ($q) => $q->where('group_id', $request->group_id));
+        }
+        if ($request->filled('section_id')) {
+            $query->whereHas('student', fn ($q) => $q->where('section_id', $request->section_id));
+        }
+        if ($request->filled('session_id')) {
+            $query->whereHas('student', fn ($q) => $q->where('session_id', $request->session_id));
+        }
+        if ($request->filled('student')) {
+            $query->where('student_id', $request->student);
+        }
+
+        // Status is derived (paid total + due date); compute it in SQL so the
+        // filter applies before pagination instead of post-filtering one page.
+        if ($request->filled('status')) {
+            $paidExpr = "(SELECT COALESCE(SUM(type_amount), 0) FROM school_payments"
+                . " WHERE school_student_fee_id = school_student_fees.id)";
+            $effective = "COALESCE(NULLIF(school_student_fees.payable_amount, 0), school_student_fees.base_amount)";
+            $statusExpr = "CASE"
+                . " WHEN {$paidExpr} >= {$effective} THEN 'paid'"
+                . " WHEN DATE_FORMAT(school_student_fees.pay_date, '%Y-%m') < DATE_FORMAT(CURDATE(), '%Y-%m') AND {$paidExpr} > 0 THEN 'over_due_partial'"
+                . " WHEN DATE_FORMAT(school_student_fees.pay_date, '%Y-%m') < DATE_FORMAT(CURDATE(), '%Y-%m') THEN 'over_due'"
+                . " WHEN school_student_fees.pay_date < CURDATE() AND {$paidExpr} > 0 THEN 'due_partial'"
+                . " WHEN school_student_fees.pay_date < CURDATE() THEN 'due'"
+                . " WHEN {$paidExpr} > 0 THEN 'partial_paid'"
+                . " ELSE 'pending' END";
+
+            $query->select('school_student_fees.*')
+                ->selectRaw("{$statusExpr} AS fee_status")
+                ->havingRaw('fee_status = ?', [$request->status]);
+        }
+
         $query->orderBy('pay_date', 'desc');
 
         if ($all) {

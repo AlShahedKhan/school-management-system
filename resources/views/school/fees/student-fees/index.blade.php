@@ -245,9 +245,8 @@
             try {
                 const res = await axios.get('/api/school-sessions', { params });
                 const sessions = res.data.data || [];
-                const uniqueYears = [...new Set(sessions.map(s => s.session_year).filter(Boolean))];
-                const yearItems = uniqueYears.map(y => ({ id: y, session_year: y }));
-                populateDropdown('feeSessionFilterMenu', yearItems, 'id', 'session_year');
+                const sessionItems = sessions.map(s => ({ id: s.id, session_year: s.session_year }));
+                populateDropdown('feeSessionFilterMenu', sessionItems, 'id', 'session_year');
             } catch (e) { console.error(e); }
         }
 
@@ -293,36 +292,20 @@
                     const statusClass = `status-${item.status || 'pending'}`;
                     tbody.innerHTML += `
                         <tr class="hover:bg-gray-50">
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <div class="donate-cell-scroll" title="${studentIdNumber}">${studentIdNumber}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <div class="donate-cell-scroll" title="${studentName}">${studentName}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <div class="donate-cell-scroll" title="${className}">${className}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <div class="donate-cell-scroll" title="${groupName}">${groupName}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <div class="donate-cell-scroll" title="${sectionName}">${sectionName}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <div class="donate-cell-scroll" title="${sessionYear}">${sessionYear}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <div class="donate-cell-scroll" title="${item.fee_type_name || '-'}">${item.fee_type_name || '-'}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
-                                <div class="donate-cell-scroll" title="${item.fee_name || '-'}">${item.fee_name || '-'}</div>
-                            </td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${baseAmount.toFixed(2)}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${totalPaid.toFixed(2)}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${remainingDue.toFixed(2)}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${overdue > 0 ? overdue.toFixed(2) : '-'}</td>
-                            <td class="h-8 whitespace-nowrap border border-gray-300 px-3">
+                            <td class="h-8 border border-gray-300 px-3 text-center">${sl}</td>
+                            <td class="h-8 border border-gray-300 px-3">${studentIdNumber}</td>
+                            <td class="h-8 border border-gray-300 px-3">${studentName}</td>
+                            <td class="h-8 border border-gray-300 px-3">${className}</td>
+                            <td class="h-8 border border-gray-300 px-3">${groupName}</td>
+                            <td class="h-8 border border-gray-300 px-3">${sectionName}</td>
+                            <td class="h-8 border border-gray-300 px-3">${sessionYear}</td>
+                            <td class="h-8 border border-gray-300 px-3">${item.fee_type_name || '-'}</td>
+                            <td class="h-8 border border-gray-300 px-3">${item.fee_name || '-'}</td>
+                            <td class="h-8 border border-gray-300 px-3">${baseAmount.toFixed(2)}</td>
+                            <td class="h-8 border border-gray-300 px-3">${totalPaid.toFixed(2)}</td>
+                            <td class="h-8 border border-gray-300 px-3">${remainingDue.toFixed(2)}</td>
+                            <td class="h-8 border border-gray-300 px-3">${overdue > 0 ? overdue.toFixed(2) : '-'}</td>
+                            <td class="h-8 border border-gray-300 px-3">
                                 <span class="status-badge ${statusClass}">${item.status || 'pending'}</span>
                             </td>
                         </tr>`;

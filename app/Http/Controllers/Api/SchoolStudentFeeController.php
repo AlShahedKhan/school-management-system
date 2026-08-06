@@ -89,6 +89,29 @@ class SchoolStudentFeeController extends Controller
                 });
             }
 
+            // Status is a derived value (paid total + due date), so it must be
+            // computed in SQL before pagination; otherwise only the current page
+            // would be post-filtered and results on other pages would be missed.
+            if ($request->filled('status')) {
+                $totalPaid = "(SELECT COALESCE(SUM(type_amount), 0) FROM school_payments"
+                    . " WHERE admission_student_id = school_student_fees.student_id"
+                    . " AND fees_type = school_student_fees.fee_type_name"
+                    . " AND fee_name = school_student_fees.fee_name)";
+                $effective = "COALESCE(NULLIF(school_student_fees.payable_amount, 0), school_student_fees.base_amount)";
+                $statusExpr = "CASE"
+                    . " WHEN {$totalPaid} >= {$effective} AND {$effective} > 0 THEN 'paid'"
+                    . " WHEN DATE_FORMAT(school_student_fees.pay_date, '%Y-%m') < DATE_FORMAT(CURDATE(), '%Y-%m') AND {$totalPaid} > 0 THEN 'over_due_partial'"
+                    . " WHEN DATE_FORMAT(school_student_fees.pay_date, '%Y-%m') < DATE_FORMAT(CURDATE(), '%Y-%m') THEN 'over_due'"
+                    . " WHEN school_student_fees.pay_date < CURDATE() AND {$totalPaid} > 0 THEN 'due_partial'"
+                    . " WHEN school_student_fees.pay_date < CURDATE() THEN 'due'"
+                    . " WHEN {$totalPaid} > 0 THEN 'partial_paid'"
+                    . " ELSE 'pending' END";
+
+                $query->select('school_student_fees.*')
+                    ->selectRaw("{$statusExpr} AS fee_status")
+                    ->havingRaw('fee_status = ?', [$request->status]);
+            }
+
             if ($request->boolean('all')) {
                 $results = $query->latest()->get();
             } else {
@@ -139,16 +162,6 @@ class SchoolStudentFeeController extends Controller
 
                 return $fee;
             });
-
-            if ($request->filled('status')) {
-                $statusFilter = $request->status;
-                if ($request->boolean('all')) {
-                    $results = $results->where('status', $statusFilter)->values();
-                } else {
-                    $filtered = $results->getCollection()->where('status', $statusFilter)->values();
-                    $results->setCollection($filtered);
-                }
-            }
 
             return response()->json($results);
         } catch (\Exception $e) {

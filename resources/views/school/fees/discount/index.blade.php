@@ -581,8 +581,8 @@
             try {
                 const res = await axios.get('/api/school-sessions', { params });
                 const sessions = res.data.data || [];
-                const years = [...new Set(sessions.map(s => s.session_year).filter(Boolean))];
-                populateDropdown('discountSessionFilterMenu', years.map(y => ({ id: y, session_year: y })), 'id', 'session_year');
+                const sessionItems = sessions.map(s => ({ id: s.id, session_year: s.session_year }));
+                populateDropdown('discountSessionFilterMenu', sessionItems, 'id', 'session_year');
             } catch (e) { console.error(e); }
         }
 
@@ -624,22 +624,22 @@
                         ? (item.minimum_grade || '-')
                         : (item.school_session?.start_date ? `${formatDiscountDate(item.school_session.start_date)} to ${formatDiscountDate(item.school_session.end_date || '')}` : (item.school_session?.session_year || '-'));
                     tbody.innerHTML += `<tr class="hover:bg-gray-50">
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">${sl}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${item.student?.student_id_number || '-'}">${item.student?.student_id_number || '-'}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${item.student?.student_name || '-'}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${item.school_class?.class_name || '-'}">${item.school_class?.class_name || '-'}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${item.school_group?.group_name || 'General'}">${item.school_group?.group_name || 'General'}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${item.school_section?.section_name || '-'}">${item.school_section?.section_name || '-'}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${item.school_session?.session_year || '-'}">${item.school_session?.session_year || '-'}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.fee_type?.fee_type_name || '-'}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll">${item.fee_name || '-'}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${scopeLabel}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3"><div class="donate-cell-scroll" title="${periodDisplay}">${periodDisplay}</div></td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${beforeAmt ?? '-'}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${item.discount_type}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${discDisplay}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3">${afterAmt ?? '-'}</td>
-                        <td class="h-8 whitespace-nowrap border border-gray-300 px-3 text-center">
+                        <td class="h-8 border border-gray-300 px-3 text-center">${sl}</td>
+                        <td class="h-8 border border-gray-300 px-3">${item.student?.student_id_number || '-'}</td>
+                        <td class="h-8 border border-gray-300 px-3">${item.student?.student_name || '-'}</td>
+                        <td class="h-8 border border-gray-300 px-3">${item.school_class?.class_name || '-'}</td>
+                        <td class="h-8 border border-gray-300 px-3">${item.school_group?.group_name || 'General'}</td>
+                        <td class="h-8 border border-gray-300 px-3">${item.school_section?.section_name || '-'}</td>
+                        <td class="h-8 border border-gray-300 px-3">${item.school_session?.session_year || '-'}</td>
+                        <td class="h-8 border border-gray-300 px-3">${item.fee_type?.fee_type_name || '-'}</td>
+                        <td class="h-8 border border-gray-300 px-3">${item.fee_name || '-'}</td>
+                        <td class="h-8 border border-gray-300 px-3">${scopeLabel}</td>
+                        <td class="h-8 border border-gray-300 px-3">${periodDisplay}</td>
+                        <td class="h-8 border border-gray-300 px-3">${beforeAmt ?? '-'}</td>
+                        <td class="h-8 border border-gray-300 px-3">${item.discount_type}</td>
+                        <td class="h-8 border border-gray-300 px-3">${discDisplay}</td>
+                        <td class="h-8 border border-gray-300 px-3">${afterAmt ?? '-'}</td>
+                        <td class="h-8 border border-gray-300 px-3 text-center">
                             <div class="flex h-6 w-full items-center justify-center -space-x-[3px]">
                                 <button type="button" title="Edit" onclick="editDiscount(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 hover:text-blue-600"><i class="far fa-edit text-xs"></i></button>
                                 <button type="button" title="Delete" onclick="deleteDiscount(${item.id})" class="flex h-6 w-[14px] items-center justify-center text-gray-600 hover:text-red-600"><i class="far fa-trash-alt text-xs"></i></button>
